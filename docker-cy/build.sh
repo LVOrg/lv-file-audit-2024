@@ -16,7 +16,7 @@ export top_image_=docker.io/python:latest
 export top_image=docker.io/python:3.10.12-slim-bookworm
 export top_image__=docker.io/python:3.8.17-slim-bookworm
 export top_image___=docker.io/python:3.9.17-slim-bookworm
-export top_image___=docker.io/python:3.11.4
+export top_image=docker.io/python:3.11.4
 
 
 base_py=py38

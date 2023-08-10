@@ -4,6 +4,7 @@ FROM ${BASE}
 ARG TARGETARCH
 
 RUN apt update && apt install --yes --force-yes git gcc nocache
+RUN apt install --yes --force-yes g++ nocache
 #RUN python3 -m pip install --upgrade  pip
 RUN pip install git+https://github.com/deepdoctection/deepdoctection.git@f251dca0df9d051fe133ba489d42c6ae2b27597a --no-cache-dir
 RUN apt upgrade -y && apt install python3-opencv -y
