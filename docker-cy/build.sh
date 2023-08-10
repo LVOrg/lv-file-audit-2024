@@ -5,7 +5,7 @@ docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 export user=xdoc
 export user_=nttlong
 export platform=linux/amd64
-export platform__=linux/arm64/v8
+export platform_=linux/arm64/v8
 export platform_=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
@@ -13,13 +13,16 @@ export os='debian'
 
 
 export top_image_=docker.io/python:latest
-export top_image_=docker.io/python:3.10.12-slim-bookworm
-export top_image=docker.io/python:3.8.17-slim-bookworm
-export top_image=docker.io/python:3.9.17-slim-bookworm
+export top_image=docker.io/python:3.10.12-slim-bookworm
+export top_image__=docker.io/python:3.8.17-slim-bookworm
+export top_image___=docker.io/python:3.9.17-slim-bookworm
+export top_image___=docker.io/python:3.11.4
 
 
 base_py=py38
 base_py=py39
+base_py=py310
+base_py=py311
 to_docker_hub(){
   echo "push $1/$2/$3:$4 to docker.io/$4/$3:$4"
   docker pull $1/$2/$3:$4
