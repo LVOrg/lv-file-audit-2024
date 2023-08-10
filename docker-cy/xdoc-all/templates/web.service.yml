@@ -1,0 +1,32 @@
+---
+{{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $storage := $data.storage}}
+    {{ $dataJson := toPrettyJson $api -}}
+---
+{{ if $api}}
+---
+# The second we need deploy a Service where application could be accessed by another
+apiVersion: v1
+kind: Service
+metadata:
+ name: {{$api.name}}
+ namespace: {{$api.namespace}}
+ labels:
+   app: {{$api.name}}
+spec:
+#  type: NodePort
+ selector:
+   app: {{$api.name}}
+ ports:
+ - port: 8082
+   targetPort: 80
+   protocol: TCP
+---
+{{end}}

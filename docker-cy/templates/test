@@ -1,0 +1,3 @@
+ARG BASE
+FROM docker.lacviet.vn/xdoc/py311-dotnet:1
+FROM ${BASE}

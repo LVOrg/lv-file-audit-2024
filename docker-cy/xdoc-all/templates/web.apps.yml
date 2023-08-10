@@ -1,0 +1,71 @@
+---
+{{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $storage := $data.storage}}
+    {{ $dataJson := toPrettyJson $api -}}
+---
+{{ if $api}}
+---
+# The first we need deploy an application where Pod of web will run inside
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$api.name}}
+  namespace: {{$api.namespace}}
+spec:
+  selector:
+    matchLabels:
+      app: {{$api.name}}
+  replicas: {{$api.replicas}}
+  template:
+    metadata:
+      labels:
+        app: {{$api.name}}
+    spec:
+      volumes:
+        - name: {{$storage.name}}
+          {{if hasKey  $storage "className"}}
+          persistentVolumeClaim:
+            claimName: {{$storage.name}}
+          {{else}}
+          nfs:
+            server: {{$storage.server}}
+            path: {{$storage.directory}}
+          {{end}}
+      containers:
+        - args:
+            - python3
+            - /app/cy_xdoc/server.py
+            - bind=0.0.0.0:80
+            - content_segment_len=9
+            - host_url='{{$api.hostUrl}}'
+            - elastic_search.server=$(elastic_search.server)
+            - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            - db.host=$(db.host)
+            - db.port=$(db.port)
+            - db.username=$(db.username)
+            - db.authSource=$(db.authSource)
+            - db.password=$(db.password)
+            - admin_db_name=$(admin_db_name)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.port=$(rabbitmq.port)
+            - rabbitmq.msg=$(rabbitmq.msg)
+          image: {{$api.repository}}:{{$api.tag}}
+          envFrom:
+            - configMapRef:
+               name: {{$api.configMapName}}
+          name: {{$api.name}}
+          imagePullPolicy: {{$api.pullPolicy}}
+          volumeMounts:
+            - mountPath:  {{$api.mountPath}}
+              name: {{$storage.name}}
+          ports:
+            - containerPort: 80
+---
+{{end}}

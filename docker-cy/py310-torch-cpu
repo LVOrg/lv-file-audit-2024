@@ -1,0 +1,7 @@
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCH
+ARG OS
+COPY ./../docker-cy/templates/torch-cpu_sh /torch-cpu_sh
+RUN chmod u+x /torch-cpu_sh/$OS/$TARGETARCH/*.sh && /torch-cpu_sh/$OS/$TARGETARCH/install.sh
+RUN python3  -c 'import torch;print(torch.__version__)'

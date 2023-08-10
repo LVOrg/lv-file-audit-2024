@@ -1,0 +1,7 @@
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCH
+RUN apt update && \
+    apt install --yes --force-yes tesseract-ocr tesseract-ocr-all imagemagick nocache
+RUN apt   install --yes --force-yes libicu-dev libicu-dev libcairo2-dev nocache
+

@@ -1,0 +1,12 @@
+
+#FROM docker.lacviet.vn/xdoc/py310-torch-cpu:1 as torch
+#FROM docker.lacviet.vn/xdoc/py310-com:9
+FROM docker.lacviet.vn/xdoc/py310-xdoc-framework:cpu.9.18
+#COPY --from=torch / /
+RUN pip install gradio
+
+
+COPY ./../share-storage/dataset/easyocr /app/share-storage/dataset/easyocr
+COPY ./../cyx /app/cyx
+COPY ./../cyx /app/cy_kit
+

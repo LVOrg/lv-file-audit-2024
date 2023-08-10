@@ -1,0 +1,17 @@
+ARG BASE
+FROM docker.io/mshaikh/torch-horovod:114-0280  as torch
+FROM ${BASE}
+ARG TARGETARCH
+COPY --from=torch /opt/pytorch/pytorch/torch /opt/pytorch/pytorch/torch
+COPY --from=torch /opt/pytorch/pytorch/torch/csrc/api/include/torch /opt/pytorch/pytorch/torch/csrc/api/include/torch
+COPY --from=torch /usr/local/lib/python3.8/dist-packages/horovod/torch /usr/local/lib/python3.11/dist-packages/horovod/torch
+COPY --from=torch /usr/local/lib/python3.8/dist-packages/horovod/spark/torch /usr/local/lib/python3.11/dist-packages/horovod/spark/torch
+COPY --from=torch /usr/local/lib/python3.8/dist-packages/torch /usr/local/lib/python3.11/dist-packages/torch
+COPY --from=torch /usr/local/lib/python3.8/dist-packages/torch/include/torch /usr/local/lib/python3.11/dist-packages/torch/include/torch
+COPY --from=torch /usr/local/lib/python3.8/dist-packages/torch/include/torch/csrc/api/include/torch /usr/local/lib/python3.11/dist-packages/torch/include/torch/csrc/api/include/torch
+#COPY --from=torch /bin /bin
+RUN apt update
+RUN pip install torch torchvision
+RUN python3  -c 'import torch;print(torch.__version__)'
+#COPY --from=torch /local/lib/python3.8/dist-packages  /usr/local/lib/python3.11/dist-packages
+

@@ -1,0 +1,10 @@
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCH
+ARG OS
+COPY ./../docker-cy/templates/dotnet_sh /dotnet_sh
+RUN chmod u+x /dotnet_sh/$OS/$TARGETARCH/*.sh && /dotnet_sh/$OS/$TARGETARCH/install.sh
+
+RUN mkdir /python_dot_net_core
+COPY ./../dotnet_core/VietnameseAccent/ ./python_dot_net_core
+RUN dotnet publish ./python_dot_net_core

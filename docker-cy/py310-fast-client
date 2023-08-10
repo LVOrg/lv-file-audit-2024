@@ -1,0 +1,16 @@
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCH
+ARG OS
+COPY ./../pymongo /app/pymongo
+COPY ./../bson /app/bson
+COPY ./../gridfs /app/gridfs
+COPY ./../elasticsearch /app/elasticsearch
+WORKDIR /app
+RUN python3 /app/compact.py /app/bson
+RUN python3 /app/compact.py /app/gridfs
+RUN pip install urllib3 --no-cache-dir
+RUN python3 /app/compact.py /app/pymongo
+RUN python3 /app/compact.py /app/elasticsearch
+COPY ./../docker-cy/check/fast_client.py /app/fast_client.py
+RUN python3 /app/fast_client.py && rm -f /app/fast_client.py

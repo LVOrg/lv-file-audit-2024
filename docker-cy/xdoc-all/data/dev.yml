@@ -1,0 +1,136 @@
+# Thou! please carefully reading to avoid mistake !!!!!
+# This Helm values declare all you need to deploy LV-File-Service to Developer environment, On Premise infrastructure or AWS
+
+# All pods in this deployment require below info (regardless where they would be installed):
+#  Tất cả các Pod trong quá trình triển khai này đều yêu cầu thông tin bên dưới (bất kể chúng sẽ được cài đặt ở đâu):
+
+# 1 - MongodDb database, embody by tuples of :  host, authSource, username, password. My Lambkin! do not worry about each infor that. The explanation will be show each line in this Helm Values.
+# 2- Need one database in MongoDb to manage all Tenants even if File-Service just sevrve for only one Tenant. (Cần một cơ sở dữ liệu trong MongoDb để quản lý tất cả các Đối tượng thuê ngay cả khi Dịch vụ tệp chỉ phục vụ cho một Đối tượng thuê.)
+# 3- At Least one ElasticSearch in which embody in tuples of: server and prefix_index ('prefix_index will be explained when it was declare')
+# 4- One broker message. When Pod wanna to inform to others. The Pod could not directly  inform. It just informs to broker message and broker message will inform to another.
+# 5- One temporary storage
+#    data
+#    ├── aws.yml                             # AWS deployment-value
+#    ├── lacviet.yml                         # Lac Viet deployment-value
+#    ├── dev.yml  (*****)                    # Dev and QC deployment-value, this is also a sample for all deployments value suchsa : 'lacviet' or 'aws'
+#    ├── jobs.app.yml                        # List of File-Job values
+#    └── job.cron.yml                        # List of Cron-Job values, all Cron Job POD run one time
+#    templates
+#    ├── web.apps.yml                        # Web API pod deployment
+#    ├── web.config.yml                      # All config for Web API
+#    ├── web.namespace.yml                   # Namespace for Web API, wrong namespace will make chain of error,  through and through all PODs
+#    ├── web.service.yml                     # Make a service link to web app. The service allow another POD can access to Web Api app
+#    ├── jobs.config.yml                     # All configuration infor serve for JOB and cron job
+#    ├── jobs.apps.yml                       # All apps in which File-Processing run
+#    ├── jobs.cron.yml                       # All dataset deployment
+#    ├── jobs.namespace.yml                  # Namespace for Job and cron job deploy
+#    ├── long.horn.namespace.yml             # Longhorn namespace.Till now, Longhorn is unofficially volume (pilot test)
+#    └── long.horn.yml                       # Longhorn claim
+config:
+  db:
+  # The clarefication of MongoDB or Mongos Routers
+    admin_db_name: 'lv-docs'
+    # File-Service need one database in a certain Mongodb to manage all Tenants.
+    # 'admin_db_name' is a crucial database.
+    # Wrong 'admin_db_value' will cause chain of crash.
+    # When File-Service or File-API start,
+    # it will detect if 'admin-db-name' in a certain Mongodb is existing.
+    # if 'admin_db_name' was not found File-Service or File-API will automatically create new database
+    # name by value of 'admin_db_name' in a certain MongoDB. So,
+    #wrong value of admin_db_name that mean new system was created.
+    #This is required value even if File-Server or File-API just serve for only one Tenant.
+    authSource: 'hps-file-test'
+    # As usual, when File-API or File-Service work with MongodDB.
+    # MongoDB will accquire valid authentication.
+    # Validation MongoDB authentication need a tuple of authSource, host, username and password
+    host: '192.168.18.36'
+    # host to MongoDB or Mongos Routes.
+    # For Mongos Router the host is a list of server name or IP separated by coma
+    password: ''
+    # If thee's MongoDb or Mongos Routers does not require authenticate,
+    # set this value is blank in double quote (empty text is '')
+    port: '27018'
+    # Port of MongoDB. In mode Mongos Routers this value is not require
+    username: ''
+    # The rule of password
+  elastic_search:
+  # clarification of ElasticSearch
+    prefix_index: 'lv-codx'
+    # File-Service and File-API need a certain ElasticSearch
+    # where readable content of File Upload was index in.
+    # Index-ElasticSearch and MongoDB Tenant Database is corresponding to Managed-Tenants.
+    # For ElasticSearch do not have something call Database.
+    # ElasticSearch use Index-Name lieu of Database.
+    # When API-File and File-Service create new Tenant they also create new ElasticSearch
+    # Index by concat 'prefix_index' and Tenant-Name.
+    # Example Tenant-Name is qc, ElasticSearch Index Name is lv-codx_qc
+    server: 'http://192.168.18.36:9200'
+    # In poor conditional, we have only one ElasticServer Node
+    # if thee's system need more than one node this value will be a list of url separated by comma
+  rabbitmq:
+  # Broker message. All PODs will use Broker-Message to communicating togethers
+    port: '5672'
+    #Port
+    server: 'rabbitmq.rabbitmq-dev'
+    #Broker server
+    temp_directory: './brokers/tmp'
+storage:
+  # This configuration  describes how and where all Pods in all deployments use shared-files
+  # when Pods need to process of file or,
+  # when the PODs need create, update or delete file, the PODs will use this location to do that
+  server: 172.16.7.91
+  # Server where share directory locate
+  directory: /var/nfs_share_dir_for_k8s
+  # The full path to share-directory at storage server
+  # Read below carefully before use share directory for K8S
+  # 1- The share directory is belonged no-one use chown comand to do that.
+  # Example: chown nodbody:nobody  /var/nfs_share_dir_for_k8s so all PODs in other worker can access.
+  # Thou may check by "stat /var/nfs_share_dir_for_k8s"
+  #
+  name: xdoc-storage
+
+
+storage_longhorn:
+  # If thou would like to use longhorn-storage change storage_longhorn into storage.
+  size: 30Gi
+  # storage request size is at least 30 GB (why? some Pods in deployment need AI-dataset.
+  # The volume for AI-dataset, sometime reach 30GB. So, 30GB is OK )
+  name: xdoc-storage
+  className: longhorn-storage-delete
+  namespace: xdoc-storage
+webApi:
+# This is the value of web api configuration
+  name: xdoc
+  #name of web api service in K8S
+  # This value really extremely important.
+  # If wrong value no-one can access Web Api. As usual,
+  # this is unchangeable value. But, when thou deploy in a certain K8S with ingress-controller.
+  # Thou mjust inquire thee's DEV-OP about ingress-controller and get correct name
+  namespace: xdoc
+  # namespace: The same rule of name
+  hostUrl: http://172.16.7.91/lvfile
+  # inquire about Web Host server from thee's DEV-OP
+  configMapName: xdoc-config
+  replicas: 2
+  repository:  nttlong/files-service-final
+  # number of replicate, depend on numof K8S workers
+  tag: "rc.0.5.3.0"
+  #The tag name is describe how many stage in image:
+  # rc: release candidate
+  # 1 - The first number is embodied of the generation of image, it is also a first stage of image
+  # where all necessary components at OS level support for all PODs run  (till now is the first generation)
+  # 2 - The second number is embodied of the Open-Core-Stage where Open-Core-Stage were installed.
+  # Those libraries did not write at Lac Viet. Such as MongoDb driver, pytorch,...
+  # 3 - The third number is embodied of the Core-Stage .
+  #     All core-library were write and compile at Lac Viet.
+  # 4 - The final number is embodied of End-Point Pod start .
+  #     All End-Point Pod were write and compile at Lac Viet.
+  mountPath: /app/share-storage
+fileJob:
+  namespace: xdoc-job-v7
+  configMapName: xdoc-job-config
+  replicas: 2
+  repository: nttlong/files-service-final
+  pullPolicy: IfNotPresent
+  tag: "rc.0.5.3.0"
+  mountPath: /app/share-storage

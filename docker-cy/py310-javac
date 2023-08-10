@@ -1,0 +1,14 @@
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCH
+RUN apt update && apt install default-jre -y nocache &&  apt install default-jdk -y nocache
+RUN apt-get install software-properties-common -y
+RUN apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
+RUN apt-get update
+RUN apt install default-jre -y nocache
+RUN apt install default-jdk -y nocache
+COPY ./../cyx /test/cyx
+COPY ./../pre_test_build /test/pre_test_build
+RUN python3 -m pip install tika==1.25
+RUN python3 /test/pre_test_build/check_tika_server.py
+

@@ -1,0 +1,22 @@
+---
+
+    {{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.config.webApi -}}
+    {{ $dataJson := toPrettyJson $api -}}
+
+
+---
+{{ if $fileJob }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{$fileJob.namespace}}
+---
+{{end}}

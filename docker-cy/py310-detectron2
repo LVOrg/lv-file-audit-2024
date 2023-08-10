@@ -1,0 +1,7 @@
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCHxit
+RUN apt update && apt install --yes --force-yes git gcc g++ nocache
+RUN pip install git+https://github.com/facebookresearch/detectron2.git@2c6c380f94a27bd8455a39506c9105f652b9f760
+
+RUN python3 -c 'import detectron2;print(detectron2.__file__);'

@@ -1,0 +1,12 @@
+
+FROM docker.lacviet.vn/xdoc/py310-torch-cpu:amd.1 as torch
+FROM docker.lacviet.vn/xdoc/py310-detectron2:amd.1 as detectron2
+FROM docker.lacviet.vn/xdoc/py310-huggingface:amd.1 as huggingface
+FROM docker.lacviet.vn/xdoc/py310-deepdoctection:amd.2 as deepdoctection
+FROM docker.io/python:3.10.12-slim-bookworm
+COPY --from=torch / /
+COPY --from=detectron2 / /
+COPY --from=huggingface / /
+COPY --from=deepdoctection / /
+
+

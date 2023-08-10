@@ -1,0 +1,10 @@
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCH
+ARG OS
+RUN apt update &&  \
+    apt install --yes --force-yes build-essential python3-dev nocache && \
+    pip install Cython==3.0.0b1 --no-cache-dir && \
+    pip install urllib3 --no-cache-dir
+COPY ./../compact.py /app/compact.py
+WORKDIR /app

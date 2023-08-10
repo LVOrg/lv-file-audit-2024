@@ -1,0 +1,18 @@
+
+FROM docker.lacviet.vn/xdoc/py39-fast-client:amd.1 as fast_client
+FROM docker.lacviet.vn/xdoc/py39-cy_es:amd.1 as es
+FROM docker.lacviet.vn/xdoc/py39-cy_kit:amd.1 as kit
+FROM docker.lacviet.vn/xdoc/py39-cy_docs:amd.2 as docs
+FROM docker.lacviet.vn/xdoc/py39-cy_web:amd.1 as web
+FROM docker.lacviet.vn/xdoc/py39-cy-env-cpu:amd.4 as env
+FROM docker.lacviet.vn/xdoc/py39-cy-vn:amd.2 as vn
+FROM docker.io/python:3.9.17-slim-bookworm
+COPY --from=fast_client /app /app
+COPY --from=es /app /app
+COPY --from=kit /app /app
+COPY --from=docs /app /app
+COPY --from=web /app /app
+COPY --from=vn /app /app
+COPY --from=env /usr /usr
+
+

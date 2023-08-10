@@ -1,0 +1,38 @@
+
+
+FROM docker.lacviet.vn/xdoc/py39-deep-learning:amd.5 as dlrn
+FROM docker.lacviet.vn/xdoc/py39-cy-core:amd.9 as core
+FROM docker.lacviet.vn/xdoc/py39-cy-env-cpu:amd.4  as env
+FROM docker.lacviet.vn/xdoc/py39-com:amd.9
+COPY --from=dlrn /usr/local/lib/python3.9 /usr/local/lib/python3.9
+COPY --from=core /usr/local/lib/python3.9 /usr/local/lib/python3.9
+COPY --from=core /app /app
+COPY --from=env /usr/local/lib/python3.9 /usr/local/lib/python3.9
+RUN pip uninstall pymongo -y && rm -fr /check
+RUN pip install easyocr --no-cache-dir
+
+
+#RUN  apt install ocrmypdf -y
+COPY ./../docker-cy/check /check
+RUN chmod u+x /check/*.sh
+RUN pip uninstall opencv-python-headless -y &&     pip install opencv-python-headless==4.5.4.60 --no-cache-dir && 	pip install gradio &&     pip install timm==0.9.2 &&    pip uninstall easyocr -y &&    pip install easyocr==1.6.2 &&    pip uninstall Pillow -y &&    pip install Pillow==9.5.0 &&    pip uninstall packaging -y &&    pip uninstall deepdoctection -y &&    pip install deepdoctection==0.23 &&    pip install packaging==21.3
+#   ARG DEBIAN_FRONTEND=noninteractive
+#   RUN apt install dialog apt-utils
+#   RUN dpkg-reconfigure dictionaries-common --force
+#   RUN apt-get upgrade -y
+#   RUN apt install libhunspell-dev -y
+#   RUN pip install hunspell==0.5.5
+   RUN pip install keras==2.13.1
+
+   #apt install g++ -y
+ARG TARGETARCH
+
+RUN if  [ "$TARGETARCH" = "amd64" ]; then      pip install mpxj --no-cache-dir ;    pip install JPype1 --no-cache-dir;    python3 /check/check_mpx.py;    fi
+RUN /check/opencv.sh
+RUN pip install underthesea
+RUN /check/py_vncorenlp.sh
+RUN /check/libreoffice.sh
+RUN /check/tessract.sh
+RUN /check/tika.sh
+RUN /check/dotnet.sh
+
