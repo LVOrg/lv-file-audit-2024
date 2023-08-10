@@ -1,0 +1,43 @@
+#-----------------------------------------------------
+# Note: Before build please check .dockerignore file then add /none-source/, /composer/
+# All items in none-source has been installed at top layer
+#-------------------------------------------------------------------
+FROM  nttlong/gnol.pynet:2023.001
+#RUN pip install pythonnet
+COPY ./ ./app
+WORKDIR /app
+RUn cd /app
+RUN pip install -r requirements.txt --no-cache-dir
+RUn cd ..
+RUN python3 /app/pre_test_build/check_py_vncorenlp.py
+RUN python3 /app/pre_test_build/check_vn_predict.py
+#RUN cd /app
+#RUN pip install SpeechRecognition~=3.9.0
+#RUN pip install pydub~=0.25.1
+RUN python3 cy_docs/setup.py  build_ext  --inplace
+RUN python3 cy_es/setup.py  build_ext  --inplace
+RUN python3 cy_kit/setup.py  build_ext  --inplace
+RUN python3 cy_web/setup.py  build_ext  --inplace
+
+RUN rm -fr /app/dataset\
+    rm -fr /app/detectron2\
+    rm -fr /app/logs\
+    rm -fr /app/map\
+    rm -fr /app/non-source\
+    rm -fr /app/temp-data\
+    rm -fr /app/brokers\
+    rm -fr /app/cocoapi\
+    rm -fr /app/composer
+
+
+#sudo systemctl restart docker
+#docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#docker buildx rm builder
+#docker buildx create --name builder --driver docker-container --use
+#docker buildx inspect --bootstrap
+
+# docker buildx build   --output type=local,dest=./../docker-images/lv-file:rc.1.1.2.tar  --platform=linux/amd64,linux/arm64  ./.. -f files-dockerfile
+
+#docker buildx   build -t nttlong/lv-file:rc.1.1.2  --platform=linux/amd64,linux/arm64  ./.. -f files-dockerfile
+
+#docker buildx   build -t nttlong/lv-file:rc.1.1.2  --platform=linux/amd64,linux/arm64  ./.. -f files-dockerfile  --push=true --output type=registry

@@ -1,0 +1,15 @@
+apiVersion: storage.k8s.io/v1
+kind: Namespace
+metadata:
+#  labels:
+#    app.kubernetes.io/instance: ingress-nginx
+#    app.kubernetes.io/name: ingress-nginx
+  name: lv-local-storage
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: lv-local-storage
+  namespace: lv-local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer

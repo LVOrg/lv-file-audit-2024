@@ -1,0 +1,6 @@
+1- run kubectl -f service-account.yml apply
+2- run kubectl -f config-map.yaml create
+3- run prometheus-deployment.yml
+4- run kubectl get pod -n lv-sys and select correct pod name prometheus-monitoring
+4- run kubectl port-forward [correct pod prometheus name] 8080:9090 -n lv-sys
+   # ex: kubectl port-forward prometheus-deployment-75cff7d89f-lgvfq 8080:9090 -n lv-sys

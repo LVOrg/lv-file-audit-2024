@@ -1,0 +1,39 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: xdoc-job
+  labels:
+    name: xdoc-job
+---
+
+# kf-api Deployment
+# Defines the deployment of the app running in a pod on any worker node
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: xdoc-files
+  namespace: xdoc-job
+
+spec:
+
+  template:
+    spec:
+
+      containers:
+        # process thumb video container
+        - args:
+            - python3
+            - /app/cyx/start.py
+            - elastic_search.server=http://192.168.18.36:9200
+            - elastic_search.prefix_index=lv-codx
+            - db.host=192.168.18.36
+            - db.port=27018
+
+          image: nttlong/lv-file:rc.0.5.2
+          name: xdoc-file-1
+          imagePullPolicy: Always
+
+          resources: { }
+
+      restartPolicy: OnFailure
+  backoffLimit: 4

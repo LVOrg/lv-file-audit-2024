@@ -1,0 +1,10 @@
+server {
+    listen 80;
+    listen [::]:80;
+
+
+
+    location / {
+        proxy_pass app_server_address;
+        include proxy_params;
+    }

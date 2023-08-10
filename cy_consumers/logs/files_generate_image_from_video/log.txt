@@ -1,0 +1,162 @@
+[2023-07-12 13:52:21,716] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/0a44f8d4-6c60-48d2-b24a-8a073b6eb5c0.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/0a44f8d4-6c60-48d2-b24a-8a073b6eb5c0.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-07-12 13:52:21,756] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/a85a1b76-82a5-4bdc-8c0d-de89d17905c9.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/a85a1b76-82a5-4bdc-8c0d-de89d17905c9.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-07-12 13:52:21,774] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/dev/eba35499-1ae6-4620-9376-1d1dcc0605a8.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/dev/eba35499-1ae6-4620-9376-1d1dcc0605a8.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-07-12 13:52:21,795] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/98ebf8b7-49cc-4d11-8b9a-a75c6a1c5100.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/98ebf8b7-49cc-4d11-8b9a-a75c6a1c5100.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-07-12 13:52:21,815] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/ac36e95b-d755-4bcf-81af-51fd50e330c9.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/ac36e95b-d755-4bcf-81af-51fd50e330c9.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-07-12 13:52:21,832] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/345ab825-0d7e-43e6-b650-93fec94fc2be.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/345ab825-0d7e-43e6-b650-93fec94fc2be.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-07-12 13:52:21,859] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/686a0e76-68b7-4cdb-b7fe-941784ee2934.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/686a0e76-68b7-4cdb-b7fe-941784ee2934.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-07-12 13:52:21,880] ERROR [name.on_receive_msg:60] MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/a6441897-2df3-428e-92d7-34df4c560ba7.mp4 could not be found!
+Please check that you entered the correct path.
+Traceback (most recent call last):
+  File "/home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_image_from_video.py", line 57, in on_receive_msg
+    img_file = video_service.get_image(full_file)
+  File "/home/vmadmin/python/v6/file-service-02/cyx/media/video.py", line 78, in get_image
+    clip = VideoFileClip(
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+  File "/home/vmadmin/python/v6/file-service-02/venv-docker-003/lib/python3.9/site-packages/moviepy/video/io/ffmpeg_reader.py", line 270, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: the file %s could not be found!\n"
+OSError: MoviePy error: the file /app/share-storage/tmp-file-processing/sync/default/a6441897-2df3-428e-92d7-34df4c560ba7.mp4 could not be found!
+Please check that you entered the correct path.
+[2023-08-10 10:23:52,339] INFO [name.on_receive_msg:69] Generate image from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/ebacd678-6b94-4120-acc3-8d0eb86d4b32.mp4 was complete at:
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/ebacd678-6b94-4120-acc3-8d0eb86d4b32.png
+[2023-08-10 10:23:52,346] INFO [name.on_receive_msg:77] files.upload.generate.thumbs
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/ebacd678-6b94-4120-acc3-8d0eb86d4b32.png
+Original file:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/ebacd678-6b94-4120-acc3-8d0eb86d4b32.mp4
+[2023-08-10 10:24:32,344] INFO [name.on_receive_msg:69] Generate image from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/d0563e8f-e968-4934-a32b-82a851783abd.mp4 was complete at:
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/d0563e8f-e968-4934-a32b-82a851783abd.png
+[2023-08-10 10:24:32,345] INFO [name.on_receive_msg:77] files.upload.generate.thumbs
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/d0563e8f-e968-4934-a32b-82a851783abd.png
+Original file:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/d0563e8f-e968-4934-a32b-82a851783abd.mp4
+[2023-08-10 10:31:09,839] INFO [name.on_receive_msg:69] Generate image from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/6fc9f1e7-b487-415b-af04-6a68e6884be2.mp4 was complete at:
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/6fc9f1e7-b487-415b-af04-6a68e6884be2.png
+[2023-08-10 10:31:09,841] INFO [name.on_receive_msg:77] files.upload.generate.thumbs
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/6fc9f1e7-b487-415b-af04-6a68e6884be2.png
+Original file:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/6fc9f1e7-b487-415b-af04-6a68e6884be2.mp4
+[2023-08-10 10:45:31,973] INFO [name.on_receive_msg:69] Generate image from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/368e499b-3932-4149-a62c-4e5c6d5baf73.mp4 was complete at:
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/368e499b-3932-4149-a62c-4e5c6d5baf73.png
+[2023-08-10 10:45:47,851] INFO [name.on_receive_msg:77] files.upload.generate.thumbs
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/368e499b-3932-4149-a62c-4e5c6d5baf73.png
+Original file:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/368e499b-3932-4149-a62c-4e5c6d5baf73.mp4
+[2023-08-10 11:00:28,588] INFO [name.on_receive_msg:69] Generate image from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/6a71b5dc-db37-4486-b138-057ab2907ce5.mp4 was complete at:
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/6a71b5dc-db37-4486-b138-057ab2907ce5.png
+[2023-08-10 11:00:28,641] INFO [name.on_receive_msg:77] files.upload.generate.thumbs
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/6a71b5dc-db37-4486-b138-057ab2907ce5.png
+Original file:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/6a71b5dc-db37-4486-b138-057ab2907ce5.mp4
+[2023-08-10 11:01:59,341] INFO [name.on_receive_msg:69] Generate image from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/10bbe138-7ef1-45d3-a575-ff8745deb6d5.mp4 was complete at:
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/10bbe138-7ef1-45d3-a575-ff8745deb6d5.png
+[2023-08-10 11:01:59,343] INFO [name.on_receive_msg:77] files.upload.generate.thumbs
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/10bbe138-7ef1-45d3-a575-ff8745deb6d5.png
+Original file:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/10bbe138-7ef1-45d3-a575-ff8745deb6d5.mp4
+[2023-08-10 11:19:45,853] INFO [name.on_receive_msg:69] Generate image from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/5c919480-deb6-47a0-a11c-3fff65e704c8.mp4 was complete at:
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/5c919480-deb6-47a0-a11c-3fff65e704c8.png
+[2023-08-10 11:19:45,855] INFO [name.on_receive_msg:77] files.upload.generate.thumbs
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.image.from.video/5c919480-deb6-47a0-a11c-3fff65e704c8.png
+Original file:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/5c919480-deb6-47a0-a11c-3fff65e704c8.mp4

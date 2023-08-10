@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+    name: file-storage
+    namespace: fs-svc
+spec:
+    accessModes:
+      - ReadWriteMany
+    storageClassName: file-storage
+    resources:
+        requests:
+            storage: 300Gi

@@ -1,0 +1,34 @@
+sudo su -
+yum install nfs-utils
+mkdir /var/nfs_share_dir_for_k8s
+chmod -R 755 /var/nfs_share_dir_for_k8s
+chown nfsnobody:nfsnobody /var/nfs_share_dir_for_k8s
+
+
+systemctl enable rpcbind
+systemctl enable nfs-server
+systemctl enable nfs-lock
+systemctl enable nfs-idmap
+systemctl start rpcbind
+systemctl start nfs-server
+systemctl start nfs-lock
+systemctl start nfs-idmap
+nano /etc/exports
+# insert below
+# /var/nfs_share_dir_for_k8s    [your ip herr](rw,sync,no_root_squash)
+# Ex: /var/nfs_share_dir_for_k8s    172.16.7.91(rw,sync,no_root_squash)
+systemctl restart nfs-server
+firewall-cmd --permanent --zone=public --add-service=nfs
+firewall-cmd --permanent --zone=public --add-service=mountd
+firewall-cmd --permanent --zone=public --add-service=rpc-bind
+firewall-cmd --reload
+#------------install client----------------------
+sudo su -
+yum install nfs-utils
+mkdir -p /mnt/nfs/var/nfs_share_dir_for_k8s_client
+mount -t nfs [client IP here]:/var/nfs_share_dir_for_k8s /mnt/nfs/var/nfs_share_dir_for_k8s_client
+mount -t nfs 172.16.7.91:/var/nfs_share_dir_for_k8s/source/deploy /home/vmadmin/python/v6/file-service-02/composer/deploy
+
+#ex: mount -t nfs 172.16.7.91:/var/nfs_share_dir_for_k8s /mnt/nfs/var/nfs_share_dir_for_k8s_client
+# verify mount
+df -kh

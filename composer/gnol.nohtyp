@@ -1,0 +1,131 @@
+FROM nttlong/gnol:ttn.2023.001
+RUN apt update
+RUN apt-get upgrade -y
+RUN apt install git -y
+
+
+
+#WORKDIR /app
+#COPY . /app
+RUN apt install wget
+RUN  apt-get install python3-pip -y
+
+
+RUN python3 -m pip install --upgrade pip
+RUN apt install default-jre -y
+RUN apt update --fix-missing
+RUN apt install default-jdk -y;exit 0
+RUN apt update --fix-missing
+RUN apt install default-jdk -y
+
+ARG TARGETARCH
+RUN pip install pythonnet
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb;\
+        dpkg -i packages-microsoft-prod.deb;\
+        rm packages-microsoft-prod.deb;\
+        apt-get update;\
+        apt-get install -y dotnet-runtime-7.0;\
+        apt-get update;\
+        apt-get install -y dotnet-sdk-7.0;\
+        dotnet --list-runtimes;\
+     fi
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        mkdir -p /usr/share/dotnet;\
+        wget https://download.visualstudio.microsoft.com/download/pr/7c62b503-4ede-4ff2-bc38-50f250a86d89/3b5e9db04cbe0169e852cb050a0dffce/dotnet-sdk-6.0.300-linux-arm64.tar.gz;\
+        tar -zxf dotnet-sdk-6.0.300-linux-arm64.tar.gz -C /usr/share/dotnet;\
+        rm dotnet-sdk-6.0.300-linux-arm64.tar.gz;\
+        wget https://download.visualstudio.microsoft.com/download/pr/8ba7087e-4513-41e5-8359-a4bcd2a3661f/e6828f0d8cf1ecc63074c9ff57685e27/aspnetcore-runtime-6.0.5-linux-arm64.tar.gz;\
+        tar -zxf aspnetcore-runtime-6.0.5-linux-arm64.tar.gz -C /usr/share/dotnet;\
+        rm aspnetcore-runtime-6.0.5-linux-arm64.tar.gz;\
+        #wget -SL -o dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Sdk/master/dotnet-sdk-latest-linux-arm64.tar.gz;\
+
+        #tar -zxf dotnet-sdk-latest-linux-arm64.tar.gz -C /usr/share/dotnet;\
+        ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet;\
+        dotnet --list-runtimes;\
+     fi
+RUN mkdir /python_dot_net_core
+COPY ./../dotnet_core/VietnameseAccent/ ./python_dot_net_core
+#RUN cd ./python_dot_net_core
+
+RUN dotnet publish ./python_dot_net_core
+RUN cd ..
+RUN python3 ./python_dot_net_core/docker_test.py
+
+COPY ./../none-source/pocketsphinx-5.0.0.tar.gz ./
+
+RUN if [ "$TARGETARCH" = "arm64" ]; then\
+        pip install pocketsphinx-5.0.0.tar.gz;\
+        rm -f pocketsphinx-5.0.0.tar.gz;\
+    fi
+RUN if [ "$TARGETARCH" = "amd64" ]; then\
+        pip install pocketsphinx-5.0.0.tar.gz;\
+        rm -f pocketsphinx-5.0.0.tar.gz;\
+    fi
+
+COPY ./../none-source/openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb ./
+RUN if ["$TARGETARCH"="amd64"]; then \
+        apt install  ./openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb -y;\
+        rm -f ./openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb;\
+    fi
+
+
+RUN apt-get install wget
+
+
+COPY ./../none-source/nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl ./
+COPY ./../none-source/torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl ./
+
+COPY ./../none-source/nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl ./
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+     pip install nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl;\
+     pip install nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl;\
+     pip install torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl;\
+    fi
+RUN rm -f nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+RUN rm -f nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl
+RUN rm -f nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+
+RUN pip install pyjnius
+
+RUN pip install reportlab
+#RUN  wget https://files.pythonhosted.org/packages/25/09/184125ce54b2d7e665f3b674a1ac5d96b442f00dd11804490e926231e36b/torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl
+#RUN wget  wget https://files.pythonhosted.org/packages/dc/30/66d4347d6e864334da5bb1c7571305e501dcb11b9155971421bb7bb5315f/nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl
+#RUN  wget https://files.pythonhosted.org/packages/ce/41/fdeb62b5437996e841d83d7d2714ca75b886547ee8017ee2fe6ea409d983/nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+
+#RUN pip install pocketsphinx==5.0.0
+
+
+
+RUN pip install matplotlib==3.7.0
+RUN apt-get install libpcap-dev -y
+RUN apt-get install build-essential libcap-dev -y
+RUN apt-get install python3-pip -y
+RUN pip install --upgrade pip
+RUn pip install Cython
+RUN pip install git+https://github.com/seveas/python-prctl.git
+RUN pip install git+https://github.com/mindee/doctr.git
+
+
+
+RUN pip install torch
+RUN rm -f ./openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb
+RUN apt-get install wget
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends gcc git libssl-dev g++ make && \
+  cd /tmp && git clone https://github.com/edenhill/librdkafka.git && \
+  cd librdkafka && git checkout tags/v1.9.2 && \
+  ./configure && make && make install && \
+  cd ../ && rm -rf librdkafka
+RUN apt install git -y
+RUN apt-get install python3-matplotlib -y
+RUN rm -fr none-source
+#COPY ./../requirements.txt ./
+#RUN pip install -r requirements.txt
+#docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#docker buildx rm builder
+#docker buildx create --name builder --driver docker-container --use
+#docker buildx inspect --bootstrap
+
+#docker buildx   build -t nttlong/gnol.nohtyp:ttn.2023.003  --platform=linux/amd64,linux/arm64/v8  ./.. -f gnol.nohtyp  --push=true --output type=registry
+#docker build   ./.. -f gnol.nohtyp

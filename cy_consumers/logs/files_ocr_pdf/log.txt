@@ -1,0 +1,85 @@
+[2023-05-23 10:20:53,996] INFO [name.th_run:66] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/share-storage/congtyqc/90da3d7c-b48f-4a26-8c2f-1f02109cc23c.pdf
+[2023-05-23 10:20:54,018] INFO [name.th_run:72] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/share-storage/congtyqc/90da3d7c-b48f-4a26-8c2f-1f02109cc23c.pdf is ok:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/share-storage/congtyqc/90da3d7c-b48f-4a26-8c2f-1f02109cc23c.pdf
+[2023-05-23 10:20:56,412] INFO [name.th_run:91] files.upload.save.ocr.pdf
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/share-storage/congtyqc/files.upload.generate.image.from.pdf/90da3d7c-b48f-4a26-8c2f-1f02109cc23c.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/share-storage/congtyqc/90da3d7c-b48f-4a26-8c2f-1f02109cc23c.pdf
+[2023-05-23 10:20:56,412] INFO [name.th_run:98] files.upload.update.search.from.file
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/share-storage/congtyqc/files.upload.generate.image.from.pdf/90da3d7c-b48f-4a26-8c2f-1f02109cc23c.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/share-storage/congtyqc/90da3d7c-b48f-4a26-8c2f-1f02109cc23c.pdf
+[2023-05-23 10:29:33,951] INFO [name.th_run:66] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/dbf1d38c-3a2e-4ef9-8057-d604d6041bc4.pdf
+[2023-05-23 10:29:33,959] INFO [name.th_run:72] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/dbf1d38c-3a2e-4ef9-8057-d604d6041bc4.pdf is ok:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/dbf1d38c-3a2e-4ef9-8057-d604d6041bc4.pdf
+[2023-05-23 10:29:35,206] INFO [name.th_run:91] files.upload.save.ocr.pdf
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/dbf1d38c-3a2e-4ef9-8057-d604d6041bc4.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/dbf1d38c-3a2e-4ef9-8057-d604d6041bc4.pdf
+[2023-05-23 10:29:35,208] INFO [name.th_run:98] files.upload.update.search.from.file
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/dbf1d38c-3a2e-4ef9-8057-d604d6041bc4.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/dbf1d38c-3a2e-4ef9-8057-d604d6041bc4.pdf
+[2023-06-12 08:48:51,363] INFO [name.th_run:66] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/d61170e7-1742-4471-901c-39feefb0f7cd.pdf
+[2023-06-12 08:54:20,412] INFO [name.th_run:66] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/files.upload.generate.pdf/108ebbab-66b2-4f38-a5f7-02fb5b35b73a.pdf
+[2023-06-12 08:54:26,309] INFO [name.th_run:66] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/files.upload.generate.pdf/ca4dcf2e-c6ba-426f-94ec-31482518f748.pdf
+[2023-06-29 13:28:08,725] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/ad095cfd-1286-4346-9a3f-ee99bfd52014.pdf
+[2023-06-29 13:28:12,667] INFO [name.th_run:73] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/ad095cfd-1286-4346-9a3f-ee99bfd52014.pdf is ok:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/ad095cfd-1286-4346-9a3f-ee99bfd52014.pdf
+[2023-06-29 13:28:15,557] INFO [name.th_run:92] files.upload.save.ocr.pdf
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/ad095cfd-1286-4346-9a3f-ee99bfd52014.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/ad095cfd-1286-4346-9a3f-ee99bfd52014.pdf
+[2023-06-29 13:28:15,558] INFO [name.th_run:99] files.upload.update.search.from.file
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/ad095cfd-1286-4346-9a3f-ee99bfd52014.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/ad095cfd-1286-4346-9a3f-ee99bfd52014.pdf
+[2023-06-29 13:28:31,035] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/6b74b539-9584-438d-a995-6d4ada80eb6a.pdf
+[2023-06-29 13:28:31,057] INFO [name.th_run:73] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/6b74b539-9584-438d-a995-6d4ada80eb6a.pdf is ok:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/6b74b539-9584-438d-a995-6d4ada80eb6a.pdf
+[2023-06-29 13:29:05,057] INFO [name.th_run:92] files.upload.save.ocr.pdf
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/6b74b539-9584-438d-a995-6d4ada80eb6a.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/6b74b539-9584-438d-a995-6d4ada80eb6a.pdf
+[2023-06-29 13:29:05,061] INFO [name.th_run:99] files.upload.update.search.from.file
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/6b74b539-9584-438d-a995-6d4ada80eb6a.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/6b74b539-9584-438d-a995-6d4ada80eb6a.pdf
+[2023-06-29 13:29:10,931] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/8f7785f9-f758-48fc-b151-4c0258cc9ec1.pdf
+[2023-06-29 13:29:10,943] INFO [name.th_run:73] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/8f7785f9-f758-48fc-b151-4c0258cc9ec1.pdf is ok:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/8f7785f9-f758-48fc-b151-4c0258cc9ec1.pdf
+[2023-06-29 13:30:10,852] INFO [name.th_run:92] files.upload.save.ocr.pdf
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/8f7785f9-f758-48fc-b151-4c0258cc9ec1.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/8f7785f9-f758-48fc-b151-4c0258cc9ec1.pdf
+[2023-06-29 13:30:10,854] INFO [name.th_run:99] files.upload.update.search.from.file
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/8f7785f9-f758-48fc-b151-4c0258cc9ec1.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/8f7785f9-f758-48fc-b151-4c0258cc9ec1.pdf
+[2023-06-29 13:33:00,807] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/223d39c2-2298-429f-8dc8-0381c5cadd13.pdf
+[2023-06-29 13:33:21,050] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/9a55d33e-da7f-4539-ab99-8b9840f2a9d6.pdf
+[2023-06-29 13:33:25,310] INFO [name.th_run:73] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/9a55d33e-da7f-4539-ab99-8b9840f2a9d6.pdf is ok:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/9a55d33e-da7f-4539-ab99-8b9840f2a9d6.pdf
+[2023-06-29 13:35:41,872] INFO [name.th_run:92] files.upload.save.ocr.pdf
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/files.upload.generate.image.from.pdf/9a55d33e-da7f-4539-ab99-8b9840f2a9d6.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/9a55d33e-da7f-4539-ab99-8b9840f2a9d6.pdf
+[2023-06-29 13:35:41,874] INFO [name.th_run:99] files.upload.update.search.from.file
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/files.upload.generate.image.from.pdf/9a55d33e-da7f-4539-ab99-8b9840f2a9d6.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/9a55d33e-da7f-4539-ab99-8b9840f2a9d6.pdf
+[2023-06-29 13:43:23,384] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/1d0e2ce0-8444-4db8-b568-04b2070334d5.pdf
+[2023-06-29 13:43:30,944] INFO [name.th_run:73] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/1d0e2ce0-8444-4db8-b568-04b2070334d5.pdf is ok:
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/1d0e2ce0-8444-4db8-b568-04b2070334d5.pdf
+[2023-06-29 13:44:16,468] INFO [name.th_run:92] files.upload.save.ocr.pdf
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/1d0e2ce0-8444-4db8-b568-04b2070334d5.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/1d0e2ce0-8444-4db8-b568-04b2070334d5.pdf
+[2023-06-29 13:44:20,509] INFO [name.th_run:99] files.upload.update.search.from.file
+ /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.image.from.pdf/1d0e2ce0-8444-4db8-b568-04b2070334d5.pdf
+ Original File /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/1d0e2ce0-8444-4db8-b568-04b2070334d5.pdf
+[2023-06-29 13:44:20,515] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/0223ed5e-5125-4f1c-9114-abe6e7977bb2.pdf
+[2023-07-12 13:52:51,719] INFO [name.on_receive_msg:60] /app/share-storage/tmp-file-processing/sync/ctymobilephone/files.upload.generate.pdf/bca1644e-d45b-43a3-bb08-67e122ec0c48.pdf was not found
+[2023-07-12 14:50:02,335] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/aab4d0c8-de54-4182-893a-c1c05f04aeba.pdf
+[2023-07-12 14:54:03,656] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/16b0eb22-1858-4a13-bc6f-2d4e47a0da4e.pdf
+[2023-07-12 15:09:41,893] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/99d71b79-3a8a-420f-8805-05f78de209c5.pdf
+[2023-07-12 16:04:15,189] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/1ac2daab-20fd-4617-8b98-dbc1ffa2770c.pdf
+[2023-07-12 16:04:17,792] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/eade7a08-6f6a-4c10-8633-2be5d72fa774.pdf
+[2023-07-12 16:04:17,951] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/ae69c5c3-7ced-4c5e-9531-1f558cf06953.pdf
+[2023-07-12 16:04:18,186] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/f49cc40d-b330-413f-8112-3048276f7bb2.pdf
+[2023-07-12 16:04:18,351] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/f1746007-8d2d-4387-8cf6-07baea1ff4f7.pdf
+[2023-07-12 16:04:18,549] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/d197fa32-9508-4f3a-a88f-4427f304adea.pdf
+[2023-07-12 16:04:18,707] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/66d7c653-7de8-4c5e-9690-ef0d1a1076a8.pdf
+[2023-07-12 16:04:18,906] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/0ea12921-1118-42a1-bd64-943df04e27e0.pdf
+[2023-07-12 16:04:19,089] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/91e5cde4-1635-4ba6-9785-8279f00ca472.pdf
+[2023-07-12 16:04:19,328] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/34bf9ae4-b2ef-41e4-be79-dbf1d2a7960a.pdf
+[2023-07-12 16:04:19,489] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/fd7d2afc-a023-4cee-aa0b-765e1814cf84.pdf
+[2023-07-12 16:04:19,679] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/af45fc98-471a-40b6-b33d-500c05aa16a8.pdf
+[2023-07-12 16:04:19,847] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/95303a20-f3a3-41ab-b1fa-d3c01889cef0.pdf

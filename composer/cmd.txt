@@ -1,0 +1,27 @@
+#--------- install docker plugin in ubutu------------------
+sudo apt-get update --fix-missing
+sudo apt-get install docker-compose-plugin
+#---- centos----------------------
+sudo curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+#----------------------------------
+docker stop $(docker ps -aq)
+
+docker rm $(docker ps -aq)
+docker rmi $(docker images -q)
+docker volume rm $(docker volume ls)
+docker system prune -a
+docker compose -f lv-file.yml build
+docker compose -f lv-file.yml up -d
+docker run -d --hostname my-rabbit --name some-rabbit-1 rabbitmq:3 -p 5672:5672 -p 15672:15672
+
+export KUBECONFIG=/etc/kubernetes/admin.conf
+sudo cp /etc/kubernetes/admin.conf $HOME/
+sudo chown $(id -u):$(id -g) $HOME/admin.conf
+export KUBECONFIG=$HOME/admin.conf
+sudo echo 'export KUBECONFIG=$HOME/admin.conf' >> $HOME/.bashrc
+echo 'export KUBECONFIG=$HOME/.kube/config' >> $HOME/.bashrc
+
+kubeadm join 172.16.7.91:6443 --token wsv847.hbc3tw4bmrb7jpdy \
+        --discovery-token-ca-cert-hash sha256:e0cf4e4b4cde6caa05759141793f801bc49a6010e588424025a117f2410767a8

@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: es-sn
+---
+#apiVersion: storage.k8s.io/v1
+#kind: StorageClass
+#metadata:
+#  name: es-sn-class
+#provisioner: 172.16.7.91/external-nfs
+#parameters:
+#  server: 172.16.7.91
+#  path: "/var/nfs_share_dir_for_k8s"
+#  readOnly: "false"
+#---
+#
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: es-sn-class
+#spec:
+#  storageClassName: lv-nfs
+#  capacity:
+#    storage: 5Gi
+#  accessModes:
+#    - ReadWriteMany
+#  nfs:
+#    path: "/var/nfs_share_dir_for_k8s"
+#    server: "172.16.7.91"
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: lv-es-claim-001
+#  namespace: es-sn
+#spec:
+#  storageClassName: es-sn-class
+#  accessModes:
+#    - ReadWriteMany
+#  resources:
+#    requests:
+#      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: lv-es
+  name: lv-es
+  namespace: es-sn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lv-es
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: lv-es
+    spec:
+      volumes:
+        - name: lv-es-pv-storage
+          nfs:
+            server: 172.16.7.91
+            path: /var/nfs_share_dir_for_k8s/es-sn
+            #mount 172.16.7.91:/var/nfs_share_dir_for_k8s/source /home/vmadmin/python/v6/file-service-02/composer
+      initContainers:
+        - name: volume-mount-hack
+          image: busybox
+          command: [ "sh", "-c", "chmod -R 777 /tmp/es", "chown -R nfsnobody:nfsnobody /tmp/es" ]
+          volumeMounts:
+            - mountPath: /tmp/es
+              name: lv-es-pv-storage
+
+      containers:
+        - env:
+            - name: ES_JAVA_OPTS
+              value: -Xms512m -Xmx512m
+            - name: bootstrap.memory_lock
+              value: "true"
+            - name: cluster.name
+              value: es-docker-cluster
+            - name: discovery.type
+              value: single-node
+            - name: node.name
+              value: lv-es
+            - name: path.data
+              value: /tmp/es/data
+            - name: path.logs
+              value: /tmp/es/logs
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
+          name: lv-es
+          ports:
+            - containerPort: 9200
+#          resources:
+#            requests:
+#              memory: "2Gi"
+#              cpu: "500m"
+#            limits:
+#              memory: "2Gi"
+#              cpu: "500m"
+          volumeMounts:
+            - mountPath: /tmp/es
+              name: lv-es-pv-storage
+      restartPolicy: Always
+      #chmod -R 755 /var/nfs_share_dir_for_k8s
+      #chown nfsnobody:nfsnobody /var/nfs_share_dir_for_k8s
+      #mount -t nfs  172.16.7.91:/var/nfs_share_dir_for_k8s /mnt/nfs/var/nfs_share_dir
+
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: lv-es
+  name: lv-es
+  namespace: es-sn
+spec:
+  type: NodePort
+  ports:
+    - name: "9092"
+      port: 9092
+      targetPort: 9200
+      nodePort: 30920
+  selector:
+    app: lv-es
+status:
+  loadBalancer: { }

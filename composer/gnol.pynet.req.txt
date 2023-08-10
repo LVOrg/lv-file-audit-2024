@@ -1,0 +1,12 @@
+pyjnius
+
+pocketsphinx
+matplotlib
+Cython
+doctr
+
+deepdoctection
+
+grpcio
+vncorenlp
+pythonnet

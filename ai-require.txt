@@ -1,0 +1,11 @@
+accelerate~=0.16.0
+torchaudio~=0.13.1
+soundfile~=0.12.1
+jiwer~=2.5.1
+scikit-image~=0.19.3
+predictor~=0.1.2
+python-docx~=0.8.11
+easyocr
+python-dev-tools
+textblob
+symspellpy

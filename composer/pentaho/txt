@@ -1,0 +1,5 @@
+docker run --name pentaho -e DB_HOST=172.16.7.34 -e DB_USER=postgres -e DB_PASS=Erm@2021 leandrocp/pentaho-server
+docker run --name pentaho  -e TIMEZONE="America/Sao_Paulo" -e DB_USER=postgres -e DB_PASS=postgres  leandrocp/pentaho-server
+https://github.com/wmarinho/docker-pentaho
+https://github.com/leandrocp/pentaho-server-docker
+docker run --name pentaho -d -p 8080:8080 -e PGHOST=172.16.7.34 wmarinho/pentaho-biserver:5.1-TRUNK

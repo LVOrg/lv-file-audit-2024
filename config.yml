@@ -1,0 +1,152 @@
+# in order to start with hypercorn
+# python hypercorn_start.py
+# You may also change default config.yml by past arguments
+# For example in config.yml at
+# db:
+#    host: 192.168.18.26
+#    port: 27018
+# if you would like to change db.port juts past db.port=<new port>
+# Important: some item in config.yml could be removed at runtime if you set nothing
+# Example: some Mongod for developer needn't set authenticate
+# So you can pass db.usrername= db.password= db.authSource= db.authMechanism=
+# python hypercorn_start.py db.host=172.16.7.25 db.port=27018 db.username= db.password= db.authSource= db.authMechanism= admin_db_name=enigma-media
+version: rc.0.0.15
+debug: false
+content_segment_len: 90
+ui: ui
+message:
+  type: mongodb
+  config:
+    kafka:
+      host: '192.168.18.36'
+shared_storage: ./share-storage
+#storage_path: /home/vmadmin/python/v6/file-service-02/storage
+#host_url: https://test.com.vn/lvfile
+db_25:
+#  host: localhost
+#  port: 27017
+  host: 172.16.7.25
+  port: 27018
+  username:
+  password:
+  tls: false
+  authSource:
+  tlsCAFile:
+db__:
+  # Host of mongodb
+  host: 192.168.18.36
+  # Port of mongodb
+  port: 27018
+  authSource: lv-docs
+  username: admin-doc
+  password: '123456'
+#db.authSource: admin
+#  db.host: 172.16.0.83
+#  db.password: Lacviet#123
+#  db.port: "27017"
+#  db.username: admin
+db:
+  # Host of mongodb
+  host: 172.16.0.83
+  password: Lacviet#123
+  username: admin
+  # Port of mongodb
+  port: 27017
+  authSource: admin
+# Default administrator database
+admin_db_name_25: media-server
+# Below setting tell the system that must create new administrator database in mongodb
+# Admin db __name__ is the __name__ of administrator database
+# What is inside administrator database?
+# Administrator database maintain some mongodb collections. Accord to manage tanent
+admin_db_name: lv-docs
+# unvicorn server listener list all ip
+
+jinja_templates_dir: ./templates
+static_dir: ./resource/static
+
+
+# Below setting is the real hostname when end user who'd like to reach UI of website
+# just serve for UI. For API the setting is not crucial
+host_url__: https://test-oms.qtsc.com.vn/lvfile
+host_url: http://172.16.13.72:8012/lvfile
+api_url__: http://172.16.13.72:8012/lvfile/api
+api_url_: http://172.16.1.210:801/api
+
+bind: 0.0.0.0:8012
+workers: 2
+jwt:
+  secret_key: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+  algorithm: HS256
+  access_token_expire_minutes: 480
+#tmp_upload_dir: ./tmp
+elastic_search:
+  server:
+    - http://172.16.0.83:9200
+  index: lv-files-server-v2
+  prefix_index: qtsc-codx
+  index_max_analyzed_offset: 60000000
+  max_analyzed_offset: 1000
+  field_content: content_bm25
+elastic_search__:
+  server:
+    - http://192.168.18.36:9200
+  index: lv-files-server-v2
+  prefix_index: lv-codx
+  index_max_analyzed_offset: 60000000
+  max_analyzed_offset: 1000
+  field_content: content_bm25
+tmp_media_processing_folder: ./tmp_media
+ext_office_file: [
+                   xds,ini,config,md,
+                   abap,ash,ampl,mod,g4,apib,apl,ascx,asax,axd,dats,hats,sats,as,
+                   ada,ads,agda,als,conf,apacheconf,vhost,cls,applescript,scpt,
+                   arc,ino,asciidoc,adoc,asc,aj,asm,inc,nasm,aug,ahk,ahk1,au3,
+                   awk,auk,gawk,mawk,nawk,cmd,bat,yml,yaml,bison,bb,decls,bmx,
+                   bsv,boo,b,bf,brs,bro,cats,idc,w,cake,cshtml,c++,cc,cxx,hh,hpp,
+                   hxx,inc,inl,ipp,tcc,tpp,c-objdump,json,chs,clp,cmake,cmake.in,
+                   cod,cbl,cobol,cpy,mss,chpl,ceylon,chpl,ch,ck,circu,clw,icl,dcl,
+                   clikc,clj,boot,cl2,cljs,cljs,cljs.hl,cljscm,hic,
+                   coffee,_coffee,cjsx,cson,iced,crm,cfml,
+                   cfc,lisp,asd,cl,l,lsp,ny,podsl,sexp,cp,cps,coq,v,
+                   cfc,lisp,asd,cl,l,lsp,ny,podsl,sexp,cp,cps,coq,v,
+                   cppobjdump,c++-objdump,c++objdump,cpp-objdump,cxx-objdump,
+                   creole,cr,feature,cu,cuh,cy,pyx,pxd,pxi,dart,dockerfile,
+                   dylan,dyl,intr,lid,xlsm,
+                   sql,log,email,eml,emlx,msg,oft,ost,pst,vcf,bat,py,pl,
+                   sh,asp,aspx,cs,csx,css,htm,js,jsp,php,rss,xhtml,key,opd,pps,odtc,class,
+                   cpp,h,java,swift,vb,vbx,ods,wpd,rtf,tex,
+                   docx,doc,xls,xlsx,txt,pdf,ppx,pptx,json,psd,html,xml,js,otg,svg,vsd,
+                    odt,csv,db,doc,docx,dotx,fodp,fods,fodt,mml,odb,odf,odg,odm,odp,ods,otg,otp,ots,ott,oxt,
+                    pptx,psw,sda,sdc,sdd,sdp,sdw,slk,smf,stc ,
+                    std,sti,stw,sxc,sxg,sxi,sxm,uof,uop,uos,uot
+                    vsd,vsdx,wdb,wps,wri,xls,xlsx,pem,yaml,ym,toml,json,jsx,ts,tsx,cs,csx,rdl
+]
+libre_office_path: /usr/bin/soffice
+fs_crawler_path: ./fscrawler
+media_plugins:
+  - enig_frames.plugins.search.office:Office
+  - enig_frames.plugins.thumbs.video:Video
+  - enig_frames.plugins.thumbs.pdf:PDF
+  - enig_frames.plugins.thumbs.images:Images
+  - enig_frames.plugins.thumbs.office:Office
+  - enig_frames.plugins.thumbs.exe_file:ExeFile
+  - enig_frames.plugins.ocr.images:Images
+  - enig_frames.plugins.ocr.pdf_file:PdfFile
+timeout_keep_alive: 5
+tika_server: http://localhost:12345
+#temp_directory: ./brokers/tmp-files
+#http://172.16.0.80:31672/
+rabbitmq__:
+  port: 30672
+  server: 172.16.0.80
+  msg: lacviet
+rabbitmq:
+  port: 31674
+  server: 172.16.7.91
+  msg: codx-lv
+broker:
+  is_use: true
+  servers: 172.16.7.91:30992
+  msg: xdoc
+#  temp_directory: ./brokers/tmp-files

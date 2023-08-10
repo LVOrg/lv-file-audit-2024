@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: long-test-01
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-app-long-test-01
+  namespace: long-test-01
+spec:
+  selector:
+    matchLabels:
+      app: hello
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+      - name: hello-long-test-01
+        image: "gcr.io/google-samples/hello-app:2.0"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service-test-01
+  namespace: long-test-01
+  labels:
+    app: hello
+spec:
+  type: ClusterIP
+  selector:
+    app: hello
+  ports:
+  - port: 8017
+    targetPort: 8080
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-ingress-test-01
+  namespace: long-test-01
+spec:
+  ingressClassName: nginx #nginx or lv-file-ingress
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/test-001"
+            backend:
+              service:
+                name: hello-service-test-01
+                port:
+                  number: 8017
+
+#The Ingress  is invalid: spec.rules[0].host: Invalid value: "172.16.7.91": must be a DNS name, not an IP address

@@ -1,0 +1,86 @@
+FROM nttlong/gnol:ttn.2023.001
+#RUN apt update
+#RUN apt-get upgrade -y
+RUN  apt-get install python3-pip -y
+RUN python3 -m pip install --upgrade pip
+RUN apt install git -y
+RUN apt install wget
+RUN apt-get install python-dev -y
+
+#RUN apt install default-jre -y
+#RUN apt update --fix-missing
+#RUN apt install default-jdk -y
+#RUN apt update --fix-missing
+
+
+ARG TARGETARCH
+RUN pip install py-vncorenlp
+#---------- check is isnatll ok----------------------
+RUN mkdir -p data-check
+COPY ./../composer/build_validator/check_vncorenlp.py ./data-check
+COPY ./../cyx/rdr_segmenter/vncorenlp/components ./data-check/vncorenlp/components
+RUN python3 ./data-check/check_vncorenlp.py
+RUN rm -fr data-check
+
+#---------- check is isnatll ok----------------------
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb;\
+        dpkg -i packages-microsoft-prod.deb;\
+        rm packages-microsoft-prod.deb;\
+        apt-get update;\
+        apt-get install -y dotnet-runtime-7.0;\
+        apt-get update;\
+        apt-get install -y dotnet-sdk-7.0;\
+        dotnet --list-runtimes;\
+     fi
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        mkdir -p /usr/share/dotnet;\
+        wget https://download.visualstudio.microsoft.com/download/pr/7c62b503-4ede-4ff2-bc38-50f250a86d89/3b5e9db04cbe0169e852cb050a0dffce/dotnet-sdk-6.0.300-linux-arm64.tar.gz;\
+        tar -zxf dotnet-sdk-6.0.300-linux-arm64.tar.gz -C /usr/share/dotnet;\
+        rm dotnet-sdk-6.0.300-linux-arm64.tar.gz;\
+        wget https://download.visualstudio.microsoft.com/download/pr/8ba7087e-4513-41e5-8359-a4bcd2a3661f/e6828f0d8cf1ecc63074c9ff57685e27/aspnetcore-runtime-6.0.5-linux-arm64.tar.gz;\
+        tar -zxf aspnetcore-runtime-6.0.5-linux-arm64.tar.gz -C /usr/share/dotnet;\
+        rm aspnetcore-runtime-6.0.5-linux-arm64.tar.gz;\
+        #wget -SL -o dotnet.tar.gz https://dotnetcli.blob.core.windows.net/dotnet/Sdk/master/dotnet-sdk-latest-linux-arm64.tar.gz;\
+
+        #tar -zxf dotnet-sdk-latest-linux-arm64.tar.gz -C /usr/share/dotnet;\
+        ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet;\
+        dotnet --list-runtimes;\
+     fi
+RUN mkdir /python_dot_net_core
+
+COPY ./../dotnet_core/VietnameseAccent/ ./python_dot_net_core
+RUN dotnet publish ./python_dot_net_core
+COPY ./../none-source/nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl ./
+COPY ./../none-source/torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl ./
+
+COPY ./../none-source/nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl ./
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+     pip install nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl --no-cache-dir;\
+     pip install nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl --no-cache-dir;\
+     pip install torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl --no-cache-dir;\
+    fi
+RUN rm -f nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+RUN rm -f nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl
+RUN rm -f nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+RUN apt-get install portaudio19-dev -y
+RUN apt-get install ffmpeg -y
+RUN apt install cmake -y
+RUN pip install torch --no-cache-dir
+COPY ./../composer/gnol.pynet.req.txt ./
+RUN pip install -r gnol.pynet.req.txt --no-cache-dir
+RUN pip install git+https://github.com/huggingface/datasets.git --no-cache-dir
+RUN pip install git+https://github.com/huggingface/transformers.git --no-cache-dir
+RUN pip install git+https://github.com/facebookresearch/detectron2.git  --no-cache-dir
+
+
+
+
+
+#docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#docker buildx rm builder
+#docker buildx create --name builder --driver docker-container --use
+#docker buildx inspect --bootstrap
+
+#docker buildx   build -t nttlong/gnol.pynet:2023.001  --platform=linux/amd64,linux/arm64/v8  ./.. -f gnol.pynet  --push=true --output type=registry
+#docker build   ./.. -f gnol.nohtyp

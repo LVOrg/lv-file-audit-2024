@@ -1,0 +1,65 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: xdoc-job
+  labels:
+    name: xdoc-job
+---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xdoc-job-files-generate-thumbs
+  namespace: xdoc-job
+spec:
+  selector:
+    matchLabels:
+      app: xdoc-job-files-generate-thumbs
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: xdoc-job-files-generate-thumbs
+    spec:
+      volumes:
+        - name: xdoc-temp-storage
+          nfs:
+            server: 172.16.7.91
+            path: /var/nfs_share_dir_for_k8s/xdoc-web
+      initContainers:
+        - name: volume-mount-hack
+          image: busybox
+          command: [ "sh", "-c", "chmod -R 777 /app/brokers", "chown -R nfsnobody:nfsnobody /app/brokers" ]
+          volumeMounts:
+            - mountPath: /app/brokers
+              name: xdoc-temp-storage
+      containers:
+        - args:
+            - python3
+            - /app/cy_consumers/files_generate_thumbs.py
+            - elastic_search.server=http://lv-es.es-sn:9092
+            - elastic_search.prefix_index=lv-codx
+            - db.host=192.168.18.36
+            - db.port=27018
+            - db.username=
+            - db.password=
+            - db.authSource=
+            - temp_directory=./brokers/tmp
+            - rabbitmq.server=rabitmq-service.lv-broker
+            - rabbitmq.port=5672
+          image: nttlong/lv-file:rc.1.0.3
+          name: files-generate-thumbs
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /app/brokers
+              name: xdoc-temp-storage
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+

@@ -1,0 +1,64 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: xdoc
+  labels:
+    name: xdoc
+---
+# Enables the pods in a deployment to be accessible from outside the cluster
+
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: xdoc-web
+#  namespace: xdoc
+#spec:
+#  selector:
+#    app: xdoc-web
+#  portForward:
+#    - protocol: "TCP"
+#      port: 8011
+#      localPort: 9000
+#  ports:
+#    - protocol: "TCP"
+#      port: 80
+#      targetPort: 8080
+#      name: xdoc-web
+#      nodePort: 30000
+#  type: LoadBalancer
+#  type: NodePort
+#  loadBalancerIP: 172.16.7.242
+---
+# kf-api Deployment
+# Defines the deployment of the app running in a pod on any worker node
+apiVersion: v1
+kind: Pod
+metadata:
+  name: xdoc-web
+  namespace: xdoc
+  labels:
+    app: xdoc-web
+spec:
+  hostNetwork: true # Su dung hostNetwork thi ports.containerPrt va hostPort phai giong nhau
+  containers:
+    - args:
+        - python3
+        - /app/cy_xdoc/server.py
+        - bind=0.0.0.0:8011
+        - content_segment_len=9
+        - host_url=http://172.16.7.92:8011
+        - elastic_search.server=http://192.168.18.36:9200
+        - elastic_search.prefix_index=lv-codx
+        - db.host=192.168.18.36
+        - db.port=27018
+      image: nttlong/lv-file:rc.0.6.0
+      name: xdoc-web
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 8011
+          hostPort: 8011
+      resources: { }
+
+
+
+

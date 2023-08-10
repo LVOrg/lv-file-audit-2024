@@ -1,0 +1,33 @@
+#/var/nfs_share_dir_for_k8s
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lv-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: lv-storage-class
+  namespace: lv-storage
+spec:
+  storageClassName: lv-storage-class
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/var/nfs_share_dir_for_k8s"
+    server: "171.16.7.91"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lv-storage-claim
+  namespace: lv-storage
+spec:
+  storageClassName: lv-storage-class
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 40Gi

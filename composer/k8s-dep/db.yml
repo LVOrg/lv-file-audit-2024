@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodbs-pv
+spec:
+  capacity:
+    storage: 10Gi # size of the storage
+  accessModes: # access mode
+    # - ReadWriteMany
+    - ReadWriteOnce # can be mounted by a single wokrer node for reading and writing
+    - ReadOnlyMany # can be mounted by a multiple wokrer node for reading only
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    # directory location on host
+    path: /run/desktop/mnt/host/c/users/public/temp/mongodb
+    # this field is optional
+    #type: Directory
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+spec:
+  resources:
+    requests:
+      storage: 10Gi # request 10Gi storage
+  accessModes:
+    - ReadWriteOnce # only allow one node can be read and write
+  storageClassName: ""
+---
+apiVersion: apps/v1
+kind: Deployment # change here
+metadata:
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - image: mongo:latest
+        name: mongo
+        imagePullPolicy: "Always"
+        # env:
+        #      -  __name__: "MONGO_INITDB_ROOT_USERNAME"
+        #         value: "HL7GetwayUser1"
+
+        #      - __name__: "MONGO_INITDB_ROOT_PASSWORD"
+        #        value: "HL7GetwaySureEHRLacViet$abcdxyzHL7GetwayLisAnd#RisUser#11234506789User1HL7Getway"
+        ports:
+          - containerPort: 27017
+        volumeMounts:
+          - name: mongodbs-pv
+            mountPath: /data/db
+#       volumes:
+#         - __name__: mongodbs-pv
+#           hostPath: # hostPath volume
+#             path: /run/desktop/mnt/host/c/users/public/temp/mongodb # folder of woker node
+      volumes:
+        - name: mongodbs-pv
+          persistentVolumeClaim: # hostPath volume
+            claimName: mongodb-pvc # folder of woker node
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mongo
+  name: mongo
+spec:
+  # type: LoadBalancer
+  # type: NodePort
+  ports:
+    - port: 27017
+      targetPort: 27017
+  #     # nodePort: 30123 # port of the worker node
+  selector:
+    app: mongo

@@ -1,0 +1,65 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: xdoc-job
+  labels:
+    name: xdoc-job
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: xdoc-files-app
+#  namespace: xdoc-task
+#spec:
+#  selector:
+#    app: xdoc-files-app
+#
+#  type: Job
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: xdoc-files-app
+  name: xdoc-files-app
+  namespace: xdoc-job
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: xdoc-files-app
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: xdoc-files-app
+    spec:
+      # thou must set elastic_search.prefix_index with correct value. That's important to searching
+      # For mongodb. Event if thy Mongodb needn't authenticate. Thou must set empty db.password, db.username and db.authSource
+      containers:
+        - args:
+            - python3
+            - /app/cyx/start.py
+            - elastic_search.server=http://192.168.18.36:9200
+            - elastic_search.prefix_index=lv-codx
+            - db.host=192.168.18.36
+            - db.port=27018
+            - db.password=
+            - db.username=
+            - db.authSource=
+          image: nttlong/lv-file:rc.0.7.1
+          name: xdoc-file
+          imagePullPolicy: IfNotPresent
+
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+
+

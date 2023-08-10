@@ -1,0 +1,187 @@
+#----------------------------------------------------------
+# The file use for deployment of file-svc into k8s
+# Thou notice that 4 sections:
+# 1- Namespace
+# 2- Deploy app with name of xdoc-web run in container
+# 3- Create service point to xdoc-web app with name xdoc-web-service
+# 4- Expose xdoc-web-service via ingress
+#----------------------------------------------------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: xdoc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xdoc-web-config
+  namespace: xdoc
+data:
+
+  elastic_search.server: http://192.168.18.36:9200  #"http://lv-es.es-sn:9092" #http://172.16.0.83:9200/
+  rabbitmq.server: "rabitmq-service.lv-broker" #	rabbitmq.rabbitmq-dev.svc.cluster.local5672
+
+
+  elastic_search.prefix_index: "lv-codx"
+  rabbitmq.port: "5672"
+  host_url: "http://172.16.7.91/lvfile" #http://172.16.0.240/lvfile
+  db.host: "192.168.18.36" #172.16.0.83
+  db.port: "27018" #27017
+
+  temp_directory: "./brokers/tmp"
+#    db.authSource: admin
+#    db.host: 10.200.16.15
+#    db.password: Lacviet#123
+#    db.port: '27017'
+#    db.username: admin
+#    elastic_search.prefix_index: qtsc-codx
+#    elastic_search.server: http://10.200.16.16:9200
+#    host_url: http://172.16.0.240/lvfile
+#    rabbitmq.port: '5672'
+#    rabbitmq.server: rabbitmq.rabbitmq-dev.svc.cluster.local
+#    temp_directory: ./brokers/tmp
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xdoc-web
+  namespace: xdoc
+spec:
+  selector:
+    matchLabels:
+      app: xdoc-web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: xdoc-web
+    spec:
+      volumes:
+        - name: xdoc-temp-storage
+          nfs:
+            server: 172.16.7.91 #172.16.0.83
+            path: /var/nfs_share_dir_for_k8s/xdoc-web #/data/share/xdoc-web
+#          nfs:
+#            server: 10.200.16.15
+#            path: /data/share/xdoc-web
+        - name: xdoc-web-cache
+#          nfs:
+#            server: 10.200.16.15
+#            path: /data/share/xdoc-web-cache
+          nfs:
+            server: 172.16.7.91
+            path: /var/nfs_share_dir_for_k8s/xdoc-web-cache #/data/share/xdoc-web-cache
+      initContainers:
+        - name: volume-mount-hack
+          image: busybox
+          command: [
+            "sh", "-c",
+            "chmod -R 777 /app/brokers", "chown -R nfsnobody:nfsnobody /app/brokers",
+            "chmod -R 777 /app/cy_xdoc/cache","chown -R nfsnobody:nfsnobody /app/cy_xdoc/cache"
+          ]
+          volumeMounts:
+            - mountPath: /app/brokers
+              name: xdoc-temp-storage
+            - mountPath: app/cy_xdoc/cache
+              name: xdoc-web-cache
+
+      containers:
+        - args:
+            - python3
+            - /app/cy_xdoc/server.py
+            - bind=0.0.0.0:80
+            - content_segment_len=9
+            - host_url=$(host_url)
+            - elastic_search.server=$(elastic_search.server)
+            - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            - db.host=$(db.host)
+            - db.port=$(db.port)
+            - db.username=$(db.username)
+            - db.password=$(db.password)
+            - db.authSource=$(db.authSource)
+            - temp_directory=$(temp_directory)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.port=$(rabbitmq.port)
+          image: nttlong/files-service-final:rc.0.1.4 #nttlong/lv-file:rc.1.0.3
+          envFrom:
+            - configMapRef:
+                name: xdoc-web-config
+          name: xdoc-web
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /app/brokers
+              name: xdoc-temp-storage
+            - mountPath: /app/cy_xdoc/cache
+              name: xdoc-web-cache
+          ports:
+            - containerPort: 80
+#          resources:
+#            requests:
+#              memory: "3Gi"
+#              cpu: "700m"
+#            limits:
+#              memory: "3Gi"
+#              cpu: "700m"
+#          volumeMounts:
+#            - mountPath: /app/cy_xdoc/cache
+#              name: web-cache
+#      volumes:
+#        - name: web-cache
+#          persistentVolumeClaim:
+#            claimName: lv-storage-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xdoc-web-service
+  namespace: xdoc
+  labels:
+    app: xdoc-web
+spec:
+  type: NodePort
+  selector:
+    app: xdoc-web
+  ports:
+  - port: 8082
+    targetPort: 80
+    protocol: TCP
+    nodePort: 31000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: xdoc-web-ingress
+  namespace: xdoc
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+#    nginx.ingress.kubernetes.io/use-regex: "true"
+#    nginx.ingress.kubernetes.io/rewrite-target: /$1
+
+spec:
+  ingressClassName: nginx #nginx or lv-file-ingress
+  rules:
+#    - host: myservicea.foo.org
+     - http:
+        paths:
+          - pathType: Prefix
+            path: /lvfile
+            backend:
+              service:
+                name: xdoc-web-service
+                port:
+                  number: 8082
+#  rules:
+#    - http:
+#        paths:
+#          - pathType: Prefix
+#            path: "/(.+)"
+#            backend:
+#              service:
+#                name: xdoc-web-service
+#                port:
+#                  number: 8017
+

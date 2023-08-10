@@ -1,0 +1,2 @@
+[2023-07-12 15:11:21,996] INFO [name.on_receive_msg:91] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/99d71b79-3a8a-420f-8805-05f78de209c5.png:
+PDF file is None

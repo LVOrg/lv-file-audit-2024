@@ -1,0 +1,211 @@
+FROM  debian as base-components
+ARG TARGETARCH
+RUN apt update
+RUN apt-get install wget -y
+RUN wget http://deb.debian.org/debian-security/pool/updates/main/o/openjdk-11/openjdk-11-jre-headless_11.0.18%2b10-1%7edeb11u1_amd64.deb
+RUN wget http://deb.debian.org/debian-security/pool/updates/main/o/openjdk-11/openjdk-11-jre-headless_11.0.18%2b10-1%7edeb11u1_amd64.deb
+RUN apt-get upgrade -y
+RUN apt update --fix-missing
+#RUN apt-get install -y default-jre
+#RUN apt update
+#RUN apt-get install openjdk-11-jdk-headless -qq > /dev/null
+#RUN apt-get install -y default-jre
+RUN apt-get -y install libreoffice
+
+#
+#RUN wget http://deb.debian.org/debian-security/pool/updates/main/o/openjdk-11/openjdk-11-jre-headless_11.0.18%2b10-1%7edeb11u1_amd64.deb
+RUN apt update --fix-missing
+
+RUN apt-get install -y gcc
+
+
+RUN apt install htop -y
+RUN apt-get -y install ghostscript
+RUN apt-get install -y tesseract-ocr
+RUN apt-get install tesseract-ocr-vie
+RUN apt-get install -y libopencv-dev python3-opencv
+RUN apt-get install procps -y
+RUN apt-get install psmisc -y
+RUN apt update
+RUN apt-get install -y gcc
+RUN apt install htop -y
+RUN apt-get -y install ghostscript
+RUN apt-get install -y tesseract-ocr
+RUN apt-get install tesseract-ocr-vie
+RUN apt-get install -y libopencv-dev python3-opencv
+RUN apt-get install procps -y
+RUN apt-get install psmisc -y
+RUN apt install git -y
+
+RUN  apt-get install python3-pip -y
+RUN python3 -m pip install --upgrade pip
+
+RUN apt update --fix-missing
+RUN apt install default-jdk -y
+
+RUN echo "base-components"
+#-------------------------------------
+#-------prepar before install-------------------------
+# cd none-source
+#   wget https://files.pythonhosted.org/packages/25/09/184125ce54b2d7e665f3b674a1ac5d96b442f00dd11804490e926231e36b/torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl
+#   wget  wget https://files.pythonhosted.org/packages/dc/30/66d4347d6e864334da5bb1c7571305e501dcb11b9155971421bb7bb5315f/nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl
+#   wget https://files.pythonhosted.org/packages/ce/41/fdeb62b5437996e841d83d7d2714ca75b886547ee8017ee2fe6ea409d983/nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+#--------------------------------------------------------
+FROM base-components  as base-python-require
+ARG TARGETARCH
+RUN apt update
+
+
+COPY ./../none-source/pocketsphinx-5.0.0.tar.gz ./
+RUN if [ "$TARGETARCH" = "arm64" ]; then\
+        pip install pocketsphinx-5.0.0.tar.gz;\
+    fi
+RUN if [ "$TARGETARCH" = "amd64" ]; then\
+    pip install pocketsphinx-5.0.0.tar.gz;\
+    fi
+
+
+RUN rm -f ./openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb
+
+COPY ./../none-source/openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb ./
+RUN if ["$TARGETARCH"="amd64"]; then \
+    apt install  ./openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb -y;\
+    fi
+COPY ./../none-source/nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl ./
+COPY ./../none-source/torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl ./
+#COPY ./../none-source/nvidia_cublas_cu11-11.11.3.6-py3-none-manylinux1_x86_64.whl ./
+COPY ./../none-source/nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl ./
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+     pip install nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl;\
+     pip install nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl;\
+     pip install torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl;\
+    fi
+RUN rm -f nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl
+RUN rm -f nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+RUN rm -f torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl
+
+RUN pip install pyjnius
+
+RUN pip install reportlab
+#RUN  wget https://files.pythonhosted.org/packages/25/09/184125ce54b2d7e665f3b674a1ac5d96b442f00dd11804490e926231e36b/torch-1.13.1-cp39-cp39-manylinux1_x86_64.whl
+#RUN wget  wget https://files.pythonhosted.org/packages/dc/30/66d4347d6e864334da5bb1c7571305e501dcb11b9155971421bb7bb5315f/nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl
+#RUN  wget https://files.pythonhosted.org/packages/ce/41/fdeb62b5437996e841d83d7d2714ca75b886547ee8017ee2fe6ea409d983/nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl
+
+#RUN pip install pocketsphinx==5.0.0
+
+
+
+RUN pip install matplotlib==3.7.0
+RUN apt-get install libpcap-dev -y
+RUN apt-get install build-essential libcap-dev -y
+RUN apt-get install python3-pip -y
+RUN pip install --upgrade pip
+RUn pip install Cython
+RUN git clone https://github.com/seveas/python-prctl.git
+RUN python3 -m pip install -e python-prctl
+RUN git clone https://github.com/mindee/doctr.git
+RUN python3 -m pip install -e doctr
+RUN rm -fr ./doctr
+
+
+RUN pip install torch
+RUN rm -f ./openjdk-17-jdk-headless_17.0.6+10-1~deb11u1_amd64.deb
+RUN apt-get install wget
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends gcc git libssl-dev g++ make && \
+  cd /tmp && git clone https://github.com/edenhill/librdkafka.git && \
+  cd librdkafka && git checkout tags/v1.9.2 && \
+  ./configure && make && make install && \
+  cd ../ && rm -rf librdkafka
+
+RUN apt-get install python3-matplotlib -y
+#---------------------------------------------
+FROM base-python-require as base-requirements
+ARG TARGETARCH
+RUN git clone https://github.com/facebookresearch/detectron2.git
+RUN python3 -m pip install -e detectron2
+RUN pip uninstall packaging -y
+RUN pip install packaging==20.0
+
+RUN rm -fr ./detectron2
+RUN pip uninstall packaging -y
+RUN pip install packaging==20.9
+RUN git clone https://github.com/deepdoctection/deepdoctection.git
+RUN python3 -m pip install -e deepdoctection
+RUN rm -fr ./deepdoctection
+RUN git clone https://github.com/huggingface/datasets.git
+RUN python3 -m pip install -e datasets
+RUN rm -fr ./datasets
+RUN git clone https://github.com/huggingface/transformers.git
+RUN python3 -m pip install -e transformers
+RUN rm -fr ./transformers
+#RUN apt install openjdk-17-jdk -y
+RUN pip install vncorenlp
+#RUN apt-get update && \
+#  apt-get install -y --no-install-recommends gcc git libssl-dev g++ make && \
+#  cd /tmp && git clone https://github.com/edenhill/librdkafka.git && \
+#  cd librdkafka && git checkout tags/v1.9.2 && \
+#  ./configure && make && make install && \
+#  cd ../ && rm -rf librdkafka
+
+RUN apt-get install portaudio19-dev -y
+RUN apt-get install ffmpeg -y
+
+
+RUN apt-get update --fix-missing
+RUN apt install cmake -y
+
+RUN apt-get update --fix-missing
+RUN mkdir tmp-jdk-17
+RUN cd tmp-jdk-17
+
+COPY ./../requirements.txt ./
+RUN pip uninstall packaging -y
+RUN pip install packaging==20.0
+RUN apt-get install python3.9-dev -y
+RUN pip install ipython
+RUN pip install dataflow
+RUN pip install Cython
+RUN pip install pycocotools
+
+RUN pip install torchvision
+RUN pip install -r requirements.txt
+
+RUN pip uninstall packaging -y
+#RUN pip install deepdoctection
+RUN pip install -U layoutparser
+#RUN pip install git+https://github.com/facebookresearch/detectron2.git@v0.4#egg=detectron2
+
+RUN pip install timm
+RUN pip install layoutparser[ocr]
+RUN pip uninstall packaging -y
+RUN pip install packaging==20.0
+RUN echo "base-requirements"
+#-----------------------------------------
+FROM base-requirements as app-state
+COPY . /app
+WORKDIR /app
+RUN cd /app
+#RUN pip install SpeechRecognition~=3.9.0
+#RUN pip install pydub~=0.25.1
+RUN python3 cy_docs/setup.py  build_ext  --inplace
+RUN python3 cy_es/setup.py  build_ext  --inplace
+RUN python3 cy_kit/setup.py  build_ext  --inplace
+RUN python3 cy_web/setup.py  build_ext  --inplace
+
+
+
+#docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#docker buildx rm builder
+#docker buildx create --name builder --driver docker-container --use
+#docker buildx inspect --bootstrap
+#docker buildx   build -t nttlong/lv-file-apps:rc.0.0.0  --platform=linux/amd64,linux/arm64  ./.. -f xdoc-app  --push=true --output type=registry
+
+#docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#docker buildx rm builder
+#docker buildx create --name builder --driver docker-container --use
+#docker buildx inspect --bootstrap
+
+
+
+#docker buildx   build -t nttlong/lv-file-apps:rc.0.0.0  --platform=linux/amd64,linux/arm64  ./.. -f xdoc-app  --push=true --output type=registry

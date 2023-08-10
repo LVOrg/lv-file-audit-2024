@@ -1,0 +1,87 @@
+FROM nttlong/gnol.nohtyp:ttn.2023.003
+ARG TARGETARCH
+
+RUN pip install git+https://github.com/facebookresearch/detectron2.git
+
+RUN pip uninstall packaging -y
+
+RUN pip install packaging==20.9
+#----before build, should------
+# wget https://files.pythonhosted.org/packages/24/c7/9b290c58e0a0588e8fbf60392728181de8b39cc6cdb2b8a1298afd34f85a/grpcio-1.51.1-cp39-cp39-manylinux_2_17_aarch64.whl
+#-------------------
+COPY ./../none-source/grpcio-1.51.1-cp39-cp39-manylinux_2_17_aarch64.whl ./
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    pip install grpcio-1.51.1-cp39-cp39-manylinux_2_17_aarch64.whl;\
+    fi
+RUN rm -f grpcio-1.51.1-cp39-cp39-manylinux_2_17_aarch64.whl
+RUN git clone https://github.com/deepdoctection/deepdoctection.git
+RUN pip install -e deepdoctection
+RUN rm -fr ./deepdoctection
+RUN git clone https://github.com/huggingface/datasets.git
+RUN python3 -m pip install -e datasets
+RUN rm -fr ./datasets
+RUN git clone https://github.com/huggingface/transformers.git
+RUN python3 -m pip install -e transformers
+RUN rm -fr ./transformers
+#RUN apt install openjdk-17-jdk -y
+RUN pip install vncorenlp
+
+
+RUN apt-get install portaudio19-dev -y
+RUN apt-get install ffmpeg -y
+
+
+RUN apt-get update --fix-missing
+RUN apt install cmake -y
+
+RUN apt-get update --fix-missing
+RUN mkdir -p tmp-jdk-17
+RUN cd tmp-jdk-17
+
+
+#RUN cd ..
+#RUN wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.deb
+#RUN apt install ./jdk-17_linux-x64_bin.deb -y;exit 0
+#RUN wget https://www.techspot.com/downloads/downloadnow/7440/?evp=9a27d4d382cf749878ff5786322ddd60&file=10096
+
+
+
+
+COPY ./../requirements.txt ./
+
+
+RUN pip uninstall packaging -y
+RUN pip install packaging==20.0
+
+
+
+RUN apt-get install python3.9-dev -y
+#RUN pip install ipython
+#RUN pip install dataflow
+#RUN pip install Cython
+#RUN pip install pycocotools
+
+#RUN pip install torchvision
+RUN pip install -r requirements.txt
+
+RUN pip uninstall packaging -y
+#RUN pip install deepdoctection
+#RUN pip install -U layoutparser
+
+
+
+
+#RUN pip install timm
+#RUN pip install layoutparser[ocr]
+RUN pip uninstall packaging -y
+RUN pip install packaging==20.0
+
+#docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#docker buildx rm builder
+#docker buildx create --name builder --driver docker-container --use
+#docker buildx inspect --bootstrap
+
+#docker buildx   build -t nttlong/gnol.nohtyp.req:ttn.2023.003  --platform=linux/amd64,linux/arm64  ./.. -f gnol.nohtyp.req  --push=true --output type=registry
+
+#docker buildx create --platform linux/amd64,linux/arm64/v8 --use
+#docker buildx   build -t nttlong/gnol.nohtyp.req:ttn.2023.006  --platform=linux/amd64,linux/arm64/v8  ./.. -f gnol.nohtyp.req  --push=true --output type=registry

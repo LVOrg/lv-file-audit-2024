@@ -1,0 +1,125 @@
+[2023-06-12 08:48:50,151] INFO [name.on_receive_msg:64] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/d61170e7-1742-4471-901c-39feefb0f7cd.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/d61170e7-1742-4471-901c-39feefb0f7cd.pdf
+[2023-06-12 08:48:51,359] INFO [name.on_receive_msg:92] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/d61170e7-1742-4471-901c-39feefb0f7cd.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/d61170e7-1742-4471-901c-39feefb0f7cd.png
+[2023-06-12 08:54:20,399] INFO [name.on_receive_msg:64] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/108ebbab-66b2-4f38-a5f7-02fb5b35b73a.jpg:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/108ebbab-66b2-4f38-a5f7-02fb5b35b73a.pdf
+[2023-06-12 08:54:20,409] INFO [name.on_receive_msg:92] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/files.upload.generate.pdf/108ebbab-66b2-4f38-a5f7-02fb5b35b73a.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/108ebbab-66b2-4f38-a5f7-02fb5b35b73a.jpg
+[2023-06-12 08:54:26,298] INFO [name.on_receive_msg:64] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/ca4dcf2e-c6ba-426f-94ec-31482518f748.jpg:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/ca4dcf2e-c6ba-426f-94ec-31482518f748.pdf
+[2023-06-12 08:54:26,307] INFO [name.on_receive_msg:92] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/files.upload.generate.pdf/ca4dcf2e-c6ba-426f-94ec-31482518f748.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/default/ca4dcf2e-c6ba-426f-94ec-31482518f748.jpg
+[2023-06-29 11:35:48,429] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/ec0e28ee-a96c-4fa5-9b94-993a9688b2dd.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/ec0e28ee-a96c-4fa5-9b94-993a9688b2dd.pdf
+[2023-06-29 11:35:56,998] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/ec0e28ee-a96c-4fa5-9b94-993a9688b2dd.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/ec0e28ee-a96c-4fa5-9b94-993a9688b2dd.png
+[2023-06-29 11:36:21,153] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/8b48a1d6-45fb-400a-8028-81d5804b0c02.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/8b48a1d6-45fb-400a-8028-81d5804b0c02.pdf
+[2023-06-29 11:36:21,157] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/8b48a1d6-45fb-400a-8028-81d5804b0c02.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/8b48a1d6-45fb-400a-8028-81d5804b0c02.png
+[2023-06-29 13:26:34,697] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/cb316208-9c42-463a-8b36-179b30a4354b.jpg:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/cb316208-9c42-463a-8b36-179b30a4354b.pdf
+[2023-06-29 13:26:36,006] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.pdf/cb316208-9c42-463a-8b36-179b30a4354b.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/cb316208-9c42-463a-8b36-179b30a4354b.jpg
+[2023-06-29 13:26:36,009] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lvcodxalphasapphire/482d309d-7c99-433c-9ff0-f7cf1698c25c.jpg:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/482d309d-7c99-433c-9ff0-f7cf1698c25c.pdf
+[2023-06-29 13:26:36,010] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lvcodxalphasapphire/files.upload.generate.pdf/482d309d-7c99-433c-9ff0-f7cf1698c25c.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lvcodxalphasapphire/482d309d-7c99-433c-9ff0-f7cf1698c25c.jpg
+[2023-06-29 13:26:36,012] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/4313b354-4e84-44f8-b4ab-ef71af45348e.jpg:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/4313b354-4e84-44f8-b4ab-ef71af45348e.pdf
+[2023-06-29 13:26:36,013] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.pdf/4313b354-4e84-44f8-b4ab-ef71af45348e.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/4313b354-4e84-44f8-b4ab-ef71af45348e.jpg
+[2023-06-29 13:30:40,310] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/2d857fa6-d716-4e99-b26b-11965ae5bf6d.jpg:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/2d857fa6-d716-4e99-b26b-11965ae5bf6d.pdf
+[2023-06-29 13:30:40,317] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/files.upload.generate.pdf/2d857fa6-d716-4e99-b26b-11965ae5bf6d.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/congtyqc/2d857fa6-d716-4e99-b26b-11965ae5bf6d.jpg
+[2023-07-12 13:52:51,014] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/25b32507-8e06-4290-ba37-6a2746312837.jpg:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/25b32507-8e06-4290-ba37-6a2746312837.pdf
+[2023-07-12 13:52:52,794] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/files.upload.generate.pdf/25b32507-8e06-4290-ba37-6a2746312837.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/ctymobilephone/25b32507-8e06-4290-ba37-6a2746312837.jpg
+[2023-07-12 14:50:01,312] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/aab4d0c8-de54-4182-893a-c1c05f04aeba.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/aab4d0c8-de54-4182-893a-c1c05f04aeba.pdf
+[2023-07-12 14:50:02,331] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/aab4d0c8-de54-4182-893a-c1c05f04aeba.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/aab4d0c8-de54-4182-893a-c1c05f04aeba.png
+[2023-07-12 15:09:40,854] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/99d71b79-3a8a-420f-8805-05f78de209c5.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/99d71b79-3a8a-420f-8805-05f78de209c5.pdf
+[2023-07-12 15:09:41,887] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/99d71b79-3a8a-420f-8805-05f78de209c5.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/99d71b79-3a8a-420f-8805-05f78de209c5.png
+[2023-07-12 16:02:23,962] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/1ac2daab-20fd-4617-8b98-dbc1ffa2770c.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/1ac2daab-20fd-4617-8b98-dbc1ffa2770c.pdf
+[2023-07-12 16:02:29,813] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/1ac2daab-20fd-4617-8b98-dbc1ffa2770c.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/1ac2daab-20fd-4617-8b98-dbc1ffa2770c.png
+[2023-07-12 16:02:30,525] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/eade7a08-6f6a-4c10-8633-2be5d72fa774.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/eade7a08-6f6a-4c10-8633-2be5d72fa774.pdf
+[2023-07-12 16:02:30,526] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/eade7a08-6f6a-4c10-8633-2be5d72fa774.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/eade7a08-6f6a-4c10-8633-2be5d72fa774.png
+[2023-07-12 16:02:33,497] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/ae69c5c3-7ced-4c5e-9531-1f558cf06953.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/ae69c5c3-7ced-4c5e-9531-1f558cf06953.pdf
+[2023-07-12 16:02:33,499] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/ae69c5c3-7ced-4c5e-9531-1f558cf06953.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/ae69c5c3-7ced-4c5e-9531-1f558cf06953.png
+[2023-07-12 16:02:34,799] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/f49cc40d-b330-413f-8112-3048276f7bb2.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/f49cc40d-b330-413f-8112-3048276f7bb2.pdf
+[2023-07-12 16:02:34,803] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/f49cc40d-b330-413f-8112-3048276f7bb2.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/f49cc40d-b330-413f-8112-3048276f7bb2.png
+[2023-07-12 16:02:37,947] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/f1746007-8d2d-4387-8cf6-07baea1ff4f7.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/f1746007-8d2d-4387-8cf6-07baea1ff4f7.pdf
+[2023-07-12 16:02:37,949] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/f1746007-8d2d-4387-8cf6-07baea1ff4f7.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/f1746007-8d2d-4387-8cf6-07baea1ff4f7.png
+[2023-07-12 16:02:39,620] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/d197fa32-9508-4f3a-a88f-4427f304adea.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/d197fa32-9508-4f3a-a88f-4427f304adea.pdf
+[2023-07-12 16:02:39,621] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/d197fa32-9508-4f3a-a88f-4427f304adea.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/d197fa32-9508-4f3a-a88f-4427f304adea.png
+[2023-07-12 16:02:47,614] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/66d7c653-7de8-4c5e-9690-ef0d1a1076a8.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/66d7c653-7de8-4c5e-9690-ef0d1a1076a8.pdf
+[2023-07-12 16:03:03,239] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/66d7c653-7de8-4c5e-9690-ef0d1a1076a8.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/66d7c653-7de8-4c5e-9690-ef0d1a1076a8.png
+[2023-07-12 16:03:21,631] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/0ea12921-1118-42a1-bd64-943df04e27e0.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/0ea12921-1118-42a1-bd64-943df04e27e0.pdf
+[2023-07-12 16:03:21,633] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/0ea12921-1118-42a1-bd64-943df04e27e0.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/0ea12921-1118-42a1-bd64-943df04e27e0.png
+[2023-07-12 16:03:22,072] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/91e5cde4-1635-4ba6-9785-8279f00ca472.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/91e5cde4-1635-4ba6-9785-8279f00ca472.pdf
+[2023-07-12 16:03:22,074] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/91e5cde4-1635-4ba6-9785-8279f00ca472.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/91e5cde4-1635-4ba6-9785-8279f00ca472.png
+[2023-07-12 16:03:22,519] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/34bf9ae4-b2ef-41e4-be79-dbf1d2a7960a.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/34bf9ae4-b2ef-41e4-be79-dbf1d2a7960a.pdf
+[2023-07-12 16:03:22,521] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/34bf9ae4-b2ef-41e4-be79-dbf1d2a7960a.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/34bf9ae4-b2ef-41e4-be79-dbf1d2a7960a.png
+[2023-07-12 16:03:22,526] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/fd7d2afc-a023-4cee-aa0b-765e1814cf84.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/fd7d2afc-a023-4cee-aa0b-765e1814cf84.pdf
+[2023-07-12 16:03:22,528] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/fd7d2afc-a023-4cee-aa0b-765e1814cf84.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/fd7d2afc-a023-4cee-aa0b-765e1814cf84.png
+[2023-07-12 16:03:22,532] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/af45fc98-471a-40b6-b33d-500c05aa16a8.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/af45fc98-471a-40b6-b33d-500c05aa16a8.pdf
+[2023-07-12 16:03:22,533] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/af45fc98-471a-40b6-b33d-500c05aa16a8.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/af45fc98-471a-40b6-b33d-500c05aa16a8.png
+[2023-07-12 16:03:22,538] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/95303a20-f3a3-41ab-b1fa-d3c01889cef0.png:
+PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/95303a20-f3a3-41ab-b1fa-d3c01889cef0.pdf
+[2023-07-12 16:03:22,539] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/95303a20-f3a3-41ab-b1fa-d3c01889cef0.pdf:
+original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/95303a20-f3a3-41ab-b1fa-d3c01889cef0.png

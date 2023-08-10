@@ -1,0 +1,151 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redpanda
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: redpanda
+  name: redpanda
+  namespace: redpanda
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redpanda
+  template:
+    metadata:
+      labels:
+        app: redpanda
+    spec:
+      volumes:
+        - name: kafka-data
+          nfs:
+            server: 172.16.7.91
+            path: /var/nfs_share_dir_for_k8s/kafka
+            #mount 172.16.7.91:/var/nfs_share_dir_for_k8s/source /home/vmadmin/python/v6/file-service-02/composer
+      initContainers:
+        - name: volume-mount-hack
+          image: busybox
+          command: [ "sh", "-c", "chmod -R 777 /var/lib/redpanda/data", "chown -R nfsnobody:nfsnobody /var/lib/redpanda/data" ]
+          volumeMounts:
+            - mountPath: /var/lib/redpanda/data
+              name: kafka-data
+#      hostname: kafka-broker
+      containers:
+        #--pandaproxy-addr INSIDE://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082 \
+        #--advertise-pandaproxy-addr INSIDE://redpanda-1:28082,OUTSIDE://localhost:8082 \
+        #--kafka-addr INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 \
+        #--advertise-kafka-addr INSIDE://redpanda-1:29092,OUTSIDE://localhost:9092 \
+        #--rpc-addr 0.0.0.0:33145 \
+        #--advertise-rpc-addr redpanda-1:33145
+        #listeners=INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092
+        #listener.security.protocol.map=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+        #advertised.listeners=INTERNAL://vm-address:19092,EXTERNAL://host-address:9092
+        #inter.broker.listener.name=INTERNAL
+        - image: vectorized/redpanda:latest
+          args:
+            - redpanda
+            - start
+            - --smp
+            - '1'
+            - --reserve-memory
+            - 0M
+            - --overprovisioned
+            - --set redpanda.empty_seed_starts_cluster=false
+            - --seeds "redpanda-1:33145"
+            - --kafka-addr
+            - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+            - --advertise-kafka-addr
+            - PLAINTEXT://redpanda:29092,OUTSIDE://$(MY_POD_IP):9092
+            - --pandaproxy-addr
+            - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+            - --advertise-pandaproxy-addr
+            - PLAINTEXT://redpanda:28082,OUTSIDE://$(MY_POD_IP):8082
+            - --advertise-rpc-addr redpanda-1:33145
+            - --set redpanda.kafka_batch_max_bytes=1213486160
+            - --set redpanda.kafka_request_max_bytes=1213486160
+#            - redpanda
+#            - start
+#            - --smp
+#            - '1'
+#            - --reserve-memory
+#            - 0M
+#            - --overprovisioned
+#            - --set redpanda.empty_seed_starts_cluster=false
+#            - --seeds "redpanda-1:33145"
+#            - --kafka-addr
+#            - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092,INTERNAL://0.0.0.0:19092
+#            - --advertise-kafka-addr
+#            #PLAINTEXT://asgard03.moffatt.me:9092
+#            - PLAINTEXT://$(MY_POD_IP):29092,OUTSIDE://$(MY_POD_IP):9092,INTERNAL://0.0.0.0:19092
+#            - --pandaproxy-addr
+#            - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+#            - --advertise-pandaproxy-addr
+#            - PLAINTEXT://redpanda:28082,OUTSIDE://0.0.0.0:8082
+#            - --advertise-rpc-addr redpanda-1:33145
+
+#       - python3
+#       - /app/cy_xdoc/server.py
+#       - bind=0.0.0.0:80
+#       - content_segment_len=9
+#       - host_url=http://172.16.7.91/lvfile
+#       - elastic_search.server=http://192.168.18.36:9200
+#       - elastic_search.prefix_index=lv-codx
+#       - db.host=192.168.18.36
+#       - db.port=27018
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+              #listeners=INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092
+              #listener.security.protocol.map=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+              #advertised.listeners=INTERNAL://vm-address:19092,EXTERNAL://host-address:9092
+              #inter.broker.listener.name=INTERNAL
+
+#            - name: pandaproxy-addr
+#              value: INSIDE://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+#            - name: kafka-addr
+#              value: INSIDE://0.0.0.0:29092,OUTSIDE://$(MY_POD_IP):9092,INTERNAL://$(MY_POD_IP):1909
+#            - name: advertise-kafka-addr
+#              value: INSIDE://0.0.0.0:29092,OUTSIDE://$(MY_POD_IP):9092,INTERNAL://$(MY_POD_IP):1909
+##            - name: advertise-kafka-addr
+##              value: INSIDE://redpanda-1:29092,OUTSIDE://$(MY_POD_IP):9092
+#            - name: rpc-addr
+#              value: 0.0.0.0:33145
+#            - name: advertise-rpc-addr
+#              value: redpanda-1:33145
+#            - name: redpanda.empty_seed_starts_cluster
+#              value: "false"
+
+
+          imagePullPolicy: IfNotPresent
+          name: kafka-broker
+          ports:
+            - containerPort: 9092
+            - containerPort: 8082
+          volumeMounts:
+            - mountPath: /var/lib/redpanda/data
+              name: kafka-data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redpanda
+  name: redpanda
+  namespace: redpanda
+spec:
+
+  type: NodePort
+  ports:
+    - name: broker-port
+      port: 9092
+      nodePort: 30992
+      targetPort: 9092
+  selector:
+    app: redpanda

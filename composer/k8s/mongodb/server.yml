@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mongodb-sn
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-sn
+  namespace: mongodb-sn
+spec:
+  selector:
+    matchLabels:
+      app: mongodb-sn
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb-sn
+
+    spec:
+      containers:
+        - name: mongodb-sn
+          image: mongo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: admin
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: admin
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-sn
+  namespace: mongodb-sn
+  labels:
+    app: mongodb-sn
+spec:
+  type: NodePort
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+      nodePort: 30271
+  selector:
+    app: mongodb-sn
+status:
+  loadBalancer: { }
+

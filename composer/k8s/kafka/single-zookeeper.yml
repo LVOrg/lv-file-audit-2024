@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kafka-sn
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: kafka-zookeeper
+  name: kafka-zookeeper
+  namespace: kafka-sn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-zookeeper
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: kafka-zookeeper
+    spec:
+      containers:
+        - env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2181"
+#            - name: ZOOKEEPER_SERVERS
+#              value: kafka-zookeeper:2888:3888
+            - name: ZOOKEEPER_SERVER_ID
+              value: "1"
+            - name: ZOOKEEPER_ADMIN_ENABLE_SERVER #admin.enableServer
+              value: "true"
+            - name: ZOOKEEPER_ADMIN_SERVER_PORT
+              value: "9876"
+            - name: ZOOKEEPER_ALLOW_ANONYMOUS_LOGIN
+              value: "true"
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+
+
+#          image: confluentinc/cp-zookeeper:7.3.0
+          image:  bitnami/zookeeper:latest
+          name: kafka-zoo-keeper
+          ports:
+            - containerPort: 2181
+          resources: {}
+      hostname: kafka-zookeeper
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: kafka-zookeeper
+  name: kafka-zookeeper
+  namespace: kafka-sn
+spec:
+  type: ClusterIP
+  ports:
+    - name: "2181"
+      port: 2181
+      targetPort: 2181
+  selector:
+    app: kafka-zookeeper
+status:
+  loadBalancer: {}

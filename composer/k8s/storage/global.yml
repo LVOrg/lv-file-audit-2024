@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lv-nfs
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: lv-nfs
+  namespace: lv-nfs
+provisioner: 172.16.7.91/external-nfs
+parameters:
+  server: 172.16.7.91
+  path: /var/nfs_share_dir_for_k8s
+  readOnly: "false"

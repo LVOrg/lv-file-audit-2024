@@ -1,0 +1,24 @@
+#Full file service including:
+# 1- Web API and Web app for documentation of storage
+# 2- VideoService Process Thumb
+version: '3.7'
+
+services:
+#  build-mage:
+#    image: lv-file
+#    build:
+#      context: ./..
+#      dockerfile: ./composer/files-dockerfile
+  web:
+    network_mode: "host"
+    image: nttlong/lv-file:rc.0.5.6
+    container_name: xdoc-web-rc-5-6
+#    volumes:
+#
+#      - ${PATH_LOCAL_DIR_IN_HOST}/web-api/logs/:/app/logs
+#      - ${PATH_LOCAL_DIR_IN_HOST}/web-api/tmp-upload/:/app/tmp
+#    command: python3 /app/test_cy_docs.py
+    command: python3 /app/cy_xdoc/server.py host_url=http://172.16.7.94:8011 bind=0.0.0.0:8011 db.host=192.168.18.36 db.port=27018 db.username=admin-doc db.password="'123456'" db.authSource=lv-docs admin_db_name=lv-docs elastic_search.server=http://192.168.18.36:9200 elastic_search.prefix_index=lv-codx
+    ports:
+      - 8012:80
+

@@ -1,0 +1,193 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: fs-svc
+  labels:
+    name: fs-svc
+---
+# Enables the pods in a deployment to be accessible from outside the cluster
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-services-api-svc
+  namespace: fs-svc
+spec:
+  selector:
+    app: file-services-api
+#  portForward:
+#    - protocol: "TCP"
+#      port: 8011
+#      localPort: 9000
+  ports:
+    - protocol: "TCP"
+      port: 8011
+      targetPort: 8080
+      name: file-services-api
+      nodePort: 30000
+#  type: LoadBalancer
+  type: NodePort
+#  loadBalancerIP: 172.16.7.248
+---
+# kf-api Deployment
+# Defines the deployment of the app running in a pod on any worker node
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-services-api
+  namespace: fs-svc
+  labels:
+    app: file-services-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: file-services-api
+  template:
+    metadata:
+      labels:
+        app: file-services-api
+    spec:
+      containers:
+        - args:
+            - gunicorn
+            - -w
+            - "4"
+            - --worker-class
+            - uvicorn.workers.UvicornWorker
+            - api_app:app
+            - --bind
+            - 0.0.0.0:8080
+          env:
+            - name: file_server_api_url
+              value: http://172.16.7.92:30000/api
+            - name: file_server_bind_ip
+              value: 0.0.0.0
+            - name: file_server_bind_port
+              value: "8080"
+            - name: file_server_db_auth_source
+              value: lv-docs
+            - name: file_server_db_host
+              value: 192.168.18.36
+            - name: file_server_db_password
+              value: "123456"
+            - name: file_server_db_port
+              value: "27018"
+            - name: file_server_db_replica_set
+            - name: file_server_db_username
+              value: admin-doc
+            - name: file_server_es_url
+              value: '''http://192.168.18.36:9200,'''
+            - name: file_server_root_url
+              value: 'http://172.16.7.92:30000'
+            - name: file_server_use_os_config
+              value: '''true'''
+          image: nttlong/lv-file:v1
+          name: file-services-api
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources: { }
+          volumeMounts:
+          - name: tmp-upload
+            mountPath: /app/tmp
+          - name: fs-docs
+            mountPath: /app/fs-docs
+        # process thumb video container
+        - args:
+            - python3
+            - /app/bk_services/thumb_video.py
+
+          image: nttlong/lv-file:v1
+          name: file-services-thumb-video
+          imagePullPolicy: Always
+
+          resources: { }
+          volumeMounts:
+            - name: tmp-upload
+              mountPath: /app/tmp
+            - name: fs-docs
+              mountPath: /app/fs-docs
+        # Process thumb image container
+        - args:
+            - python3
+            - /app/bk_services/thumb_image.py
+
+          image: nttlong/lv-file:v1
+          name: file-services-thumb-image
+          imagePullPolicy: Always
+
+          resources: { }
+          volumeMounts:
+            - name: tmp-upload
+              mountPath: /app/tmp
+            - name: fs-docs
+              mountPath: /app/fs-docs
+        # Process thumb office container
+        - args:
+            - python3
+            - /app/bk_services/thumb_office.py
+
+          image: nttlong/lv-file:v1
+          name: file-services-thumb-office
+          imagePullPolicy: Always
+
+          resources: { }
+          volumeMounts:
+            - name: tmp-upload
+              mountPath: /app/tmp
+            - name: fs-docs
+              mountPath: /app/fs-docs
+        # Process thumb pdf container
+        - args:
+            - python3
+            - /app/bk_services/thumb_pdf.py
+
+          image: nttlong/lv-file:v1
+          name: file-services-thumb-pdf
+          imagePullPolicy: Always
+
+          resources: { }
+          volumeMounts:
+            - name: tmp-upload
+              mountPath: /app/tmp
+            - name: fs-docs
+              mountPath: /app/fs-docs
+        # Process ocr pdf container
+        - args:
+            - python3
+            - /app/bk_services/ocr_pdf.py
+
+          image: nttlong/lv-file:v1
+          name: file-services-ocr-pdf
+          imagePullPolicy: Always
+
+          resources: { }
+          volumeMounts:
+            - name: tmp-upload
+              mountPath: /app/tmp
+            - name: fs-docs
+              mountPath: /app/fs-docs
+        # Process ocr image container
+        - args:
+            - python3
+            - /app/bk_services/ocr_image.py
+
+          image: nttlong/lv-file:v1
+          name: file-services-ocr-image
+          imagePullPolicy: Always
+
+          resources: { }
+          volumeMounts:
+            - name: tmp-upload
+              mountPath: /app/tmp
+            - name: fs-docs
+              mountPath: /app/fs-docs
+
+      volumes:
+       - name: tmp-upload
+         hostPath: # hostPath volume
+           path: /file-api # folder of woker node
+       - name: fs-docs
+         hostPath: # hostPath volume
+           path: /fs-docs # folder of woker node

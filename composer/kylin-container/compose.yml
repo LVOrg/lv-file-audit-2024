@@ -1,0 +1,31 @@
+#Full file service including:
+# 1- Web API and Web app for documentation of storage
+# 2- VideoService Process Thumb
+version: '3.7'
+
+services:
+  build-mage:
+    image: lv-kylin-client
+    build:
+      context: ./
+      dockerfile: ./kylin-client
+
+  restart: on-failure
+  xdoc-file-2:
+#    image: nttlong/lv-file:rc.0.7.1
+    cpus: 0.125
+    mem_reservation: "50M"
+    mem_limit: "300M"
+    container_name: lv-kylin-client
+    restart: on-failure
+    volumes:
+      - ${MAP}/xdoc-file-3:/app/background_service_files
+#    volumes:
+#
+#      - ${PATH_LOCAL_DIR_IN_HOST}/web-api/logs/:/app/logs
+#      - ${PATH_LOCAL_DIR_IN_HOST}/web-api/tmp-upload/:/app/tmp
+    command: python3 /app/cyx/start.py db.host=192.168.18.36 db.port=27018 db.username=admin-doc db.password="'123456'" db.authSource=lv-docs admin_db_name=lv-docs elastic_search.server=http://192.168.18.36:9200 elastic_search.prefix_index=lv-codx
+
+
+
+#kylin://ADMIN:KYLIN@172.16.7.81:30770/long_test

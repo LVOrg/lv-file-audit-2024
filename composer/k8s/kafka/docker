@@ -1,0 +1,10 @@
+FROM  debian
+RUN apt update
+RUN apt-get install nano -y
+RUN mkdir ~/Downloads
+RUN apt-get update && apt-get install curl -y
+RUN curl "https://archive.apache.org/dist/kafka/2.1.1/kafka_2.11-2.1.1.tgz" -o ~/Downloads/kafka.tgz
+RUN mkdir ~/kafka && cd ~/kafka
+RUN tar -xvzf ~/Downloads/kafka.tgz --strip 1
+COPY . /server.properties
+RUN nano /config/server.properties
