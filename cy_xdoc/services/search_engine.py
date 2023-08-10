@@ -56,6 +56,7 @@ class SearchEngine:
         self.similarity_settings_cache = {}
         #"index.mapping.total_fields.limit": 2000
         self.__index_mapping_total_fields_limit = {}
+        self.index_highlight_max_analyzed_offset = {}
         self.vn = vn
         self.vn_predictor = vn_predictor
         self.empty_privilege_value = 0
