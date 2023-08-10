@@ -1,0 +1,93 @@
+﻿<div class="layout-columns">
+    <style>
+        .shadow-box {
+            box-shadow: rgba(0, 0, 0, 0.07) 0px 5px 15px;
+            margin: 10px;
+        }
+            .shadow-box p.content {
+                font-size:9pt;
+                padding:10px;
+            }
+            .shadow-box em {
+                background-color: #ff6a00;
+                font-size: 11pt;
+                font-weight:bold;
+            }
+        .header {
+            position: relative;
+            left: 0;
+            top: 0;
+            right: 0;
+            padding: 10px;
+        }
+
+        .title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        .info label {
+            white-space:nowrap;
+            padding-right:10px;
+        }
+        .grid-container {
+            display: grid;
+        }
+
+            .grid-container > div:first-child {
+                grid-row-start: 1;
+                grid-row-end: 1;
+                border: solid 4px red;
+            }
+
+            .grid-container > div:last-child {
+                grid-row-start: 2;
+                grid-row-end: 2;
+            }
+
+        .header-panel label {
+            white-space: nowrap;
+        }
+    </style>
+    <div class="header layout-rows">
+        <div class="layout-rows header-panel">
+
+            <div class="dock full">
+                <div class="input-group" style="width:100%">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm" ng-click="doRefresh().then()" type="button">{{$res("Refresh")}}</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+    <div class="dock full" style="margin:15px;overflow-y:auto;margin:0;padding:0">
+        <div class="layout-rows shadow-box " ng-repeat="p in data">
+            <div style="margin:10px">
+                <table>
+                    <tr>
+                        <td>Time</td>
+                        <td>{{p.CreateDate|date:'dd-MM-yyyy hh:mm:ss'}}</td>
+                    </tr>
+                    <tr>
+                        <td>Exception</td>
+                        <td>{{p.Exception}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            {{p.Content}}
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+</div>

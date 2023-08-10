@@ -1,0 +1,171 @@
+﻿<div class="layout-columns">
+    <style>
+        .shadow-box {
+            box-shadow: rgba(0, 0, 0, 0.07) 0px 5px 15px;
+            margin: 10px;
+        }
+            .shadow-box p.content {
+                font-size:9pt;
+                padding:10px;
+            }
+            .shadow-box em {
+                background-color: #ff6a00;
+                font-size: 11pt;
+                font-weight:bold;
+            }
+        .header {
+            position: relative;
+            left: 0;
+            top: 0;
+            right: 0;
+            padding: 10px;
+        }
+
+        .title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        .info label {
+            white-space:nowrap;
+            padding-right:10px;
+            margin-left:10px;
+        }
+        .grid-container {
+            display: grid;
+        }
+
+            .grid-container > div:first-child {
+                grid-row-start: 1;
+                grid-row-end: 1;
+                border: solid 4px red;
+            }
+
+            .grid-container > div:last-child {
+                grid-row-start: 2;
+                grid-row-end: 2;
+            }
+
+        .header-panel label {
+            white-space: nowrap;
+        }
+    </style>
+    <div class="header layout-rows">
+        <div class="layout-columns dock full">
+            <div class="layout-rows header-panel">
+            <div class="dock full">
+                <textarea class="dock full" style="padding:10px" ng-model="SearchExpr"></textarea>
+            </div>
+        </div>
+        <div class="layout-rows header-panel">
+            <div>
+                <span style="margin:4px">highlight</span>
+            </div>
+            <div style="padding:4px">
+
+                <input type="checkbox" ng-model="highlight">
+            </div>
+            <div>
+                <select style="min-width:220px" ng-model="currentAppName" class="form-control form-control-sm" ng-change="doFullTextSearch().then();">
+                    <option ng-repeat="p in listOfApp" value="{{p.Name}}">
+                        {{p.Name}}
+                    </option>
+                </select>
+            </div>
+            <div class="dock full">
+                <div class="input-group" style="width:100%">
+                    <input type="text" class="form-control form-control-sm" ng-model="searchContent" placeholder="{{$res('Full text search')}}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm" ng-click="doFullTextSearch().then()" type="button">{{$res("Search")}}</button>
+                    </div>
+                </div>
+            </div>
+
+            
+
+
+            
+        </div>
+
+            </div>
+    </div>
+    <style>
+        .full-item-row {
+            width:100% !important
+        }
+    </style>
+
+    <div class="dock full" style="margin:15px">
+        <div rcmpct-lazy-scroll source="data.items" item-var="p" class="row" on-request-data="doSearchMore" page-size="20">
+             <rcmpct-template>
+                 <rcmpct-grid cols="180px 450px 1fr"  class="shadow-box full-item-row" file-id="{{p.UploadId}}">
+                    <div style="min-width:140px;max-width:140px">
+                        <img style="min-width:120px;max-width:120px;margin:10px" ng-src="{{p.ThumbUrl}}" ng-if="p.HasThumb" />
+                    </div>
+                    <div style="">
+                <rcmpct-grid cols="30% 70%" class="info">
+
+                    <div style="overflow:hidden;text-overflow:ellipsis;grid-column:1/-1">
+                        <a ng-if="p.MimeType.indexOf('video/')==0" href="javascript:void(0);" ng-click="doOpenInWindows(p).then()">
+                            {{p.FileName}}
+                        </a>
+
+                        <a style="text-overflow:ellipsis;white-space:nowrap" ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">{{p.FileName}}</a>
+                    </div>
+
+                    <label>{{$res("Status")}}:</label>
+                    <div>
+                        <label ng-if="p.Status==1">
+                            {{$res("Finished")}}
+                        </label>
+                        <label ng-if="p.Status==0">
+                            {{$res("Pending")}}
+                        </label>
+                    </div>
+                    <label>
+                        {{$res("Size")}}: &nbsp;
+                    </label>
+                    <label>
+                        {{p.SizeInHumanReadable}}
+                    </label>
+
+                    <label>
+                        {{$res("Created on")}}:
+                    </label>
+                    <label>
+                        {{p.RegisterOn|date:'dd-MM-yyyy hh:mm:ss'}}
+                    </label>
+                    <label ng-if="p.OcrContentUrl && p.OcrContentUrl!=null">
+                        {{$res("OCR content")}}
+                    </label>
+                    <a ng-if="p.OcrContentUrl && p.OcrContentUrl!=null" ng-href="{{p.OcrContentUrl}}" target="_blank">
+                        {{$res("View")}}
+                    </a>
+                    <span ng-if="p.MimeType.indexOf('application/vnd.openxmlformats-')==0">
+                                {{$res('Document')}}
+                            </span>
+                            <a ng-if="p.MimeType.indexOf('application/vnd.openxmlformats-')==0" href="javascript:void(0);" ng-click="doOpenWordInWindows(p).then()">
+                                      {{$res("View")}}
+                             </a>
+                    <label>
+                        {{$res("Privileges")}}:
+                    </label>
+                    <a>
+
+                        {{p.privileges}}
+                    </a>
+
+                </rcmpct-grid>
+            </div>
+            <div>
+                <p class="content" ng-repeat="x in p.Highlight"  ng-bind-html="x">
+
+                </p>
+            </div>
+                 </rcmpct-grid>
+             </rcmpct-template>
+        </div>
+
+    </div>
+</div>

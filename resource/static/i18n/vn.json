@@ -1,0 +1,20 @@
+﻿{
+	"app name": "Tên ứng dụng",
+	"Create": "Tạo",
+	"Status": "Tình trạng",
+	"Created on": "Ngày tạo",
+	"Finished": "Hoàn tất nội dung",
+	"Pending": "Chưa xong",
+	"size": "Dung lượng",
+	"Duration time": "Thời lượng",
+	"detail": "Chi tiết",
+	"delete": "Xóa",
+	"info detail": "Thông tin chi tiết",
+	"new": "Thêm mới",
+	"mark dlete": "Đánh dấu xóa",
+	"unmarked delete":"Bỏ đánh dấu xóa",
+	"cancel": "Thôi",
+	"upload": "Tải lên",
+	"Uploading was complete": "Quá trình tải lên đã hoàn tất"
+
+}

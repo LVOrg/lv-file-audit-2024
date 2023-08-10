@@ -1,0 +1,345 @@
+﻿<div class="layout-columns">
+    <style>
+
+    </style>
+    <style>
+        <style>
+
+.w3rcontainer{
+   border: 1px solid #cccfdb;
+   border-radius: 2px;
+}
+ .image-card {
+        overflow-y: hidden;
+
+
+}
+
+.perspective-left {
+  transform: perspective(1500px) rotateY(15deg);
+  transition: transform 1s ease 0s;
+}
+
+.perspective-left:hover {
+  transform: perspective(3000px) rotateY(5deg);
+}
+
+.perspective-right {
+
+  transition: transform 0.5s ease 0s;
+  position:relative;
+    left:0px;
+    top:0px;
+}
+.card-container:has(*:hover) .perspective-right {
+    transform: perspective(100px) rotateY(45deg);
+    position:relative;
+
+    left:0px;
+    top:0px;
+}
+.card-container:has(*:hover) img.mirror {
+    animation: scale 0.5s ease-in-out forwards;
+}
+.card-container:has(*:hover) {
+  filter:invert(10%)
+}
+
+
+@keyframes scale {
+  to {
+    transform: scale(0.5);
+  }
+}
+.perspective-right:hover img.mirror {
+
+  animation: scale 0.5s ease-in-out forwards;
+}
+ .perspective-right:hover {
+    transform: perspective(100px) rotateY(45deg);
+    position:relative;
+
+    left:0px;
+    top:0px;
+}
+.card-container{
+    overflow: hidden;
+}
+img.mirror {
+                -webkit-box-reflect: below 4px -webkit-gradient(linear, left top, left bottom,  from(transparent), color-stop(0%, transparent), to(rgba(255, 255, 255, 0.21)));
+
+                max-width:150px;
+                max-height:150px;
+                margin:10px;
+
+            }
+</style>
+
+    </style>
+    <style>
+        .shadow-box {
+            box-shadow: rgba(0, 0, 0, 0.07) 0px 5px 15px;
+            margin: 10px;
+        }
+
+        .header {
+            position: relative;
+            left: 0;
+            top: 0;
+            right: 0;
+            padding: 10px;
+        }
+
+        .title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .grid-container {
+            display: grid;
+        }
+
+            .grid-container > div:first-child {
+                grid-row-start: 1;
+                grid-row-end: 1;
+                border: solid 4px red;
+            }
+
+            .grid-container > div:last-child {
+                grid-row-start: 2;
+                grid-row-end: 2;
+            }
+            .header-panel label {
+                white-space:nowrap;
+            }
+        .img-container {
+            background: #0f0f0f;
+            margin:4px;
+        }
+    </style>
+    <div class="header layout-rows">
+        <div class="layout-rows header-panel">
+            <div>
+                <input list="app-list" style="min-width:220px" id="ice-cream-choice" ng-change="doLoadAllFiles().then()" name="ice-cream-choice" ng-model="currentAppName"  class="form-control form-control-sm">
+                <datalist id="app-list"   >
+                    <option ng-repeat="p in listOfApp" value="{{p.Name}}">
+                        {{p.Name}}
+                    </option>
+                </datalist>
+            </div>
+            <div>
+                <div class="input-group mb-3" style="width:250px">
+                    <input type="text" class="form-control form-control-sm" ng-model="fileNameSearchValue" placeholder="{{$res('Search by Filename')}}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()" type="button">{{$res("Tìm")}}</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="input-group mb-3" style="width:250px">
+                    <span class="input-group-append">{{$res("Sort by")}}</span>
+                    <datalist class="form-control form-control-sm" ng-model="fileNameSort"></datalist>
+                    <!--<div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()" type="button">{{$res("Tìm")}}</button>
+                    </div>-->
+                </div>
+               
+            </div>
+
+            <div class="dock full"></div>
+
+
+
+        </div>
+    </div>
+    
+    <div class="dock full" style="margin:15px">
+        <div rcmpct-lazy-scroll source="listOfFiles" item-var="p" class="row" on-request-data="doLoadMore" page-size="20">
+            <rcmpct-template>
+                <rcmpct-grid cols="(,700,100%)(700,,50% 50%)"  class="shadow-box" file-id="{{p.UploadId}}">
+                    <rcmpct-grid cols="180px minmax(0,1fr)" class="card-container">
+                        <div class="img-container">
+                        <div class="image-card perspective-right">
+                            <img class="mirror" style="" ng-src="{{p.ThumbUrl}}" ng-if="p.HasThumb" />
+                        </div>
+                            </div>
+                        <rcmpct-grid cols="30% 70%">
+
+                            <div style="overflow:hidden;text-overflow:ellipsis;grid-column:1/-1">
+                                <a style="" ng-if="p.MimeType.indexOf('video/')==0" href="javascript:void(0);" ng-click="doOpenInWindows(p).then()">
+                                    {{p.FileName}}
+                                </a>
+
+                                <a style="text-overflow:ellipsis;white-space:nowrap" ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">{{p.FileName}}</a>
+
+                            </div>
+
+                            <label>{{$res("Status")}}</label>
+                            <div>
+                                <label ng-if="p.Status==1">
+                                    {{$res("Finished")}}
+                                </label>
+                                <label ng-if="p.Status==0">
+                                    {{$res("Pending")}}
+                                </label>
+                            </div>
+                            <label>
+                                {{$res("Size")}}
+                            </label>
+                            <label>
+                                {{p.SizeInHumanReadable}}
+                            </label>
+                            <span ng-if="p.DurationHumanReadable">
+                                {{$res("Duration time")}}
+                            </span>
+                            <span ng-if="p.DurationHumanReadable">
+                                {{p.DurationHumanReadable}}
+                            </span>
+                            <label>
+                                {{$res("Created on")}}
+                            </label>
+                            <label>
+                                {{p.CreatedOn|date:'dd-MM-yyyy hh:mm:ss'}}
+                            </label>
+                            <label ng-if="p.UrlDfOCRSource && p.UrlDfOCRSource!=null">
+                                {{$res("OCR content")}}
+                            </label>
+                            <a ng-if="p.UrlDfOCRSource && p.UrlDfOCRSource!=null" ng-href="{{p.UrlDfOCRSource}}" target="_blank">
+                                {{$res("View")}}
+                            </a>
+                            <span ng-if="p.MimeType.indexOf('application/vnd.openxmlformats-')==0">
+                                {{$res('Document')}}
+                            </span>
+                            <a ng-if="p.MimeType.indexOf('application/vnd.openxmlformats-')==0" href="javascript:void(0);" ng-click="doOpenWordInWindows(p).then()">
+                                      {{$res("View")}}
+                             </a>
+                            <span ng-if="p.OcrContentUrl">
+                                {{$res('OCR content')}}
+                            </span>
+
+                            <a  ng-if="p.OcrContentUrl" ng-href="{{p.OcrContentUrl}}" target="_blank">
+                                {{$res('view')}}
+                            </a>
+                            <div style="grid-column: 1/-1">
+                                <div class="layout-rows">
+                                    <div>
+                                        <input type="checkbox" ng-model="p.isSelected" ng-change="showAddTagsButton().then()">
+                                    </div>
+                                    <div class="dock full"></div>
+                                    <div>
+                                        <button class="btn btn-link btn-sm" ng-click="doLoadLayoutOCR(p).then()">{{$res('Layout OCR')}} </button>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-link btn-sm" ng-click="doReadableContent(p).then()">{{$res('Content')}} </button>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-link btn-sm" ng-click="doShowDetail(p).then()">{{$res('Detail')}} </button>
+                                    </div>
+                                    <div style="position:relative;right:4px;bottom:4px">
+                                        <button class="btn btn-danger btn-sm" ng-click="doDelete(p).then()">{{$res('Delete')}}</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </rcmpct-grid>
+                    </rcmpct-grid>
+                    
+                    <!--<div class="debug">
+        
+    </div>
+    <div class="debug">
+        <rcmpct-grid cols="220px  minmax(0,1fr)">
+            <div>
+                <label>
+                    {{$res("File __name__")}}
+                </label>
+            </div>
+            <div>
+                
+            </div>
+
+        </rcmpct-grid>
+    </div>-->
+
+                </rcmpct-grid>
+                
+                <!--<div class="col-6 col-md-6 col-sm-12 col-xs-12">
+                    <div class="layout-rows  shadow-box" style="height:200px">
+                        <div style="min-width:140px;max-width:140px" class="shadow-box">
+                            <div class="layout-rows">
+                                <div class="dock full"></div>
+                                <div class="layout-columns">
+                                    <div class="dock full"></div>
+                                    <div>
+                                        <img style="min-width:120px;max-width:120px;margin:10px" ng-src="{{p.ThumbUrl}}" ng-if="p.HasThumb" />
+                                    </div>
+                                    <div class="dock full"></div>
+                                </div>
+                                <div class="dock full"></div>
+                            </div>
+
+                        </div>
+                        <div class="dock full">
+                            <div class="row ">
+                                <div class="title col-12">
+                                    <a ng-if="p.MimeType.indexOf('video/')==0" href="javascript:void(0);" ng-click="doOpenInWindows(p).then()">
+                                        {{p.FileName}}
+                                    </a>
+
+                                    <a ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">{{p.FileName}}</a>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-6 title">
+                                    <a>Status</a>
+                                </div>
+                                <div class="col-6" ng-if="p.Status==1">
+                                    Hoàn tất
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6 title">
+                                    <a>File Size</a>
+                                </div>
+                                <div class="col-6">
+                                    {{p.SizeInHumanReadable}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6 title">
+                                    <a>Created on</a>
+                                </div>
+                                <div class="col-6">
+                                    {{p.RegisterOn|date:'dd-MM-yyyy'}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
+                
+            </rcmpct-template>
+        </div>
+       
+        
+    </div>
+    <div class="layout-rows">
+        <div ng-if="ui.hasSelected">
+            <input type="button" class="btn btn-primary btn-sm" value="{{$res('Add tags')}}" ng-click="doShowWindowAddTags().then()" style="margin-right:10px" />
+        </div>
+        <div ng-if="ui.hasSelected">
+            <input type="button" class="btn btn-danger btn-sm" value="{{$res('Delete selected items')}}" ng-click="doDeleteItems().then()" style="margin-right:10px" />
+        </div>
+        <div class="dock full"></div>
+        <div style="padding:4px">
+            <input type="button" class="btn btn-primary btn-sm" value="{{$res('New')}}" ng-click="doOpenUploadWindow().then()" style="margin-right:10px" />
+        </div>
+        <div style="padding:4px">
+             <input type="button" class="btn btn-primary btn-sm" value="{{$res('New compress')}}" ng-click="doOpenUploadZipWindow().then()" />
+        </div>
+
+
+    </div>
+</div>

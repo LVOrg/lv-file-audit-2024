@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app" style="overflow:hidden">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <base href="{{app.full_url_app}}/">
+<!--    <meta __name__="viewport" content="width=device-width, initial-scale=1.0">-->
+    <meta name="viewport" content="width=device-width">
+
+
+    <meta charset="utf-8" />
+<!--    <meta __name__="viewport" content="width=device-width, initial-scale=1.0" />-->
+    <title>Files explorer</title>
+    <link rel="stylesheet" href="static/js/vendors/bootstrap.min.css" />
+    <link rel="stylesheet" href="static/js/vendors/jquery.toast.css" />
+    <link rel="stylesheet" href="static/css/fontawesome-free-5.15.4-web/css/fontawesome.min.css" />
+    <link rel="stylesheet" href="static/css/site.css" />
+    <script src="static/js/vendors/jquery.min.js"></script>
+    <script src="static/js/vendors/jquery.toast.js"></script>
+    <script src="static/js/vendors/bootstrap-reboot.min.css"></script>
+    <script src="static/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="static/js/vendors/bootstrap.min.js"></script>
+
+<!--    <script src="static/js/angular.min.js"></script>-->
+
+
+</head>
+<body id="root" ng-controller="app" style="position:fixed;left:0;right:0;top:0;bottom:0;overflow-y:hidden">
+<div id="view">
+
+</div>
+<script  type="module" defer>
+    window.token = "Token";
+    window.abs_url = "{{app.full_url_root}}";
+    window.full_app_url = "{{app.full_url_app}}";
+    window.api_url ="{{app.api_url}}"
+</script>
+<script type="module" defer>
+
+    import appModule from "./static/js/app.js"
+    import loginView from "./static/views/login/index.js"
+    var login =await loginView();
+    await login.render(document.getElementById("view"));
+
+
+
+
+</script>
+    <script>
+        $(window).resize(function () {
+            $("body").height($(window).innerHeight())
+        });
+        $(document).ready(function () {
+            $("body").height($(window).innerHeight())
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+
+<div class="layout-columns" title="{{data.FileName}}">
+
+                <div class="dock full" style="overflow-y:auto">
+                    <table>
+                        <tr ng-repeat="(key, value) in data">
+                            <td valign="top">
+                                <b style="margin-right:20px">{{key}}</b>
+                            </td>
+                            <td  valign="top">:</td>
+                            <td ng-if="key!='AvailableThumbs'" width="100%">
+                                <input ng-if="key!='ClientPrivileges'" type="text" value="{{value}}" style="border:none;width:100%" readonly="readonly"/>
+
+                                <table class="table bordered" ng-if="key=='ClientPrivileges'">
+                                    <thead>
+                                        <tr>
+                                           <th>
+                                               Key
+                                           </th>
+                                            <th>
+                                                Value
+
+                                            </th>
+                                            <th style="max-width:40px" width="40">
+                                                <button class="btn btn-sm btn-primary" ng-click="doAddNewTags()">+</button>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="p in privileges">
+                                        <td>
+                                            <input type="text" ng-model="p.key" ng-if="p.isNew">
+                                            <span ng-if="!p.isNew">{{p.key}}</span>
+                                        </td>
+                                        <td>
+                                            <input type="text" ng-model="p.values" style="width:100%;float:left">
+                                        </td>
+                                        <td style="max-width:40px" width="40">
+                                            <button class="btn btn-sm btn-danger" ng-click="$parent.doRemoveTags(p)">-</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3">
+                                                <div class="layout-rows">
+                                                    <div class="dock full"></div>
+                                                    <div>
+                                                        <button class="btn btn-sm btn-primary" ng-click="doUpdateTags().then()">
+                                                            {{$res('Update')}}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </tfoot>
+
+                                </table>
+                            </td>
+                            <td ng-if="key=='AvailableThumbs'">
+                                {{value.length}}
+                                <div style="display:none">
+                                    <p  ng-repeat="r in value">
+                                    <img ng-src="../{{r}}" style="max-width:200px;max-height:200px"></img>
+                                </p>
+                                </div>
+
+                            </td>
+
+
+                        </tr>
+
+                    </table>
+                </div>
+
+<div class="layout-rows">
+    <div style="padding:4px" ng-if="(!data.MarkDelete)||(data.MarkDelete==null)">
+        <input type="button" class="btn btn-primary pull-right btn-sm" value="{{$res('Mark delete')}}" ng-click="doSetMarkDelete(true).then()" />
+    </div>
+    <div style="padding:4px" ng-if="(data.MarkDelete==true)">
+        <input type="button" class="btn btn-primary pull-right btn-sm" value="{{$res('Unmarked delete')}}" ng-click="doSetMarkDelete(false).then()" />
+    </div>
+    <div class="dock full"></div>
+
+    <div style="padding:4px">
+        <input type="button" class="btn btn-primary pull-right btn-sm" value="{{$res('Create filter tags')}}" ng-click="doCreateTags().then()" />
+    </div>
+    <div style="padding:4px">
+        <input type="button" class="btn btn-primary pull-right btn-sm" value="{{$res('Copy to')}} ..." ng-click="doCopy().then()" />
+    </div>
+    <div style="padding:4px">
+        <input type="button" class="btn btn-primary pull-right btn-sm" value="{{$res('Close')}}" ng-click="$close()" />
+    </div>
+
+</div>
+</div>

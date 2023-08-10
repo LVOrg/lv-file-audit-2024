@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <script>
+        var xx = { "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyb290IiwiaWF0IjoxNjU1MjY0NDU0LCJuYmYiOjE2NTUyNjQ0NTQsImp0aSI6ImZhMmU1OGZlLTIxZmYtNGQxNi1hMGNjLTQyNTY5ZThjZjE1OSIsImV4cCI6MTY1NTI2NTM1NCwidHlwZSI6ImFjY2VzcyIsImZyZXNoIjpmYWxzZX0.6yPssh-vLG1sG0_3smXiYTqwgszHy_OJrMj_0mFf138" }
+        console.log(xx.access_token)
+        function post(url, data) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "POST",
+                    contentType: 'application/json',
+                    headers: { Authorization: `Bearer ${xx.access_token}` },
+                    url: url,
+                    data: JSON.stringify(data),
+                    success: function (data) {
+                        resolve(data)
+                    },
+                    dataType: 'application/json'
+                });
+            });
+            
+        }
+        function submit(url, data) {
+            var postData = new FormData()
+            var keys = Object.keys(data)
+            keys.forEach(function (v) {
+                postData.append(v,data[v])
+            });
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    //contentType:'application/x-www-form-urlencoded',
+                    type: "POST",
+                   
+                    //dataType: 'json',
+                    url: url,
+
+                    processData: false,
+                    contentType: false,
+                    data: postData,
+                    success: function (r) {
+                        resolve(r)
+                    },
+                    error: function (e) {
+                        console.error(e);
+                    }
+                    //dataType: 'application/json'
+                });
+            });
+        }
+    </script>
+    <form action="http://127.0.0.1:8001/api/accounts/token" method="post">
+        <input type="text" name="username" /><br />
+        <input type="password" name="password" /><br />
+        <input type="submit" value="OK"/>
+
+    </form>
+    <script>
+        function doLogin() {
+            debugger;
+            var form = $("form");
+            var actionUrl = form.attr('action');
+
+            $.ajax({
+                type: "POST",
+                url: actionUrl,
+                data: form.serialize(), // serializes the form's elements.
+                success: function (data) {
+                    alert(data); // show response from the php script.
+                }
+            });
+        }
+    </script>
+</body>
+</html>

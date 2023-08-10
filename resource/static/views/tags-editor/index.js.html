@@ -1,0 +1,48 @@
+<div style="min-width:400px;max-width:600px">
+    <div class="layout-columns">
+        <div style="height:600px;overflow-y:auto;overflow-x:hidden" >
+            <table class="table bordered" width="100%">
+        <thead>
+        <tr>
+            <th width="220">
+                Object type
+            </th>
+            <th width="100%">
+                Object values
+            </th>
+            <th width="40">
+                <button class="btn btn-sm btn-primary" ng-click="doAddTag()">+</button>
+            </th>
+        </tr>
+        </thead>
+            <tbody>
+            <tr ng-repeat="p in owner.tags">
+                <td>
+                    <input type="text" ng-model="p.key"  style="width:220px"/>
+                </td>
+                <td>
+                    <input ng-model="p.values" style="width:100%"/>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" ng-click="doDeleteTag(p);">-</button>
+                </td>
+            </tr>
+            </tbody>
+    </table>
+        </div>
+
+    </div>
+    <div>
+        <div class="layout-rows">
+            <div class="dock full"></div>
+            <div>
+                <button class="btn btn-sm btn-primary" ng-click="doPostRemoveTags().then()"> {{$res('Remove tags to selected items')}} </button>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-primary" ng-click="doPostAddTags().then()"> {{$res('Add tags to selected items')}} </button>
+            </div>
+        </div>
+    </div>
+
+
+</div>

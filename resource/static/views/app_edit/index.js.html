@@ -1,0 +1,49 @@
+﻿<div class="edit">
+    <style>
+        .edit .col-6 {
+            margin-bottom:4px;
+        }
+    </style>
+    <div class="row">
+        <div class="col-6">
+            Logo
+        </div>
+        <div class="col-6">
+            <input type="file" id="logo" class="form-control" />
+        </div>
+        <div class="col-6">
+            App name
+        </div>
+        <div class="col-6">
+            <input type="text" ng-model="app.Name" class="form-control" />
+        </div>
+        <div class="col-6">
+            Domain
+        </div>
+        <div class="col-6">
+            <input type="text" ng-model="app.Domain" class="form-control" />
+        </div>
+        <div class="col-6">
+            Login Url
+        </div>
+        <div class="col-6">
+            <input type="text" ng-model="app.LoginUrl" class="form-control" />
+        </div>
+        <div class="col-6">
+            Return Url After SignIn
+        </div>
+        <div class="col-6">
+            <input type="text" ng-model="app.ReturnUrlAfterSignIn" class="form-control" />
+        </div>
+        <div class="col-6">
+            Description
+        </div>
+        <div class="col-6">
+            <textarea ng-model="app.Description" class="form-control"></textarea>
+        </div>
+        <div class="col-12">
+        
+            <input type="button" class="btn btn-primary pull-right" value="{{$res('Create')}}" ng-click="doUpdateApp().then()" />
+        </div>
+    </div>
+</div>
