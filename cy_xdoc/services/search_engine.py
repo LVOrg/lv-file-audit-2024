@@ -11,6 +11,7 @@ This library has only one Class SearchEngine \n
         }
 """
 import asyncio
+import datetime
 import pathlib
 import time
 import typing
@@ -109,14 +110,16 @@ class SearchEngine:
         if app_name == "admin":
             app_name = self.config.admin_db_name
         index_name = f"{self.prefix_index}_{app_name}"
-        if self.index_highlight_max_analyzed_offset.get(app_name) is None:
-            self.client.indices.put_settings(
-                index=index_name,
-                body={
-                    "index.highlight.max_analyzed_offset": "999999998"
-                }
-            )
-            self.index_highlight_max_analyzed_offset[app_name] = 1
+        # if self.index_highlight_max_analyzed_offset.get(app_name) is None:
+        #     self.client.indices.put_settings(
+        #         index=index_name,
+        #         body={
+        #             "index.highlight.max_analyzed_offset": "10000"
+        #         }
+        #     )
+        #     self.index_highlight_max_analyzed_offset[app_name] = 1
+        #     self.client.indices.refresh(index_name)
+
         if self.similarity_settings_cache.get(app_name) is None:
             """
             Set ignore doc len when calculate search score 
@@ -278,21 +281,64 @@ class SearchEngine:
         highlight_expr = highlight_expr or []
         highlight_expr += search_expr.get_highlight_fields()
         print(f"------------{skip}--{page_size}-------------------------")
-        ret = cy_es.search(
-            client=self.client,
-            limit=page_size,
-            excludes=[
-                cy_es.buiders.content,
+        t = datetime.datetime.now()
+        try:
+            ret = cy_es.search(
+                client=self.client,
+                limit=page_size,
+                excludes=[
+                    cy_es.buiders.content,
 
-                cy_es.buiders.vn_on_accent_content],
-            index=self.get_index(app_name),
-            highlight=highlight_expr,
-            filter=search_expr,
-            skip=skip,
-            sort=sort
+                    cy_es.buiders.vn_on_accent_content],
+                index=self.get_index(app_name),
+                highlight=highlight_expr,
+                filter=search_expr,
+                skip=skip,
+                sort=sort
 
-        )
-        return ret
+            )
+            n = (datetime.datetime.now()-t).total_seconds()
+            print(f"Elastic Search time = {n} second")
+            return ret
+        except elasticsearch.exceptions.RequestError as e:
+            if hasattr(e,"info")  and isinstance(e.info,dict) \
+                    and e.info.get('error') \
+                    and isinstance(e.info.get('error'),dict) \
+                    and isinstance(e.info.get('error').get('root_cause'),list) :
+
+
+                if e.info['error']['root_cause'][0]['type']=="illegal_argument_exception":
+                    if "index.highlight.max_analyzed_offset] " in e.info['error']['root_cause'][0]['reason']:
+                        max_value= e.info['error']['root_cause'][0]['reason'].split('The length [')[1].split(']')[0]
+                        if app_name == "admin":
+                            app_name = self.config.admin_db_name
+                        index_name = f"{self.prefix_index}_{app_name}"
+                        self.client.indices.put_settings(
+                            index=index_name,
+                            body={
+                                "index.highlight.max_analyzed_offset": str((int(max_value)*2))
+                            }
+                        )
+                        self.client.indices.refresh(index_name)
+                        ret = cy_es.search(
+                            client=self.client,
+                            limit=page_size,
+                            excludes=[
+                                cy_es.buiders.content,
+
+                                cy_es.buiders.vn_on_accent_content],
+                            index=self.get_index(app_name),
+                            highlight=highlight_expr,
+                            filter=search_expr,
+                            skip=skip,
+                            sort=sort
+
+                        )
+                        n = (datetime.datetime.now() - t).total_seconds()
+                        print(f"Elastic Search time = {n} second")
+                        return ret
+
+            print(e)
 
     async def full_text_search_async(self,
                          app_name,

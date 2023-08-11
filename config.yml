@@ -32,7 +32,7 @@ db_25:
   tls: false
   authSource:
   tlsCAFile:
-db__:
+db:
   # Host of mongodb
   host: 192.168.18.36
   # Port of mongodb
@@ -45,7 +45,7 @@ db__:
 #  db.password: Lacviet#123
 #  db.port: "27017"
 #  db.username: admin
-db:
+db__:
   # Host of mongodb
   host: 172.16.0.83
   password: Lacviet#123
@@ -80,7 +80,7 @@ jwt:
   algorithm: HS256
   access_token_expire_minutes: 480
 #tmp_upload_dir: ./tmp
-elastic_search:
+elastic_search__:
   server:
     - http://172.16.0.83:9200
   index: lv-files-server-v2
@@ -88,7 +88,7 @@ elastic_search:
   index_max_analyzed_offset: 60000000
   max_analyzed_offset: 1000
   field_content: content_bm25
-elastic_search__:
+elastic_search:
   server:
     - http://192.168.18.36:9200
   index: lv-files-server-v2

@@ -115,7 +115,7 @@ async def file_search(app_name: str, content: Optional[str],
     if filter is not None and filter.__len__()>0:
         if logic_filter:
             try:
-                json_filter = await cy_es.natural_logic_parse_async(filter)
+                json_filter = cy_es.natural_logic_parse(filter)
                 logic_filter = {
                     "$and":[logic_filter,json_filter]
                 }
@@ -126,7 +126,7 @@ async def file_search(app_name: str, content: Optional[str],
                 )
         else:
             try:
-                json_filter = await cy_es.natural_logic_parse_async(filter)
+                json_filter = cy_es.natural_logic_parse(filter)
                 logic_filter = json_filter
 
             except Exception as e:
@@ -134,7 +134,7 @@ async def file_search(app_name: str, content: Optional[str],
                     content= f"{filter} is error syntax",
                     status_code= 501
                 )
-    search_result= await search_services.full_text_search_async(
+    search_result= search_services.full_text_search(
         app_name=app_name,
         content =content,
         page_size=page_size,
@@ -147,7 +147,7 @@ async def file_search(app_name: str, content: Optional[str],
 
 
 
-    ret_items =await files_content_search_utils.pack_list_async(
+    ret_items = files_content_search_utils.pack_list(
         url= cy_web.get_host_url() + "/api",
         app_name= app_name,
         items = search_result.items
