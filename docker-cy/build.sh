@@ -4,8 +4,8 @@ docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
 export user=xdoc
 export user_=nttlong
-export platform_=linux/amd64
-export platform=linux/arm64/v8
+export platform=linux/amd64
+export platform__=linux/arm64/v8
 export platform_=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
@@ -15,14 +15,12 @@ export os='debian'
 export top_image_=docker.io/python:latest
 export top_image=docker.io/python:3.10.12-slim-bookworm
 export top_image__=docker.io/python:3.8.17-slim-bookworm
-export top_image___=docker.io/python:3.9.17-slim-bookworm
-#export top_image=docker.io/python:3.11.4
+export top_image__=docker.io/python:3.9.17-slim-bookworm
 
 
 base_py=py38
 base_py=py39
 base_py=py310
-#base_py=py311
 to_docker_hub(){
   echo "push $1/$2/$3:$4 to docker.io/$4/$3:$4"
   docker pull $1/$2/$3:$4
@@ -56,15 +54,16 @@ python_dir(){
     echo "python3.9"
   fi
 }
+release_tag='-dev'
 tag(){
   if [ "$platform" = "linux/amd64,linux/arm64/v8" ]; then
     echo "$1"
   fi
   if [ "$platform" = "linux/amd64" ]; then
-    echo "amd.$1"
+    echo "amd$release_tag.$1"
   fi
   if [ "$platform" = "linux/arm64/v8" ]; then
-    echo "arm.$1"
+    echo "arm$release_tag.$1"
   fi
 }
 
@@ -336,44 +335,55 @@ RUN pip install easyocr --no-cache-dir
 
 #RUN  apt install ocrmypdf -y
 COPY ./../docker-cy/check /check
+COPY ./../docker-cy/templates/framework.req.txt /check/framework.req.txt
 RUN chmod u+x /check/*.sh
 RUN pip uninstall opencv-python-headless -y && \
-    pip install opencv-python-headless==4.5.4.60 --no-cache-dir && \
-	pip install gradio && \
-    pip install timm==0.9.2 && \
-   pip uninstall easyocr -y && \
-   pip install easyocr==1.6.2 && \
-   pip uninstall Pillow -y && \
-   pip install Pillow==9.5.0 && \
-   pip uninstall packaging -y && \
-   pip uninstall deepdoctection -y && \
-   pip install deepdoctection==0.23 && \
-   pip install packaging==21.3
-#   ARG DEBIAN_FRONTEND=noninteractive
-#   RUN apt install dialog apt-utils
-#   RUN dpkg-reconfigure dictionaries-common --force
-#   RUN apt-get upgrade -y
-#   RUN apt install libhunspell-dev -y
-#   RUN pip install hunspell==0.5.5
-   RUN pip install keras==2.13.1
-
-   #apt install g++ -y
-ARG TARGETARCH
-
-RUN if  [ \"\$TARGETARCH\" = \"amd64\" ]; then  \
-    pip install mpxj --no-cache-dir ;\
-    pip install JPype1 --no-cache-dir;\
-    python3 /check/check_mpx.py;\
-    fi
+    pip uninstall packaging -y && \
+    pip uninstall Pillow -y && \
+    pip uninstall deepdoctection -y && \
+    pip uninstall opencv-python -y
+RUN python3 -m pip install -r /check/framework.req.txt
+#    pip install opencv-python-headless==4.5.4.60 --no-cache-dir && \
+#	pip install gradio && \
+#    pip install timm==0.9.2 && \
+#   pip uninstall easyocr -y && \
+#   pip install easyocr==1.6.2 && \
+#   pip uninstall Pillow -y && \
+#   pip install Pillow==9.5.0 && \
+#   pip uninstall packaging -y && \
+#   pip uninstall deepdoctection -y && \
+#   pip install deepdoctection==0.23 && \
+#   pip install packaging==21.3
+##   ARG DEBIAN_FRONTEND=noninteractive
+##   RUN apt install dialog apt-utils
+##   RUN dpkg-reconfigure dictionaries-common --force
+##   RUN apt-get upgrade -y
+##   RUN apt install libhunspell-dev -y
+##   RUN pip install hunspell==0.5.5
+#   RUN pip install keras==2.13.1
+#
+#   #apt install g++ -y
+#ARG TARGETARCH
+#
+#RUN if  [ \"\$TARGETARCH\" = \"amd64\" ]; then  \
+#    pip install mpxj --no-cache-dir ;\
+#    pip install JPype1 --no-cache-dir;\
+#    python3 /check/check_mpx.py;\
+#    fi
+#
+#RUN python3 -m pip install opencv-python==4.5.5.64
+#RUN python3 -m pip uninstall opencv-python-headless -y
+#RUN python3 -m pip uninstall opencv-python -y
+#RUN python3 -m pip install opencv-python==4.5.4.60
 RUN /check/opencv.sh
-RUN pip install underthesea
+#RUN pip install underthesea
 RUN /check/py_vncorenlp.sh
 RUN /check/libreoffice.sh
 RUN /check/tessract.sh
 RUN /check/tika.sh
 RUN /check/dotnet.sh
 ">>$base_py-xdoc-framework
-xdoc_framework_tag=cpu.$com_tag.$(($deep_learning_tag+$cy_env_cpu_tag+$cy_core_tag+1))
+xdoc_framework_tag=cpu.$com_tag.$(($deep_learning_tag+$cy_env_cpu_tag+$cy_core_tag+2))
 xdoc_framework_tag_build=$(tag $xdoc_framework_tag)
 xdoc_framework_image=$base_py-xdoc-framework:$xdoc_framework_tag_build
 buildFunc $base_py-xdoc-framework $xdoc_framework_tag_build $top_image $os
@@ -462,4 +472,3 @@ echo "docker run -p 8014:8014 $repositiory/$user/$gradio_test_image python3 /app
 #[root@LACVIET-VM11 var]# helm --set name=dev-job-only upgrade --install xdoc-job-18 xdoc/xdoc-all
 #
 #curl -XPUT 'http://192.168.18.36:9200/lv-codx_congtyqc/_settings?preserve_existing=true' -d '{"index.highlight.max_analyzed_offset" : "999999999"}'
-
