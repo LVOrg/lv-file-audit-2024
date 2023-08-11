@@ -31,3 +31,4 @@ $python_run $APP_DIR/$service_dir/files_save_default_thumb.py   rabbitmq.msg=$ra
 $python_run $APP_DIR/$service_dir/files_save_orc_pdf_file.py   rabbitmq.msg=$rabbitmq_msg & \
 $python_run $APP_DIR/$service_dir/files_save_search_engine.py  rabbitmq.msg=$rabbitmq_msg & \
 $python_run $APP_DIR/$server_dir/server.py rabbitmq.msg=$rabbitmq_msg
+#docker run -p 8012:8012 nttlong/py310-xdoc:amd-dev.cpu.9.20.4 python3  /app/cy_xdoc/server.py

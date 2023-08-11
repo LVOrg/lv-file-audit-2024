@@ -87,7 +87,8 @@ DocumentObject = cy_docs_x.DocumentObject
 def file_get(client: pymongo.MongoClient, db_name: str, file_id):
     return cy_docs_x.file_get(client, db_name, file_id)
 
-
+async def file_get_async(client: pymongo.MongoClient, db_name: str, file_id):
+    return await cy_docs_x.file_get_async(client, db_name, file_id)
 async def get_file_async(client, db_name, file_id):
     return await cy_docs_x.get_file_async(client, db_name, file_id)
 

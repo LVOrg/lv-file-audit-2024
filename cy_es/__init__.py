@@ -50,6 +50,7 @@ or:
 fx= cy_es.parse_expr("data_item !=None and data_item.code=1")
 
 """
+import asyncio
 import datetime
 import pathlib
 import sys
@@ -182,6 +183,25 @@ def search(client: Elasticsearch,
         logic_filter=logic_filter
     )
 
+async def search_async(client: Elasticsearch,
+           index: str,
+           filter,
+           excludes: typing.List[DocumentFields] = [],
+           skip: int = 0,
+           limit: int = 50,
+           highlight: DocumentFields = None,
+           sort=None,
+           doc_type="_doc",
+           logic_filter=None):
+    ret = asyncio.run(search(
+        client,
+        index,
+        filter,
+        excludes,
+        skip,
+        limit,highlight,sort,doc_type,logic_filter
+    ))
+    return ret
 
 def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> cy_es_x.ESDocumentObjectInfo:
     return cy_es_x.get_doc(client, index, id, doc_type=doc_type)
@@ -447,6 +467,12 @@ def natural_logic_parse(expr):
         raise Exception(f"'{expr}' is incorrect syntax")
     return ret
 
+async def natural_logic_parse_async(expr):
+    ret = await cy_es_x.natural_logic_parse_async(expr)
+    if not isinstance(ret, dict):
+        raise Exception(f"'{expr}' is incorrect syntax")
+    return ret
+
 
 def parse_expr(expr: str, suggest_handler=None) -> DocumentFields:
     ret_dict = cy_es_x.natural_logic_parse(expr)
@@ -460,3 +486,7 @@ def parse_expr(expr: str, suggest_handler=None) -> DocumentFields:
 delete_index = cy_es_x.delete_index
 get_info  = cy_es_x.get_info
 get_version = cy_es_x.get_version
+
+
+async def get_doc_async(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc"):
+    return await asyncio.run(get_doc(client,index,id,doc_type))

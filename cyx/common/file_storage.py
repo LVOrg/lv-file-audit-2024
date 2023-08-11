@@ -77,7 +77,11 @@ class FileStorageService:
         some how to implement thy source here ...
         """
         raise NotImplemented
-
+    def get_file_by_id_async(self, app_name: str, id: str) -> FileStorageObject:
+        """
+        some how to implement thy source here ...
+        """
+        raise NotImplemented
     def create(self, app_name: str, rel_file_path: str, content_type: str, chunk_size: int,
                size) -> FileStorageObject:
         """

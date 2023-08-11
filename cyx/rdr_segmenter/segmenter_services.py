@@ -26,7 +26,7 @@ class VnSegmenterService:
         if boot is None:
             clear_content = ('.'+clear_content+'.').replace(".", " . ").replace(",", " , ")
             clear_content = re.sub(' +', ' ', clear_content)
-            ret = "".join(self.word_tokenize(clear_content)).lstrip('. ').rstrip(' .')
+            ret = self.underscore_segment_word(clear_content)
             return ret
         else:
             """
@@ -36,7 +36,7 @@ class VnSegmenterService:
             clear_content = ('.' + clear_content + '.').replace(".", " . ").replace(",", " , ")
             ret = clear_content
             if clear_content!="":
-                ret = " ".join(self.word_tokenize(clear_content))
+                ret = self.underscore_segment_word(clear_content)
             boot_index = 0
             ret_x = ""
             start =0
@@ -55,3 +55,8 @@ class VnSegmenterService:
                 ret_x += x
             return f'(\\"{ret.rstrip(" ")}\\")^{word_count} OR ({ret_x.rstrip(" ")})'
 
+    async def parse_word_segment_async(self, content: str, boot: typing.List[float] = None, clears: typing.List[str] = None) -> str:
+        return self.parse_word_segment(content,boot,clears)
+
+    def underscore_segment_word(self,txt:str):
+        return " ".join([ x.replace(' ','_') for x in self.word_tokenize(txt)]).lstrip('. ').rstrip(' .')

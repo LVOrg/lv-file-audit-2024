@@ -7,6 +7,7 @@ import numpy
 import zipfile
 import collections
 import numpy as np
+import asyncio
 
 
 def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
@@ -264,7 +265,7 @@ def predict_accents(input_content):
         raise Exception(f"Pleas call {get_config.__module__}.{get_config.__name__}")
     input_sentences = re.split("[.!?,\n;?]", input_content)
     output = ""
-    result =""
+    result = ""
     for input_sentence in input_sentences:
         # set_possible_changes()
         in_ = __normalize_string__(input_sentence)
@@ -351,3 +352,7 @@ def predict_accents(input_content):
         del trace
 
     return output.strip()
+
+
+async def predict_accents_async(input_content):
+    return await asyncio.run(predict_accents(input_content))

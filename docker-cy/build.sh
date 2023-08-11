@@ -200,7 +200,7 @@ fast_client_image=$base_py-fast-client:$fast_client_tag_build
 buildFunc $base_py-fast-client $fast_client_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_es -------------------
 rm -f $base_py-cy_es && cp -f ./templates/cy_es ./$base_py-cy_es
-cy_es_tag=1
+cy_es_tag=2
 cy_es_tag_build=$(tag $cy_es_tag)
 cy_es_image=$base_py-cy_es:$cy_es_tag_build
 buildFunc $base_py-cy_es $cy_es_tag_build $repositiory/$user/$cython_image $os
@@ -218,7 +218,7 @@ cy_web_image=$base_py-cy_web:$cy_web_tag_build
 buildFunc $base_py-cy_web $cy_web_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_docs -------------------
 rm -f $base_py-cy_docs && cp -f ./templates/cy_docs ./$base_py-cy_docs
-cy_docs_tag=2
+cy_docs_tag=3
 cy_docs_tag_build=$(tag $cy_docs_tag)
 cy_docs_image=$base_py-cy_docs:$cy_docs_tag_build
 buildFunc $base_py-cy_docs $cy_docs_tag_build $repositiory/$user/$cython_image $os

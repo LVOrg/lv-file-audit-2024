@@ -53,5 +53,7 @@ torch --extra-index-url https://download.pytorch.org/whl/cpu
 torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 git+https://github.com/facebookresearch/detectron2.git@2c6c380f94a27bd8455a39506c9105f652b9f760
+gradio
 #fitz
 #sudo apt install libpython3.10-dev
+#python -m pip install -r requirements/python3.10.txt

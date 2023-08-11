@@ -20,7 +20,7 @@ Special:
     find_items = my_doc['my-db'].find(cy_docs.fields.code!='001' & cy_docs.fields.age < 32) can be changed
     find_items = my_doc['my-db']>>(cy_docs.fields.code!='001' & cy_docs.fields.age < 32) can be changed
 """
-
+import asyncio
 import threading
 import typing
 
@@ -1784,6 +1784,8 @@ def file_get(client, db_name: str, file_id):
 
     # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
     return ret
+async def file_get_async(client, db_name: str, file_id):
+    return file_get(client,db_name,file_id)
 
 
 def file_get_by_name(client, db_name: str, filename):
@@ -1791,6 +1793,8 @@ def file_get_by_name(client, db_name: str, filename):
     items = list(gfs.find({"filename": filename}))
     if len(items) > 0:
         return items[0]
+async def file_get_by_name(client, db_name: str, filename):
+    return file_get_by_name(client, db_name, filename)
 
 
 @document_define(

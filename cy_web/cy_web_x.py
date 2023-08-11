@@ -1359,6 +1359,10 @@ def cache_content(relative_folder: str, file_name, content: bytes) -> str:
     global web_application
     global __cache_content_dict__
     if isinstance(web_application, WebApp):
+        cache_file_name = os.path.splitext(file_name)[1]
+        file_name_id = file_name.split('_')[0]
+        file_name = f"{file_name_id}.{cache_file_name}"
+
         key = f"{relative_folder}/{file_name}".lower()
 
         if not __cache_content_dict__.get(key):

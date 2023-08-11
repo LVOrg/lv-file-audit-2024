@@ -10,7 +10,9 @@ This library has only one Class SearchEngine \n
 
         }
 """
+import asyncio
 import pathlib
+import time
 import typing
 
 import elasticsearch
@@ -39,6 +41,7 @@ class SearchEngine:
         }
 
     """
+
     def __init__(self,
                  text_process_service: TextProcessService = cy_kit.singleton(TextProcessService),
                  file_content_extractor_service: FileContentExtractorService = cy_kit.singleton(
@@ -54,7 +57,7 @@ class SearchEngine:
         self.text_process_service = text_process_service
         self.file_content_extractor_service = file_content_extractor_service
         self.similarity_settings_cache = {}
-        #"index.mapping.total_fields.limit": 2000
+        # "index.mapping.total_fields.limit": 2000
         self.__index_mapping_total_fields_limit = {}
         self.index_highlight_max_analyzed_offset = {}
         self.vn = vn
@@ -109,11 +112,11 @@ class SearchEngine:
         if self.index_highlight_max_analyzed_offset.get(app_name) is None:
             self.client.indices.put_settings(
                 index=index_name,
-                body= {
-                    "index.highlight.max_analyzed_offset":"999999998"
+                body={
+                    "index.highlight.max_analyzed_offset": "999999998"
                 }
             )
-            self.index_highlight_max_analyzed_offset[app_name]=1
+            self.index_highlight_max_analyzed_offset[app_name] = 1
         if self.similarity_settings_cache.get(app_name) is None:
             """
             Set ignore doc len when calculate search score 
@@ -138,7 +141,7 @@ class SearchEngine:
                 ret = self.client.indices.put_settings(index=index_name, body={
                     "index.mapping.total_fields.limit": 1000000
 
-                    })
+                })
                 self.__index_mapping_total_fields_limit[app_name] = ret
             except Exception as e:
                 """
@@ -213,7 +216,6 @@ class SearchEngine:
         """
         content = content or ""
         original_content = content
-
 
         if isinstance(privileges, dict):
             privileges = cy_es.text_lower(privileges)
@@ -292,6 +294,27 @@ class SearchEngine:
         )
         return ret
 
+    async def full_text_search_async(self,
+                         app_name,
+                         content,
+                         page_size: typing.Optional[int],
+                         page_index: typing.Optional[int],
+                         highlight: typing.Optional[bool],
+                         privileges: typing.Optional[dict],
+                         sort: typing.List[str] = ["data_item.RegisterOn:desc"],
+                         logic_filter=None):
+        return self.full_text_search(
+            app_name,
+            content,
+            page_size,
+            page_index,
+            highlight,
+            privileges,
+            sort,
+            logic_filter
+        )
+
+
     def get_doc(self, app_name: str, id: str, doc_type: str = "_doc"):
         """
         get document by id
@@ -302,6 +325,9 @@ class SearchEngine:
         :return:
         """
         return cy_es.get_doc(client=self.client, id=id, doc_type=doc_type, index=self.get_index(app_name))
+
+    async def get_doc_async(self, app_name: str, id: str, doc_type: str = "_doc"):
+        return await cy_es.get_doc_async(client=self.client, id=id, doc_type=doc_type, index=self.get_index(app_name))
 
     def copy(self, app_name: str, from_id: str, to_id: str, attach_data, run_in_thread: bool = True):
         """
@@ -417,7 +443,7 @@ class SearchEngine:
 
     def create_or_update_privileges(
             self,
-            app_name, upload_id, data_item: typing.Union[dict,cy_docs.DocumentObject], privileges,
+            app_name, upload_id, data_item: typing.Union[dict, cy_docs.DocumentObject], privileges,
             meta_info: dict = None):
         """
         Create or update privileges tag
@@ -699,7 +725,3 @@ class SearchEngine:
         else:
             return data_privileges
         return data_privileges
-
-
-
-

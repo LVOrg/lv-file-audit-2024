@@ -1,3 +1,6 @@
+import asyncio
+
+
 def pack_list(url:str,app_name:str, items):
     ret_items = []
 
@@ -19,3 +22,7 @@ def pack_list(url:str,app_name:str, items):
             upload_doc_item.__score__ = x._score
             ret_items += [upload_doc_item]
     return ret_items
+async def pack_list_async(url:str,app_name:str, items):
+    async def  run():
+        return pack_list(url,app_name,items)
+    return await run()

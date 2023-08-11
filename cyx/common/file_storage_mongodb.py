@@ -193,7 +193,13 @@ class MongoDbFileService(Base):
 
         ret = MongoDbFileStorage(fs,self.client.get_database(self.db_name(app_name)))
         return ret
+    async def get_file_by_id_async(self, app_name: str, id: str) -> MongoDbFileStorage:
+        fs = await cy_docs.file_get_async(self.client, self.db_name(app_name), bson.ObjectId(id))
 
+
+
+        ret = MongoDbFileStorage(fs,self.client.get_database(self.db_name(app_name)))
+        return ret
     def delete_files_by_id(self, app_name: str, ids: typing.List[str], run_in_thread: bool):
         bson_id = [id for id in ids if bson.is_valid(id.encode())]
         def run():

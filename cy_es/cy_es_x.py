@@ -3145,3 +3145,9 @@ def natural_logic_parse(expr: str):
 
 def delete_index(client: Elasticsearch, index: str):
     client.indices.delete(index=index, ignore=[400, 404])
+async def delete_index_async(client: Elasticsearch, index: str):
+    return delete_index(client, index)
+import asyncio
+
+async def natural_logic_parse_async(expr):
+    return natural_logic_parse(expr)
