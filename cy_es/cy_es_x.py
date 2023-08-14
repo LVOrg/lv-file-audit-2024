@@ -2086,21 +2086,25 @@ def __apply_function__(function_name, field_name, owner_caller=None, args=None, 
     :param suggest_handler: An external function (properly in JAVA or C# ,...) will convert Vietnamese none accents to Vietnamese with accent
     :return:
     """
-    check_field = DocumentFields(field_name) != None
+
 
     if function_name == "$$day":
+        check_field = DocumentFields(field_name) != None
         ret = check_field & DocumentFields(field_name)
         return check_field & ret.get_day_of_month()
     elif function_name == "$$month":
+        check_field = DocumentFields(field_name) != None
         ret = DocumentFields(field_name)
         return check_field & ret.get_month()
     elif function_name == "$$year":
+        check_field = DocumentFields(field_name) != None
         ret = DocumentFields(field_name)
         return check_field & ret.get_year()
     elif function_name == "$$first":
         ret = DocumentFields(field_name)
         return ret.startswith
     elif function_name == "$$last":
+
         ret = DocumentFields(field_name)
         return ret.endswith
     elif function_name == "$$contains":

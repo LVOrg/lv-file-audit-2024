@@ -55,6 +55,7 @@ python_dir(){
   fi
 }
 release_tag='-dev'
+release_tag=''
 tag(){
   if [ "$platform" = "linux/amd64,linux/arm64/v8" ]; then
     echo "$1"
@@ -200,7 +201,7 @@ fast_client_image=$base_py-fast-client:$fast_client_tag_build
 buildFunc $base_py-fast-client $fast_client_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_es -------------------
 rm -f $base_py-cy_es && cp -f ./templates/cy_es ./$base_py-cy_es
-cy_es_tag=3
+cy_es_tag=4
 cy_es_tag_build=$(tag $cy_es_tag)
 cy_es_image=$base_py-cy_es:$cy_es_tag_build
 buildFunc $base_py-cy_es $cy_es_tag_build $repositiory/$user/$cython_image $os
@@ -235,7 +236,7 @@ cy_env_image=$base_py-cy-env-cpu:$cy_env_cpu_tag_build
 buildFunc $base_py-cy-env-cpu $cy_env_cpu_tag_build $repositiory/$user/$torch_image
 #------------ cy-vn -------------------
 rm -f $base_py-cy-vn && cp -f ./templates/cy-vn ./$base_py-cy-vn
-cy_vn_tag=2
+cy_vn_tag=3
 cy_vn_tag_build=$(tag $cy_vn_tag)
 cy_vn_image=$base_py-cy-vn:$cy_vn_tag_build
 buildFunc $base_py-cy-vn $cy_vn_tag_build $repositiory/$user/$cython_image $os
@@ -472,3 +473,4 @@ echo "docker run -p 8014:8014 $repositiory/$user/$gradio_test_image python3 /app
 #[root@LACVIET-VM11 var]# helm --set name=dev-job-only upgrade --install xdoc-job-18 xdoc/xdoc-all
 #
 #curl -XPUT 'http://192.168.18.36:9200/lv-codx_congtyqc/_settings?preserve_existing=true' -d '{"index.highlight.max_analyzed_offset" : "999999999"}'
+#docker run -p 8012:8012 nttlong/py310-xdoc:amd.cpu.9.25.4 python3  /app/cy_xdoc/server.py

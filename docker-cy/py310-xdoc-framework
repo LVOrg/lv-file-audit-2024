@@ -1,9 +1,9 @@
 
 
-FROM docker.lacviet.vn/xdoc/py310-deep-learning:amd-dev.5 as dlrn
-FROM docker.lacviet.vn/xdoc/py310-cy-core:amd-dev.9 as core
-FROM docker.lacviet.vn/xdoc/py310-cy-env-cpu:amd-dev.4  as env
-FROM docker.lacviet.vn/xdoc/py310-com:amd-dev.9
+FROM docker.lacviet.vn/xdoc/py310-deep-learning:amd.5 as dlrn
+FROM docker.lacviet.vn/xdoc/py310-cy-core:amd.15 as core
+FROM docker.lacviet.vn/xdoc/py310-cy-env-cpu:amd.4  as env
+FROM docker.lacviet.vn/xdoc/py310-com:amd.9
 COPY --from=dlrn /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=core /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=core /app /app
