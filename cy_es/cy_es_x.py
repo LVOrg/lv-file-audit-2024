@@ -2035,7 +2035,7 @@ def __build_search__(fields, content:str, suggest_handler=None):
         suggest_words = suggest_content.replace('  ', ' ').lstrip(' ').rstrip(' ').split(' ')
         suggest_search_word = " ".join([f'(\"{x}\") AND' for x in suggest_words])
         suggest_search_word = suggest_search_word.rstrip('AND')
-        suggest_search_content = f"(\"{suggest_content}\") OR (f{suggest_search_word})"
+        suggest_search_content = f"(\"{suggest_content}\") OR ({suggest_search_word})"
 
         # fx_suggest_query_string_content = DocumentFields(is_bool=True)
         # fx_suggest_query_string_content.__es_expr__ = {
@@ -2051,7 +2051,7 @@ def __build_search__(fields, content:str, suggest_handler=None):
     words = content.replace('  ',' ').lstrip(' ').rstrip(' ').split(' ')
     search_word = " ".join([f'(\"{x}\") AND' for x in words])
     search_word = search_word.rstrip('AND')
-    search_content = f"(\"{content}\") OR (f{search_word})"
+    search_content = f"(\"{content}\") OR ({search_word})"
     if suggest_content != content and suggest_search_content:
         search_content = suggest_search_content
 
