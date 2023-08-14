@@ -256,6 +256,10 @@ class DocumentFields:
             raise Exception("Not support")
 
     def __contains__(self, item):
+
+
+
+
         ret = DocumentFields()
         # self.__is_bool__ = True
         if isinstance(item, str):
@@ -268,30 +272,13 @@ class DocumentFields:
                   }
                 }
             """
-            import re
-            # item = __well_form__(item)
-            # if item[0:1]=='*' and item[-1]=='*':
-            #     item="."+item[0:-1] +".*"
-            # elif item[-1]=='*':
-            #     item="^"+item[0:-1] +".*"
-            # elif item[0:1]=='*':
-            #     item="."+item+"$"
-            # ret.__es_expr__ = {
-            #     "regexp": {
-            #         self.__name__: item
-            #     }
-            # }
-            # ret.__es_expr__ = {
-            #     "wildcard": {
-            #         self.__name__: item
-            #     }
-            # }
 
-            src = f"(doc['{self.__name__}.keyword'].size()>0) && doc['{self.__name__}.keyword'].value.contains(params.item)"
+            field_name = self.__name__
+            src = f"(doc['{self.__name__}.keyword'].size()>0) && doc['{self.__name__}.keyword'].value.toLowerCase().contains(params.item)"
             if item[0] != '*' and item[-1] == '*':
-                src = f"(doc['{self.__name__}.keyword'].size()>0) && (doc['{self.__name__}.keyword'].value.indexOf(params.item)==0)"
+                src = f"(doc['{self.__name__}.keyword'].size()>0) && (doc['{self.__name__}.keyword'].value.toLowerCase().indexOf(params.item)==0)"
             elif item[0] == '*' and item[-1] != '*':
-                src = f"(doc['{self.__name__}.keyword'].size()>0) && doc['{self.__name__}.keyword'].value.endsWith(params.item)"
+                src = f"(doc['{self.__name__}.keyword'].size()>0) && doc['{self.__name__}.keyword'].value.toLowerCase().endsWith(params.item)"
             # value
             ret.__es_expr__ = {
                 "filter": {
@@ -302,7 +289,7 @@ class DocumentFields:
                             "source": f"return  {src};",
                             "lang": "painless",
                             "params": {
-                                "item": item.lstrip('*').rstrip('*')
+                                "item": item.lstrip('*').rstrip('*').lower()
                             }
                         }
                     }
@@ -2060,8 +2047,7 @@ def __build_search__(fields, content:str, suggest_handler=None):
         "must": {
             "query_string": {
                 "query": search_content,
-                "fields": fields,
-                "boost":1000
+                "fields": fields
             }
         }
     }
@@ -2100,15 +2086,17 @@ def __apply_function__(function_name, field_name, owner_caller=None, args=None, 
     :param suggest_handler: An external function (properly in JAVA or C# ,...) will convert Vietnamese none accents to Vietnamese with accent
     :return:
     """
+    check_field = DocumentFields(field_name) != None
+
     if function_name == "$$day":
-        ret = DocumentFields(field_name)
-        return ret.get_day_of_month()
+        ret = check_field & DocumentFields(field_name)
+        return check_field & ret.get_day_of_month()
     elif function_name == "$$month":
         ret = DocumentFields(field_name)
-        return ret.get_month()
+        return check_field & ret.get_month()
     elif function_name == "$$year":
         ret = DocumentFields(field_name)
-        return ret.get_year()
+        return check_field & ret.get_year()
     elif function_name == "$$first":
         ret = DocumentFields(field_name)
         return ret.startswith
