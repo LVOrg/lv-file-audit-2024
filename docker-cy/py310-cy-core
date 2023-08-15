@@ -1,6 +1,6 @@
 
 FROM docker.lacviet.vn/xdoc/py310-fast-client:amd.1 as fast_client
-FROM docker.lacviet.vn/xdoc/py310-cy_es:amd.5 as es
+FROM docker.lacviet.vn/xdoc/py310-cy_es:amd.6 as es
 FROM docker.lacviet.vn/xdoc/py310-cy_kit:amd.1 as kit
 FROM docker.lacviet.vn/xdoc/py310-cy_docs:amd.3 as docs
 FROM docker.lacviet.vn/xdoc/py310-cy_web:amd.2 as web

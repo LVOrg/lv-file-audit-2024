@@ -274,11 +274,15 @@ class DocumentFields:
             """
 
             field_name = self.__name__
-            src = f"(doc['{self.__name__}.keyword'].size()>0) && doc['{self.__name__}.keyword'].value.toLowerCase().contains(params.item)"
+            boost_score = 0.0
+            if "^" in field_name:
+                field_name = self.__name__.split("^")[0]
+                boost_score = float(self.__name__.split("^")[1])
+            src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().contains(params.item)"
             if item[0] != '*' and item[-1] == '*':
-                src = f"(doc['{self.__name__}.keyword'].size()>0) && (doc['{self.__name__}.keyword'].value.toLowerCase().indexOf(params.item)==0)"
+                src = f"(doc['{field_name}.keyword'].size()>0) && (doc['{field_name}.keyword'].value.toLowerCase().indexOf(params.item)==0)"
             elif item[0] == '*' and item[-1] != '*':
-                src = f"(doc['{self.__name__}.keyword'].size()>0) && doc['{self.__name__}.keyword'].value.toLowerCase().endsWith(params.item)"
+                src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().endsWith(params.item)"
             # value
             ret.__es_expr__ = {
                 "filter": {
@@ -291,14 +295,16 @@ class DocumentFields:
                             "params": {
                                 "item": item.lstrip('*').rstrip('*').lower()
                             }
-                        }
+
+                        },
+                        "boost": boost_score
                     }
                 }
             }
             ret.__is_bool__ = True
-            fx_check_field = DocumentFields(self.__name__) != None
+            fx_check_field = DocumentFields(field_name) != None
             ret = fx_check_field & ret
-            ret.__highlight_fields__ = [self.__name__]
+
             return ret
         elif isinstance(item, list):
             """
@@ -3068,8 +3074,8 @@ def natural_logic_parse(expr: str):
                 boost_score = __parse_logical_expr__(node.right.left)
                 content_search = __parse_logical_expr__(node.right.right)
                 return {
-                    "$$search": {
-                        "$fields": [f"{field_name}^{boost_score}"],
+                    "$$contains": {
+                        "$field": f"{field_name}^{boost_score}",
                         "$value": content_search
                     }
                 }
