@@ -201,7 +201,7 @@ fast_client_image=$base_py-fast-client:$fast_client_tag_build
 buildFunc $base_py-fast-client $fast_client_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_es -------------------
 rm -f $base_py-cy_es && cp -f ./templates/cy_es ./$base_py-cy_es
-cy_es_tag=4
+cy_es_tag=5
 cy_es_tag_build=$(tag $cy_es_tag)
 cy_es_image=$base_py-cy_es:$cy_es_tag_build
 buildFunc $base_py-cy_es $cy_es_tag_build $repositiory/$user/$cython_image $os
@@ -395,7 +395,7 @@ xdoc_py_auto_gui_tagbuild=$(tag $xdoc_py_auto_gui_tag)
 #buildFunc xdoc-py-auto-gui $xdoc_py_auto_gui_tagbuild $top_image $os
 #----- apps--------------
 rm -f $base_py-xdoc && cp -f ./templates/xdoc ./$base_py-xdoc
-xdoc_tag=$xdoc_framework_tag.4
+xdoc_tag=$xdoc_framework_tag.5
 xdoc_tag_build=$(tag $xdoc_tag)
 xdoc_image=$base_py-xdoc:$xdoc_tag_build
 buildFunc $base_py-xdoc $xdoc_tag_build $repositiory/$user/$xdoc_framework_image $os

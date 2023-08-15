@@ -770,3 +770,14 @@ class SearchEngine:
         else:
             return data_privileges
         return data_privileges
+
+
+    def update_data_fields(self, app_name:str, id:str, data:dict):
+        assert isinstance(data,dict),"data args must be dic"
+        for k,v in data.items():
+            self.update_data_field(
+                app_name= app_name,
+                id = id,
+                field_path= k,
+                field_value= v
+            )

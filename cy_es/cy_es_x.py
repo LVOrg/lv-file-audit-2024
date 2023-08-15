@@ -12,7 +12,7 @@ from typing import List
 import pydantic
 from enum import Enum
 import os
-
+import underthesea
 
 def get_info(client: Elasticsearch):
     return client.info()
@@ -1000,6 +1000,46 @@ class DocumentFields:
 
         return self
 
+    def to_nested(self):
+
+
+        # ret = DocumentFields()
+        # """
+        # {
+        #   "query": {
+        #     "nested": {
+        #       "path": "items",
+        #       "query": {
+        #         "bool": {
+        #           "must": [
+        #             { "match": { "items.text": "car" }},
+        #             { "match": { "items.rank": 1 }}
+        #           ]
+        #         }
+        #       }
+        #     }
+        #   }
+        # }
+        #
+        # """
+        # ret.__es_expr__ = {
+        #     "filter":{
+        #     "nested":{
+        #         "path": self.__es_expr__['must']['query_string']['fields'][0],
+        #         "query":{
+        #             "bool":{
+        #                 "must":[
+        #                     { "match":                            self.__es_expr__['must']['query_string']['query'] }
+        #                 ]
+        #             }
+        #         }
+        #     }
+        #     }
+        # }
+        # ret.__is_bool__ = True
+        # ret.__highlight_fields__  =self.get_highlight_fields()
+        self.__es_expr__['must']['query_string']['fields']=[self.__es_expr__['must']['query_string']['fields'][0]+".*"]
+        return self
 
 def set_norms(field: DocumentFields, field_type: str, enable: bool) -> DocumentFields:
     return field.set_type(field_type).set_norms(enable)
@@ -1381,7 +1421,10 @@ def search(client: Elasticsearch,
         """
         fields = {}
         for x in highlight:
-            fields[x.__name__] = {}
+            if isinstance(x,str):
+                fields[x] = {}
+            elif isinstance(x,DocumentFields):
+                fields[x.__name__] = {}
         __highlight = {
             "require_field_match": False,
             "pre_tags": ["<em>"],
@@ -1389,6 +1432,8 @@ def search(client: Elasticsearch,
             "fields": fields
         }
         body["highlight"] = __highlight
+    elif highlight:
+        body["highlight"] = highlight
     _sort = "_score:desc,"
     if sort is not None:
         if isinstance(sort, list):
@@ -2013,45 +2058,60 @@ def __build_search__(fields, content:str, suggest_handler=None):
     }
   }
     """
+    def make_search(words:typing.List[str])->typing.Tuple[str,str]:
+        and_content = " ".join([f'(\"{x}\") AND' for x in words]).rstrip("AND")
+        or_content = " ".join([f'(\"{x}\") OR' for x in words]).rstrip("OR")
+        return and_content,or_content
+    def jon_expr(contens:typing.List[str],start_score:int)->str:
+        ret = ""
+        score_boost = start_score
+        for x in contens:
+            if len(x)>0:
+                ret+= f"(({x})^{score_boost}) OR "
+                score_boost -=1
+        ret = ret.rstrip(" OR ")
+        return ret
+
+    def escape_special(content:str)->str:
+        ch=["+","-","*","?","|","[","]","^","$","(",")","\\","/",".",",","!","~","<",">","%","#","@",":"]
+        for x in ch:
+            content = content.replace(x,f"\\{x}")
+        return content
+    def make_expr(content:str,start_score:int)->str:
+        seg_words = underthesea.word_tokenize(content)
+        seg_words = [x for x in seg_words if ' ' in x]
+        and_content_seg, or_content_seg = make_search(seg_words)
+        ret = jon_expr([
+
+            and_content_seg,
+            or_content_seg,
+            content
+        ], start_score)
+        return ret
     content = content.replace('  ',' ').lstrip(' ').rstrip(' ')
+    content = escape_special(content)
     suggest_content = None
     suggest_search_content= None
+    expr_search = make_expr(content, 1000)
     if callable(suggest_handler):
         suggest_content = suggest_handler(content)
-    if suggest_content :
-        suggest_words = suggest_content.replace('  ', ' ').lstrip(' ').rstrip(' ').split(' ')
-        suggest_search_word = " ".join([f'(\"{x}\") AND' for x in suggest_words])
-        suggest_search_word = suggest_search_word.rstrip('AND')
-        suggest_search_content = f"(\"{suggest_content}\") OR ({suggest_search_word})"
 
-        # fx_suggest_query_string_content = DocumentFields(is_bool=True)
-        # fx_suggest_query_string_content.__es_expr__ = {
-        #     "must": {
-        #         "query_string": {
-        #             "query": suggest_search_content,
-        #             "fields": fields,
-        #             "boost": 500
-        #         }
-        #     }
-        # }
-
-    words = content.replace('  ',' ').lstrip(' ').rstrip(' ').split(' ')
-    search_word = " ".join([f'(\"{x}\") AND' for x in words])
-    search_word = search_word.rstrip('AND')
-    search_content = f"(\"{content}\") OR ({search_word})"
     if suggest_content != content and suggest_search_content:
-        search_content = suggest_search_content
+        search_content = make_expr(suggest_content, 500)
+        expr_search = f"({expr_search}) OR ({search_content})"
 
     fx_query_string_content = DocumentFields(is_bool=True)
+
     fx_query_string_content.__es_expr__ = {
         "must": {
             "query_string": {
-                "query": search_content,
+                "query": expr_search, #search_content,
                 "fields": fields
+
             }
         }
     }
-
+    fx_query_string_content.__highlight_fields__ = fields
     ret = fx_query_string_content
     return ret
 
@@ -3111,7 +3171,14 @@ def natural_logic_parse(expr: str):
             return {
                 "$not": __parse_logical_expr__(node.operand)
             }
-
+        if isinstance(node,ast.Call) and node.func.attr=='all':
+            p_value = node.func.value
+            field_name=""
+            while not hasattr(p_value,"id"):
+                field_name = getattr(p_value,"attr")+"."+field_name
+                p_value = p_value.value
+            field_name = p_value.id+"."+field_name
+            return  field_name.rstrip(".")+".*"
         raise NotImplemented()
 
     def parse_logic(expr: str):
