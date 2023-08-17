@@ -351,15 +351,18 @@ RUN pip uninstall opencv-python-headless -y && \
     pip uninstall deepdoctection -y && \
     pip uninstall opencv-python -y
 RUN python3 -m pip install -r /check/framework.req.txt
-#ARG TARGETARCH
+ARG TARGETARCH
 RUN chmod u+x /check/*.sh
 RUN /check/opencv.sh
 
 RUN /check/py_vncorenlp.sh
-RUN /check/libreoffice.sh
+RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
+      /check/libreoffice.sh ;\
+     fi
 RUN /check/tessract.sh
 RUN /check/tika.sh
 RUN /check/dotnet.sh
+RUN python3 -c 'import cv2;print(cv2);'
 ">>$base_py-xdoc-framework
 xdoc_framework_tag=cpu.$com_tag.$(($deep_learning_tag+$cy_env_cpu_tag+$cy_core_tag+2))
 xdoc_framework_tag_build=$(tag $xdoc_framework_tag)
