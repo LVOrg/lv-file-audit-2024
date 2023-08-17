@@ -1,19 +1,24 @@
 import cy_kit
 from cy_xdoc.services.search_engine import SearchEngine
 import cy_es
+txt_content = "hướng dẫn fresher"
+txt_content="output"
+txt =f"(content^12 search '{txt_content}') or  (data_item.FileName^11 like '{txt_content}')"
+# txt =f"(data_item.FileName^11 like '{txt_content}')"
+#txt ="(content^100 search 'tải xuống')"
 filter = cy_es.natural_logic_parse(
-    "(data_item.all()) search 'this is page 1'"
+    txt
 )
 fx:cy_es.cy_es_x.DocumentFields = cy_es.create_filter_from_dict(filter)
 
-fx = fx | (cy_es.DocumentFields("code")==1)
+#fx = fx | (cy_es.DocumentFields("code")==1)
 
-fx.__highlight_fields__ =["test_content.*"]
+#fx.__highlight_fields__ =["test_content.*"]
 
 se= cy_kit.singleton(SearchEngine)
 ret = cy_es.search(
     client=se.client,
-    index= "lv-codx_lv-docs",
+    index= "lv-codx_developer",
     filter= fx,
     highlight= {
     "require_field_match": True,

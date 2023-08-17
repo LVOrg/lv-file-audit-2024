@@ -1,6 +1,0 @@
-ARG BASE
-FROM ${BASE}
-ARG TARGETARCH
-RUN apt update && apt install --yes --force-yes git
-RUN pip install git+https://github.com/huggingface/datasets.git@7b2af47647152d39a3acade256da898cb396e4d9 --no-cache-dir
-RUN pip install git+https://github.com/huggingface/transformers.git@60d51ef5123d949fd8c59cd4d3254e711541d278 --no-cache-dir

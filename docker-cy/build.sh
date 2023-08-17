@@ -1,11 +1,12 @@
 #!/bin/sh
+export BUILDKIT_PROGRESS=
 
 docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
 export user=xdoc
 export user_=nttlong
-export platform=linux/amd64
-export platform__=linux/arm64/v8
+export platform_=linux/amd64
+export platform=linux/arm64/v8
 export platform_=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
@@ -201,7 +202,7 @@ fast_client_image=$base_py-fast-client:$fast_client_tag_build
 buildFunc $base_py-fast-client $fast_client_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_es -------------------
 rm -f $base_py-cy_es && cp -f ./templates/cy_es ./$base_py-cy_es
-cy_es_tag=6
+cy_es_tag=7
 cy_es_tag_build=$(tag $cy_es_tag)
 cy_es_image=$base_py-cy_es:$cy_es_tag_build
 buildFunc $base_py-cy_es $cy_es_tag_build $repositiory/$user/$cython_image $os
@@ -273,46 +274,52 @@ buildFunc $base_py-cy_gs_cv2 $cy_gs_cv2_tag_build $top_image $os
 #---------------------combine all components---------------------------
 rm -f $base_py-com
 echo "
-#FROM docker.lacviet.vn/xdoc/py311-libreoffice:1 as office
 FROM $repositiory/$user/$libreoffice_image as office
-#FROM $repositiory/$user/$dotnet_image as dotnet
 FROM $repositiory/$user/$tessract_image as tessract
 FROM $repositiory/$user/$javac_image as javac
 #FROM $repositiory/$user/$opencv_image as opencv
 FROM $repositiory/$user/$cy_gs_cv2_image as cv2
 FROM $repositiory/$user/$cy_vn_image as vn
 FROM $top_image
-COPY --from=office / /
-#COPY --from=dotnet / /
-COPY --from=tessract / /
-COPY --from=javac / /
-COPY --from=cv2 / /
-COPY --from=vn /app /app
-RUN mv -f /var/lib/dpkg/statoverride /var/lib/dpkg/statoverride-backup
-RUN apt-get update -y && apt-get install -y psmisc nocache
-#RUN apt update && apt install python3-opencv && \
-#    pip uninstall opencv-contrib-python -y && \
-#    pip uninstall opencv-python -y && \
-#    pip uninstall opencv-python-headless -y && \
-#    pip install opencv-python
-#RUN apt autoremove ghostscript -y
-#RUN  apt install ocrmypdf -y
-
 COPY ./../docker-cy/check /check
+ARG TARGETARCH
+RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+    apt update && apt-get upgrade -y &&  apt install build-essential -y; \
+    fi
+
+COPY --from=office / /
 RUN chmod u+x /check/*.sh
+
+
+RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
+      /check/libreoffice.sh ;\
+     fi
+#COPY --from=tessract /usr/share /usr/share
+#COPY --from=tessract /usr/bin /usr/share
+COPY --from=tessract / /
+RUN /check/tessract.sh
+COPY --from=javac /usr/lib /usr/lib
+COPY --from=cv2 /usr/local /usr/local
+RUN  /check/opencv.sh
+COPY --from=vn /app /app
+RUN pip install underthesea
+
+
+
 RUN /check/opencv.sh
-RUN python3 -m pip install underthesea
 RUN /check/py_vncorenlp.sh
-RUN /check/libreoffice.sh
+RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
+      /check/libreoffice.sh ;\
+     fi
 RUN /check/tessract.sh
 RUN /check/tika.sh
 RUN /check/dotnet.sh
+RUN python3 -c 'import cv2;print(cv2);'
 
 ">>$base_py-com
 #export BUILDKIT_PROGRESS=
 #export platform=linux/amd64,linux/arm64/v8
 #export platform_=linux/amd64
-
 com_tag=$(($libreoffice_tag+$tessract_tag+$javac_tag+$opencv_tag+$cy_gs_cv2_tag +3))
 com_tag_build=$(tag $com_tag)
 com_image=$base_py-com:$com_tag_build
@@ -344,40 +351,10 @@ RUN pip uninstall opencv-python-headless -y && \
     pip uninstall deepdoctection -y && \
     pip uninstall opencv-python -y
 RUN python3 -m pip install -r /check/framework.req.txt
-#    pip install opencv-python-headless==4.5.4.60 --no-cache-dir && \
-#	pip install gradio && \
-#    pip install timm==0.9.2 && \
-#   pip uninstall easyocr -y && \
-#   pip install easyocr==1.6.2 && \
-#   pip uninstall Pillow -y && \
-#   pip install Pillow==9.5.0 && \
-#   pip uninstall packaging -y && \
-#   pip uninstall deepdoctection -y && \
-#   pip install deepdoctection==0.23 && \
-#   pip install packaging==21.3
-##   ARG DEBIAN_FRONTEND=noninteractive
-##   RUN apt install dialog apt-utils
-##   RUN dpkg-reconfigure dictionaries-common --force
-##   RUN apt-get upgrade -y
-##   RUN apt install libhunspell-dev -y
-##   RUN pip install hunspell==0.5.5
-#   RUN pip install keras==2.13.1
-#
-#   #apt install g++ -y
 #ARG TARGETARCH
-#
-#RUN if  [ \"\$TARGETARCH\" = \"amd64\" ]; then  \
-#    pip install mpxj --no-cache-dir ;\
-#    pip install JPype1 --no-cache-dir;\
-#    python3 /check/check_mpx.py;\
-#    fi
-#
-#RUN python3 -m pip install opencv-python==4.5.5.64
-#RUN python3 -m pip uninstall opencv-python-headless -y
-#RUN python3 -m pip uninstall opencv-python -y
-#RUN python3 -m pip install opencv-python==4.5.4.60
+RUN chmod u+x /check/*.sh
 RUN /check/opencv.sh
-#RUN pip install underthesea
+
 RUN /check/py_vncorenlp.sh
 RUN /check/libreoffice.sh
 RUN /check/tessract.sh
@@ -395,7 +372,7 @@ xdoc_py_auto_gui_tagbuild=$(tag $xdoc_py_auto_gui_tag)
 #buildFunc xdoc-py-auto-gui $xdoc_py_auto_gui_tagbuild $top_image $os
 #----- apps--------------
 rm -f $base_py-xdoc && cp -f ./templates/xdoc ./$base_py-xdoc
-xdoc_tag=$xdoc_framework_tag.5
+xdoc_tag=$xdoc_framework_tag.6
 xdoc_tag_build=$(tag $xdoc_tag)
 xdoc_image=$base_py-xdoc:$xdoc_tag_build
 buildFunc $base_py-xdoc $xdoc_tag_build $repositiory/$user/$xdoc_framework_image $os
@@ -423,6 +400,8 @@ echo "1-install:
       sudo apt-get install qemu binfmt-support qemu-user-static
       2- docker run --platform=linux/arm64/v8  ...
       example:
+      docker run --platform=linux/arm64/v8  docker.lacviet.vn/xdoc/py310-com:arm.9 python3 -c 'import time;time.sleep(100000000)'
+
       docker run --platform=linux/arm64/v8 \
         -v /home/vmadmin/python/v6/file-service-02/from-image-build/arm64:/app \
         $repositiory/$user/$cy_core_image python3 -c 'import time;time.sleep(100000000)'"

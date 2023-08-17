@@ -13,3 +13,4 @@ RUN pip install python-doctr==0.6.0 --no-cache-dir
 RUN pip uninstall pymongo -y
 RUN pip install https://gitlab.com/trungtv/vi_spacy/-/raw/master/vi_core_news_lg/dist/vi_core_news_lg-0.0.1.tar.gz
 RUN pip cache purge
+RUN python3 -m pip install underthesea

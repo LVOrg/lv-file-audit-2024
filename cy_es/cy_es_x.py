@@ -285,8 +285,11 @@ class DocumentFields:
                 src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().endsWith(params.item)"
             # value
             ret.__es_expr__ = {
-                "filter": {
-                    "script": {
+                "must":[
+                    {
+                        "constant_score":{
+                            "filter": {
+                                 "script": {
 
                         "script": {
 
@@ -296,10 +299,15 @@ class DocumentFields:
                                 "item": item.lstrip('*').rstrip('*').lower()
                             }
 
-                        },
-                        "boost": boost_score
+                        }
+
+
                     }
-                }
+                            },
+                            "boost":boost_score
+                        }
+                    }
+                ]
             }
             ret.__is_bool__ = True
             fx_check_field = DocumentFields(field_name) != None
@@ -2064,17 +2072,30 @@ def __build_search__(fields, content:str, suggest_handler=None):
     }
   }
     """
+    def extract_fields(fields):
+        f,b = [],[]
+        for x in fields:
+            items = x.split("^")
+            if len(items)>1:
+                f+=[items[0]]
+                b+=[float(items[1])]
+            else:
+                f+=[x]
+                b+=[None]
+        return  f,b
+
     def make_search(words:typing.List[str])->typing.Tuple[str,str]:
         and_content = " ".join([f'(\"{x}\") AND' for x in words]).rstrip("AND")
         or_content = " ".join([f'(\"{x}\") OR' for x in words]).rstrip("OR")
         return and_content,or_content
-    def jon_expr(contens:typing.List[str],start_score:int)->str:
+    def jon_expr(contens:typing.List[str],start_score:float)->str:
         ret = ""
         score_boost = start_score
+
         for x in contens:
             if len(x)>0:
                 ret+= f"(({x})^{score_boost}) OR "
-                score_boost -=1
+                score_boost = score_boost/2
         ret = ret.rstrip(" OR ")
         return ret
 
@@ -2083,7 +2104,7 @@ def __build_search__(fields, content:str, suggest_handler=None):
         for x in ch:
             content = content.replace(x,f"\\{x}")
         return content
-    def make_expr(content:str,start_score:int)->str:
+    def make_expr(content:str,start_score:float)->str:
         seg_words = underthesea.word_tokenize(content)
         seg_words = [x for x in seg_words if ' ' in x]
         and_content_seg, or_content_seg = make_search(seg_words)
@@ -2098,12 +2119,21 @@ def __build_search__(fields, content:str, suggest_handler=None):
     content = escape_special(content)
     suggest_content = None
     suggest_search_content= None
-    expr_search = make_expr(content, 1000)
+    _,boosts = extract_fields(fields)
+    score_rate = 1.0
+    # max_boost = 0.0
+    # for x in boosts:
+    #     if isinstance(x,float):
+    #         if max_boost<x:
+    #             max_boost = x
+    # if max_boost>0:
+    score_rate = 1/(10**len(content.split(' ')))
+    expr_search = make_expr(content, score_rate)
     if callable(suggest_handler):
         suggest_content = suggest_handler(content)
 
     if suggest_content != content and suggest_search_content:
-        search_content = make_expr(suggest_content, 500)
+        search_content = make_expr(suggest_content, score_rate/2)
         expr_search = f"({expr_search}) OR ({search_content})"
 
     fx_query_string_content = DocumentFields(is_bool=True)
@@ -3073,6 +3103,13 @@ def natural_logic_parse(expr: str):
             if isinstance(node.right, ast.BinOp):
                 boost_score = __parse_logical_expr__(node.right.left)
                 content_search = __parse_logical_expr__(node.right.right)
+                if type(node.right.op) == ast.RShift:
+                    return {
+                        "$$search": {
+                            "$fields": [f"{field_name}^{boost_score}"],
+                            "$value": content_search
+                        }
+                    }
                 return {
                     "$$contains": {
                         "$field": f"{field_name}^{boost_score}",

@@ -1,6 +1,0 @@
-
-ARG BASE
-FROM ${BASE}
-WORKDIR /app
-COPY ./../gradio_test /app
-

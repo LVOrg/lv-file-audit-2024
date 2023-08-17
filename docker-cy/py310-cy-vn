@@ -1,6 +1,0 @@
-ARG BASE
-FROM ${BASE}
-ARG TARGETARCH
-ARG OS
-COPY ./../cy_vn /app/cy_vn
-RUN python3 /app/compact.py /app/cy_vn

@@ -39,7 +39,6 @@ pikepdf==7.1.1
 Pillow==9.4.0
 pillow-avif-plugin==1.2.2
 textblob==0.17.1
-motor
 underthesea
 opencv-python
 PyMuPDF
@@ -55,6 +54,7 @@ torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 git+https://github.com/facebookresearch/detectron2.git@2c6c380f94a27bd8455a39506c9105f652b9f760
 gradio
 easyocr==1.6.2
+pillow-avif-plugin
 #fitz
 #sudo apt install libpython3.10-dev
 #python -m pip install -r requirements/python3.10.txt
