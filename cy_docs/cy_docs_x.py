@@ -24,9 +24,7 @@ import asyncio
 import threading
 import typing
 
-import motor
 import pydantic
-from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from datetime import datetime
 
 
@@ -41,7 +39,6 @@ import uuid
 from typing import List, Union
 from re import Pattern, IGNORECASE
 import bson
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 import inspect
 import re
@@ -278,7 +275,7 @@ class Field(__BaseField__):
         }
         return ret
 
-    def reduce(self, data, reduce_type: type = None,skip_require:bool=False):
+    def reduce(self, data, reduce_type: type = None, skip_require: bool = False):
         import builtins
         reduce_type = reduce_type or self.__delegate_type__
         ret = {"_id": data.get("_id")}
@@ -306,11 +303,11 @@ class Field(__BaseField__):
 
                 elif ele_value is None:
                     require_fields += [k]
-                elif isinstance(v,str) and hasattr(builtins,v) and isinstance(ele_value, getattr(builtins,v)):
+                elif isinstance(v, str) and hasattr(builtins, v) and isinstance(ele_value, getattr(builtins, v)):
                     ret[k] = ele_value
                 else:
                     try:
-                        if isinstance(ele_value,v):
+                        if isinstance(ele_value, v):
                             ret[k] = ele_value
                     except Exception as e1:
                         try:
@@ -1032,34 +1029,11 @@ class DBDocument:
         return ret
 
     async def delete_async(self, filter):
-
-        client = AsyncIOMotorClient()
-        fx = self.collection
-        client.delegate = fx.database.client
-
-        coll = client.get_database(fx.database.name).get_collection(fx.name)
-        _filter = filter
-        if isinstance(filter, Field):
-            _filter = filter.to_mongo_db_expr()
-
-        ret = await coll.delete_many(_filter)
-        return ret
+        return self.delete(filter)
 
     async def find_one_async(self, filter):
 
-        client = AsyncIOMotorClient()
-        fx = self.collection
-        client.delegate = fx.database.client
-
-        coll = client.get_database(fx.database.name).get_collection(fx.name)
-        _filter = filter
-        if isinstance(filter, Field):
-            _filter = filter.to_mongo_db_expr()
-
-        ret = await coll.find_one(_filter)
-        if ret is None:
-            return None
-        return DocumentObject(ret)
+        return self.find_one(filter)
 
     def find_one(self, filter):
         _filter = filter
@@ -1073,20 +1047,7 @@ class DBDocument:
 
     async def find_async(self, filter, linmit=10000):
 
-        client = AsyncIOMotorClient()
-        fx = self.collection
-        client.delegate = fx.database.client
-
-        coll: AsyncIOMotorCollection = client.get_database(fx.database.name).get_collection(fx.name)
-        _filter = filter
-        if isinstance(filter, Field):
-            _filter = filter.to_mongo_db_expr()
-
-        ret = coll.find(_filter)
-        ret_items = []
-        for document in await ret.to_list(length=100):
-            ret_items += [DocumentObject(document)]
-        return ret_items
+        return self.find(filter=filter, linmit=linmit)
 
     def find(self, filter, linmit=10000):
         """
@@ -1117,53 +1078,9 @@ class DBDocument:
             yield DocumentObject(document).to_json_convertable()
 
     async def insert_one_async(self, *args, **kwargs):
-
-        client = AsyncIOMotorClient()
-        fx = self.collection
-        client.delegate = fx.database.client
-
-        coll = client.get_database(fx.database.name).get_collection(fx.name)
-        if isinstance(args, tuple):
-            if len(args) == 1:
-                if isinstance(args[0], dict):
-                    for k, v in kwargs:
-                        args[0][k] = v
-                    if args[0].get("_id") is None:
-                        args[0] = bson.ObjectId()
-                    ret = await coll.insert_one(args[0])
-                    return ret
-                elif isinstance(args[0], Field):
-                    _fx: Field = args[0]
-                    if not _fx.__has_set_value__:
-                        raise Exception(
-                            f"Please set value for {_fx.__name__}. Example: {_fx.__name__}<<my_value")
-                    data = {
-                        _fx.__name__: _fx.__value__
-                    }
-                    for k, v in kwargs:
-                        data[k] = v
-                    if args[0].get("_id") is None:
-                        args[0] = bson.ObjectId()
-                    ret = await coll.insert_one(data)
-                    return ret
-            else:
-                data = {}
-                for x in args:
-                    if isinstance(x, Field):
-                        if not x.__has_set_value__:
-                            raise Exception(
-                                f"Please set value for {x.__name__}. Exmaple {x.__name__}<<my_value")
-                        data[x.__name__] = x.__value__
-                    elif isinstance(x, dict):
-                        data = {**data, **x}
-                if data.get("_id") is None:
-                    data["_id"] = bson.ObjectId()
-                ret = await coll.insert_one(data)
-                return ret
+        return self.insert_one(*args, **kwargs)
 
     def insert_one(self, *args, **kwargs):
-        print(args)
-        print("=====================")
         if isinstance(args, Field):
             ret = self.collection.insert_one({
                 args.__name__: args.__value__
@@ -1249,43 +1166,10 @@ class DBDocument:
         return ret
 
     async def update_async(self, filter, *args, **kwargs):
-
-        client = AsyncIOMotorClient()
-        fx = self.collection
-        client.delegate = fx.database.client
-
-        coll = client.get_database(fx.database.name).get_collection(fx.name)
-        _filter = {}
-        if isinstance(filter, Field):
-            _filter = filter.to_mongo_db_expr()
-        updater = {}
-        for x in args:
-            if isinstance(x, Field):
-                if not x.__has_set_value__:
-                    raise Exception(f"Thous must set {x.__name__} a value. Exmaple: {x.__name__}<<my_value")
-                updater[x.__name__] = x.__value__
-            elif isinstance(x, dict):
-                updater = {**updater, **x}
-        updater = {**updater, **kwargs}
-        ret = await coll.update_many(
-            filter=_filter,
-            update={
-                "$set": updater
-            }
-        )
-        return ret
+        return self.update(filter, *args, **kwargs)
 
     async def count_async(self, filter):
-
-        client = AsyncIOMotorClient()
-        fx = self.collection
-        client.delegate = fx.database.client
-
-        coll = client.get_database(fx.database.name).get_collection(fx.name)
-        if isinstance(filter, dict):
-            return await coll.count_documents(filter)
-        elif isinstance(filter, Field):
-            return await coll.count_documents(filter.to_mongo_db_expr())
+        return self.count(filter)
 
     def aggregate(self):
         return AggregateDocument(self)
@@ -1784,8 +1668,10 @@ def file_get(client, db_name: str, file_id):
 
     # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
     return ret
+
+
 async def file_get_async(client, db_name: str, file_id):
-    return file_get(client,db_name,file_id)
+    return file_get(client, db_name, file_id)
 
 
 def file_get_by_name(client, db_name: str, filename):
@@ -1793,6 +1679,8 @@ def file_get_by_name(client, db_name: str, filename):
     items = list(gfs.find({"filename": filename}))
     if len(items) > 0:
         return items[0]
+
+
 async def file_get_by_name(client, db_name: str, filename):
     return file_get_by_name(client, db_name, filename)
 
@@ -1952,27 +1840,28 @@ def get_file_info_by_id(client, db_name, files_id):
     return ret
 
 
-async def get_file_async(client, db_name: str, file_id):
-    async_client = AsyncIOMotorClient()
-    async_client.delegate = client
-    gfs = AsyncIOMotorGridFSBucket(async_client.get_database(db_name))
+# async def get_file_async(client, db_name: str, file_id):
+#
+#     async_client = AsyncIOMotorClient()
+#     async_client.delegate = client
+#     gfs = AsyncIOMotorGridFSBucket(async_client.get_database(db_name))
+#
+#     if isinstance(file_id, str):
+#         file_id = bson.ObjectId(file_id)
+#     ret = await gfs.open_download_stream(file_id)
+#     # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
+#     return ret
 
-    if isinstance(file_id, str):
-        file_id = bson.ObjectId(file_id)
-    ret = await gfs.open_download_stream(file_id)
-    # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
-    return ret
 
-
-async def find_file_async(client, db_name: str, rel_file_path: str):
-    from motor.motor_asyncio import AsyncIOMotorClient
-    async_client = AsyncIOMotorClient()
-    async_client.delegate = client
-    gfs = AsyncIOMotorGridFSBucket(async_client.get_database(db_name))
-    ret = await  gfs.find({"rel_file_path": rel_file_path})
-
-    # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
-    return ret
+# async def find_file_async(client, db_name: str, rel_file_path: str):
+#     from motor.motor_asyncio import AsyncIOMotorClient
+#     async_client = AsyncIOMotorClient()
+#     async_client.delegate = client
+#     gfs = AsyncIOMotorGridFSBucket(async_client.get_database(db_name))
+#     ret = await  gfs.find({"rel_file_path": rel_file_path})
+#
+#     # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
+#     return ret
 
 
 def EXPR(expr):

@@ -55,6 +55,10 @@ git+https://github.com/facebookresearch/detectron2.git@2c6c380f94a27bd8455a39506
 gradio
 easyocr==1.6.2
 pillow-avif-plugin
+underthesea
+langdetect
+keras-ocr
+tensorflow
 #fitz
 #sudo apt install libpython3.10-dev
 #python -m pip install -r requirements/python3.10.txt

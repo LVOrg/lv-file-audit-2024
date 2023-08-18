@@ -27,12 +27,10 @@ if isinstance(config.get('rabbitmq'),dict):
             from_class= Broker,
             implement_class= RabitmqMsg
     )
-
-logger = cy_kit.create_logs(
-    pathlib.Path(__file__).parent.parent.__str__(),
-    "web"
-)
+from cyx.loggers import LoggerService
+logger = cy_kit.singleton(LoggerService)
 print(config)
+
 from cyx.common.base import DbConnect
 cnn = cy_kit.singleton(DbConnect)
 cnn.set_tracking(True)
@@ -78,7 +76,7 @@ async def estimate_time(request:fastapi.Request,next):
         res.headers["time:total(second)"] = (end_time-start_time).total_seconds().__str__()
         res.headers["Server-Timing"] =f"total;dur={(end_time - start_time).total_seconds()*1000}"
     except Exception as e:
-        logger.exception(e)
+        logger.error(e)
         raise  e
 
     """HTTP/1.1 200 OK

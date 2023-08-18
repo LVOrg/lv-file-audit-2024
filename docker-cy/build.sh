@@ -6,8 +6,8 @@ docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 export user=xdoc
 export user_=nttlong
 export platform_=linux/amd64
-export platform=linux/arm64/v8
-export platform_=linux/amd64,linux/arm64/v8
+export platform__=linux/arm64/v8
+export platform=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
 export os='debian'
@@ -220,7 +220,7 @@ cy_web_image=$base_py-cy_web:$cy_web_tag_build
 buildFunc $base_py-cy_web $cy_web_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_docs -------------------
 rm -f $base_py-cy_docs && cp -f ./templates/cy_docs ./$base_py-cy_docs
-cy_docs_tag=3
+cy_docs_tag=4
 cy_docs_tag_build=$(tag $cy_docs_tag)
 cy_docs_image=$base_py-cy_docs:$cy_docs_tag_build
 buildFunc $base_py-cy_docs $cy_docs_tag_build $repositiory/$user/$cython_image $os
