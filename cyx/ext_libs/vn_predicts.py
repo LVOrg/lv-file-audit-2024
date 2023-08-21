@@ -7,29 +7,9 @@ import numpy
 import zipfile
 import collections
 import numpy as np
-import asyncio
+import langdetect
 
 __working_dir__ = pathlib.Path(__file__).parent.parent.__str__()
-def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
-    # Print New Line on Complete
-    if iteration == total:
-        print()
 
 
 def __load_data_from_zip__(data_zip_file: str, dataset_path: str = None) -> collections.OrderedDict:
@@ -50,25 +30,6 @@ def __load_data_from_zip__(data_zip_file: str, dataset_path: str = None) -> coll
         with zipfile.ZipFile(data_zip_file, "r") as zip_ref:
             zip_ref.extractall(dataset_path)
     ret = numpy.load(numpy_file, allow_pickle='TRUE').item()
-    return ret
-
-
-def convert_to_collection_ordered_dict(data: typing.Dict[str, str]) -> collections.OrderedDict:
-    total = len(data.items())
-
-    ret = collections.OrderedDict()
-    i = 0
-    for key, value in data.items():
-        ret[key] = value
-        printProgressBar(
-            iteration=i,
-            printEnd="complete",
-            length=50,
-            prefix="Convert data",
-            total=total
-        )
-        i += 1
-
     return ret
 
 
@@ -108,14 +69,40 @@ class Config:
 
 
 __config__: typing.Optional[Config] = None
-
+__accents_chars__ = (f"ÙÚỦỤŨƯỪỨỬỰỮ"
+                     f"èéẻẹẽêềếểệễ"
+                     f"òóỏọõôồốổộỗơờớởợỡ"
+                     f"ÒÓỎỌÕÔỒỐỔỘỖƠỜỚỞỢỠ"
+                     f"ùúủụũưừứửựữ"
+                     f"àáảạãâầấẩậẫăằắẳặẵ"
+                     f"ÀÁẢẠÃÂẦẤẨẬẪĂẰẮẲẶẴ"
+                     f"ìíỉịĩÈÉẺẸẼÊỀẾỂỆỄ"
+                     f"ỲÝỶỴỸÌÍỈỊĨ"
+                     f"ỳýỷỵỹ")
 __version__ = "0.0.0"
+
+__full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
+                    f"eèéẻẹẽêềếểệễ"
+                    f"oòóỏọõôồốổộỗơờớởợỡ"
+                    f"OÒÓỎỌÕÔỒỐỔỘỖƠỜỚỞỢỠ"
+                    f"uùúủụũưừứửựữ"
+                    f"aàáảạãâầấẩậẫăằắẳặẵ"
+                    f"AÀÁẢẠÃÂẦẤẨẬẪĂẰẮẲẶẴ"
+                    f"iìíỉịĩ"
+                    f"EÈÉẺẸẼÊỀẾỂỆỄ"
+                    f"YỲÝỶỴỸ"
+                    f"IÌÍỈỊĨ"
+                    f"yỳýỷỵỹ")
+
+
 def get_config(dataset_path: str = None) -> Config:
     if dataset_path is None:
-        dataset_path = os.path.join(__working_dir__,"share-storage","dataset",pathlib.Path(__file__).name,__version__)
+        dataset_path = os.path.join(__working_dir__, "share-storage", "dataset", pathlib.Path(__file__).name,
+                                    __version__)
         if not os.path.isdir(dataset_path):
-            os.makedirs(dataset_path,exist_ok=True)
+            os.makedirs(dataset_path, exist_ok=True)
     global __config__
+    global __accents_chars__
     if not isinstance(__config__, Config):
         source_dir = pathlib.Path(__file__).parent.__str__()
         __config__ = Config()
@@ -141,6 +128,7 @@ def get_config(dataset_path: str = None) -> Config:
         _fx = {}
 
         for x in accent_data:
+
             for v in x:
                 if not __config__.accents.get(x[0]):
                     __config__.accents[x[0]] = [v]
@@ -266,7 +254,7 @@ def __normalize_string__(input_str):
 def predict_accents(input_content):
     global __config__
     if __config__ is None:
-        raise Exception(f"Pleas call {get_config.__module__}.{get_config.__name__}")
+        get_config()
     input_sentences = re.split("[.!?,\n;?]", input_content)
     output = ""
     result = ""
@@ -358,5 +346,197 @@ def predict_accents(input_content):
     return output.strip()
 
 
-async def predict_accents_async(input_content):
-    return await asyncio.run(predict_accents(input_content))
+def is_accent_word(word: str):
+    global __config__
+    if __config__ is None:
+        get_config()
+    for x in word:
+        if x in __accents_chars__:
+            return True
+    return False
+
+
+
+
+def vn_clear_sticky(unknown_word: str) -> typing.List[str]:
+    ret= []
+    unclear_words = seperate_words_clear(unknown_word)
+    unclear_word = unclear_words[0]
+    len_of_unclear_word = len(unclear_word)
+    first_word = unclear_word
+    process_len =0
+    for i in range(0, len_of_unclear_word):
+        word_from_right = unclear_word[0:len_of_unclear_word - i]
+        if __config__.grams_1.get(word_from_right.lower()):
+            first_word = word_from_right
+            break
+    ret +=[first_word]
+    process_len+=len(first_word)
+    len_of_unclear_words = len(unclear_words)
+    tmp_unclear= None
+    for index in range(1,len_of_unclear_words):
+        unclear_word = unclear_words[index]
+        tmp_unclear = unclear_word
+        len_of_unclear_word = len(unclear_word)
+        max_val =-1
+        next_word = None
+        if unclear_word=="nhthứcL":
+            vx = unclear_word
+        for i in range(0, len_of_unclear_word):
+            word_from_left = unclear_word[i:]
+            if word_from_left=="thứcL":
+                fx=1
+
+            check_word = (first_word+" "+word_from_left).lower()
+            val = __config__.grams_2.get(check_word)
+            if val  and val>max_val:
+                max_val = val
+                next_word = word_from_left
+            for k in range(1,len_of_unclear_word-i):
+                word_from_right = word_from_left[0:len_of_unclear_word-i-k]
+                check_word = (first_word + " " + word_from_right).lower()
+                val = __config__.grams_2.get(check_word)
+
+                # number2Gram = __get_gram_count__(old_word + " " + new_word, __config__.grams_2)
+                # number1Gram = __get_gram_count__(old_word, __config__.grams_1)
+                # if number1Gram > 0 and number2Gram > 0:
+                #     log = math.log((number2Gram + 1) / (number1Gram + __config__.statistic[old_word]))
+                # else:
+                #     log = math.log(1.0 / (2 * (__config__.size_2_grams + __config__.total_count_2_grams)))
+                #
+                # if i1 == 1:
+                #     log += math.log(
+                #         (number1Gram + 1) / (__config__.size_1_gram + __config__.total_count_1_gram))
+                # if temp != Q[i1 - 1][k1]:
+                #     if temp == __config__.MIN:
+                #         temp = Q[i1 - 1][k1]
+                # value = Q[i1 - 1][k1] + log
+
+                if val is None:
+                    vx= val
+                suggests_word = None
+                if val is None and not is_accent_word(word_from_right):
+                    sentence = ret[ret.__len__()-1]+" "+word_from_right
+                    suggests_word = predict_accents(sentence)
+
+                    if suggests_word.split(' ')[1] != word_from_right:
+                        val = __config__.grams_2.get(suggests_word)
+                        ret[ret.__len__() - 1] = suggests_word.split(' ')[0]
+                        suggests_word = suggests_word.split(' ')[1]
+                        next_word = suggests_word
+                        word_from_right = suggests_word
+
+                if val and val > max_val:
+                    max_val = val*(10**len(word_from_right))
+                    next_word = word_from_right
+        if next_word!= None:
+            ret+=[next_word]
+            process_len += len(next_word)
+        else:
+            ret+=[tmp_unclear]
+            process_len += len(tmp_unclear)
+        first_word = next_word
+    if process_len<len(unknown_word):
+        ret+=[unknown_word[process_len:]]
+    print(unknown_word)
+    print(ret)
+
+def correct_accents(input_content):
+    global __config__
+    if __config__ is None:
+        get_config()
+    input_sentences = re.split("[.!?,\n;?]", input_content)
+    output = ""
+    result = ""
+    for input_sentence in input_sentences:
+        # set_possible_changes()
+        in_ = __normalize_string__(input_sentence)
+        lowercase_in = in_.lower()
+        words = lowercase_in.split(" ")
+        words = [x for x in words if x.rstrip(' ').rstrip(' ') != ""]
+        len_of_words = len(words)
+        if len_of_words == 0:
+            continue
+
+        numberP = numpy.zeros(len_of_words, dtype=int)
+        trace = numpy.zeros((len_of_words, __config__.maxp), dtype=int)
+        Q = numpy.zeros((len_of_words, __config__.maxp), dtype=float)
+        possible_change = [[""] * __config__.maxp for _ in range(len_of_words)]
+        # possible_change = np.full((len_of_words, __config__.maxp,__config__.max_word_length), "".encode('utf8'), dtype=bytes)
+
+        for i in range(len_of_words):
+            num_of_word_processing = 0
+            if is_accent_word(words[i]) and __config__.grams_1.get(words[i]):
+                possible_change[i][num_of_word_processing] = words[i]
+                num_of_word_processing += 1
+                numberP[i] = num_of_word_processing
+            else:
+                _, num_of_word_processing = __generate_variety__(words[i], 0, possible_change[i],
+                                                                 num_of_word_processing)
+                possible_change[i][num_of_word_processing] = words[i]
+                num_of_word_processing += 1
+                numberP[i] = num_of_word_processing
+
+        if len_of_words == 1:
+            max = 0
+            sure = words[0]
+            for i in range(numberP[0]):
+                possible = possible_change[0][i]
+                number1GRam = __get_gram_count__(possible, __config__.grams_1)
+                if max < number1GRam:
+                    max = number1GRam
+                    sure = possible
+            output += sure.strip() + "\n"
+        else:
+            for i1 in range(1, len_of_words):
+                recent_possible_num = numberP[i1]
+                old_possible_num = numberP[i1 - 1]
+                for j in range(recent_possible_num):
+                    Q[i1][j] = __config__.MIN
+                    temp = __config__.MIN
+                    for k1 in range(old_possible_num):
+                        new_word = possible_change[i1][j]
+                        old_word = possible_change[i1 - 1][k1]
+                        log = -100.0
+
+                        number2Gram = __get_gram_count__(old_word + " " + new_word, __config__.grams_2)
+                        number1Gram = __get_gram_count__(old_word, __config__.grams_1)
+                        if number1Gram > 0 and number2Gram > 0:
+                            log = math.log((number2Gram + 1) / (number1Gram + __config__.statistic[old_word]))
+                        else:
+                            log = math.log(1.0 / (2 * (__config__.size_2_grams + __config__.total_count_2_grams)))
+
+                        if i1 == 1:
+                            log += math.log(
+                                (number1Gram + 1) / (__config__.size_1_gram + __config__.total_count_1_gram))
+                        if temp != Q[i1 - 1][k1]:
+                            if temp == __config__.MIN:
+                                temp = Q[i1 - 1][k1]
+                        value = Q[i1 - 1][k1] + log
+
+                        if Q[i1][j] < value:
+                            # print(f"{old_word} {new_word} -> {value}")
+                            Q[i1][j] = value
+                            trace[i1][j] = k1
+            max = __config__.MIN
+            k = 0
+
+            for l in range(numberP[len_of_words - 1]):
+                if max <= Q[len_of_words - 1][l]:
+                    max = Q[len_of_words - 1][l]
+                    k = l
+                    # print(possible_change[len(words) - 1][k])
+            result = possible_change[len_of_words - 1][k]
+            k = trace[len_of_words - 1][k]
+            i = len_of_words - 2
+            while i >= 0:
+                result = possible_change[i][k] + " " + result
+                k = trace[i][k]
+                i = i - 1
+        output += __process_out_put__(input_sentence, result) + "\n"
+        del possible_change
+        del Q
+        del numberP
+        del trace
+
+    return output.strip()
