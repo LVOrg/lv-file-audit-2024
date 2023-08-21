@@ -94,7 +94,16 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"IÌÍỈỊĨ"
                     f"yỳýỷỵỹ")
 
-
+__tones_ignore__ = [
+    'ữõ','ưò','ủạ','ựạ','ứá','ữạ','ủả','ụá','ưầ','ửả','ụậ','êù','ếú','êú','ựạ','ứá','ưả','ủạ','ưỏ','ưà','ưá',
+    'ưồ','ưô','ưộ','ưố','ụộ','ưo','ưọ','ùo','ưổ',
+    'ửá','ưà','eu','êừ','ưã','ụo','iêú','iềụ',
+    'iếú','ìeu', 'iềủ', 'iềù', 'iêũ', 'iêụ', 'iểù', 'iềú', 'ỉeu', 'iêù', 'iệụ'
+    'ưyê','ưyễ',
+    'ỉệ', 'ìệ',  'ịệ',
+    'aủ',  'ậụ',  'âử', 'âú', 'ầù', 'âủ', 'aư', 'àù', 'âù', 'âụ', 'âư', 'âũ',
+    'ợo', 'ơơ', 'óo', 'òo', 'ỏó', 'ôộ', 'ọọ', 'ơợ', 'oó', 'òò', 'oỏ', 'ôố', 'oợ', 'ôồ', 'oọ', 'oộ', 'oo', 'ơờ', 'ơở', 'oò', 'ơộ', 'ôỗ', 'oô', 'oồ', 'ôổ', 'oổ', 'ôô', 'oố'
+]
 def get_config(dataset_path: str = None) -> Config:
     if dataset_path is None:
         dataset_path = os.path.join(__working_dir__, "share-storage", "dataset", pathlib.Path(__file__).name,
@@ -103,6 +112,7 @@ def get_config(dataset_path: str = None) -> Config:
             os.makedirs(dataset_path, exist_ok=True)
     global __config__
     global __accents_chars__
+    global __tones_ignore__
     if not isinstance(__config__, Config):
         source_dir = pathlib.Path(__file__).parent.__str__()
         __config__ = Config()
@@ -130,19 +140,30 @@ def get_config(dataset_path: str = None) -> Config:
         for x in accent_data:
 
             for v in x:
+
                 if not __config__.accents.get(x[0]):
                     __config__.accents[x[0]] = [v]
                 else:
                     __config__.accents[x[0]].append(v)
-                if __config__.tones.get(x[0]):
+                if __config__.tones.get(x[0]) and x[0] not in __tones_ignore__:
                     __config__.tones.get(x[0]).append(v)
                 else:
-                    __config__.tones[x[0]] = [v]
+                    if v not in __tones_ignore__:
+                        __config__.tones[x[0]] = [v]
                 lst.append(v)
                 _fx[v] = x[0]
 
         __config__.tones = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_accents.npy.zip"),
                                                   dataset_path)
+        tmp = collections.OrderedDict()
+        set_of_ignore = set(__tones_ignore__)
+        for k,v in __config__.tones.items():
+            if len(k)<=3:
+                lst = list(set(v).difference(set_of_ignore))
+                if len(lst)>0:
+                    tmp[k]=lst
+        del __config__.tones
+        __config__.tones = tmp
         __config__.statistic = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_stat.npy.zip"),
                                                       dataset_path)
         __config__.grams_1 = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_grams1.npy.zip"),
@@ -358,88 +379,7 @@ def is_accent_word(word: str):
 
 
 
-def vn_clear_sticky(unknown_word: str) -> typing.List[str]:
-    ret= []
-    unclear_words = seperate_words_clear(unknown_word)
-    unclear_word = unclear_words[0]
-    len_of_unclear_word = len(unclear_word)
-    first_word = unclear_word
-    process_len =0
-    for i in range(0, len_of_unclear_word):
-        word_from_right = unclear_word[0:len_of_unclear_word - i]
-        if __config__.grams_1.get(word_from_right.lower()):
-            first_word = word_from_right
-            break
-    ret +=[first_word]
-    process_len+=len(first_word)
-    len_of_unclear_words = len(unclear_words)
-    tmp_unclear= None
-    for index in range(1,len_of_unclear_words):
-        unclear_word = unclear_words[index]
-        tmp_unclear = unclear_word
-        len_of_unclear_word = len(unclear_word)
-        max_val =-1
-        next_word = None
-        if unclear_word=="nhthứcL":
-            vx = unclear_word
-        for i in range(0, len_of_unclear_word):
-            word_from_left = unclear_word[i:]
-            if word_from_left=="thứcL":
-                fx=1
 
-            check_word = (first_word+" "+word_from_left).lower()
-            val = __config__.grams_2.get(check_word)
-            if val  and val>max_val:
-                max_val = val
-                next_word = word_from_left
-            for k in range(1,len_of_unclear_word-i):
-                word_from_right = word_from_left[0:len_of_unclear_word-i-k]
-                check_word = (first_word + " " + word_from_right).lower()
-                val = __config__.grams_2.get(check_word)
-
-                # number2Gram = __get_gram_count__(old_word + " " + new_word, __config__.grams_2)
-                # number1Gram = __get_gram_count__(old_word, __config__.grams_1)
-                # if number1Gram > 0 and number2Gram > 0:
-                #     log = math.log((number2Gram + 1) / (number1Gram + __config__.statistic[old_word]))
-                # else:
-                #     log = math.log(1.0 / (2 * (__config__.size_2_grams + __config__.total_count_2_grams)))
-                #
-                # if i1 == 1:
-                #     log += math.log(
-                #         (number1Gram + 1) / (__config__.size_1_gram + __config__.total_count_1_gram))
-                # if temp != Q[i1 - 1][k1]:
-                #     if temp == __config__.MIN:
-                #         temp = Q[i1 - 1][k1]
-                # value = Q[i1 - 1][k1] + log
-
-                if val is None:
-                    vx= val
-                suggests_word = None
-                if val is None and not is_accent_word(word_from_right):
-                    sentence = ret[ret.__len__()-1]+" "+word_from_right
-                    suggests_word = predict_accents(sentence)
-
-                    if suggests_word.split(' ')[1] != word_from_right:
-                        val = __config__.grams_2.get(suggests_word)
-                        ret[ret.__len__() - 1] = suggests_word.split(' ')[0]
-                        suggests_word = suggests_word.split(' ')[1]
-                        next_word = suggests_word
-                        word_from_right = suggests_word
-
-                if val and val > max_val:
-                    max_val = val*(10**len(word_from_right))
-                    next_word = word_from_right
-        if next_word!= None:
-            ret+=[next_word]
-            process_len += len(next_word)
-        else:
-            ret+=[tmp_unclear]
-            process_len += len(tmp_unclear)
-        first_word = next_word
-    if process_len<len(unknown_word):
-        ret+=[unknown_word[process_len:]]
-    print(unknown_word)
-    print(ret)
 
 def correct_accents(input_content):
     global __config__
