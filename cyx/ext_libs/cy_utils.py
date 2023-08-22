@@ -136,8 +136,12 @@ class EasyOCR:
 
     @staticmethod
     def get_data(img, langs: typing.List[str] = ["ch", "vi", "ko"]):
+        import  easyocr
+
+
         __langs_ = [x for x in langs if __easy_ocr_to_tesseract_langs_map__.get(x) is not None]
         reader = easyocr.Reader(__langs_)
+
         ret = reader.readtext(img)
         lst = []
         np_polylines=[]

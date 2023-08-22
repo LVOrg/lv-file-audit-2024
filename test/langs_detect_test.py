@@ -17,6 +17,7 @@ from cyx.files_converter import convert_image_to_pdf, convert_file_ext
 import ocrmypdf
 import PyPDF2
 from cyx.files_reader import read_text_from_pdf
+import easyocr
 from cyx.ext_libs.cy_utils import Files, Converter, Loggers, ContentReader,OCR, Tesseract,EasyOCR,Linguistics, Images
 logger_dir = Loggers.get_directory()
 def detect_image_lang(img_path):
@@ -35,6 +36,11 @@ def detect_image_lang_3(img_path):
     seg_words= Linguistics.segment_word(ret)
     return dict(text=ret,seg_words=seg_words,langs=langs,langs_support = Tesseract.get_langs_support())
 def detect_image_lang_4(img_path):
+    from easyocr import config, utils, easyocr
+
+
+
+
     ret,data, np_polylines = EasyOCR.get_data(img_path,langs=["vi","en"])
     poly_lines = [x["points"] for x in ret]
     img = Images.poly_lines(img_path,np_polylines)

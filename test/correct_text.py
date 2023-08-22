@@ -6,16 +6,20 @@ print(predict_accents("chi bay nhieu da du chua"))
 print(predict_accents("chi bay nhieu ly thuyet da du chua"))
 print(predict_accents("cha thay do dan gi het"))
 print(predict_accents("ly thuyet Ok thuc te sai"))
-
+import cyx.ext_libs.vn_corrector
 from cyx.ext_libs.vn_corrector import sticky_words_analyzer,sticky_words_suggestion, sticky_words_get_suggest_list
 from cyx.ext_libs.vn_predicts import  predict_accents
 # fx = vn_clear_sticky("trườngkinhtếhinhthứcLÝKHUNGKINHXYZ")
 # fx = vn_clear_sticky("cacphuongphapquanlynenkinhteusa")
 import langdetect
 ffx = fx = predict_accents("truong kinh tế hinh thức LÝ HUNG KINH XYZ")
+
 print(ffx)
 #fx = sticky_words_analyzer("truongkinhtếhinhthứcLÝKHUNGKINHXYZ")
-fx = sticky_words_analyzer("oikhothemaconlamduoc")
+# fx = sticky_words_analyzer("chaooikhothemaconlamduoc")
+fx = sticky_words_analyzer("tramthuychaooikhothemaconlamduoc")
+cyx.ext_libs.vn_corrector.sticky_words_analyzer_clear_double_vowel(fx)
+print((fx))
 # w,start,end,vowel = fx[0]
 # ret = sticky_words_get_suggest_list(w,start,end,vowel)
 # print(ret)

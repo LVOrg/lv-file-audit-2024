@@ -15,6 +15,40 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"IÌÍỈỊĨ"
                     f"yỳýỷỵỹ")
 
+def __seperate_vowel__(w,s,e,v,l):
+    print(w)
+    return w,v
+def __find_double_vowel__(vowel):
+    index = 0
+    len_of_vowel = len(vowel)
+    for x in vowel:
+        if x in __full_accents__:
+            if index>0:
+                if x==vowel[index-1]:
+                    for i in range(index+1,len_of_vowel):
+                        if vowel[i] in __full_accents__:
+                            return index,i
+                    return index,len_of_vowel
+        index+=1
+    return None,None
+
+def sticky_words_analyzer_clear_double_vowel(data_words):
+    global __config__
+    ret =[]
+    for w,s,e,v,l in data_words:
+        s1,e1 = __find_double_vowel__(v)
+        if s1:
+            i1 = s+s1
+
+            w1=w[0:s+s1]
+            w1_l = len(w1)
+            w2=w[s+s1:]
+            w2_l = len(w2)
+            ret+=[(w1,s1,len(w1),w1[s:]),w1_l]
+            ret += [(w2, 0, e1-s1, w2[0:e1-1],w2_l)]
+        else:
+            ret+=[(w,s,e,v,l)]
+    return ret
 
 def sticky_words_analyzer(unknown_word: str) -> typing.List[str]:
     """
@@ -29,8 +63,6 @@ def sticky_words_analyzer(unknown_word: str) -> typing.List[str]:
     index = 0
     last_acc_index = 0
     start_acc_index = None
-    pre_acc = None
-
     for x in unknown_word:
 
         index += 1
@@ -38,31 +70,15 @@ def sticky_words_analyzer(unknown_word: str) -> typing.List[str]:
         if x in __full_accents__:
             if start_acc_index is None:
                 start_acc_index = index
-            if index>1:
-                pre_acc = unknown_word[index-2]
-
 
             if index_acc == index - 1:
-                if pre_acc==x:
-                    w+=x
-                    ret_ = [(w, start_acc_index - 1, last_acc_index - 1, w[start_acc_index - 1:last_acc_index],len(w))]
-                    rx = unknown_word[w.__len__():]
-                    r_ = sticky_words_analyzer(rx)
-                    print(rx)
-                else:
-                    count += 1
-
-
-
-
-
+                start_next = index
+            else:
+                count += 1
             if count < 2:
                 w += x
                 last_acc_index = index
-            else:
-                count += 1
             index_acc = index
-
 
         else:
             w += x
@@ -72,7 +88,6 @@ def sticky_words_analyzer(unknown_word: str) -> typing.List[str]:
             ret_next = sticky_words_analyzer(nw) or [(nw, -1, -1, None,len(nw))]
             ret += ret_next
             start_acc_index = None
-            pre_acc = None
             return ret
     return [(w, start_acc_index - 1, last_acc_index - 1, w[start_acc_index - 1:last_acc_index],len(w))]
 
@@ -122,11 +137,10 @@ def sticky_words_get_suggest_list(unclear_word, start, end, vowel,len_of_word,pr
     w= unclear_word
     fw = None
     __max__ = -10000
-    tone = tones.get(vowel)
-    if previous_word=="tế":
-        fx=1
-    if w == "nhthứcL":
-        fx = 1
+    tone = None
+    if previous_word:
+        tone = tones.get(vowel)
+
     for i in range(0, start):
         for j in range(end+1,len_of_word):
 
@@ -146,11 +160,10 @@ def sticky_words_get_suggest_list(unclear_word, start, end, vowel,len_of_word,pr
                 if not __config__.grams_1.get(ch.lower()):
                     continue
                 val = __get_log__(previous_word,ch.lower())
-                if val:
-                    val = val ** len(ch)
-                    if __max__ < val:
-                        __max__ = val
-                        ret = [ch]
+                if __max__ < val:
+                    __max__ = val
+                    ret = [ch]
+
                 for x in tone:
 
                     ch = w[i:start] + x +  w[end+1:j]
@@ -220,3 +233,5 @@ def sticky_words_suggestion(analy_list: typing.List[typing.Tuple[str, int, int, 
                                     ret[w] += [(ch, val)]
 
         print(f"{vowel} ->  {tones[vowel]}")
+
+
