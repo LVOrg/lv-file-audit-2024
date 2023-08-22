@@ -7,8 +7,12 @@ import numpy
 import zipfile
 import collections
 import numpy as np
-__version__ = "0.0.1"
+import threading
+
+__version__ = "0.0.0.3"
 __working_dir__ = pathlib.Path(__file__).parent.parent.parent.__str__()
+
+__resource_loader_lock__ = threading.Lock()
 
 
 def __load_data_from_zip__(data_zip_file: str, dataset_path: str = None) -> collections.OrderedDict:
@@ -79,7 +83,6 @@ __accents_chars__ = (f"ÙÚỦỤŨƯỪỨỬỰỮ"
                      f"ỲÝỶỴỸÌÍỈỊĨ"
                      f"ỳýỷỵỹ")
 
-
 __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"eèéẻẹẽêềếểệễ"
                     f"oòóỏọõôồốổộỗơờớởợỡ"
@@ -94,26 +97,135 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"yỳýỷỵỹ")
 
 __tones_ignore__ = [
-    'ữõ','ưò','ủạ','ựạ','ứá','ữạ','ủả','ụá','ưầ','ửả','ụậ','êù','ếú','êú','ựạ','ứá','ưả','ủạ','ưỏ','ưà','ưá',
-    'ưồ','ưô','ưộ','ưố','ụộ','ưo','ưọ','ùo','ưổ',
-    'ửá','ưà','eu','êừ','ưã','ụo','iêú','iềụ',
-    'iếú','ìeu', 'iềủ', 'iềù', 'iêũ', 'iêụ', 'iểù', 'iềú', 'ỉeu', 'iêù', 'iệụ'
-    'ưyê','ưyễ',
-    'ỉệ', 'ìệ',  'ịệ',
-    'aủ',  'ậụ',  'âử', 'âú', 'ầù', 'âủ', 'aư', 'àù', 'âù', 'âụ', 'âư', 'âũ',
-    'ợo', 'ơơ', 'óo', 'òo', 'ỏó', 'ôộ', 'ọọ', 'ơợ', 'oó', 'òò', 'oỏ', 'ôố', 'oợ', 'ôồ', 'oọ', 'oộ', 'oo', 'ơờ', 'ơở', 'oò', 'ơộ', 'ôỗ', 'oô', 'oồ', 'ôổ', 'oổ', 'ôô', 'oố'
-]
-def get_config(dataset_path: str = None) -> Config:
+    'ữõ', 'ưò', 'ủạ', 'ựạ', 'ứá', 'ữạ', 'ủả', 'ụá', 'ưầ', 'ửả', 'ụậ', 'êù', 'ếú', 'êú', 'ựạ', 'ứá', 'ưả', 'ủạ', 'ưỏ',
+    'ưà', 'ưá',
+    'ưồ', 'ưô', 'ưộ', 'ưố', 'ụộ', 'ưo', 'ưọ', 'ùo', 'ưổ',
+    'ửá', 'ưà', 'eu', 'êừ', 'ưã', 'ụo', 'iêú', 'iềụ',
+    'iếú', 'ìeu', 'iềủ', 'iềù', 'iêũ', 'iêụ', 'iểù', 'iềú', 'ỉeu', 'iêù', 'iệụ'
+                                                                          'ưyê', 'ưyễ',
+    'ỉệ', 'ìệ', 'ịệ',
+    'aủ', 'ậụ', 'âử', 'âú', 'ầù', 'âủ', 'aư', 'àù', 'âù', 'âụ', 'âư', 'âũ',
+    'ợo', 'ơơ', 'óo', 'òo', 'ỏó', 'ôộ', 'ọọ', 'ơợ', 'oó', 'òò', 'oỏ', 'ôố', 'oợ', 'ôồ', 'oọ', 'oộ', 'oo', 'ơờ', 'ơở',
+    'oò', 'ơộ', 'ôỗ', 'oô', 'oồ', 'ôổ', 'oổ', 'ôô', 'oố',
+    'aở', 'âo', 'ằo',
+    'àò', 'ảỏ', 'aõ', 'áó', 'àô', 'ắo', 'aồ', 'àọ', 'áọ', 'aỏ', 'ăộ', 'ấo', 'ậo', 'ăo', 'ạọ', 'ão',
+    'ôá', 'ớá', 'ốa', 'ởã', 'ơa', 'ổà', 'ôă', 'ôẩ', 'ọạ', 'óá', 'ọả', 'ơả', 'ốá', 'ồa', 'oẫ', 'ôa', 'ơạ', 'òà',
+    'àò', 'ảỏ', 'aõ', 'áó', 'àô', 'ắo', 'aồ', 'àọ', 'áọ', 'aỏ', 'ăộ', 'ấo', 'ậo', 'ăo', 'ạọ',
+    'ôá', 'ớá', 'ốa', 'ởã', 'ơa', 'ổà', 'ôă', 'ôẩ', 'ọạ', 'oâ', 'óá', 'ọả', 'ơả', 'ốá', 'ồa', 'oẫ', 'ôa', 'oả', 'ơạ',
+    'òà',
+    'àò', 'ảỏ', 'aõ', 'áó', 'àô', 'ắo', 'aồ', 'àọ', 'áọ', 'aỏ', 'ăộ', 'áo', 'ấo', 'ậo', 'ăo', 'ạọ', 'ão',
+    'ịe', 'íe', 'ĩe', 'ie', 'ìe', 'iẻ', 'ỉe', 'iẽ', 'iè',
+    'ộí', 'ôỉ', 'ôĩ', 'ớỉ', 'ọị', 'ơì', 'ờì', 'ớí', 'ôì', 'ờĩ', 'ôị', 'ơị', 'ộị', 'ôí', 'ơỉ', 'ờị', 'ồì', 'ợị',
+    'óí', 'ổỉ', 'ổi', 'ởỉ', 'ốí']
+__tones_ignore__ = ['eể', 'êe', 'eẻ', 'eé', 'êệ', 'ẻe', 'ee', 'eế', 'eê', 'êê', 'eè']
+__tones_ignore__ += ['ẻu', 'ễu', 'éu']
+__tones_ignore__ += ['ếi', 'ẻi', 'êi', 'éi', 'ei', 'ềì', 'ềi']
+__tones_ignore__ += ['ếo', 'eô', 'êở', 'eó', 'êô', 'eơ', 'êo', 'eở', 'ẽọ', 'ệo', 'êỏ']
+__tones_ignore__ += ['êa', 'eà', 'eạ', 'eã', 'ea', 'ểa', 'eắ', 'êầ', 'êà', 'eậ', 'êả', 'ếa',
+                     'êạ', 'eẩ', 'eẳ', 'eấ', 'êậ', 'eá']
+__tones_ignore__ += ['ưụ', 'úú', 'ưú', 'ưư', 'ưữ', 'ưự', 'uự', 'úu', 'ủủ',
+                     'úù', 'ùu', 'ụu', 'ũu', 'ưù', 'ưũ', 'ủu']
+__tones_ignore__ += ['ữỉ', 'ụị', 'uỉ', 'uĩ', 'uị', 'uí', 'ưỉ']
+__tones_ignore__ += ['úo', 'uo', 'ửo', 'ưó']
+__tones_ignore__ += ['íi', 'ỉi', 'ịị', 'ìi', 'ĩi', 'ii', 'ìì']
+__tones_ignore__ += ['ởe', 'ôe', 'ơẻ', 'oề', 'ơe', 'ôé', 'oế', 'oẹ', 'oẽ', 'oệ']
+__tones_ignore__ += ['ơừ', 'õu', 'ou', 'ỏũ', 'ỏu', 'òu', 'óu']
+__tones_ignore__ += ['aé', 'aê', 'ae']
+__tones_ignore__ += ['aa', 'aạ', 'aẩ', 'ăà', 'ăa', 'âa', 'aà', 'âậ', 'aằ', 'âạ', 'ăặ', 'aầ',
+                     'aậ', 'aá', 'aả', 'aâ', 'aắ', 'aã', 'ăằ']
+__tones_ignore__ += ['ạị', 'ảí', 'ạỉ', 'ảỉ', 'âỉ', 'aỉ', 'aị', 'áí']
+__tones_ignore__ += ['eee']
+__tones_ignore__+=['êẻò', 'eeo']
+__tones_ignore__+=['eue', 'eủe']
+__tones_ignore__+=['euu', 'eui','euo','êuở','eua','eie','eiu','eii','eio']+['eía', 'eia']
+__tones_ignore__+=['eeu', 'êệu', 'eei', 'eea', 'eõe', 'eoe', 'eou', 'eoi', 'eoô', 'eoo', 'eoa']
+__tones_ignore__+=['eae', 'eau', 'eai', 'eão', 'eao', 'eaa', 'uee', 'uều', 'ueu', 'uệu', 'uei']
+__tones_ignore__+=['uea', 'ueá', 'uêa', 'uuu', 'ưũi', 'uui', 'ưướ', 'ưuo', 'ưườ', 'uướ', 'uườ', 'uuộ', 'uuo', 'uượ']
+__tones_ignore__+=['uuấ', 'ưửa', 'ưuẩ', 'uủa', 'uua', 'ưùa', 'uiề', 'ưíế', 'uiể', 'uie', 'uiu', 'uíu']
+__tones_ignore__+=['ưỉi', 'uii', 'uio', 'ưiớ', 'uiờ', 'uia', 'uỉa', 'uoe', 'uou',
+                   'ượụ', 'ưởu', 'uợu', 'ưỡu', 'ươụ', 'ườu', 'ưọu', 'ướu', 'uơu']
+__tones_ignore__+=['uôỉ',  'úoi', 'uơi', 'uôì', 'uỡi', 'uời',
+                   'ưoi', 'ườị', 'ươí', 'ưội','ườỉ', 'uộỉ',
+                   'ưói','ưòi', 'ưổi',  'uởi', 'ượì', 'ủoi', 'uới', 'ùoi', 'ươì', 'ưởi']
+__tones_ignore__+=['uoo', 'uoa', 'ướá', 'uốá', 'uoặ', 'uoá', 'uoă',
+                   'uaẻ', 'ủae', 'uae', 'uau', 'uẫu', 'uầu', 'uảu','ủau']
+__tones_ignore__+=[ 'ưai', 'ủai', 'úai', 'ùai',
+                    'uaổ', 'uầo', 'uaố', 'uaô', 'ủao']
+__tones_ignore__+=['ưaá', 'ưaà', 'ưaa', 'ưaả', 'uaa', 'uaả', 'uaá', 'ủaa', 'iee', 'iêệ', 'iêế']
+__tones_ignore__+=['íeu', 'iêủ','ịeu', 'ieu', 'iệụ']
+__tones_ignore__+=['iei', 'iệi', 'ỉei', 'iêì', 'iếo', 'iềo', 'iệo','iea', 'iêa']
+__tones_ignore__+=['iuệ', 'iue', 'iữu', 'iuu','iui']
+__tones_ignore__+=['iũa', 'íua', 'iưã', 'iưẫ']
+__tones_ignore__+=['iiê', 'iiề', 'iìe', 'iie', 'iiế', 'iiệ', 'iiu', 'iiữ', 'iii', 'iio', 'iia', 'iía', 'iỉa']
+__tones_ignore__+=['ioe', 'iòe', 'iou', 'iơi', 'iợi', 'ioi', 'iổi', 'ióí', 'iồi',  'iỏị', 'iơí',
+                   'iõi', 'iội', 'iối', 'iởi', 'iói', 'iòi', 'iọi', 'iỏỉ', 'iỗi']
+__tones_ignore__+=['ioỏ', 'ioó', 'ioo', 'ióa', 'ioá', 'ioă', 'ioa', 'ioã', 'iơầ', 'iaế', 'iae']
+
+__tones_ignore__+=['iáu', 'iâu', 'iầu', 'iau', 'iấu', 'iẩu', 'iậu', 'iáù', 'ìau', 'iảu']
+__tones_ignore__ +=[ 'iăi', 'ỉai', 'iài', 'iảỉ', 'iại', 'iãi', 'iái', 'iạo', 'iảo', 'iáó', 'íao']
+__tones_ignore__+=['iaa', 'iaả', 'iaà', 'oee', 'ơẻu', 'oeu', 'oei', 'oèo', 'oẹo', 'oéo', 'oẻo', 'oeo', 'ôèo']
+__tones_ignore__+=['oeả', 'oea', 'oue', 'ouu', 'oủi', 'oui', 'ôùi', 'ouộ', 'oua', 'oie', 'oỉe', 'ôịe', 'ơỉe', 'ơiệ']
+__tones_ignore__+=['ơiừ', 'ôiứ', 'oiu', 'oiư', 'ơỉu', 'ơiu', 'ôĩì', 'ôịi', 'ôii', 'ôìi', 'ôíi', 'ơíi', 'oịi',
+                   'ôĩi', 'oỉi', 'oii', 'ơìi', 'ôỉi']
+__tones_ignore__+=['oio', 'ờiô', 'ơiố', 'oĩo', 'ơiở', 'oỉả', 'ơía', 'ôịả', 'ơỉa',
+                   'oia', 'oiâ', 'oịá', 'ớia', 'ơiấ', 'oìa', 'ôiầ']
+__tones_ignore__+=['ôoé', 'ooe', 'oou', 'oời', 'oọi', 'oới', 'oòì', 'ooi', 'oói', 'ơời', 'ơới']
+__tones_ignore__+=['ooo', 'ooố', 'oỏa', 'ooặ', 'oòa', 'oòà', 'ooa', 'ooà', 'oae',
+                   'oau', 'oạị', 'oảỉ', 'ơáí','oăi']
+__tones_ignore__+=['ôáỏ', 'oáó', 'ơàỏ', 'oào', 'oão', 'oao', 'oáo', 'oaa', 'oaà', 'oaá', 'oaâ']
+__tones_ignore__+=['aêê', 'aee', 'aeu', 'aei', 'aeo', 'aeá', 'aea', 'aue', 'âũe', 'auể', 'aúe', 'âủe']
+__tones_ignore__+=['aừu', 'àuu', 'auu', 'aui', 'aùi', 'âuở', 'auo', 'auở', 'aứa', 'âúa', 'aửa', 'auậ', 'aúa', 'auâ', 'aua']
+__tones_ignore__+=['aịe', 'aie', 'aiu', 'âìu', 'aìu', 'aịụ', 'aỉu', 'aịu', 'aii', 'aỉi', 'aĩi', 'aịi']
+__tones_ignore__+=['aiở', 'ảiở', 'aịo', 'aio', 'aiô', 'aìa', 'aia', 'aiặ', 'aỉa', 'aoe', 'âộù', 'aou']
+__tones_ignore__+=['aoi', 'aòi', 'aỏi', 'aọi', 'aoố', 'aoo', 'aòo', 'aoa', 'aae', 'aãù', 'aau', 'aâu']
+__tones_ignore__ = None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+count_ = 0
+
+
+def __get_config__(dataset_path: str = None) -> Config:
+    global __version__
+    __version__dir_name__ = __version__.replace(".", "_")
     if dataset_path is None:
-        dataset_path = os.path.join(__working_dir__, "share-storage", "dataset", pathlib.Path(__file__).name,
-                                    __version__)
+        dataset_path = os.path.join(__working_dir__, "share-storage", "datasets", pathlib.Path(__file__).stem,
+                                    __version__dir_name__)
         if not os.path.isdir(dataset_path):
             os.makedirs(dataset_path, exist_ok=True)
+    print(f"dataset path {dataset_path}")
     global __config__
     global __accents_chars__
     global __tones_ignore__
     if not isinstance(__config__, Config):
         source_dir = pathlib.Path(__file__).parent.__str__()
+        source_dir = os.path.join(source_dir, "vn_data", __version__dir_name__)
+        print(f"source dir from lib -> {source_dir}")
         __config__ = Config()
         accent_data = [
             "UÙÚỦỤŨƯỪỨỬỰỮ",
@@ -146,7 +258,7 @@ def get_config(dataset_path: str = None) -> Config:
                     __config__.accents[x[0]].append(v)
                 if __config__.tones.get(x[0]) and x[0] not in __tones_ignore__:
                     __config__.tones.get(x[0]).append(v)
-                else:
+                elif __tones_ignore__:
                     if v not in __tones_ignore__:
                         __config__.tones[x[0]] = [v]
                 lst.append(v)
@@ -154,15 +266,17 @@ def get_config(dataset_path: str = None) -> Config:
 
         __config__.tones = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_accents.npy.zip"),
                                                   dataset_path)
-        tmp = collections.OrderedDict()
-        set_of_ignore = set(__tones_ignore__)
-        for k,v in __config__.tones.items():
-            if len(k)<=3:
-                lst = list(set(v).difference(set_of_ignore))
-                if len(lst)>0:
-                    tmp[k]=lst
-        del __config__.tones
-        __config__.tones = tmp
+
+        if __tones_ignore__:
+            tmp = collections.OrderedDict()
+            set_of_ignore = set(__tones_ignore__)
+            for k, v in __config__.tones.items():
+                if len(k) <= 3:
+                    lst = list(set(v).difference(set_of_ignore))
+                    if len(lst) > 0:
+                        tmp[k] = lst
+            del __config__.tones
+            __config__.tones = tmp
         __config__.statistic = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_stat.npy.zip"),
                                                       dataset_path)
         __config__.grams_1 = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_grams1.npy.zip"),
@@ -178,7 +292,28 @@ def get_config(dataset_path: str = None) -> Config:
         __config__.max_word_length = 8
         __config__.space = ' '.encode('utf8')
 
+    print(len(__config__.tones.keys()))
+    f_check = 'euioa'
+    _l=[]
+    for x in f_check:
+        for y in f_check:
+            for z in f_check:
+                if __config__.tones.get(x + y+z):
+                    _l+= __config__.tones.get(x + y+z)
+                    if len(_l)>10:
+                        print(_l)
+                        _l =[]
+
     return __config__
+
+
+def get_config():
+    global __config__
+    global __resource_loader_lock__
+    if __config__ is None:
+        __resource_loader_lock__.acquire()
+        __get_config__()
+        __resource_loader_lock__.release()
 
 
 def __get_gram_count__(ngram_word, ngrams):
@@ -374,10 +509,6 @@ def is_accent_word(word: str):
         if x in __accents_chars__:
             return True
     return False
-
-
-
-
 
 
 def correct_accents(input_content):

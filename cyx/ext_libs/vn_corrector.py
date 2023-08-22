@@ -44,7 +44,7 @@ def sticky_words_analyzer_clear_double_vowel(data_words):
             w1_l = len(w1)
             w2=w[s+s1:]
             w2_l = len(w2)
-            ret+=[(w1,s1,len(w1),w1[s:]),w1_l]
+            ret+=[(w1,s1+1,w1_l-1,w1[s:],w1_l)]
             ret += [(w2, 0, e1-s1, w2[0:e1-1],w2_l)]
         else:
             ret+=[(w,s,e,v,l)]
@@ -93,26 +93,25 @@ def sticky_words_analyzer(unknown_word: str) -> typing.List[str]:
 
 import math
 def __get_log__(old_word,new_word,p_n= None):
-    if new_word=="thức":
-        fx=1
+
     get_config()
     global  __config__
     if old_word is None:
         ret = __config__.grams_1.get(new_word.lower())
         if ret:
-            ret = ret **len(new_word)
+            ret = (math.log(ret)*-1) **len(new_word)
         return ret
     if not  __config__.grams_1.get(new_word.lower()):
         return  -10000.0
 
     ret = __config__.grams_2.get((old_word + " " + new_word).lower())
     if ret:
-        ret= ret**len((new_word))
+        ret= (math.log(ret)*-1) **len(new_word)
     else:
         suggest_word = predict_accents((old_word + " " + new_word).lower())
         ret = __config__.grams_2.get(suggest_word)
         if ret:
-            ret = ret ** len((new_word))
+            ret = (math.log(ret)*-1) **len(new_word)
         else:
             ret = -100000.0
     return ret
@@ -135,17 +134,21 @@ def sticky_words_get_suggest_list(unclear_word, start, end, vowel,len_of_word,pr
     tones = cyx.ext_libs.vn_predicts.__config__.tones
     ret = []
     w= unclear_word
-    fw = None
+
     __max__ = -10000
     tone = None
     if previous_word:
         tone = tones.get(vowel)
 
     for i in range(0, start):
-        for j in range(end+1,len_of_word):
+        rm = '*'+w[end+1:]
+        if w == "mchao":
+            print(f"{w} rm->{w[end+1:]}:{w[i:start]}")
+        xw = ""
+        for c in rm:
 
             if not tone:
-                ch = w[i:start] + vowel + w[end+1:j]
+                ch = w[i:start] + vowel + xw
                 if not __config__.grams_1.get(ch.lower()):
                     continue
                 val = __get_log__(previous_word, ch)
@@ -156,7 +159,9 @@ def sticky_words_get_suggest_list(unclear_word, start, end, vowel,len_of_word,pr
 
             else:
 
-                ch = w[i:start] + vowel +  w[end+1:j]
+                ch = w[i:start] + vowel + xw
+
+
                 if not __config__.grams_1.get(ch.lower()):
                     continue
                 val = __get_log__(previous_word,ch.lower())
@@ -166,7 +171,7 @@ def sticky_words_get_suggest_list(unclear_word, start, end, vowel,len_of_word,pr
 
                 for x in tone:
 
-                    ch = w[i:start] + x +  w[end+1:j]
+                    ch = w[i:start] + x +  xw
                     if not __config__.grams_1.get(ch.lower()):
                         continue
                     val = __get_log__(previous_word, ch.lower())
@@ -174,6 +179,10 @@ def sticky_words_get_suggest_list(unclear_word, start, end, vowel,len_of_word,pr
                         __max__ = val
                         __max_len__ = len(ch)
                         ret = [ch]
+            if c!='*':
+                xw += c
+            if w == "mchao":
+                print(f"{w} ch->{ch}")
 
 
 
@@ -215,6 +224,8 @@ def sticky_words_suggestion(analy_list: typing.List[typing.Tuple[str, int, int, 
                                 ret[w] += [(ch, val)]
 
                 else:
+                    if w=="mchao":
+                        fx=1
                     for x in tone:
                         ch = w[i:start] + x + w[end + 1:-j]
                         if previous_word:
