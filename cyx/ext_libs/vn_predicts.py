@@ -7,9 +7,8 @@ import numpy
 import zipfile
 import collections
 import numpy as np
-import langdetect
-
-__working_dir__ = pathlib.Path(__file__).parent.parent.__str__()
+__version__ = "0.0.1"
+__working_dir__ = pathlib.Path(__file__).parent.parent.parent.__str__()
 
 
 def __load_data_from_zip__(data_zip_file: str, dataset_path: str = None) -> collections.OrderedDict:
@@ -79,7 +78,7 @@ __accents_chars__ = (f"ÙÚỦỤŨƯỪỨỬỰỮ"
                      f"ìíỉịĩÈÉẺẸẼÊỀẾỂỆỄ"
                      f"ỲÝỶỴỸÌÍỈỊĨ"
                      f"ỳýỷỵỹ")
-__version__ = "0.0.0"
+
 
 __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"eèéẻẹẽêềếểệễ"
