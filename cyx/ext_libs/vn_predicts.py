@@ -9,7 +9,7 @@ import collections
 import numpy as np
 import threading
 
-__version__ = "0.0.0.3"
+__version__ = "0.0.0.5"
 __working_dir__ = pathlib.Path(__file__).parent.parent.parent.__str__()
 
 __resource_loader_lock__ = threading.Lock()
@@ -292,7 +292,7 @@ def __get_config__(dataset_path: str = None) -> Config:
         __config__.max_word_length = 8
         __config__.space = ' '.encode('utf8')
 
-    print(len(__config__.tones.keys()))
+
     f_check = 'euioa'
     _l=[]
     for x in f_check:
@@ -301,7 +301,6 @@ def __get_config__(dataset_path: str = None) -> Config:
                 if __config__.tones.get(x + y+z):
                     _l+= __config__.tones.get(x + y+z)
                     if len(_l)>10:
-                        print(_l)
                         _l =[]
 
     return __config__

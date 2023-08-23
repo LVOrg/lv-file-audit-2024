@@ -11,9 +11,19 @@ print(predict_accents("ly thuyet Ok thuc te sai"))
 print(predict_accents("tet nay can 2 can banh tet"))
 print(predict_accents("giam hai ky lo sau mot hoc ky"))
 print(predict_accents("hinh nhu gan dung thi phai"))
+print(predict_accents("nhung mau kim loai duoc gan vao ben trong"))
+print(predict_accents("Nhung chung co ve khong hoat dong"))
 from cyx.ext_libs.vn_predicts import __config__
 import cyx.ext_libs.vn_corrector
-from cyx.ext_libs.vn_corrector import sticky_words_analyzer,sticky_words_suggestion, sticky_words_get_suggest_list
+from cyx.ext_libs.vn_corrector import sticky_words_analyzer,sticky_words_suggestion, sticky_words_get_suggest_list,is_vn_word, separated_words
+# cx = separated_words("oikh")
+# print
+cx= separated_words("chaooi")
+cx = separated_words("lynenkinhteusa")
+cx = separated_words("trườngkinhtếhinhthứcLÝKHUNGKINHXYZ")
+cx = separated_words("baitaplythuyetdientu")
+print(cx)
+is_vn_word("oikh")
 from cyx.ext_libs.vn_predicts import  predict_accents
 # fx = vn_clear_sticky("trườngkinhtếhinhthứcLÝKHUNGKINHXYZ")
 # fx = vn_clear_sticky("cacphuongphapquanlynenkinhteusa")
@@ -34,7 +44,7 @@ r =[]
 ret= None
 pr = None
 for w,start,end,vowel,len_of_word in fx:
-    if w=="mchao":
+    if w=="ndanh":
         fx=1
     ret = sticky_words_get_suggest_list(w,start,end,vowel,len_of_word,pr)
     pr=ret[0]

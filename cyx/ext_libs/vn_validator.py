@@ -12,10 +12,9 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"yỳýỷỵỹ")
 __check__ = "qwertyuiopasdfghjklzxcvbnmđ"
 def is_vn_word(word:str):
-
     if len(word)<1: return False
-    if word[0]=='z': return False
-    if word[0] == 'Z': return False
+    if word[0] in 'zZxXwW': return False
+    if word[-1] == 'zZxXwWdD': return False
     index = 0
     pre_index_of_vowel = -1
     for x in word:

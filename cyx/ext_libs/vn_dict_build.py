@@ -2,23 +2,30 @@
 import collections
 import os.path
 import pathlib
-
+import phunspell
+vn_check = phunspell.Phunspell("vi_VN")
 import cyx.ext_libs.vn_predicts
 from cyx.ext_libs.vn_validator import is_vn_word
 from cyx.tools.progress_bar import printProgressBar
 cyx.ext_libs.vn_predicts.get_config()
-g2 = cyx.ext_libs.vn_predicts.__config__.tones
+g2 = cyx.ext_libs.vn_predicts.__config__.grams_2
 gram_1 = collections.OrderedDict()
-gram_1 = g2
+
 total = len(g2.keys())
 index = 0
+c=0
 for k,v in g2.items():
-    gram_1[k]=v
+    if ' ' in k:
+        ws = k.split(' ')
+        if vn_check.lookup(ws[0]) and vn_check.lookup(ws[1]):
+            gram_1[k] = v
+            c += 1
+
     index += 1
     printProgressBar(
         iteration=index,
         length=50,
-        prefix=f"Validate {index}",
+        prefix=f"Validate {index}/{c}",
         total= total,
 
     )
@@ -27,5 +34,6 @@ for k,v in g2.items():
 import numpy as np
 location = pathlib.Path(__file__).parent.__str__()
 np.save(os.path.join(
-    location,"vn_predictor_accents.npy"
+    location,"vn_predictor_grams2.npy"
 ),gram_1)
+print(f"{c}/{total}")
