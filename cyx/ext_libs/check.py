@@ -1,16 +1,27 @@
-from vn_word_analyzer import word_analyzer,sentence_analyzer,vn_spell,__clear__
-from vn_predicts import predict_accents
-# fx= word_analyzer("ngchaooikh")
+from vn_word_analyzer import analyzer_words, vn_spell,__clear__
+txt="trườngkinhtếhinhthứcLÝKHUNGKINHXYZ"
+txt="CNXHratxauxa"
+fx= analyzer_words(txt)[0]
 
-# fx = sentence_analyzer("ngchaooikh")
-# for x in fx:
-#     if x.vowel:
-#         print(x.provision_word)
-print(predict_accents("con meo ma treo cay cau"))
-print(predict_accents("tieng viet khong dau"))
-print(predict_accents("tet nau banh tet"))
-fx = sentence_analyzer("khongphailucnaocungok")
+for fw,f,v,n,i,l in fx:
 
-for x in fx:
-    print(f"{x.provision_word}->{x.get_vn_suggest_words()}")
+    suggest =[]
+    tt = ""
+    for ii in range(0,i):
+
+        cw = f[ii:] + v
+        if vn_spell.lookup(cw):
+            suggest+=[cw]
+        else:
+            suggest+=[x for x in vn_spell.suggest(cw) if __clear__(x)==__clear__(cw)]
+        for k in range(0,l):
+            cw+=(n or "")[k]
+            if vn_spell.suggest(cw):
+                suggest += [cw]
+            else:
+                suggest+=[x for x in vn_spell.suggest(cw) if __clear__(x)==__clear__(cw)]
+
+
+    print(f"{fw}->{suggest}")
+
 

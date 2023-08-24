@@ -9,7 +9,7 @@ import collections
 import numpy as np
 import threading
 
-__version__ = "0.0.0.5"
+__version__ = "0.0.0.0"
 __working_dir__ = pathlib.Path(__file__).parent.parent.parent.__str__()
 
 __resource_loader_lock__ = threading.Lock()
@@ -128,7 +128,7 @@ __tones_ignore__ += ['ưụ', 'úú', 'ưú', 'ưư', 'ưữ', 'ưự', 'uự', 
 __tones_ignore__ += ['ữỉ', 'ụị', 'uỉ', 'uĩ', 'uị', 'uí', 'ưỉ']
 __tones_ignore__ += ['úo', 'uo', 'ửo', 'ưó']
 __tones_ignore__ += ['íi', 'ỉi', 'ịị', 'ìi', 'ĩi', 'ii', 'ìì']
-__tones_ignore__ += ['ởe', 'ôe', 'ơẻ', 'oề', 'ơe', 'ôé', 'oế', 'oẹ', 'oẽ', 'oệ']
+__tones_ignore__ += ['ởe', 'ôe', 'ơẻ', 'ơe', 'ôé']
 __tones_ignore__ += ['ơừ', 'õu', 'ou', 'ỏũ', 'ỏu', 'òu', 'óu']
 __tones_ignore__ += ['aé', 'aê', 'ae']
 __tones_ignore__ += ['aa', 'aạ', 'aẩ', 'ăà', 'ăa', 'âa', 'aà', 'âậ', 'aằ', 'âạ', 'ăặ', 'aầ',
@@ -162,7 +162,7 @@ __tones_ignore__+=['ioe', 'iòe', 'iou', 'iơi', 'iợi', 'ioi', 'iổi', 'ióí
 __tones_ignore__+=['ioỏ', 'ioó', 'ioo', 'ióa', 'ioá', 'ioă', 'ioa', 'ioã', 'iơầ', 'iaế', 'iae']
 
 __tones_ignore__+=['iáu', 'iâu', 'iầu', 'iau', 'iấu', 'iẩu', 'iậu', 'iáù', 'ìau', 'iảu']
-__tones_ignore__ +=[ 'iăi', 'ỉai', 'iài', 'iảỉ', 'iại', 'iãi', 'iái', 'iạo', 'iảo', 'iáó', 'íao']
+__tones_ignore__ +=[ 'iăi', 'ỉai',   'iáó', 'íao']
 __tones_ignore__+=['iaa', 'iaả', 'iaà', 'oee', 'ơẻu', 'oeu', 'oei', 'oèo', 'oẹo', 'oéo', 'oẻo', 'oeo', 'ôèo']
 __tones_ignore__+=['oeả', 'oea', 'oue', 'ouu', 'oủi', 'oui', 'ôùi', 'ouộ', 'oua', 'oie', 'oỉe', 'ôịe', 'ơỉe', 'ơiệ']
 __tones_ignore__+=['ơiừ', 'ôiứ', 'oiu', 'oiư', 'ơỉu', 'ơiu', 'ôĩì', 'ôịi', 'ôii', 'ôìi', 'ôíi', 'ơíi', 'oịi',
@@ -178,33 +178,72 @@ __tones_ignore__+=['aừu', 'àuu', 'auu', 'aui', 'aùi', 'âuở', 'auo', 'au�
 __tones_ignore__+=['aịe', 'aie', 'aiu', 'âìu', 'aìu', 'aịụ', 'aỉu', 'aịu', 'aii', 'aỉi', 'aĩi', 'aịi']
 __tones_ignore__+=['aiở', 'ảiở', 'aịo', 'aio', 'aiô', 'aìa', 'aia', 'aiặ', 'aỉa', 'aoe', 'âộù', 'aou']
 __tones_ignore__+=['aoi', 'aòi', 'aỏi', 'aọi', 'aoố', 'aoo', 'aòo', 'aoa', 'aae', 'aãù', 'aau', 'aâu']
-__tones_ignore__ = None
+__tones_ignore__+=['ôấy', 'ôẩý','dụệ','đêở']
+__tones_ignore__+=['đôỉ', 'đôị', 'đơị',
+                   'dôí', 'đốí',
+                   'đơì','đổỉ', 'độị','dơì']
+__tones_ignore__+=['dìe','dĩe', 'dịe', 'địệ', 'địe', 'đỉe','díe']
+__tones_ignore__+=['dạỵ', 'đâỷ', 'dâỵ',
+                   'đằy', 'đâỳ']
+__tones_ignore__+=['ũay', 'ụay', 'ưẩý','úay', 'uáy']
+__tones_ignore__+=['đêử', 'đềụ', 'deu',  'đêù']
+__tones_ignore__+=[ 'độa',  'đôặ', 'đóá',  'dọạ', 'đõa']
+__tones_ignore__+=['đậi','dạị', 'đầi', 'đâi', 'đạị',  'dầi', 'đăị']
+__tones_ignore__+=['đừi']
+__tones_ignore__+=['đưô', 'đụo', 'dưo', 'dụo', 'dưộ', 'đuợ', 'duỡ', 'đuơ', 'duợ',
+                    'đuờ', 'duơ', 'đùo',
+                   'đưò',  'dùõ',  'đưọ', 'đưo','đuo']
+__tones_ignore__+=['iừo',  'iuờ', 'iuo', 'iưò' 'iúo','độe','uừ','ưè','ưè','ye']
 
+__tones_ignore__+=['iúo']
 
+__tones_ignore__+=['dựạ', 'dưà','dựá']
+__tones_ignore__+=['đẩo',  'đãó', 'đạọ','daở', 'đàọ','đậo']
+__tones_ignore__+=['đâù', 'dâú','đâụ',  'đaư', 'đâú',
+                   'dâù']
+__tones_ignore__+=['ỉeu', 'iềú', 'ìeu', 'iêù', 'iêũ', 'iêụ', 'iểù', 'iềụ', 'iếú', 'iêú', 'iềủ', 'iềù','yêú']
+__tones_ignore__+=['àỳ', 'àý', 'âỵ', 'áý', 'âỷ',
+                   'ẩý', 'âý', 'áỵ',
+                   'ấý','âỳ',  'àỵ', 'ấỵ',  'ạỵ', 'ậỵ', 'âỹ']
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+__tones_ignore__+=['êú','êừ',  'eu', 'ếú', 'êù']
+__tones_ignore__+=['àỳ', 'àý',  'âỵ', 'áý', 'âỷ', 'ẩý', 'âý', 'áỵ',
+                   'ấý',  'âỳ', 'àỵ', 'ấỵ', 'ạỵ', 'ậỵ', 'âỹ']
+__tones_ignore__+=['êú',  'êừ',  'ếú', 'êù']
+__tones_ignore__+=['âú',  'âụ', 'âử', 'aư', 'âủ', 'âù', 'ậụ', 'àù', 'aủ',
+                   'âũ',  'ầù', 'âư']
+__tones_ignore__+=[ 'àô', 'ăộ', 'aở', 'áó', 'áọ', 'ạọ','aồ','àò', 'ảỏ', 'àọ', 'aỏ','aõ']
+__tones_ignore__+=['ìo','ịo']
+__tones_ignore__+=['ưô', 'ụo', 'ưọ', 'uó', 'ữõ', 'ưố','ưỏ', 'ưo',  'ưộ',
+                    'ùo', 'ưò', 'ưồ', 'ụộ', 'ưổ','uư']
+__tones_ignore__+=['ựạ', 'ưá', 'ưà', 'ưầ', 'ửả',
+                   'ụậ', 'ưả', 'ửá',
+                   'ưã', 'ưạ', 'ủạ', 'ữạ',
+                    'ụá', 'ưă', 'ứá',
+                    'ủả']
+__tones_ignore__ +=[
+                        'ôẩ', 'ôa', 'ọả', 'ớá', 'ồa',
+                        'ơa', 'ọạ', 'óá', 'ôá','ốa',
+                        'ổà', 'ởã', 'ốá', 'ơạ', 'ôă', 'ơả', 'òà','úý','ụỵ','ùỳ','ủỷ','ưy','ủỵ','ùỷ','uu','ữy','ịệ']
+skip_tone_key =[
+            "ad",
+            "ada",
+            "odi",
+            "ayu",
+            "ede",
+            "yde",
+            "ayi",
+            "dd",
+            "uyd","ado","oya","doo","eay","yd","yoo","uid","yea","dio","yi","yda","oda","yo","dei",
+    "dii","yu","ady","iye","dee","dad","yed","ode","ddd","iyo","idi","iya","yy","oyi","aye",
+    "udy","dyo","uoy","ud","aao","ayd","ade","yio","dda","dea","aya","ddo","yoe","ody","aod","ydy",
+    "eid","oiy","eya","iad","uud","yia","idd","ded","odo","aey","aaa","edi","ooy","eoy","dya",
+    "eyd","dae","aoy","yua","yye","udo","eye","yoy","ied","ydi","iyu","oey","yoa","oud","yeo","ddi",
+    "uyy","ide","oed","yud","ido","yao","ydo","idu","aay","daa","ida","aiy","yuo","aai","uyi","iey",
+    "uda","dou","adi","auy","yue","yoi","doy","uey","dde","yau","udu","ayy","eda","uuy","dey","yie","edu","ude",
+    "adu",
+    "duu","ayo","dye","odu","ii","ya","dy","iy","ey","oy","oo"
+        ]
 
 
 count_ = 0
@@ -271,7 +310,11 @@ def __get_config__(dataset_path: str = None) -> Config:
             tmp = collections.OrderedDict()
             set_of_ignore = set(__tones_ignore__)
             for k, v in __config__.tones.items():
-                if len(k) <= 3:
+                if len(k) <= 3 and  k not  in skip_tone_key:
+                    if len(v)==1 and k==v[0]:
+                        continue
+                    if k[-1] in ['d','đ']:
+                        continue
                     lst = list(set(v).difference(set_of_ignore))
                     if len(lst) > 0:
                         tmp[k] = lst

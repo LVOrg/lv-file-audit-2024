@@ -1,7 +1,60 @@
 import  phunspell
-from cyx.ext_libs.vn_predicts import get_config, predict_accents
-import cyx.ext_libs.vn_predicts
+# from cyx.ext_libs.vn_predicts import get_config, predict_accents
+# import cyx.ext_libs.vn_predicts
 vn_spell = phunspell.Phunspell("vi_VN")
+__tones__ = {
+     "iay": ["iẩy", "iâý", "iẫy", "iay", "iấy", "iày", "ìay", "iầy", "iáy", "iãy", "iạy", "iây", "iảy"],
+     "uy": ["ùy", "uý", "uỹ", "uy", "úy", "ụy", "uỳ", "ũy", "ủy", "uỵ", "uỷ"],
+     "oa": ["oâ", "oẳ", "oặ", "oà", "óa", "õa", "oằ", "oẫ", "oã", "ọa", "oắ", "oă", "oả", "oẵ", "òa", "oa", "ỏa", "oạ", "oá"],
+     "oi": ["ối", "ỏi", "ốí", "ơỉ", "ộí", "ọi", "ời", "ói", "ớỉ", "ỡi", "ộị", "ọị", "ợị", "ờị", "ổỉ", "ồì", "ởỉ", "ôị", "õi", "ợi", "ôí", "ôì", "ờì", "ơì", "óí", "ôi", "ồi", "òi", "ơí", "ơi", "oi", "ỏỉ", "ỗi", "ơị", "ôỉ", "ôĩ", "ờĩ", "ổi", "ội", "ởi", "ới", "ớí"],
+     "a": ["ạ", "ã", "â", "ẳ", "ặ", "a", "ẩ", "ấ", "ă", "ả", "à", "ẵ", "á", "ắ", "ẫ", "ằ", "ầ", "ậ"],
+     "ua": ["uậ", "uă", "ưa", "uặ", "uắ", "úa", "ửa", "uẵ", "uẩ", "uá", "ùa", "ứa", "uẫ", "uà", "ũa", "ụa", "uầ", "ủa", "uấ", "uẳ", "uạ", "uả", "uằ", "ừa", "uã", "ựa", "ữa", "uâ", "ua"],
+     "o": ["ớ", "ỗ", "ổ", "ơ", "ố", "ò", "õ", "ộ", "ở", "ô", "ợ", "ọ", "ỡ", "ỏ", "o", "ồ", "ó", "ờ"],
+     "uu": ["ứu", "ựu", "ưu", "ửu", "ữu", "ừu"],
+     "uo": ["ưở", "uỡ", "uớ", "ượ", "ưỡ", "uở", "ươ", "uờ", "uổ", "uỗ", "uô", "ườ", "ướ", "uồ", "uộ", "uợ", "uơ", "uố", "uọ"],
+     "eo": ["ểo", "ẽo", "èo", "ẹo", "ẻo", "éo", "eo"],
+     "oai": ["oai", "oải", "oàì", "oài", "oái", "oại", "oãi"],
+     "yeu": ["yễu", "yêu", "yểu", "yệu", "yếu", "yeu", "yều"],
+     "uou": ["ượu", "ươu"],
+     "uoi": ["uội", "uôí", "uồi", "uổi", "uối", "ười", "ướí", "ườì", "ưỡi", "ượi", "uoi", "uỗi", "ươi", "ưới", "uôi"],
+     "ieu": ["iểu", "iếu", "iệu", "iễu", "iêu", "iều"],
+     "uay": ["uậy", "uảy", "uây", "uẩy", "uầy", "uấy", "uay", "uẫy", "uày"],
+     "iu": ["iủ", "iụ", "iử", "iứ", "ỉu", "iư", "iừ", "íu", "ìu", "iú", "iữ", "iự", "iu", "ĩu", "iù", "ịu", "iũ"],
+     "ia": ["iă", "ĩa", "iấ", "iặ", "iả", "ỉa", "iẳ", "iẵ", "iậ", "iắ", "iâ", "iầ", "iã", "iá", "iạ", "ịa", "ìa", "ià", "ía", "iẩ", "iằ", "iẫ", "ia"],
+     "ou": ["ơu", "ớu", "ởu"],
+     "ueo": ["ueo", "uẹo", "uéo", "uèo"],
+     "ui": ["ừi", "ửi", "ữi", "ùi", "úi", "ũi", "ui", "ủi", "ưi", "ứi", "ựi", "uì", "ụi"],
+     "iuo": ["iướ", "iươ", "iưò", "iuố", "iuộ", "iuồ", "iưỡ", "iườ", "iượ", "iưở"],
+     "io": ["iỏ", "iồ", "iỡ", "iô", "iợ", "iố", "iộ", "iơ", "iọ", "ío", "io", "iờ", "iớ", "iỗ", "iở", "iò", "iổ", "iõ", "ió"],
+     "e": ["ê", "e", "ề", "ế", "é", "ể", "ẹ", "ễ", "è", "ẻ", "ệ", "ẽ"],
+     "ao": ["ăo", "ằo", "âo", "ắo", "ao", "ào", "áo", "ão", "ạo", "ậo", "ảo", "ấo"],
+     "ue": ["uẻ", "uẹ", "ùe", "uè", "uể", "uế", "ue", "uẽ", "úe", "uề", "uê", "ué", "uễ", "uệ"],
+     "iau": ["iàu"],
+     "au": ["ãu", "ảu", "ậu", "ẩu", "ạu", "ầu", "àu", "ẫu", "ắu", "ấu", "au", "âu", "áu"],
+     "uye": ["ưyễ", "uyê", "uyé", "uyẹ", "ưyê", "uyẻ", "uyế", "uyè", "uye", "uyễ", "uyề", "uyệ", "uyể", "uyẽ"],
+     "ai": ["âi", "àì", "ại", "ăi", "ải", "ãi", "ẩi", "ấi", "ái", "ầi", "ài", "ắi", "ai", "ẫi"],
+     "oay": ["oay", "oày", "oạy", "oáy", "oảy", "oãy"],
+     "ioi": ["iới", "iời", "iỏi"],
+     "uya": ["uyã", "ưya", "uyạ", "uyấ", "uya", "uyá", "uyả"],
+     "eu": ["ệu", "ều", "êu", "ểu", "ếu"],
+     "ay": ["ăy", "áy", "ậy", "ẫy", "ạy", "ảy", "ầy", "ắy", "ây", "ày", "ay", "ấy", "ãy", "ẩy"],
+     "iai": ["iai", "iãi", "iại", "iảỉ", "iái", "iài", "iải"],
+     "ye": ["yễ", "yẻ", "yề", "yệ", "yế", "yể", "yẽ", "yé", "yê"],
+     "ieo": ["iẻo", "ieo"],
+     "uao": ["uao", "uáo", "uào", "uạo"],
+     "ie": ["iè", "iề", "ỉe", "ịe", "iẽ", "iễ", "ìe", "ĩe", "iẻ", "ie", "iê", "ìệ", "ỉệ", "iế", "iệ", "íe", "ié", "iể"],
+     "uau": ["uạu", "uàu"],
+     "oe": ["ọe", "oe", "oè", "oẹ", "ỏe", "oẽ", "oế", "óe", "oé", "oẻ", "òe", "õe", "oệ", "oề"],
+     "i": ["i", "í", "ị", "ĩ", "ỉ", "ì"],
+     "iao": ["iáo", "iao", "iạo", "iảo", "iào"],
+     "iua": ["iua", "iữa", "iùa", "iứa", "iừa", "iụa", "iửa", "iựa", "iưa"],
+     "y": ["ỷ", "ỵ", "ý", "ỳ", "y", "ỹ"],
+     "uyo": ["uyồ", "uyo", "uyộ"],
+     "uyu": ["uỷu", "uỵu", "uyu"],
+     "uai": ["uãi", "uái", "uải", "uai", "uài", "uại"],
+     "iui": ["iụi", "iữi", "iúi", "iùi", "iửi", "iứi", "iũi"],
+     "u": ["ừ", "ủ", "ụ", "ữ", "ù", "ử", "ú", "ứ", "ũ", "u", "ư", "ự"],
+}
 __no__accent_map__ = [f"UÙÚỦỤŨƯỪỨỬỰỮ",
                     f"eèéẻẹẽêềếểệễ",
                     f"oòóỏọõôồốổộỗơờớởợỡ",
@@ -15,7 +68,13 @@ __no__accent_map__ = [f"UÙÚỦỤŨƯỪỨỬỰỮ",
                     f"IÌÍỈỊĨ",
                     f"yỳýỷỵỹ"]
 __clear_map__ = {}
+__reverse_tone__ = {}
+for k,v in __tones__.items():
+    __reverse_tone__[k]=k
+    for x in v:
+        __reverse_tone__[x]=v
 for x in __no__accent_map__:
+
     for ii in range(1,len(x)):
         __clear_map__[x[ii]]=x[0]
 def __clear__(w):
@@ -38,143 +97,32 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
 
 import typing
 
+import re
+def analyzer_words(text:str):
+    ret =[]
+    len_of_text = len(text)
+    for i in range(0,len_of_text):
+        j=3
+        while j>0:
+            if i+j<=len_of_text:
+                vowel = text[i:i+j]
+                if __reverse_tone__.get(vowel.lower()):
+                    remain = text[i+j:]
 
-class WordAnalyzer:
-    original_word: str
-    word: typing.Optional[str]
-    left: typing.Optional[str]
-    right: typing.Optional[str]
-    seek_right:typing.Optional[str]
-    vowel: typing.Optional[str]
-    provision_word: typing.Optional[str]
-    start_of_vowel: int
-    end_of_vowel: int
+                    next_ret, next_remain = analyzer_words(remain)
+                    ret += [(text[0:i]+ vowel+ (next_remain or ""),text[0:i], vowel, next_remain,i,len(next_remain or ""))]
+                    if next_ret is not None:
 
-    def __init__(self, word: str):
-        self.original_word = word
-        self.analyzer_word = word.lower()
-        self.left = None
-        self.right = None
-        self.vowel = None
-        self.start_of_vowel = -1
-        self.end_of_vowel = -1
+                        ret+= next_ret
 
-    def __create_detect_word__(self):
-        if self.right == '':
-            self.provision_word = self.left+ self.vowel
-            self.seek_right = ""
+                    return ret,text[0:i]
 
-            return
-        if self.right[0] in __full_accents__:
-            self.provision_word = self.left+self.vowel
-            self.seek_right = ""
-
-            return
-        len_of_right = len(self.right)
-        for i in range(0,len_of_right):
-            if self.right[i] in __full_accents__:
-
-                for k in range(i,len_of_right):
-                    if self.right[k] in __full_accents__ :
-                        break
-                self.seek_right = self.right[0:k]+"*"
-
-                self.provision_word = self.left+self.vowel+self.seek_right
-                return
-
-        self.provision_word = self.original_word
-        self.seek_right = self.right+"*"
-
-
-
-    def get_vn_suggest_words(self):
-        len_of_right = len(self.seek_right)
-        len_of_left = len(self.left)
-        w =""
-        ret =[]
-        _m=-1
-        if self.provision_word=="nhtet":
-            print(self)
-
-        for i in range(0,len_of_left):
-
-
-            for j in range(0,len_of_right):
-                w = self.left[i:len_of_left]+self.vowel+self.seek_right[:j]
-
-                lst = [x for x in vn_spell.suggest(w) if __clear__(x)==w]
-
-                if _m<len(w) and len(lst)>0:
-                    ret = lst
-                    _m = len(w)
-
-
-        # tmp = word_analyzer(ret[0],skip_provistion=True)
-
-        if self.provision_word[-1]=='*':
-            self.provision_word = self.provision_word[:-1]
-        index_of_remain = len(self.provision_word) - len(self.left) - len(ret[0])+2
-        if ret[0][-1] in __full_accents__:
-            index_of_remain-=1
-
-        return ret,self.provision_word[-index_of_remain:]
+            j-=1
+    if text !="":
+        return None,text
+    return None,None
 
 
 
 
 
-
-
-def word_analyzer(unknown_word: str,skip_provistion=False) -> WordAnalyzer:
-    count = 0
-    index = 0
-    last_vowel_index = 0
-    start_vowel_index = None
-    ret = WordAnalyzer(unknown_word)
-    ret.original_word = unknown_word
-    len_of_words = len(unknown_word)
-    for i in range(0,len_of_words):
-        x = unknown_word[i]
-        if x in __full_accents__:
-            if start_vowel_index is None:
-                start_vowel_index = i
-            count += 1
-            last_vowel_index = i
-            if i<len_of_words-1 and unknown_word[i+1]==x:
-                break
-            elif i+1< len_of_words and  not unknown_word[i+1] in __full_accents__ and count>0:
-                break
-
-        if count == 3:
-
-            ret.start_of_vowel = start_vowel_index - 1
-            ret.end_of_vowel_of_vowel = last_vowel_index - 1
-            ret.vowel = unknown_word[start_vowel_index - 1:last_vowel_index]
-            ret.left = unknown_word[0:start_vowel_index - 1]
-            ret.right = unknown_word[last_vowel_index:]
-            if not skip_provistion:
-                ret.__create_detect_word__()
-            return ret
-    if count >0:
-        ret.start_of_vowel = start_vowel_index
-        ret.end_of_vowel_of_vowel = last_vowel_index
-        ret.vowel = unknown_word[start_vowel_index:last_vowel_index+1]
-        ret.left = unknown_word[0:start_vowel_index]
-        ret.right = unknown_word[last_vowel_index+1:]
-        if not skip_provistion:
-            ret.__create_detect_word__()
-        return ret
-
-    return None
-
-def sentence_analyzer(unknown_sentence: str)->typing.List[WordAnalyzer]:
-    get_config()
-    ret = []
-    analyzer = word_analyzer(unknown_sentence)
-
-    while analyzer is not None:
-        ret += [analyzer]
-        analyzer = word_analyzer(analyzer.right)
-
-
-    return ret
