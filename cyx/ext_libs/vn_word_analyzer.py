@@ -55,53 +55,57 @@ __tones__ = {
      "iui": ["iụi", "iữi", "iúi", "iùi", "iửi", "iứi", "iũi"],
      "u": ["ừ", "ủ", "ụ", "ữ", "ù", "ử", "ú", "ứ", "ũ", "u", "ư", "ự"],
 }
-__no__accent_map__ = [f"UÙÚỦỤŨƯỪỨỬỰỮ",
-                    f"eèéẻẹẽêềếểệễ",
-                    f"oòóỏọõôồốổộỗơờớởợỡ",
-                    f"OÒÓỎỌÕÔỒỐỔỘỖƠỜỚỞỢỠ",
-                    f"uùúủụũưừứửựữ",
-                    f"aàáảạãâầấẩậẫăằắẳặẵ",
-                    f"AÀÁẢẠÃÂẦẤẨẬẪĂẰẮẲẶẴ",
-                    f"iìíỉịĩ",
-                    f"EÈÉẺẸẼÊỀẾỂỆỄ",
-                    f"YỲÝỶỴỸ",
-                    f"IÌÍỈỊĨ",
-                    f"yỳýỷỵỹ"]
+
 __clear_map__ = {}
 __reverse_tone__ = {}
-for k,v in __tones__.items():
-    __reverse_tone__[k]=k
-    for x in v:
-        __reverse_tone__[x]=v
-for x in __no__accent_map__:
+__reverse_tone__ = {k: k for k, v in __tones__.items()}
+__reverse_tone__.update({x: v for k, v in __tones__.items() for x in v})
 
-    for ii in range(1,len(x)):
-        __clear_map__[x[ii]]=x[0]
 def __clear__(w):
+    clear_map = {'Ù': 'U', 'Ú': 'U', 'Ủ': 'U', 'Ụ': 'U', 'Ũ': 'U', 'Ư': 'U', 'Ừ': 'U', 'Ứ': 'U',
+                 'Ử': 'U', 'Ự': 'U', 'Ữ': 'U', 'è': 'e', 'é': 'e', 'ẻ': 'e', 'ẹ': 'e', 'ẽ': 'e',
+                 'ê': 'e', 'ề': 'e', 'ế': 'e', 'ể': 'e', 'ệ': 'e', 'ễ': 'e', 'ò': 'o', 'ó': 'o',
+                 'ỏ': 'o', 'ọ': 'o', 'õ': 'o', 'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ổ': 'o', 'ộ': 'o',
+                 'ỗ': 'o', 'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ở': 'o', 'ợ': 'o', 'ỡ': 'o', 'Ò': 'O',
+                 'Ó': 'O', 'Ỏ': 'O', 'Ọ': 'O', 'Õ': 'O', 'Ô': 'O', 'Ồ': 'O', 'Ố': 'O', 'Ổ': 'O',
+                 'Ộ': 'O', 'Ỗ': 'O', 'Ơ': 'O', 'Ờ': 'O', 'Ớ': 'O', 'Ở': 'O', 'Ợ': 'O', 'Ỡ': 'O',
+                 'ù': 'u', 'ú': 'u', 'ủ': 'u', 'ụ': 'u', 'ũ': 'u', 'ư': 'u', 'ừ': 'u', 'ứ': 'u',
+                 'ử': 'u', 'ự': 'u', 'ữ': 'u', 'à': 'a', 'á': 'a', 'ả': 'a', 'ạ': 'a', 'ã': 'a',
+                 'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ẩ': 'a', 'ậ': 'a', 'ẫ': 'a', 'ă': 'a', 'ằ': 'a',
+                 'ắ': 'a', 'ẳ': 'a', 'ặ': 'a', 'ẵ': 'a', 'À': 'A', 'Á': 'A', 'Ả': 'A', 'Ạ': 'A',
+                 'Ã': 'A', 'Â': 'A', 'Ầ': 'A', 'Ấ': 'A', 'Ẩ': 'A', 'Ậ': 'A', 'Ẫ': 'A', 'Ă': 'A',
+                 'Ằ': 'A', 'Ắ': 'A', 'Ẳ': 'A', 'Ặ': 'A', 'Ẵ': 'A', 'ì': 'i', 'í': 'i', 'ỉ': 'i',
+                 'ị': 'i', 'ĩ': 'i', 'È': 'E', 'É': 'E', 'Ẻ': 'E', 'Ẹ': 'E', 'Ẽ': 'E', 'Ê': 'E',
+                 'Ề': 'E', 'Ế': 'E', 'Ể': 'E', 'Ệ': 'E', 'Ễ': 'E', 'Ỳ': 'Y', 'Ý': 'Y', 'Ỷ': 'Y',
+                 'Ỵ': 'Y', 'Ỹ': 'Y', 'Ì': 'I', 'Í': 'I', 'Ỉ': 'I', 'Ị': 'I', 'Ĩ': 'I', 'ỳ': 'y',
+                 'ý': 'y', 'ỷ': 'y', 'ỵ': 'y', 'ỹ': 'y'}
     r = ""
     for c in w:
-        r+= __clear_map__.get(c,c)
+        r+= clear_map.get(c,c)
     return r
-__full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
-                    f"eèéẻẹẽêềếểệễ"
-                    f"oòóỏọõôồốổộỗơờớởợỡ"
-                    f"OÒÓỎỌÕÔỒỐỔỘỖƠỜỚỞỢỠ"
-                    f"uùúủụũưừứửựữ"
-                    f"aàáảạãâầấẩậẫăằắẳặẵ"
-                    f"AÀÁẢẠÃÂẦẤẨẬẪĂẰẮẲẶẴ"
-                    f"iìíỉịĩ"
-                    f"EÈÉẺẸẼÊỀẾỂỆỄ"
-                    f"YỲÝỶỴỸ"
-                    f"IÌÍỈỊĨ"
-                    f"yỳýỷỵỹ")
 
 import typing
 
 import re
-def analyzer_words(text:str):
+__special_charators__="~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./\t\n"
+def analyzer_words(text:str,step=0):
     ret =[]
     len_of_text = len(text)
     for i in range(0,len_of_text):
+        if text[i] in __special_charators__:
+            f=i+1
+            while f<len_of_text and text[f] in __special_charators__:f+=1
+            if f+1<len_of_text:
+                remain = text[f:]
+                special=text[i:f]
+                next_ret, next_remain = analyzer_words(remain,step+1)
+                if step==0:
+                    ret += [(text[:i],text[:i],None,None,None,len(text[:i]))]
+                ret += [(special, special, None, next_remain, None, len(text[:i]))]
+                ret +=next_ret
+                return ret,remain
+            else:
+                return [(text[i:f], text[i:f], None, None, None, len(text[i:f]))],text[0:i]
         j=3
         while j>0:
             if i+j<=len_of_text:
@@ -109,11 +113,13 @@ def analyzer_words(text:str):
                 if __reverse_tone__.get(vowel.lower()):
                     remain = text[i+j:]
 
-                    next_ret, next_remain = analyzer_words(remain)
+                    next_ret, next_remain = analyzer_words(remain,step+1)
                     ret += [(text[0:i]+ vowel+ (next_remain or ""),text[0:i], vowel, next_remain,i,len(next_remain or ""))]
                     if next_ret is not None:
 
                         ret+= next_ret
+
+
 
                     return ret,text[0:i]
 
