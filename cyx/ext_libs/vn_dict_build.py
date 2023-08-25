@@ -2,16 +2,22 @@
 import cyx.ext_libs.vn_predicts
 from cyx.ext_libs.vn_predicts import predict_accents, get_config, __config__, vn_spell, __is_valid_vn_word__
 get_config()
+__ccc__ = cyx.ext_libs.vn_predicts.__config__
 grams_2 = cyx.ext_libs.vn_predicts.__config__.grams_2
 grams_2["nên non"]=grams_2["nên nôn"]+1
 # grams_2["làm chàng"]=grams_2["làm chẳng"]+1
 grams_2["lũ bò"]=grams_2["lữ bố"]+1
 grams_2["quận công"] = grams_2["quan công"]+1
+vx = __is_valid_vn_word__("deiu")
+
 vx= __is_valid_vn_word__("lieu")
 vx =__is_valid_vn_word__("nhpa")
 vx = __is_valid_vn_word__("truong")
 vx = __is_valid_vn_word__("truoxg")
 vx= __is_valid_vn_word__("lma")
+print(predict_accents("deu su dung"))
+print(predict_accents("du diue kien"))
+print(predict_accents("du dieu kien"))
 print(predict_accents("loi nhpa lieu"))
 print(predict_accents("loi nhap lieu"))
 import collections

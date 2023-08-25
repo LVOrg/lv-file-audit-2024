@@ -97,7 +97,27 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"YỲÝỶỴỸ"
                     f"IÌÍỈỊĨ"
                     f"yỳýỷỵỹ")
-
+__clear_accents_map__ = {'Ù': 'U', 'Ú': 'U', 'Ủ': 'U', 'Ụ': 'U', 'Ũ': 'U', 'Ư': 'U', 'Ừ': 'U', 'Ứ': 'U',
+                 'Ử': 'U', 'Ự': 'U', 'Ữ': 'U', 'è': 'e', 'é': 'e', 'ẻ': 'e', 'ẹ': 'e', 'ẽ': 'e',
+                 'ê': 'e', 'ề': 'e', 'ế': 'e', 'ể': 'e', 'ệ': 'e', 'ễ': 'e', 'ò': 'o', 'ó': 'o',
+                 'ỏ': 'o', 'ọ': 'o', 'õ': 'o', 'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ổ': 'o', 'ộ': 'o',
+                 'ỗ': 'o', 'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ở': 'o', 'ợ': 'o', 'ỡ': 'o', 'Ò': 'O',
+                 'Ó': 'O', 'Ỏ': 'O', 'Ọ': 'O', 'Õ': 'O', 'Ô': 'O', 'Ồ': 'O', 'Ố': 'O', 'Ổ': 'O',
+                 'Ộ': 'O', 'Ỗ': 'O', 'Ơ': 'O', 'Ờ': 'O', 'Ớ': 'O', 'Ở': 'O', 'Ợ': 'O', 'Ỡ': 'O',
+                 'ù': 'u', 'ú': 'u', 'ủ': 'u', 'ụ': 'u', 'ũ': 'u', 'ư': 'u', 'ừ': 'u', 'ứ': 'u',
+                 'ử': 'u', 'ự': 'u', 'ữ': 'u', 'à': 'a', 'á': 'a', 'ả': 'a', 'ạ': 'a', 'ã': 'a',
+                 'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ẩ': 'a', 'ậ': 'a', 'ẫ': 'a', 'ă': 'a', 'ằ': 'a',
+                 'ắ': 'a', 'ẳ': 'a', 'ặ': 'a', 'ẵ': 'a', 'À': 'A', 'Á': 'A', 'Ả': 'A', 'Ạ': 'A',
+                 'Ã': 'A', 'Â': 'A', 'Ầ': 'A', 'Ấ': 'A', 'Ẩ': 'A', 'Ậ': 'A', 'Ẫ': 'A', 'Ă': 'A',
+                 'Ằ': 'A', 'Ắ': 'A', 'Ẳ': 'A', 'Ặ': 'A', 'Ẵ': 'A', 'ì': 'i', 'í': 'i', 'ỉ': 'i',
+                 'ị': 'i', 'ĩ': 'i', 'È': 'E', 'É': 'E', 'Ẻ': 'E', 'Ẹ': 'E', 'Ẽ': 'E', 'Ê': 'E',
+                 'Ề': 'E', 'Ế': 'E', 'Ể': 'E', 'Ệ': 'E', 'Ễ': 'E', 'Ỳ': 'Y', 'Ý': 'Y', 'Ỷ': 'Y',
+                 'Ỵ': 'Y', 'Ỹ': 'Y', 'Ì': 'I', 'Í': 'I', 'Ỉ': 'I', 'Ị': 'I', 'Ĩ': 'I', 'ỳ': 'y',
+                 'ý': 'y', 'ỷ': 'y', 'ỵ': 'y', 'ỹ': 'y'}
+__clear_accents_map__.update({
+    'e':'e','y':'y','u':'u','i':'i','o':'o','a':'a',
+    'E':'E','Y':'Y','U':'U','I':'I','O':'O','A':'A'
+})
 __tones__ = {
     "iay": ["iẩy", "iâý", "iẫy", "iay", "iấy", "iày", "ìay", "iầy", "iáy", "iãy", "iạy", "iây", "iảy"],
     "uy": ["ùy", "uý", "uỹ", "uy", "úy", "ụy", "uỳ", "ũy", "ủy", "uỵ", "uỷ"],
@@ -272,7 +292,28 @@ def __make_up_(input_str, possible_changes, current_len):
 
     return possible_changes, current_len
 
-
+def __clear_accents__(w):
+    clear_map = {'Ù': 'U', 'Ú': 'U', 'Ủ': 'U', 'Ụ': 'U', 'Ũ': 'U', 'Ư': 'U', 'Ừ': 'U', 'Ứ': 'U',
+                 'Ử': 'U', 'Ự': 'U', 'Ữ': 'U', 'è': 'e', 'é': 'e', 'ẻ': 'e', 'ẹ': 'e', 'ẽ': 'e',
+                 'ê': 'e', 'ề': 'e', 'ế': 'e', 'ể': 'e', 'ệ': 'e', 'ễ': 'e', 'ò': 'o', 'ó': 'o',
+                 'ỏ': 'o', 'ọ': 'o', 'õ': 'o', 'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ổ': 'o', 'ộ': 'o',
+                 'ỗ': 'o', 'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ở': 'o', 'ợ': 'o', 'ỡ': 'o', 'Ò': 'O',
+                 'Ó': 'O', 'Ỏ': 'O', 'Ọ': 'O', 'Õ': 'O', 'Ô': 'O', 'Ồ': 'O', 'Ố': 'O', 'Ổ': 'O',
+                 'Ộ': 'O', 'Ỗ': 'O', 'Ơ': 'O', 'Ờ': 'O', 'Ớ': 'O', 'Ở': 'O', 'Ợ': 'O', 'Ỡ': 'O',
+                 'ù': 'u', 'ú': 'u', 'ủ': 'u', 'ụ': 'u', 'ũ': 'u', 'ư': 'u', 'ừ': 'u', 'ứ': 'u',
+                 'ử': 'u', 'ự': 'u', 'ữ': 'u', 'à': 'a', 'á': 'a', 'ả': 'a', 'ạ': 'a', 'ã': 'a',
+                 'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ẩ': 'a', 'ậ': 'a', 'ẫ': 'a', 'ă': 'a', 'ằ': 'a',
+                 'ắ': 'a', 'ẳ': 'a', 'ặ': 'a', 'ẵ': 'a', 'À': 'A', 'Á': 'A', 'Ả': 'A', 'Ạ': 'A',
+                 'Ã': 'A', 'Â': 'A', 'Ầ': 'A', 'Ấ': 'A', 'Ẩ': 'A', 'Ậ': 'A', 'Ẫ': 'A', 'Ă': 'A',
+                 'Ằ': 'A', 'Ắ': 'A', 'Ẳ': 'A', 'Ặ': 'A', 'Ẵ': 'A', 'ì': 'i', 'í': 'i', 'ỉ': 'i',
+                 'ị': 'i', 'ĩ': 'i', 'È': 'E', 'É': 'E', 'Ẻ': 'E', 'Ẹ': 'E', 'Ẽ': 'E', 'Ê': 'E',
+                 'Ề': 'E', 'Ế': 'E', 'Ể': 'E', 'Ệ': 'E', 'Ễ': 'E', 'Ỳ': 'Y', 'Ý': 'Y', 'Ỷ': 'Y',
+                 'Ỵ': 'Y', 'Ỹ': 'Y', 'Ì': 'I', 'Í': 'I', 'Ỉ': 'I', 'Ị': 'I', 'Ĩ': 'I', 'ỳ': 'y',
+                 'ý': 'y', 'ỷ': 'y', 'ỵ': 'y', 'ỹ': 'y'}
+    r = ""
+    for c in w:
+        r += clear_map.get(c, c)
+    return r
 def __is_valid_vn_word__(w: str):
     __check_first__ = ["z", "w", "f", "j", "f"]
     __check_last__ = ["q", "w", "r", "s", "d", "đ", "f", "j", "k", "l", "z", "x", 'v', 'b']
@@ -286,7 +327,7 @@ def __is_valid_vn_word__(w: str):
         "c": ["h"],
         "n": ["h"]
     }
-
+    start_vowel = -1
     __pre__ = [""]
     len_of_w = len(w)
     if len_of_w <= 1: return True
@@ -300,6 +341,7 @@ def __is_valid_vn_word__(w: str):
     has_vowel = False
     for i in range(0, len_of_w):
         if w[i] in __full_accents__:
+            if start_vowel==-1: start_vowel = i
             has_vowel = True
             if i + 1 > len_of_w:
                 raise NotImplemented()
@@ -309,7 +351,11 @@ def __is_valid_vn_word__(w: str):
                         return False
                     if len_of_w - k - 1 == 2:
                         return w[k + 1:] in __validator_last_2_letter__
-                    return True
+                    check_accents = __clear_accents_map__[w[i]] + __clear_accents_map__[w[k]]
+                    if k+1<len_of_w and  w[k+1] in __full_accents__:
+
+                        return __config__.tones.get(check_accents+__clear_accents_map__[w[k+1]])  is not None
+                    return __config__.tones.get(check_accents) is not None
 
             if i == 3:
                 return w[0:i] == "ngh"
@@ -320,7 +366,7 @@ def __is_valid_vn_word__(w: str):
     return has_vowel
 
 
-def __generate_variety__(input_str: str, index, possible_changes, current_len):
+def __generate_variety__(input_str: str, index, possible_changes, current_len,use_phunspell_suggest):
     global __config__
     # # input_str="chuong"
     vowels = ['a', 'e', 'i', 'o', 'u', 'y']
@@ -340,10 +386,14 @@ def __generate_variety__(input_str: str, index, possible_changes, current_len):
         if __config__.grams_1.get(input_str):
             possible_changes[current_len] = input_str
             possible_changes, current_len = __make_up_(input_str, possible_changes, current_len)
-        elif not __is_valid_vn_word__(input_str):
-            for x in vn_spell.suggest(input_str):
-                possible_changes[current_len] = x
+        elif use_phunspell_suggest and not __is_valid_vn_word__(input_str):
+            for suggest_word in vn_spell.suggest(input_str):
+                possible_changes[current_len] = suggest_word
                 current_len += 1
+            if input_str[0] == 'd':
+                for suggest_word in vn_spell.suggest('đ'+input_str[1:]):
+                    possible_changes[current_len] = suggest_word
+                    current_len += 1
         return possible_changes, current_len
     key = input_str[start:end + 1]
     lst = __config__.tones.get(key)
@@ -352,10 +402,14 @@ def __generate_variety__(input_str: str, index, possible_changes, current_len):
             possible_changes[current_len] = input_str
             current_len += 1
             possible_changes, current_len = __make_up_(input_str, possible_changes, current_len)
-        elif not __is_valid_vn_word__(input_str):
-            for x in vn_spell.suggest(input_str):
-                possible_changes[current_len] = x
+        elif use_phunspell_suggest and not __is_valid_vn_word__(input_str):
+            for suggest_word in vn_spell.suggest(input_str):
+                possible_changes[current_len] = suggest_word
                 current_len += 1
+            if input_str[0]=='d':
+                for suggest_word in vn_spell.suggest('đ'+input_str[1:]):
+                    possible_changes[current_len] = suggest_word
+                    current_len += 1
         return possible_changes, current_len
     current_len = 0
     for x in lst:
@@ -363,11 +417,17 @@ def __generate_variety__(input_str: str, index, possible_changes, current_len):
         if __config__.grams_1.get(v_word):
             possible_changes[current_len] = v_word
             current_len += 1
-        elif not __is_valid_vn_word__(v_word):
-            for x in vn_spell.suggest(v_word):
-                if x not in possible_changes:
-                    possible_changes[current_len] = x
+        elif use_phunspell_suggest and not __is_valid_vn_word__(v_word):
+            for suggest_word in vn_spell.suggest(v_word):
+                if suggest_word not in possible_changes:
+                    possible_changes[current_len] = suggest_word
                     current_len += 1
+            if v_word[0] == 'đ':
+                for suggest_word in vn_spell.suggest('đ'+v_word[1:]):
+                    if suggest_word not in possible_changes:
+                        possible_changes[current_len] = suggest_word
+                        current_len += 1
+
     possible_changes, current_len = __make_up_(input_str, possible_changes, current_len)
     return possible_changes, current_len
 
@@ -397,7 +457,7 @@ def __normalize_string__(input_str):
     return output.strip()
 
 
-def predict_accents(input_content):
+def predict_accents(input_content,use_phunspell_suggest=True):
     global __config__
     if __config__ is None:
         get_config()
@@ -421,7 +481,7 @@ def predict_accents(input_content):
 
         for i in range(len_of_words):
             num_of_word_processing = 0
-            _, num_of_word_processing = __generate_variety__(words[i], 0, possible_change[i], num_of_word_processing)
+            _, num_of_word_processing = __generate_variety__(words[i], 0, possible_change[i], num_of_word_processing,use_phunspell_suggest)
             possible_change[i][num_of_word_processing] = words[i]
             num_of_word_processing += 1
             numberP[i] = num_of_word_processing
