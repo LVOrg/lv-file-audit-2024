@@ -9,7 +9,7 @@ import collections
 import numpy as np
 import threading
 
-__version__ = "0.0.0.0"
+__version__ = "0.0.0.5"
 __working_dir__ = pathlib.Path(__file__).parent.parent.parent.__str__()
 
 __resource_loader_lock__ = threading.Lock()
@@ -96,154 +96,67 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"IÌÍỈỊĨ"
                     f"yỳýỷỵỹ")
 
-__tones_ignore__ = [
-    'ữõ', 'ưò', 'ủạ', 'ựạ', 'ứá', 'ữạ', 'ủả', 'ụá', 'ưầ', 'ửả', 'ụậ', 'êù', 'ếú', 'êú', 'ựạ', 'ứá', 'ưả', 'ủạ', 'ưỏ',
-    'ưà', 'ưá',
-    'ưồ', 'ưô', 'ưộ', 'ưố', 'ụộ', 'ưo', 'ưọ', 'ùo', 'ưổ',
-    'ửá', 'ưà', 'eu', 'êừ', 'ưã', 'ụo', 'iêú', 'iềụ',
-    'iếú', 'ìeu', 'iềủ', 'iềù', 'iêũ', 'iêụ', 'iểù', 'iềú', 'ỉeu', 'iêù', 'iệụ'
-                                                                          'ưyê', 'ưyễ',
-    'ỉệ', 'ìệ', 'ịệ',
-    'aủ', 'ậụ', 'âử', 'âú', 'ầù', 'âủ', 'aư', 'àù', 'âù', 'âụ', 'âư', 'âũ',
-    'ợo', 'ơơ', 'óo', 'òo', 'ỏó', 'ôộ', 'ọọ', 'ơợ', 'oó', 'òò', 'oỏ', 'ôố', 'oợ', 'ôồ', 'oọ', 'oộ', 'oo', 'ơờ', 'ơở',
-    'oò', 'ơộ', 'ôỗ', 'oô', 'oồ', 'ôổ', 'oổ', 'ôô', 'oố',
-    'aở', 'âo', 'ằo',
-    'àò', 'ảỏ', 'aõ', 'áó', 'àô', 'ắo', 'aồ', 'àọ', 'áọ', 'aỏ', 'ăộ', 'ấo', 'ậo', 'ăo', 'ạọ', 'ão',
-    'ôá', 'ớá', 'ốa', 'ởã', 'ơa', 'ổà', 'ôă', 'ôẩ', 'ọạ', 'óá', 'ọả', 'ơả', 'ốá', 'ồa', 'oẫ', 'ôa', 'ơạ', 'òà',
-    'àò', 'ảỏ', 'aõ', 'áó', 'àô', 'ắo', 'aồ', 'àọ', 'áọ', 'aỏ', 'ăộ', 'ấo', 'ậo', 'ăo', 'ạọ',
-    'ôá', 'ớá', 'ốa', 'ởã', 'ơa', 'ổà', 'ôă', 'ôẩ', 'ọạ', 'oâ', 'óá', 'ọả', 'ơả', 'ốá', 'ồa', 'oẫ', 'ôa', 'oả', 'ơạ',
-    'òà',
-    'àò', 'ảỏ', 'aõ', 'áó', 'àô', 'ắo', 'aồ', 'àọ', 'áọ', 'aỏ', 'ăộ', 'áo', 'ấo', 'ậo', 'ăo', 'ạọ', 'ão',
-    'ịe', 'íe', 'ĩe', 'ie', 'ìe', 'iẻ', 'ỉe', 'iẽ', 'iè',
-    'ộí', 'ôỉ', 'ôĩ', 'ớỉ', 'ọị', 'ơì', 'ờì', 'ớí', 'ôì', 'ờĩ', 'ôị', 'ơị', 'ộị', 'ôí', 'ơỉ', 'ờị', 'ồì', 'ợị',
-    'óí', 'ổỉ', 'ổi', 'ởỉ', 'ốí']
-__tones_ignore__ = ['eể', 'êe', 'eẻ', 'eé', 'êệ', 'ẻe', 'ee', 'eế', 'eê', 'êê', 'eè']
-__tones_ignore__ += ['ẻu', 'ễu', 'éu']
-__tones_ignore__ += ['ếi', 'ẻi', 'êi', 'éi', 'ei', 'ềì', 'ềi']
-__tones_ignore__ += ['ếo', 'eô', 'êở', 'eó', 'êô', 'eơ', 'êo', 'eở', 'ẽọ', 'ệo', 'êỏ']
-__tones_ignore__ += ['êa', 'eà', 'eạ', 'eã', 'ea', 'ểa', 'eắ', 'êầ', 'êà', 'eậ', 'êả', 'ếa',
-                     'êạ', 'eẩ', 'eẳ', 'eấ', 'êậ', 'eá']
-__tones_ignore__ += ['ưụ', 'úú', 'ưú', 'ưư', 'ưữ', 'ưự', 'uự', 'úu', 'ủủ',
-                     'úù', 'ùu', 'ụu', 'ũu', 'ưù', 'ưũ', 'ủu']
-__tones_ignore__ += ['ữỉ', 'ụị', 'uỉ', 'uĩ', 'uị', 'uí', 'ưỉ']
-__tones_ignore__ += ['úo', 'uo', 'ửo', 'ưó']
-__tones_ignore__ += ['íi', 'ỉi', 'ịị', 'ìi', 'ĩi', 'ii', 'ìì']
-__tones_ignore__ += ['ởe', 'ôe', 'ơẻ', 'ơe', 'ôé']
-__tones_ignore__ += ['ơừ', 'õu', 'ou', 'ỏũ', 'ỏu', 'òu', 'óu']
-__tones_ignore__ += ['aé', 'aê', 'ae']
-__tones_ignore__ += ['aa', 'aạ', 'aẩ', 'ăà', 'ăa', 'âa', 'aà', 'âậ', 'aằ', 'âạ', 'ăặ', 'aầ',
-                     'aậ', 'aá', 'aả', 'aâ', 'aắ', 'aã', 'ăằ']
-__tones_ignore__ += ['ạị', 'ảí', 'ạỉ', 'ảỉ', 'âỉ', 'aỉ', 'aị', 'áí']
-__tones_ignore__ += ['eee']
-__tones_ignore__+=['êẻò', 'eeo']
-__tones_ignore__+=['eue', 'eủe']
-__tones_ignore__+=['euu', 'eui','euo','êuở','eua','eie','eiu','eii','eio']+['eía', 'eia']
-__tones_ignore__+=['eeu', 'êệu', 'eei', 'eea', 'eõe', 'eoe', 'eou', 'eoi', 'eoô', 'eoo', 'eoa']
-__tones_ignore__+=['eae', 'eau', 'eai', 'eão', 'eao', 'eaa', 'uee', 'uều', 'ueu', 'uệu', 'uei']
-__tones_ignore__+=['uea', 'ueá', 'uêa', 'uuu', 'ưũi', 'uui', 'ưướ', 'ưuo', 'ưườ', 'uướ', 'uườ', 'uuộ', 'uuo', 'uượ']
-__tones_ignore__+=['uuấ', 'ưửa', 'ưuẩ', 'uủa', 'uua', 'ưùa', 'uiề', 'ưíế', 'uiể', 'uie', 'uiu', 'uíu']
-__tones_ignore__+=['ưỉi', 'uii', 'uio', 'ưiớ', 'uiờ', 'uia', 'uỉa', 'uoe', 'uou',
-                   'ượụ', 'ưởu', 'uợu', 'ưỡu', 'ươụ', 'ườu', 'ưọu', 'ướu', 'uơu']
-__tones_ignore__+=['uôỉ',  'úoi', 'uơi', 'uôì', 'uỡi', 'uời',
-                   'ưoi', 'ườị', 'ươí', 'ưội','ườỉ', 'uộỉ',
-                   'ưói','ưòi', 'ưổi',  'uởi', 'ượì', 'ủoi', 'uới', 'ùoi', 'ươì', 'ưởi']
-__tones_ignore__+=['uoo', 'uoa', 'ướá', 'uốá', 'uoặ', 'uoá', 'uoă',
-                   'uaẻ', 'ủae', 'uae', 'uau', 'uẫu', 'uầu', 'uảu','ủau']
-__tones_ignore__+=[ 'ưai', 'ủai', 'úai', 'ùai',
-                    'uaổ', 'uầo', 'uaố', 'uaô', 'ủao']
-__tones_ignore__+=['ưaá', 'ưaà', 'ưaa', 'ưaả', 'uaa', 'uaả', 'uaá', 'ủaa', 'iee', 'iêệ', 'iêế']
-__tones_ignore__+=['íeu', 'iêủ','ịeu', 'ieu', 'iệụ']
-__tones_ignore__+=['iei', 'iệi', 'ỉei', 'iêì', 'iếo', 'iềo', 'iệo','iea', 'iêa']
-__tones_ignore__+=['iuệ', 'iue', 'iữu', 'iuu','iui']
-__tones_ignore__+=['iũa', 'íua', 'iưã', 'iưẫ']
-__tones_ignore__+=['iiê', 'iiề', 'iìe', 'iie', 'iiế', 'iiệ', 'iiu', 'iiữ', 'iii', 'iio', 'iia', 'iía', 'iỉa']
-__tones_ignore__+=['ioe', 'iòe', 'iou', 'iơi', 'iợi', 'ioi', 'iổi', 'ióí', 'iồi',  'iỏị', 'iơí',
-                   'iõi', 'iội', 'iối', 'iởi', 'iói', 'iòi', 'iọi', 'iỏỉ', 'iỗi']
-__tones_ignore__+=['ioỏ', 'ioó', 'ioo', 'ióa', 'ioá', 'ioă', 'ioa', 'ioã', 'iơầ', 'iaế', 'iae']
 
-__tones_ignore__+=['iáu', 'iâu', 'iầu', 'iau', 'iấu', 'iẩu', 'iậu', 'iáù', 'ìau', 'iảu']
-__tones_ignore__ +=[ 'iăi', 'ỉai',   'iáó', 'íao']
-__tones_ignore__+=['iaa', 'iaả', 'iaà', 'oee', 'ơẻu', 'oeu', 'oei', 'oèo', 'oẹo', 'oéo', 'oẻo', 'oeo', 'ôèo']
-__tones_ignore__+=['oeả', 'oea', 'oue', 'ouu', 'oủi', 'oui', 'ôùi', 'ouộ', 'oua', 'oie', 'oỉe', 'ôịe', 'ơỉe', 'ơiệ']
-__tones_ignore__+=['ơiừ', 'ôiứ', 'oiu', 'oiư', 'ơỉu', 'ơiu', 'ôĩì', 'ôịi', 'ôii', 'ôìi', 'ôíi', 'ơíi', 'oịi',
-                   'ôĩi', 'oỉi', 'oii', 'ơìi', 'ôỉi']
-__tones_ignore__+=['oio', 'ờiô', 'ơiố', 'oĩo', 'ơiở', 'oỉả', 'ơía', 'ôịả', 'ơỉa',
-                   'oia', 'oiâ', 'oịá', 'ớia', 'ơiấ', 'oìa', 'ôiầ']
-__tones_ignore__+=['ôoé', 'ooe', 'oou', 'oời', 'oọi', 'oới', 'oòì', 'ooi', 'oói', 'ơời', 'ơới']
-__tones_ignore__+=['ooo', 'ooố', 'oỏa', 'ooặ', 'oòa', 'oòà', 'ooa', 'ooà', 'oae',
-                   'oau', 'oạị', 'oảỉ', 'ơáí','oăi']
-__tones_ignore__+=['ôáỏ', 'oáó', 'ơàỏ', 'oào', 'oão', 'oao', 'oáo', 'oaa', 'oaà', 'oaá', 'oaâ']
-__tones_ignore__+=['aêê', 'aee', 'aeu', 'aei', 'aeo', 'aeá', 'aea', 'aue', 'âũe', 'auể', 'aúe', 'âủe']
-__tones_ignore__+=['aừu', 'àuu', 'auu', 'aui', 'aùi', 'âuở', 'auo', 'auở', 'aứa', 'âúa', 'aửa', 'auậ', 'aúa', 'auâ', 'aua']
-__tones_ignore__+=['aịe', 'aie', 'aiu', 'âìu', 'aìu', 'aịụ', 'aỉu', 'aịu', 'aii', 'aỉi', 'aĩi', 'aịi']
-__tones_ignore__+=['aiở', 'ảiở', 'aịo', 'aio', 'aiô', 'aìa', 'aia', 'aiặ', 'aỉa', 'aoe', 'âộù', 'aou']
-__tones_ignore__+=['aoi', 'aòi', 'aỏi', 'aọi', 'aoố', 'aoo', 'aòo', 'aoa', 'aae', 'aãù', 'aau', 'aâu']
-__tones_ignore__+=['ôấy', 'ôẩý','dụệ','đêở']
-__tones_ignore__+=['đôỉ', 'đôị', 'đơị',
-                   'dôí', 'đốí',
-                   'đơì','đổỉ', 'độị','dơì']
-__tones_ignore__+=['dìe','dĩe', 'dịe', 'địệ', 'địe', 'đỉe','díe']
-__tones_ignore__+=['dạỵ', 'đâỷ', 'dâỵ',
-                   'đằy', 'đâỳ']
-__tones_ignore__+=['ũay', 'ụay', 'ưẩý','úay', 'uáy']
-__tones_ignore__+=['đêử', 'đềụ', 'deu',  'đêù']
-__tones_ignore__+=[ 'độa',  'đôặ', 'đóá',  'dọạ', 'đõa']
-__tones_ignore__+=['đậi','dạị', 'đầi', 'đâi', 'đạị',  'dầi', 'đăị']
-__tones_ignore__+=['đừi']
-__tones_ignore__+=['đưô', 'đụo', 'dưo', 'dụo', 'dưộ', 'đuợ', 'duỡ', 'đuơ', 'duợ',
-                    'đuờ', 'duơ', 'đùo',
-                   'đưò',  'dùõ',  'đưọ', 'đưo','đuo']
-__tones_ignore__+=['iừo',  'iuờ', 'iuo', 'iưò' 'iúo','độe','uừ','ưè','ưè','ye']
-
-__tones_ignore__+=['iúo']
-
-__tones_ignore__+=['dựạ', 'dưà','dựá']
-__tones_ignore__+=['đẩo',  'đãó', 'đạọ','daở', 'đàọ','đậo']
-__tones_ignore__+=['đâù', 'dâú','đâụ',  'đaư', 'đâú',
-                   'dâù']
-__tones_ignore__+=['ỉeu', 'iềú', 'ìeu', 'iêù', 'iêũ', 'iêụ', 'iểù', 'iềụ', 'iếú', 'iêú', 'iềủ', 'iềù','yêú']
-__tones_ignore__+=['àỳ', 'àý', 'âỵ', 'áý', 'âỷ',
-                   'ẩý', 'âý', 'áỵ',
-                   'ấý','âỳ',  'àỵ', 'ấỵ',  'ạỵ', 'ậỵ', 'âỹ']
-
-__tones_ignore__+=['êú','êừ',  'eu', 'ếú', 'êù']
-__tones_ignore__+=['àỳ', 'àý',  'âỵ', 'áý', 'âỷ', 'ẩý', 'âý', 'áỵ',
-                   'ấý',  'âỳ', 'àỵ', 'ấỵ', 'ạỵ', 'ậỵ', 'âỹ']
-__tones_ignore__+=['êú',  'êừ',  'ếú', 'êù']
-__tones_ignore__+=['âú',  'âụ', 'âử', 'aư', 'âủ', 'âù', 'ậụ', 'àù', 'aủ',
-                   'âũ',  'ầù', 'âư']
-__tones_ignore__+=[ 'àô', 'ăộ', 'aở', 'áó', 'áọ', 'ạọ','aồ','àò', 'ảỏ', 'àọ', 'aỏ','aõ']
-__tones_ignore__+=['ìo','ịo']
-__tones_ignore__+=['ưô', 'ụo', 'ưọ', 'uó', 'ữõ', 'ưố','ưỏ', 'ưo',  'ưộ',
-                    'ùo', 'ưò', 'ưồ', 'ụộ', 'ưổ','uư']
-__tones_ignore__+=['ựạ', 'ưá', 'ưà', 'ưầ', 'ửả',
-                   'ụậ', 'ưả', 'ửá',
-                   'ưã', 'ưạ', 'ủạ', 'ữạ',
-                    'ụá', 'ưă', 'ứá',
-                    'ủả']
-__tones_ignore__ +=[
-                        'ôẩ', 'ôa', 'ọả', 'ớá', 'ồa',
-                        'ơa', 'ọạ', 'óá', 'ôá','ốa',
-                        'ổà', 'ởã', 'ốá', 'ơạ', 'ôă', 'ơả', 'òà','úý','ụỵ','ùỳ','ủỷ','ưy','ủỵ','ùỷ','uu','ữy','ịệ']
-skip_tone_key =[
-            "ad",
-            "ada",
-            "odi",
-            "ayu",
-            "ede",
-            "yde",
-            "ayi",
-            "dd",
-            "uyd","ado","oya","doo","eay","yd","yoo","uid","yea","dio","yi","yda","oda","yo","dei",
-    "dii","yu","ady","iye","dee","dad","yed","ode","ddd","iyo","idi","iya","yy","oyi","aye",
-    "udy","dyo","uoy","ud","aao","ayd","ade","yio","dda","dea","aya","ddo","yoe","ody","aod","ydy",
-    "eid","oiy","eya","iad","uud","yia","idd","ded","odo","aey","aaa","edi","ooy","eoy","dya",
-    "eyd","dae","aoy","yua","yye","udo","eye","yoy","ied","ydi","iyu","oey","yoa","oud","yeo","ddi",
-    "uyy","ide","oed","yud","ido","yao","ydo","idu","aay","daa","ida","aiy","yuo","aai","uyi","iey",
-    "uda","dou","adi","auy","yue","yoi","doy","uey","dde","yau","udu","ayy","eda","uuy","dey","yie","edu","ude",
-    "adu",
-    "duu","ayo","dye","odu","ii","ya","dy","iy","ey","oy","oo"
-        ]
+__tones__ = {
+    "iay": ["iẩy", "iâý", "iẫy", "iay", "iấy", "iày", "ìay", "iầy", "iáy", "iãy", "iạy", "iây", "iảy"],
+    "uy": ["ùy", "uý", "uỹ", "uy", "úy", "ụy", "uỳ", "ũy", "ủy", "uỵ", "uỷ"],
+    "oa": ["oâ", "oẳ", "oặ", "oà", "óa", "õa", "oằ", "oẫ", "oã", "ọa", "oắ", "oă", "oả", "oẵ", "òa", "oa", "ỏa", "oạ",
+           "oá"],
+    "oi": ["ối", "ỏi", "ốí", "ơỉ", "ộí", "ọi", "ời", "ói", "ớỉ", "ỡi", "ộị", "ọị", "ợị", "ờị", "ổỉ", "ồì", "ởỉ", "ôị",
+           "õi", "ợi", "ôí", "ôì", "ờì", "ơì", "óí", "ôi", "ồi", "òi", "ơí", "ơi", "oi", "ỏỉ", "ỗi", "ơị", "ôỉ", "ôĩ",
+           "ờĩ", "ổi", "ội", "ởi", "ới", "ớí"],
+    "a": ["ạ", "ã", "â", "ẳ", "ặ", "a", "ẩ", "ấ", "ă", "ả", "à", "ẵ", "á", "ắ", "ẫ", "ằ", "ầ", "ậ"],
+    "ua": ["uậ", "uă", "ưa", "uặ", "uắ", "úa", "ửa", "uẵ", "uẩ", "uá", "ùa", "ứa", "uẫ", "uà", "ũa", "ụa", "uầ", "ủa",
+           "uấ", "uẳ", "uạ", "uả", "uằ", "ừa", "uã", "ựa", "ữa", "uâ", "ua"],
+    "o": ["ớ", "ỗ", "ổ", "ơ", "ố", "ò", "õ", "ộ", "ở", "ô", "ợ", "ọ", "ỡ", "ỏ", "o", "ồ", "ó", "ờ"],
+    "uu": ["ứu", "ựu", "ưu", "ửu", "ữu", "ừu"],
+    "uo": ["ưở", "uỡ", "uớ", "ượ", "ưỡ", "uở", "ươ", "uờ", "uổ", "uỗ", "uô", "ườ", "ướ", "uồ", "uộ", "uợ", "uơ", "uố",
+           "uọ"],
+    "eo": ["ểo", "ẽo", "èo", "ẹo", "ẻo", "éo", "eo"],
+    "oai": ["oai", "oải", "oàì", "oài", "oái", "oại", "oãi"],
+    "yeu": ["yễu", "yêu", "yểu", "yệu", "yếu", "yeu", "yều"],
+    "uou": ["ượu", "ươu"],
+    "uoi": ["uội", "uôí", "uồi", "uổi", "uối", "ười", "ướí", "ườì", "ưỡi", "ượi", "uoi", "uỗi", "ươi", "ưới", "uôi"],
+    "ieu": ["iểu", "iếu", "iệu", "iễu", "iêu", "iều"],
+    "uay": ["uậy", "uảy", "uây", "uẩy", "uầy", "uấy", "uay", "uẫy", "uày"],
+    "iu": ["iủ", "iụ", "iử", "iứ", "ỉu", "iư", "iừ", "íu", "ìu", "iú", "iữ", "iự", "iu", "ĩu", "iù", "ịu", "iũ"],
+    "ia": ["iă", "ĩa", "iấ", "iặ", "iả", "ỉa", "iẳ", "iẵ", "iậ", "iắ", "iâ", "iầ", "iã", "iá", "iạ", "ịa", "ìa", "ià",
+           "ía", "iẩ", "iằ", "iẫ", "ia"],
+    "ou": ["ơu", "ớu", "ởu"],
+    "ueo": ["ueo", "uẹo", "uéo", "uèo"],
+    "ui": ["ừi", "ửi", "ữi", "ùi", "úi", "ũi", "ui", "ủi", "ưi", "ứi", "ựi", "uì", "ụi"],
+    "iuo": ["iướ", "iươ", "iưò", "iuố", "iuộ", "iuồ", "iưỡ", "iườ", "iượ", "iưở"],
+    "io": ["iỏ", "iồ", "iỡ", "iô", "iợ", "iố", "iộ", "iơ", "iọ", "ío", "io", "iờ", "iớ", "iỗ", "iở", "iò", "iổ", "iõ",
+           "ió"],
+    "e": ["ê", "e", "ề", "ế", "é", "ể", "ẹ", "ễ", "è", "ẻ", "ệ", "ẽ"],
+    "ao": ["ăo", "ằo", "âo", "ắo", "ao", "ào", "áo", "ão", "ạo", "ậo", "ảo", "ấo"],
+    "ue": ["uẻ", "uẹ", "ùe", "uè", "uể", "uế", "ue", "uẽ", "úe", "uề", "uê", "ué", "uễ", "uệ"],
+    "iau": ["iàu"],
+    "au": ["ãu", "ảu", "ậu", "ẩu", "ạu", "ầu", "àu", "ẫu", "ắu", "ấu", "au", "âu", "áu"],
+    "uye": ["ưyễ", "uyê", "uyé", "uyẹ", "ưyê", "uyẻ", "uyế", "uyè", "uye", "uyễ", "uyề", "uyệ", "uyể", "uyẽ"],
+    "ai": ["âi", "àì", "ại", "ăi", "ải", "ãi", "ẩi", "ấi", "ái", "ầi", "ài", "ắi", "ai", "ẫi"],
+    "oay": ["oay", "oày", "oạy", "oáy", "oảy", "oãy"],
+    "ioi": ["iới", "iời", "iỏi"],
+    "uya": ["uyã", "ưya", "uyạ", "uyấ", "uya", "uyá", "uyả"],
+    "eu": ["ệu", "ều", "êu", "ểu", "ếu"],
+    "ay": ["ăy", "áy", "ậy", "ẫy", "ạy", "ảy", "ầy", "ắy", "ây", "ày", "ay", "ấy", "ãy", "ẩy"],
+    "iai": ["iai", "iãi", "iại", "iảỉ", "iái", "iài", "iải"],
+    "ye": ["yễ", "yẻ", "yề", "yệ", "yế", "yể", "yẽ", "yé", "yê"],
+    "ieo": ["iẻo", "ieo"],
+    "uao": ["uao", "uáo", "uào", "uạo"],
+    "ie": ["iè", "iề", "ỉe", "ịe", "iẽ", "iễ", "ìe", "ĩe", "iẻ", "ie", "iê", "ìệ", "ỉệ", "iế", "iệ", "íe", "ié", "iể"],
+    "uau": ["uạu", "uàu"],
+    "oe": ["ọe", "oe", "oè", "oẹ", "ỏe", "oẽ", "oế", "óe", "oé", "oẻ", "òe", "õe", "oệ", "oề"],
+    "i": ["i", "í", "ị", "ĩ", "ỉ", "ì"],
+    "iao": ["iáo", "iao", "iạo", "iảo", "iào"],
+    "iua": ["iua", "iữa", "iùa", "iứa", "iừa", "iụa", "iửa", "iựa", "iưa"],
+    "y": ["ỷ", "ỵ", "ý", "ỳ", "y", "ỹ"],
+    "uyo": ["uyồ", "uyo", "uyộ"],
+    "uyu": ["uỷu", "uỵu", "uyu"],
+    "uai": ["uãi", "uái", "uải", "uai", "uài", "uại"],
+    "iui": ["iụi", "iữi", "iúi", "iùi", "iửi", "iứi", "iũi"],
+    "u": ["ừ", "ủ", "ụ", "ữ", "ù", "ử", "ú", "ứ", "ũ", "u", "ư", "ự"],
+}
 
 
 count_ = 0
@@ -295,31 +208,11 @@ def __get_config__(dataset_path: str = None) -> Config:
                     __config__.accents[x[0]] = [v]
                 else:
                     __config__.accents[x[0]].append(v)
-                if __config__.tones.get(x[0]) and x[0] not in __tones_ignore__:
-                    __config__.tones.get(x[0]).append(v)
-                elif __tones_ignore__:
-                    if v not in __tones_ignore__:
-                        __config__.tones[x[0]] = [v]
-                lst.append(v)
-                _fx[v] = x[0]
 
-        __config__.tones = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_accents.npy.zip"),
-                                                  dataset_path)
 
-        if __tones_ignore__:
-            tmp = collections.OrderedDict()
-            set_of_ignore = set(__tones_ignore__)
-            for k, v in __config__.tones.items():
-                if len(k) <= 3 and  k not  in skip_tone_key:
-                    if len(v)==1 and k==v[0]:
-                        continue
-                    if k[-1] in ['d','đ']:
-                        continue
-                    lst = list(set(v).difference(set_of_ignore))
-                    if len(lst) > 0:
-                        tmp[k] = lst
-            del __config__.tones
-            __config__.tones = tmp
+
+
+        __config__.tones = __tones__
         __config__.statistic = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_stat.npy.zip"),
                                                       dataset_path)
         __config__.grams_1 = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_grams1.npy.zip"),
@@ -652,3 +545,7 @@ def correct_accents(input_content):
         del trace
 
     return output.strip()
+
+def check_word(word:str):
+    get_config()
+    return __config__.grams_1.get(word)
