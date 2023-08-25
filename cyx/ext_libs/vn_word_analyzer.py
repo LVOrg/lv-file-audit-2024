@@ -88,42 +88,61 @@ import typing
 
 import re
 __special_charators__="~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./\t\n"
-def analyzer_words(text:str,step=0):
+def analyzer_words(text:str,step=0,is_previous_special=False):
+    if text=="nm2017":
+        print(text)
     ret =[]
-    len_of_text = len(text)
+    len_of_text =len(text)
     for i in range(0,len_of_text):
         if text[i] in __special_charators__:
             f=i+1
             while f<len_of_text and text[f] in __special_charators__:f+=1
+
             if f+1<len_of_text:
                 remain = text[f:]
                 special=text[i:f]
-                next_ret, next_remain = analyzer_words(remain,step+1)
-                if step==0:
-                    ret += [(text[:i],text[:i],None,None,None,len(text[:i]))]
-                ret += [(special, special, None, next_remain, None, len(text[:i]))]
+                next_ret, next_remain = analyzer_words(remain, step + 1, True)
+                # if step==0:
+
+                if i>0 and i<len_of_text:
+                    ret += [(text[:i],text[:i],None,None,None,0)]
+                ret += [(special, special, None, None, None, 0)]
                 ret +=next_ret
-                return ret,remain
+                return ret,text[0:i]
             else:
-                return [(text[i:f], text[i:f], None, None, None, len(text[i:f]))],text[0:i]
+                if text[0:i]!="":
+                    ret+=[(text[0:i],text[0:i],None,None,None)]
+                return ret+[(text[i:f], text[i:f], None, None, None, 0)],text[0:i]
         j=3
         while j>0:
             if i+j<=len_of_text:
                 vowel = text[i:i+j]
                 if __reverse_tone__.get(vowel.lower()):
+
                     remain = text[i+j:]
 
-                    next_ret, next_remain = analyzer_words(remain,step+1)
-                    ret += [(text[0:i]+ vowel+ (next_remain or ""),text[0:i], vowel, next_remain,i,len(next_remain or ""))]
+                    next_ret, next_remain = analyzer_words(remain, step + 1)
+
+                    if step==0 and i>2:
+                        prefix = text[i-2:i]
+                        before = text[0:i-2]
+                        ret += [(before, before, None, None, None,None)]
+                        ret += [(prefix + vowel + (next_remain or ""), prefix, vowel, next_remain, i,
+                                 len(next_remain or ""))]
+                    else:
+                        ret += [(text[0:i]+ vowel+ (next_remain or ""),text[0:i], vowel, next_remain,i,len(next_remain or ""))]
                     if next_ret is not None:
 
                         ret+= next_ret
 
 
-
+                    if is_previous_special:
+                        print(1)
                     return ret,text[0:i]
 
             j-=1
+    if is_previous_special:
+        print(1)
     if text !="":
         return None,text
     return None,None
