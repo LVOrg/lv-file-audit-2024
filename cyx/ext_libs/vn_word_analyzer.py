@@ -101,8 +101,7 @@ __special_charators__ = "~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./\t\n"
 
 
 def analyzer_words(text: str, step=0, is_previous_special=False):
-    if text == "nm2017":
-        print(text)
+
     ret = []
     len_of_text = len(text)
     for i in range(0, len_of_text):
@@ -147,37 +146,34 @@ def analyzer_words(text: str, step=0, is_previous_special=False):
                     if next_ret is not None:
                         ret += next_ret
 
-                    if is_previous_special:
-                        print(1)
+
                     return ret, text[0:i]
 
             j -= 1
-    if is_previous_special:
-        print(1)
+
     if text != "":
         return None, text
     return None, None
 
 
 def __valid__(w: str):
+    if len(w)<2: return False
     __flags_end__ = ["k", "kh"]
     return w[-1] not in __flags_end__ and w[-2] not in __flags_end__
 
 
-def spell_suggest(text: str, with_key_word=False):
+def generate_variants(text: str, with_key_word=False):
     __make_word__ = lambda x, y, z: x + y + y
+    variant_list = []
     lst, _ = analyzer_words(text)
     for full_word, left_word, vowel, end_word, index_of_vowel, len_of_full_word in lst:
-        if full_word == "mduoc":
-            print(full_word)
-
-        suggest = []
+        ret_suggest = []
         if index_of_vowel is None:
-            suggest += [full_word]
+            variant_list += [full_word]
             if with_key_word:
-                yield full_word, suggest
+                yield full_word, variant_list
             else:
-                yield suggest
+                yield variant_list
             continue
 
         for ii in range(-1, index_of_vowel):
@@ -185,33 +181,35 @@ def spell_suggest(text: str, with_key_word=False):
 
             cw_check = cw.lower()
             if check_word(cw_check):
-                suggest += [cw]
+                variant_list += [cw]
             if vowel and __valid__(cw_check):
                 for v_vowel in __tones__.get(vowel, []):
                     gen_word = left_word[ii:] + v_vowel
                     if check_word(gen_word.lower()):
-                        suggest += [gen_word]
+                        variant_list.append(gen_word)
                     if left_word != "" and left_word[ii:][0] == 'd':
                         gen_word = 'đ' + left_word[ii:][1:] + v_vowel
                         if check_word(gen_word.lower()):
-                            suggest += [gen_word]
+                            variant_list.append(gen_word)
 
             for k in range(0, len_of_full_word):
                 v_end_word = (end_word or "")[k]
+                if v_end_word=="ng":
+                    print(v_end_word)
                 cw += v_end_word
 
                 cw_check += (end_word or "")[k].lower()
                 if check_word(cw_check):
-                    suggest += [cw]
+                    variant_list += [cw]
                 for v_vowel in __tones__.get(vowel, []):
                     gen_word = left_word[ii:] + v_vowel + v_end_word
                     if check_word(gen_word.lower()):
-                        suggest += [gen_word]
+                        variant_list.append(gen_word)
                     if left_word != "" and left_word[ii:][0] == 'd':
                         gen_word = 'đ' + left_word[ii:][1:] + v_vowel + v_end_word
                         if check_word(gen_word.lower()):
-                            suggest += [gen_word]
+                            variant_list.append(gen_word)
         if with_key_word:
-            yield full_word, suggest
+            yield full_word, variant_list
         else:
-            yield suggest
+            yield variant_list

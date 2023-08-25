@@ -8,8 +8,10 @@ import zipfile
 import collections
 import numpy as np
 import threading
+import phunspell
 
-__version__ = "0.0.0.5"
+vn_spell = phunspell.Phunspell("vi_VN")
+__version__ = "0.0.0.6"
 __working_dir__ = pathlib.Path(__file__).parent.parent.parent.__str__()
 
 __resource_loader_lock__ = threading.Lock()
@@ -96,15 +98,14 @@ __full_accents__ = (f"UÙÚỦỤŨƯỪỨỬỰỮ"
                     f"IÌÍỈỊĨ"
                     f"yỳýỷỵỹ")
 
-
 __tones__ = {
     "iay": ["iẩy", "iâý", "iẫy", "iay", "iấy", "iày", "ìay", "iầy", "iáy", "iãy", "iạy", "iây", "iảy"],
     "uy": ["ùy", "uý", "uỹ", "uy", "úy", "ụy", "uỳ", "ũy", "ủy", "uỵ", "uỷ"],
     "oa": ["oâ", "oẳ", "oặ", "oà", "óa", "õa", "oằ", "oẫ", "oã", "ọa", "oắ", "oă", "oả", "oẵ", "òa", "oa", "ỏa", "oạ",
            "oá"],
-    "oi": ["ối", "ỏi", "ốí", "ơỉ", "ộí", "ọi", "ời", "ói", "ớỉ", "ỡi", "ộị", "ọị", "ợị", "ờị", "ổỉ", "ồì", "ởỉ", "ôị",
-           "õi", "ợi", "ôí", "ôì", "ờì", "ơì", "óí", "ôi", "ồi", "òi", "ơí", "ơi", "oi", "ỏỉ", "ỗi", "ơị", "ôỉ", "ôĩ",
-           "ờĩ", "ổi", "ội", "ởi", "ới", "ớí"],
+    "oi": ["ối", "ỏi", "ọi", "ời", "ói", "ỡi",
+           "õi", "ợi", "ôi", "ồi", "òi", "ơí", "ơi", "oi", "ỗi",
+           "ổi", "ội", "ởi", "ới"],
     "a": ["ạ", "ã", "â", "ẳ", "ặ", "a", "ẩ", "ấ", "ă", "ả", "à", "ẵ", "á", "ắ", "ẫ", "ằ", "ầ", "ậ"],
     "ua": ["uậ", "uă", "ưa", "uặ", "uắ", "úa", "ửa", "uẵ", "uẩ", "uá", "ùa", "ứa", "uẫ", "uà", "ũa", "ụa", "uầ", "ủa",
            "uấ", "uẳ", "uạ", "uả", "uằ", "ừa", "uã", "ựa", "ữa", "uâ", "ua"],
@@ -158,7 +159,6 @@ __tones__ = {
     "u": ["ừ", "ủ", "ụ", "ữ", "ù", "ử", "ú", "ứ", "ũ", "u", "ư", "ự"],
 }
 
-
 count_ = 0
 
 
@@ -209,9 +209,6 @@ def __get_config__(dataset_path: str = None) -> Config:
                 else:
                     __config__.accents[x[0]].append(v)
 
-
-
-
         __config__.tones = __tones__
         __config__.statistic = __load_data_from_zip__(os.path.join(source_dir, "vn_predictor_stat.npy.zip"),
                                                       dataset_path)
@@ -228,16 +225,15 @@ def __get_config__(dataset_path: str = None) -> Config:
         __config__.max_word_length = 8
         __config__.space = ' '.encode('utf8')
 
-
     f_check = 'euioa'
-    _l=[]
+    _l = []
     for x in f_check:
         for y in f_check:
             for z in f_check:
-                if __config__.tones.get(x + y+z):
-                    _l+= __config__.tones.get(x + y+z)
-                    if len(_l)>10:
-                        _l =[]
+                if __config__.tones.get(x + y + z):
+                    _l += __config__.tones.get(x + y + z)
+                    if len(_l) > 10:
+                        _l = []
 
     return __config__
 
@@ -277,6 +273,53 @@ def __make_up_(input_str, possible_changes, current_len):
     return possible_changes, current_len
 
 
+def __is_valid_vn_word__(w: str):
+    __check_first__ = ["z", "w", "f", "j", "f"]
+    __check_last__ = ["q", "w", "r", "s", "d", "đ", "f", "j", "k", "l", "z", "x", 'v', 'b']
+    __validator_last_2_letter__ = ["ch", "nh", "ng"]
+    __first_map__ = {
+        "t": ["h", "r"],
+        "n": ["g", "h"],
+        "p": ["h"],
+        "g": ["h"],
+        "k": ["h"],
+        "c": ["h"],
+        "n": ["h"]
+    }
+
+    __pre__ = [""]
+    len_of_w = len(w)
+    if len_of_w <= 1: return True
+    if w[0] in __check_first__:
+        return False
+    if w[-1] in __check_last__:
+        return False
+    if not __first_map__.get(w[0]):
+        if w[1] not in __full_accents__:
+            return False
+    has_vowel = False
+    for i in range(0, len_of_w):
+        if w[i] in __full_accents__:
+            has_vowel = True
+            if i + 1 > len_of_w:
+                raise NotImplemented()
+            for k in range(i + 1, len_of_w):
+                if w[k] in __full_accents__:
+                    if w[k - 1] not in __full_accents__:
+                        return False
+                    if len_of_w - k - 1 == 2:
+                        return w[k + 1:] in __validator_last_2_letter__
+                    return True
+
+            if i == 3:
+                return w[0:i] == "ngh"
+            if i == 2:
+                return w[1] in __first_map__.get(w[0], [])
+
+            return has_vowel
+    return has_vowel
+
+
 def __generate_variety__(input_str: str, index, possible_changes, current_len):
     global __config__
     # # input_str="chuong"
@@ -297,6 +340,10 @@ def __generate_variety__(input_str: str, index, possible_changes, current_len):
         if __config__.grams_1.get(input_str):
             possible_changes[current_len] = input_str
             possible_changes, current_len = __make_up_(input_str, possible_changes, current_len)
+        elif not __is_valid_vn_word__(input_str):
+            for x in vn_spell.suggest(input_str):
+                possible_changes[current_len] = x
+                current_len += 1
         return possible_changes, current_len
     key = input_str[start:end + 1]
     lst = __config__.tones.get(key)
@@ -305,6 +352,10 @@ def __generate_variety__(input_str: str, index, possible_changes, current_len):
             possible_changes[current_len] = input_str
             current_len += 1
             possible_changes, current_len = __make_up_(input_str, possible_changes, current_len)
+        elif not __is_valid_vn_word__(input_str):
+            for x in vn_spell.suggest(input_str):
+                possible_changes[current_len] = x
+                current_len += 1
         return possible_changes, current_len
     current_len = 0
     for x in lst:
@@ -312,6 +363,11 @@ def __generate_variety__(input_str: str, index, possible_changes, current_len):
         if __config__.grams_1.get(v_word):
             possible_changes[current_len] = v_word
             current_len += 1
+        elif not __is_valid_vn_word__(v_word):
+            for x in vn_spell.suggest(v_word):
+                if x not in possible_changes:
+                    possible_changes[current_len] = x
+                    current_len += 1
     possible_changes, current_len = __make_up_(input_str, possible_changes, current_len)
     return possible_changes, current_len
 
@@ -362,7 +418,6 @@ def predict_accents(input_content):
         trace = numpy.zeros((len_of_words, __config__.maxp), dtype=int)
         Q = numpy.zeros((len_of_words, __config__.maxp), dtype=float)
         possible_change = [[""] * __config__.maxp for _ in range(len_of_words)]
-        # possible_change = np.full((len_of_words, __config__.maxp,__config__.max_word_length), "".encode('utf8'), dtype=bytes)
 
         for i in range(len_of_words):
             num_of_word_processing = 0
@@ -546,6 +601,7 @@ def correct_accents(input_content):
 
     return output.strip()
 
-def check_word(word:str):
+
+def check_word(word: str):
     get_config()
     return __config__.grams_1.get(word)
