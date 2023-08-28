@@ -1,4 +1,4 @@
-from cy_vn_suggestion.utils import check_word
+from cy_vn_suggestion.utils import check_is_word
 import phunspell
 
 vn_spell = phunspell.Phunspell("vi_VN")
@@ -49,7 +49,7 @@ __tones__ = {
     "ye": ["yễ", "yẻ", "yề", "yệ", "yế", "yể", "yẽ", "yé", "yê"],
     "ieo": ["iẻo", "ieo"],
     "uao": ["uao", "uáo", "uào", "uạo"],
-    "ie": ["iè", "iề", "ỉe", "ịe", "iẽ", "iễ", "ìe", "ĩe", "iẻ", "ie", "iê", "ìệ", "ỉệ", "iế", "iệ", "íe", "ié", "iể"],
+    "ie": ["iè", "iề", "ỉe", "ịe", "iẽ", "iễ", "ìe", "ĩe", "iẻ", "ie", "iê", "iế", "iệ", "íe", "ié", "iể"],
     "uau": ["uạu", "uàu"],
     "oe": ["ọe", "oe", "oè", "oẹ", "ỏe", "oẽ", "oế", "óe", "oé", "oẻ", "òe", "õe", "oệ", "oề"],
     "i": ["i", "í", "ị", "ĩ", "ỉ", "ì"],
@@ -101,7 +101,6 @@ __special_charators__ = "~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./\t\n"
 
 
 def analyzer_words(text: str, step=0, is_previous_special=False):
-
     ret = []
     len_of_text = len(text)
     for i in range(0, len_of_text):
@@ -118,7 +117,7 @@ def analyzer_words(text: str, step=0, is_previous_special=False):
                 if i > 0 and i < len_of_text:
                     ret += [(text[:i], text[:i], None, None, None, 0)]
                 ret += [(special, special, None, None, None, 0)]
-                ret += next_ret
+                ret += next_ret or []
                 return ret, text[0:i]
             else:
                 if text[0:i] != "":
@@ -134,9 +133,9 @@ def analyzer_words(text: str, step=0, is_previous_special=False):
 
                     next_ret, next_remain = analyzer_words(remain, step + 1)
 
-                    if step == 0 and i > 2:
-                        prefix = text[i - 2:i]
-                        before = text[0:i - 2]
+                    if step == 0 and i > 3:
+                        prefix = text[i - 3:i]
+                        before = text[0:i - 3]
                         ret += [(before, before, None, None, None, None)]
                         ret += [(prefix + vowel + (next_remain or ""), prefix, vowel, next_remain, i,
                                  len(next_remain or ""))]
@@ -145,7 +144,6 @@ def analyzer_words(text: str, step=0, is_previous_special=False):
                                  len(next_remain or ""))]
                     if next_ret is not None:
                         ret += next_ret
-
 
                     return ret, text[0:i]
 
@@ -157,16 +155,14 @@ def analyzer_words(text: str, step=0, is_previous_special=False):
 
 
 def __valid__(w: str):
-    if len(w)<2: return False
+    if len(w) < 2: return False
     __flags_end__ = ["k", "kh"]
     return w[-1] not in __flags_end__ and w[-2] not in __flags_end__
 
 
-def generate_variants(text: str, with_key_word=False):
-    __make_word__ = lambda x, y, z: x + y + y
-    variant_list = []
-    lst, _ = analyzer_words(text)
-    for full_word, left_word, vowel, end_word, index_of_vowel, len_of_full_word in lst:
+def generate_variants_from_analyzer_list(analyzer_list, with_key_word=False):
+    lst = analyzer_list
+    for full_word, left_word, vowel, end_word, index_of_vowel, len_of_right in lst:
         variant_list = []
         if index_of_vowel is None:
             variant_list += [full_word]
@@ -176,37 +172,48 @@ def generate_variants(text: str, with_key_word=False):
                 yield variant_list
             continue
 
-        for ii in range(-1, index_of_vowel):
+        for ii in range(index_of_vowel):
             cw = left_word[ii:] + vowel
 
             cw_check = cw.lower()
-            if check_word(cw_check):
+            if check_is_word(cw_check):
                 variant_list += [cw]
             if vowel and __valid__(cw_check):
                 for v_vowel in __tones__.get(vowel, []):
                     gen_word = left_word[ii:] + v_vowel
-                    if check_word(gen_word.lower()):
+                    if check_is_word(gen_word.lower()):
                         variant_list.append(gen_word)
-                    if left_word != "" and left_word[ii:][0] == 'd':
+                    if ii > -1 and left_word != "" and left_word[ii:] != "" and left_word[ii:][0] == 'd':
                         gen_word = 'đ' + left_word[ii:][1:] + v_vowel
-                        if check_word(gen_word.lower()):
+                        if check_is_word(gen_word.lower()):
                             variant_list.append(gen_word)
 
-            for k in range(0, len_of_full_word):
-                v_end_word = (end_word or "")[k]
-                cw += v_end_word
-                cw_check += (end_word or "")[k].lower()
-                if check_word(cw_check):
-                    variant_list += [cw]
+            for k in range(0, len_of_right):
+                v_end_word = (end_word or "")[0:k + 1]
+                gen_word = cw + v_end_word
+                cw_check = gen_word.lower()
+                if check_is_word(cw_check):
+                    variant_list += [gen_word]
                 for v_vowel in __tones__.get(vowel, []):
                     gen_word = left_word[ii:] + v_vowel + v_end_word
-                    if check_word(gen_word.lower()):
+                    if check_is_word(gen_word.lower()):
                         variant_list.append(gen_word)
+                    # try:
                     if left_word != "" and left_word[ii:][0] == 'd':
                         gen_word = 'đ' + left_word[ii:][1:] + v_vowel + v_end_word
-                        if check_word(gen_word.lower()):
+                        if check_is_word(gen_word.lower()):
                             variant_list.append(gen_word)
+                    # except Exception as e:
+                    #     print(left_word)
         if with_key_word:
             yield full_word, variant_list
         else:
             yield variant_list
+
+
+def generate_variants(text: str, with_key_word=False):
+
+    variant_list = []
+    analyzer_list, _ = analyzer_words(text)
+    ret = generate_variants_from_analyzer_list(analyzer_list, with_key_word)
+    return ret
