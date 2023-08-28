@@ -11,7 +11,7 @@ import threading
 import phunspell
 
 vn_spell = phunspell.Phunspell("vi_VN")
-__version__ = "0.0.0.6"
+__version__ = "0.0.0.3"
 __working_dir__ = pathlib.Path(__file__).parent.parent.parent.__str__()
 
 __resource_loader_lock__ = threading.Lock()
