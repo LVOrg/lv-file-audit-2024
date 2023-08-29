@@ -60,7 +60,7 @@ def generate_probably_word(word:str)->typing.List[str]:
 
 
 
-def generate_suggestions(txt: str, detect_langs: typing.List[str] = []):
+def generate_suggestions(txt: str, detect_langs: typing.Optional[typing.List[str]]=None):
     try:
         words = txt.split(" ")
 
