@@ -49,8 +49,10 @@ class DbConnect:
     def __init__(self):
         self.connect_config = config.db
         self.admin_db_name = config.admin_db_name
-
-        self.client = MongoClient(**self.connect_config.to_dict())
+        if isinstance(self.connect_config,str):
+            self.client = MongoClient(self.connect_config)
+        else:
+            self.client = MongoClient(**self.connect_config.to_dict())
         self.__tracking__ = False
         print("load connect is ok")
 
@@ -101,7 +103,10 @@ class __DbContext__:
 class DbClient:
     def __init__(self):
         self.config = config
-        self.client = MongoClient(**config.db.to_dict())
+        if isinstance(config.db,str):
+            self.client = MongoClient(config.db)
+        else:
+            self.client = MongoClient(**config.db.to_dict())
         print("Create connection")
 
 

@@ -32,7 +32,7 @@ db_25:
   tls: false
   authSource:
   tlsCAFile:
-db:
+db_:
   # Host of mongodb
   host: 192.168.18.36
   # Port of mongodb
@@ -40,6 +40,7 @@ db:
   authSource: lv-docs
   username: admin-doc
   password: '123456'
+db: mongodb://admin-doc:123456@192.168.18.36:27018/lv-docs
 #db.authSource: admin
 #  db.host: 172.16.0.83
 #  db.password: Lacviet#123
