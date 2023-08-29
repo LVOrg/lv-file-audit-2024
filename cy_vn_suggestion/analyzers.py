@@ -199,7 +199,7 @@ def generate_variants_from_analyzer_list(analyzer_list, with_key_word=False):
                     if check_is_word(gen_word.lower()):
                         variant_list.append(gen_word)
                     # try:
-                    if left_word != "" and left_word[ii:][0] == 'd':
+                    if left_word != "" and ii< len(left_word) and left_word[ii:][0] == 'd':
                         gen_word = 'đ' + left_word[ii:][1:] + v_vowel + v_end_word
                         if check_is_word(gen_word.lower()):
                             variant_list.append(gen_word)

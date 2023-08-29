@@ -41,7 +41,7 @@ def __gen__(pre_fix, vowel, end_fix):
     if vowels == []:
         return [SuggestionElement(pre_fix + vowel + (end_fix or ""))]
     for v in vowels:
-        check_word = pre_fix + v + end_fix
+        check_word = pre_fix + v + (end_fix or "")
         l_check_word = check_word.lower()
         if check_is_word(l_check_word):
             sub_list += [SuggestionElement(check_word)]
@@ -93,7 +93,7 @@ def generate_suggestions(txt: str, detect_langs: typing.List[str] = []):
                                 _, pre_first, pre_vowel, pre_end, _, _ = pre_analyzer_list[0]
                                 sub_list += __gen__(pre_first, pre_vowel, pre_end)
 
-                        ret += [[sub_list]]
+                        ret += [sub_list]
                         ret_len += [len(sub_list)]
                         if cols < len(sub_list):
                             cols = len(sub_list)
