@@ -51,6 +51,14 @@ def __gen__(pre_fix, vowel, end_fix):
         sub_list += __gen__('Đ' + pre_fix[1:], vowel, end_fix)
     return sub_list
 
+def generate_probably_word(word:str)->typing.List[str]:
+    ret = []
+    _, pre_fix, vowel, end_fix, _, _ = analyzer_words(word)[0][0]
+    return __gen__(pre_fix, vowel, end_fix)
+
+
+
+
 
 def generate_suggestions(txt: str, detect_langs: typing.List[str] = []):
     words = txt.split(" ")

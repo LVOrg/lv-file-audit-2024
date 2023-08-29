@@ -2,10 +2,21 @@ import pathlib
 import sys
 
 import numpy
-from cy_vn_suggestion.analyzers import  generate_variants, analyzer_words
-from cy_vn_suggestion.generators import covert_to_suggestion_ele, generate_suggestions
-from cy_vn_suggestion.gram_calculators import calculator_matrix
-from cy_vn_suggestion.suggestions import suggest
+from cy_vn_suggestion.analyzers import  (
+    generate_variants,
+    analyzer_words
+)
+from cy_vn_suggestion.generators import (
+    covert_to_suggestion_ele,
+    generate_suggestions,
+    generate_probably_word
+)
+from cy_vn_suggestion.gram_calculators import (
+    calculator_matrix
+)
+from cy_vn_suggestion.suggestions import (
+    suggest
+)
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 # fx=generate_variants("chicungdothoi")
 # for x in fx:
