@@ -110,7 +110,7 @@ def search(client: Elasticsearch, index: str, filter):
     if isinstance(filter, dict):
         return client.search(index=index, doc_type="doc", body=dict(
             query=filter,
-            sort='_score,price'
+            sort='_score,price'#!/usr/bin/env python
         ))
     elif isinstance(filter, BaseDoc):
         return client.search(index=index, doc_type="_doc", body=filter.get_expr())
