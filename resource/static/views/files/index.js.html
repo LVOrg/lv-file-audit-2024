@@ -4,7 +4,12 @@
     </style>
     <style>
         <style>
-
+.bkg
+{
+    background-image: radial-gradient(circle, #f0f0f0 90%, #bbb 100%);
+  background-position: center;
+  background-size: 90% 90%;
+}
 .w3rcontainer{
    border: 1px solid #cccfdb;
    border-radius: 2px;
@@ -115,9 +120,10 @@ img.mirror {
                 white-space:nowrap;
             }
         .img-container {
-            background: #0f0f0f;
-            margin:4px;
+            background-image: radial-gradient(circle at -50% 280%, #fff, #000);
+            margin: 4px;
         }
+
     </style>
     <div class="header layout-rows">
         <div class="layout-rows header-panel">
@@ -167,7 +173,7 @@ img.mirror {
                             </div>
                         <rcmpct-grid cols="30% 70%">
 
-                            <div style="overflow:hidden;text-overflow:ellipsis;grid-column:1/-1">
+                            <div class="bkg" style="overflow:hidden;text-overflow:ellipsis;grid-column:1/-1">
                                 <a style="" ng-if="p.MimeType.indexOf('video/')==0" href="javascript:void(0);" ng-click="doOpenInWindows(p).then()">
                                     {{p.FileName}}
                                 </a>
