@@ -5,9 +5,9 @@ docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
 export user=xdoc
 export user_=nttlong
-export platform_=linux/amd64
+export platform=linux/amd64
 export platform__=linux/arm64/v8
-export platform=linux/amd64,linux/arm64/v8
+export platform_=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
 export os='debian'
@@ -375,7 +375,7 @@ xdoc_py_auto_gui_tagbuild=$(tag $xdoc_py_auto_gui_tag)
 #buildFunc xdoc-py-auto-gui $xdoc_py_auto_gui_tagbuild $top_image $os
 #----- apps--------------
 rm -f $base_py-xdoc && cp -f ./templates/xdoc ./$base_py-xdoc
-xdoc_tag=$xdoc_framework_tag.6
+xdoc_tag=$xdoc_framework_tag.7
 xdoc_tag_build=$(tag $xdoc_tag)
 xdoc_image=$base_py-xdoc:$xdoc_tag_build
 buildFunc $base_py-xdoc $xdoc_tag_build $repositiory/$user/$xdoc_framework_image $os

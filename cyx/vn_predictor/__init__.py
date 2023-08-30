@@ -10,7 +10,10 @@ class VnPredictor:
         # self.data_set_dir = os.path.join(self.working_path, "share-storage", "cy_vn")
         # get_config(self.data_set_dir)
     def get_text(self,content:str)->str:
-        return suggest(content)
+        try:
+            return suggest(content)
+        except:
+            return content
         # return predict_accents(content)
 
 

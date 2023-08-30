@@ -1,5 +1,6 @@
 import datetime
 import threading
+import typing
 
 import pymongo.database
 
@@ -12,7 +13,16 @@ from typing import TypeVar, Generic
 
 T = TypeVar("T")
 
-
+__client__ = {}
+def __create_client__(db)->MongoClient:
+    if isinstance(db, str):
+        if __client__.get(db) is None:
+            __client__[db] = MongoClient(config.db)
+        return __client__[db]
+    else:
+        if __client__.get(db.host) is None:
+            __client__[db.host] = MongoClient(**db.to_dict())
+        return __client__[db.host]
 class DbCollection(Generic[T]):
     def __init__(self, cls, client: MongoClient, db_name: str):
         self.__cls__ = cls
@@ -49,10 +59,7 @@ class DbConnect:
     def __init__(self):
         self.connect_config = config.db
         self.admin_db_name = config.admin_db_name
-        if isinstance(self.connect_config,str):
-            self.client = MongoClient(self.connect_config)
-        else:
-            self.client = MongoClient(**self.connect_config.to_dict())
+        self.client = __create_client__(config.db)
         self.__tracking__ = False
         print("load connect is ok")
 
@@ -102,11 +109,12 @@ class __DbContext__:
 
 class DbClient:
     def __init__(self):
+        global __client__
         self.config = config
-        if isinstance(config.db,str):
-            self.client = MongoClient(config.db)
-        else:
-            self.client = MongoClient(**config.db.to_dict())
+        self.client = __create_client__(config.db)
+
+
+
         print("Create connection")
 
 
@@ -130,3 +138,4 @@ class Base:
 
     async def get_file_async(self, app_name: str, file_id):
         return await cy_docs.get_file_async(self.client, self.db_name(app_name), file_id)
+

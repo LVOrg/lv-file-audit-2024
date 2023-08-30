@@ -32,15 +32,17 @@ db_25:
   tls: false
   authSource:
   tlsCAFile:
-db_:
-  # Host of mongodb
-  host: 192.168.18.36
-  # Port of mongodb
-  port: 27018
-  authSource: lv-docs
-  username: admin-doc
-  password: '123456'
+#db:
+#  # Host of mongodb
+#  host: 192.168.18.36:27018,192.168.18.36:27018
+#  # Port of mongodb
+#  port: 27018
+#  authSource: lv-docs
+#  username: admin-doc
+#  password: '123456'
+#  replicaSet: lv-doc
 db: mongodb://admin-doc:123456@192.168.18.36:27018/lv-docs
+#db:
 #db.authSource: admin
 #  db.host: 172.16.0.83
 #  db.password: Lacviet#123
@@ -121,7 +123,7 @@ ext_office_file: [
                     odt,csv,db,doc,docx,dotx,fodp,fods,fodt,mml,odb,odf,odg,odm,odp,ods,otg,otp,ots,ott,oxt,
                     pptx,psw,sda,sdc,sdd,sdp,sdw,slk,smf,stc ,
                     std,sti,stw,sxc,sxg,sxi,sxm,uof,uop,uos,uot
-                    vsd,vsdx,wdb,wps,wri,xls,xlsx,pem,yaml,ym,toml,json,jsx,ts,tsx,cs,csx,rdl
+                    vsd,vsdx,wdb,wps,wri,xls,xlsx,pem,yaml,ym,toml,json,jsx,ts,tsx,cs,csx,rdl,html
 ]
 libre_office_path: /usr/bin/soffice
 fs_crawler_path: ./fscrawler
