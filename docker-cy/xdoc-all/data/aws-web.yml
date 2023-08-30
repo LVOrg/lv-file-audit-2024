@@ -57,9 +57,9 @@ storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
-  server: 10.0.2.217
+  server: 10.0.2.224
   # Server where share directory locate
-  directory: /var/nfs_share_dir_for_k8s/xdoc-web
+  directory: /share-data/xdoc-web
   # The full path to share-directory at storage server
   # Read below carefully before use share directory for K8S
   # 1- The share directory is belonged no-one use chown comand to do that.
