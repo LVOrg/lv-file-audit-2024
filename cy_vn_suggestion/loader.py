@@ -8,7 +8,13 @@ import numpy as np
 import cy_vn_suggestion.settings
 import zipfile
 import numpy
-from cy_vn_suggestion.settings import Config, __tones__, __remove_gram_1_words, __config__ , __invalid_end__ , __invalid_start_1__
+from cy_vn_suggestion.settings import (
+    Config,
+    __tones__,
+    __remove_gram_1_words,
+    __config__,
+    __invalid_end__,
+    __invalid_start_1__)
 from cy_vn_suggestion import __version__
 
 __working_dir__ = pathlib.Path(__file__).parent.parent.__str__()
@@ -49,7 +55,10 @@ def load_ordered_dict_from_file(file_name):
         ret = np.load(file_handler, allow_pickle=True).item()
         return ret
 
+
 __resource_loader_lock__ = threading.Lock()
+
+
 def __get_config__(dataset_path: str = None) -> cy_vn_suggestion.settings.Config:
     __version__dir_name__ = __version__.replace(".", "_")
     if dataset_path is None:
@@ -122,12 +131,12 @@ def __get_config__(dataset_path: str = None) -> cy_vn_suggestion.settings.Config
                     _l += __config__.tones.get(x + y + z)
                     if len(_l) > 10:
                         _l = []
-    n = datetime.datetime.now()-start_load_at
+    n = datetime.datetime.now() - start_load_at
     print(f"load data from {dataset_path}, in {n.total_seconds()} second(s)")
     return __config__
 
 
-def get_config(reload:bool=False) -> Config:
+def get_config(reload: bool = False) -> Config:
     global __config__
     global __resource_loader_lock__
     if reload:
@@ -137,19 +146,19 @@ def get_config(reload:bool=False) -> Config:
         __get_config__()
 
         total_removed_items_in_grams_1 = 0
-        grams_1_keys = list(__config__.grams_1.keys())
-        for k in grams_1_keys:
-            if len(k) >= 2 and k[-2] in __invalid_end__:
-                if __config__.grams_1.get(k):
-                    del __config__.grams_1[k]
-                    total_removed_items_in_grams_1 += 1
-            if len(k) >= 1 and (k[-1] in __invalid_end__) or (k[0] in __invalid_start_1__):
-                if __config__.grams_1.get(k):
-                    del __config__.grams_1[k]
-                    total_removed_items_in_grams_1 += 1
-        print(f"Total {total_removed_items_in_grams_1} items removed in grams_1")
-        for x in __remove_gram_1_words:
-            if __config__.grams_1.get(x):
-                del __config__.grams_1[x]
+        # grams_1_keys = list(__config__.grams_1.keys())
+        # for k in grams_1_keys:
+        #     if len(k) >= 2 and k[-2] in __invalid_end__:
+        #         if __config__.grams_1.get(k):
+        #             del __config__.grams_1[k]
+        #             total_removed_items_in_grams_1 += 1
+        #     if len(k) >= 1 and (k[-1] in __invalid_end__) or (k[0] in __invalid_start_1__):
+        #         if __config__.grams_1.get(k):
+        #             del __config__.grams_1[k]
+        #             total_removed_items_in_grams_1 += 1
+        # print(f"Total {total_removed_items_in_grams_1} items removed in grams_1")
+        # for x in __remove_gram_1_words:
+        #     if __config__.grams_1.get(x):
+        #         del __config__.grams_1[x]
         __resource_loader_lock__.release()
     return __config__

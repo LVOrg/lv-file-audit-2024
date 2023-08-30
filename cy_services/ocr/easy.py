@@ -10,7 +10,7 @@ from cy_services.datasets.manager import DatasetManagerService
 from cy_services.spelling_corrector.english import SpellCorrectorService
 from cy_services.base_services.base import BaseService
 import cv2
-
+from cy_vn_suggestion import suggest, correct_word
 class BlockText:
     top_left:typing.Tuple[int,int]
     bottom_right: typing.Tuple[int, int]
@@ -21,12 +21,11 @@ class BlockText:
 class ReadTextService(BaseService):
     def __init__(
             self,
-            dataset_manager= cy_kit.singleton(DatasetManagerService),
-            english_spell_correct= cy_kit.singleton(SpellCorrectorService)
+            dataset_manager= cy_kit.singleton(DatasetManagerService)
     ):
         print(self.config)
         self.dataset_manager = dataset_manager
-        self.english_spell_correct = english_spell_correct
+
         self.reader = easyocr.Reader(
             ["vi", "en"], gpu=False,
             model_storage_directory=self.dataset_manager.get_dataset_path("easyocr")
@@ -39,7 +38,10 @@ class ReadTextService(BaseService):
         res = self.reader.readtext(img)
         rects = []
         index =0
+
         for (bbox, text, prob) in res:
+            txt = correct_word(text)
+
             # unpack the bounding box
             (tl, tr, br, bl) = bbox
             tl = (int(tl[0]), int(tl[1]))
@@ -49,7 +51,7 @@ class ReadTextService(BaseService):
             block_text = BlockText()
             block_text.top_left = tl
             block_text.bottom_right = br
-            correct_text = self.english_spell_correct.correct(text)
+            correct_text = txt
             block_text.text = text
             block_text.correct_text = correct_text
             block_text.index = index
