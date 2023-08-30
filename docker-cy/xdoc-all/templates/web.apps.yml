@@ -47,11 +47,7 @@ spec:
             - host_url='{{$api.hostUrl}}'
             - elastic_search.server=$(elastic_search.server)
             - elastic_search.prefix_index=$(elastic_search.prefix_index)
-            - db.host=$(db.host)
-            - db.port=$(db.port)
-            - db.username=$(db.username)
-            - db.authSource=$(db.authSource)
-            - db.password=$(db.password)
+            - db=$(db)
             - admin_db_name=$(admin_db_name)
             - rabbitmq.server=$(rabbitmq.server)
             - rabbitmq.port=$(rabbitmq.port)

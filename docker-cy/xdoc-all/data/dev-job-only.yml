@@ -28,6 +28,8 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
+    cnn: mongodb://admin-doc:123456@192.168.18.36:27018/lv-docs
+      # The clarefication of MongoDB or Mongos Routers
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'
     # File-Service need one database in a certain Mongodb to manage all Tenants.
@@ -39,20 +41,6 @@ config:
     # name by value of 'admin_db_name' in a certain MongoDB. So,
     #wrong value of admin_db_name that mean new system was created.
     #This is required value even if File-Server or File-API just serve for only one Tenant.
-    authSource: 'hps-file-test'
-    # As usual, when File-API or File-Service work with MongodDB.
-    # MongoDB will accquire valid authentication.
-    # Validation MongoDB authentication need a tuple of authSource, host, username and password
-    host: '192.168.18.36'
-    # host to MongoDB or Mongos Routes.
-    # For Mongos Router the host is a list of server name or IP separated by coma
-    password: ''
-    # If thee's MongoDb or Mongos Routers does not require authenticate,
-    # set this value is blank in double quote (empty text is '')
-    port: '27018'
-    # Port of MongoDB. In mode Mongos Routers this value is not require
-    username: ''
-    # The rule of password
   elastic_search:
   # clarification of ElasticSearch
     prefix_index: 'lv-codx'
@@ -106,5 +94,5 @@ fileJob:
   replicas: 1
   repository: nttlong/py310-xdoc
   pullPolicy: IfNotPresent
-  tag: amd.cpu.9.26.4
+  tag: amd.cpu.9.30.7
   mountPath: /app/share-storage

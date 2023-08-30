@@ -28,6 +28,7 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
+    cnn: mongodb://admin-doc:123456@192.168.18.36:27018/lv-docs
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'
     # File-Service need one database in a certain Mongodb to manage all Tenants.
@@ -115,7 +116,7 @@ webApi:
   replicas: 2
   # number of replicate, depend on numof K8S workers
   repository:  nttlong/py310-xdoc
-  tag: amd.cpu.9.26.4
+  tag: amd.cpu.9.30.7
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image

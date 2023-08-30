@@ -20,11 +20,7 @@ metadata:
   namespace: {{$fileJob.namespace}}
 data:
   admin_db_name: {{ $db.admin_db_name }}
-  db.authSource: '{{ $db.authSource }}'
-  db.host: '{{ $db.host }}'
-  db.password: '{{ $db.password }}'
-  db.port: '{{ $db.port }}'
-  db.username: '{{ $db.username }}'
+  db: {{$db.cnn}}
   elastic_search.prefix_index: '{{$es.prefix_index}}'
   elastic_search.server: '{{ $es.server }}'
   rabbitmq.port: '{{ $rb.port }}'

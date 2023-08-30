@@ -27,33 +27,11 @@
 #    ├── long.horn.namespace.yml             # Longhorn namespace.Till now, Longhorn is unofficially volume (pilot test)
 #    └── long.horn.yml                       # Longhorn claim
 config:
-  db_cnn: mongodb://admin:Lacviet#123@172.16.0.83:27017/admin
   db:
+    cnn: mongodb://admin:Lacviet#123@172.16.0.83:27017/admin
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'
-    # File-Service need one database in a certain Mongodb to manage all Tenants.
-    # 'admin_db_name' is a crucial database.
-    # Wrong 'admin_db_value' will cause chain of crash.
-    # When File-Service or File-API start,
-    # it will detect if 'admin-db-name' in a certain Mongodb is existing.
-    # if 'admin_db_name' was not found File-Service or File-API will automatically create new database
-    # name by value of 'admin_db_name' in a certain MongoDB. So,
-    #wrong value of admin_db_name that mean new system was created.
-    #This is required value even if File-Server or File-API just serve for only one Tenant.
-    authSource: 'admin'
-    # As usual, when File-API or File-Service work with MongodDB.
-    # MongoDB will accquire valid authentication.
-    # Validation MongoDB authentication need a tuple of authSource, host, username and password
-    host: '172.16.0.83'
-    # host to MongoDB or Mongos Routes.
-    # For Mongos Router the host is a list of server name or IP separated by coma
-    password: 'Lacviet#123'
-    # If thee's MongoDb or Mongos Routers does not require authenticate,
-    # set this value is blank in double quote (empty text is '')
-    port: '27017'
-    # Port of MongoDB. In mode Mongos Routers this value is not require
-    username: 'admin'
-    # The rule of password
+
   elastic_search:
   # clarification of ElasticSearch
     prefix_index: 'qtsc-codx'
@@ -139,5 +117,5 @@ fileJobUnused:
   replicas: 2
   repository: nttlong/py310-xdoc
   pullPolicy: IfNotPresent
-  tag: amd.cpu.9.25.4
+  tag: amd.cpu.9.30.7
   mountPath: /app/share-storage

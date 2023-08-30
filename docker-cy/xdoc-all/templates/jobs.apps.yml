@@ -54,18 +54,13 @@ spec:
             - /app/cy_consumers/{{$value.endpoint}}
             - elastic_search.server=$(elastic_search.server)
             - elastic_search.prefix_index=$(elastic_search.prefix_index)
-            - db.host=$(db.host)
-            - db.port=$(db.port)
+            - db=$(db)
             - admin_db_name=$(admin_db_name)
-            - db.username=$(db.username)
-            - db.password=$(db.password)
-            - db.authSource=$(db.authSource)
             - temp_directory=./brokers/tmp-files
             - rabbitmq.server=$(rabbitmq.server)
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
           image: {{ $fileJob.repository  }}:{{$fileJob.tag}}
-
           envFrom:
             - configMapRef:
                 name: {{$fileJob.configMapName}}
