@@ -23,7 +23,7 @@ def calculator_matrix(matrix: numpy.ndarray, matrix_row_size: typing.List[int]):
             if max < number1GRam:
                 max = number1GRam
                 sure = possible
-        ret +=[sure]
+        ret +=[SuggestionElement(sure)]
         return ret
     else:
         for i1 in range(1, len_of_words):

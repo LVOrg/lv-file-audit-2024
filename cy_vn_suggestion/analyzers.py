@@ -1,6 +1,6 @@
 from cy_vn_suggestion.utils import check_is_word
 import phunspell
-
+from cy_vn_suggestion.settings import __full_accents__
 vn_spell = phunspell.Phunspell("vi_VN")
 __tones__ = {
     "iay": ["iẩy", "iâý", "iẫy", "iay", "iấy", "iày", "ìay", "iầy", "iáy", "iãy", "iạy", "iây", "iảy"],
@@ -100,17 +100,20 @@ import re
 __special_charators__ = "~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./\t\n"
 
 
-def analyzer_words(text: str, step=0, is_previous_special=False):
+def analyzer_words(text: str, step=0, is_previous_special:bool= False, separate_sticky_words:bool=True):
     ret = []
     len_of_text = len(text)
     for i in range(0, len_of_text):
         if text[i] in __special_charators__:
+            if not separate_sticky_words:
+                return [[text,text,None,None,None,None]], None
             f = i + 1
-            while f < len_of_text and text[f] in __special_charators__: f += 1
+            while f < len_of_text and text[f] in __special_charators__ : f += 1
 
             if f + 1 < len_of_text:
                 remain = text[f:]
                 special = text[i:f]
+
                 next_ret, next_remain = analyzer_words(remain, step + 1, True)
                 # if step==0:
 
@@ -128,9 +131,19 @@ def analyzer_words(text: str, step=0, is_previous_special=False):
             if i + j <= len_of_text:
                 vowel = text[i:i + j]
                 if __reverse_tone__.get(vowel.lower()):
-
+                    if not separate_sticky_words:
+                        if text[i-j] in __special_charators__:
+                            return [[text, text, None, None, None, None]], None
+                        len_of_remain = len(text[i + j:])
+                        if len_of_remain>2:
+                            return [[text,text,None,None,None,None]], None
+                        for i_ch in range(len_of_remain):
+                            if text[i + j:][i_ch] in __full_accents__:
+                                return [[text,text,None,None,None,None]], None
+                            if i_ch>0 and text[i + j:][i_ch-1]==text[i + j:][i_ch]:
+                                return [[text,text,None,None,None,None]], None
+                        return [[text, text[0:i], vowel, text[i + j:], None, 0]], None
                     remain = text[i + j:]
-
                     next_ret, next_remain = analyzer_words(remain, step + 1)
 
                     if step == 0 and i > 3:
@@ -146,6 +159,8 @@ def analyzer_words(text: str, step=0, is_previous_special=False):
                         ret += next_ret
 
                     return ret, text[0:i]
+                elif not  separate_sticky_words and text[i-j] in __special_charators__:
+                    return [[text, text, None, None, None, None]], None
 
             j -= 1
 
