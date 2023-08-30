@@ -1,3 +1,4 @@
+import gc
 import typing
 
 from cy_vn_suggestion.analyzers import generate_variants, analyzer_words
@@ -6,7 +7,7 @@ from cy_vn_suggestion.gram_calculators import calculator_matrix
 
 
 def suggest(words: str,
-            skip_if_in_langs: typing.Optional[typing.List[str]] = None,
+            skip_if_in_langs: typing.Optional[typing.List[str]] = ["en_US"],
             correct_spell: bool = True,
             separate_sticky_words: bool = False):
     if words is None: return ""
@@ -17,6 +18,11 @@ def suggest(words: str,
                                          separate_sticky_words=separate_sticky_words)
     ret_mat = calculator_matrix(mat, lens_mat)
     ret = ""
+
     for x in ret_mat:
         ret += " " + x.OW
+    del mat
+    del lens_mat
+    gc.collect()
     return ret.lstrip(' ')
+

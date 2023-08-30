@@ -26,7 +26,7 @@ __lock__ = threading.Lock()
 
 
 def is_in_langs(word: str, lans: typing.Optional[typing.List[str]] = None):
-    if lans is None or  lans.__len__() ==0: return False
+    if lans is None or  len(lans) ==0: return False
 
     global __langs__detections__
     if __langs__detections__ is None:

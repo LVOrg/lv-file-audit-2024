@@ -72,22 +72,22 @@ def generate_suggestions(txt: str,
     index_of_word = 0
     for x in words:
         lx = x.lower()
-        if detect_langs and is_in_langs(x, detect_langs):
+        if detect_langs and is_in_langs(x, detect_langs) and len(x)>4:
             ret += [[SuggestionElement(x)]]
             ret_len += [1]
         else:
             analyzer_list = analyzer_words(lx,separate_sticky_words=separate_sticky_words)[0]
             if analyzer_list is None and correct_spell:
                 sub_list = [SuggestionElement(suggest_word) for suggest_word in vn_spell.suggest(x)]
-                if sub_list.__len__() > 0:
+                if len(sub_list) > 0:
                     ret += [sub_list]
                     ret_len += [len(sub_list)]
-            elif analyzer_list.__len__() == 1:
+            elif len(analyzer_list) == 1:
                 sub_list = []
                 _, pre_fix, vowel, end_fix, _, _ = analyzer_list[0]
                 end_fix = end_fix or ""
                 sub_list = __gen__(pre_fix, vowel, end_fix)
-                if sub_list.__len__() > 0:
+                if len(sub_list) > 0:
                     ret += [sub_list]
                     ret_len += [len(sub_list)]
                     if cols < len(sub_list):
@@ -95,12 +95,12 @@ def generate_suggestions(txt: str,
                 elif correct_spell:
                     pre_suggest_word = pre_fix + vowel + end_fix
                     pre_sub_list = [suggest_word for suggest_word in vn_spell.suggest(pre_suggest_word)]
-                    if pre_sub_list.__len__() > 0:
+                    if len(pre_sub_list) > 0:
                         sub_list = []
                         for wd in pre_sub_list:
 
                             pre_analyzer_list = analyzer_words(wd,separate_sticky_words=separate_sticky_words)[0]
-                            if pre_analyzer_list.__len__() == 1:
+                            if len(pre_analyzer_list) == 1:
                                 _, pre_first, pre_vowel, pre_end, _, _ = pre_analyzer_list[0]
                                 sub_list += __gen__(pre_first, pre_vowel, pre_end)
 
@@ -113,6 +113,7 @@ def generate_suggestions(txt: str,
                         ret_len += [1]
                 else:
                     sub_list = [SuggestionElement(lx)]
+                    ret += [sub_list]
                     ret_len += [len(sub_list)]
                     if cols < len(sub_list):
                         cols = len(sub_list)
@@ -121,12 +122,12 @@ def generate_suggestions(txt: str,
                 for suggest_words in generate_variants_from_analyzer_list(analyzer_list):
                     has_found = True
                     sub_list = [SuggestionElement(suggest_word) for suggest_word in suggest_words]
-                    if sub_list.__len__() > 0:
+                    if len(sub_list) > 0:
                         ret += [sub_list]
                         ret_len += [len(sub_list)]
                 if not has_found:
                     sub_list = [SuggestionElement(suggest_word) for suggest_word in vn_spell.suggest(x)]
-                    if sub_list.__len__() > 0:
+                    if len(sub_list) > 0:
                         ret += [sub_list]
                         ret_len += [len(sub_list)]
                     else:
