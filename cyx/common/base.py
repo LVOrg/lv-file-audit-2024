@@ -10,14 +10,14 @@ from cyx.common import config
 from cy_docs import get_doc
 from pymongo.mongo_client import MongoClient
 from typing import TypeVar, Generic
-
+import urllib
 T = TypeVar("T")
 
 __client__ = {}
 def __create_client__(db)->MongoClient:
     if isinstance(db, str):
         if __client__.get(db) is None:
-            __client__[db] = MongoClient(config.db)
+            __client__[db] = MongoClient(urllib.parse.unquote(config.db))
         return __client__[db]
     else:
         if __client__.get(db.host) is None:

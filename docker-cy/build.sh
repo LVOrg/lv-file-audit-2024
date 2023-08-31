@@ -375,7 +375,7 @@ xdoc_py_auto_gui_tagbuild=$(tag $xdoc_py_auto_gui_tag)
 #buildFunc xdoc-py-auto-gui $xdoc_py_auto_gui_tagbuild $top_image $os
 #----- apps--------------
 rm -f $base_py-xdoc && cp -f ./templates/xdoc ./$base_py-xdoc
-xdoc_tag=$xdoc_framework_tag.7
+xdoc_tag=$xdoc_framework_tag.10
 xdoc_tag_build=$(tag $xdoc_tag)
 xdoc_image=$base_py-xdoc:$xdoc_tag_build
 buildFunc $base_py-xdoc $xdoc_tag_build $repositiory/$user/$xdoc_framework_image $os
@@ -411,6 +411,7 @@ echo "1-install:
 echo "---------------------------------------------------"
 echo "docker run -p 8014:8014 $repositiory/$user/$base_py-gradio:$gradio_tag python3 run_gradio.py"
 echo "------------deep learning framework----------------"
+echo "docker run $repositiory/$user/$detectron2_image"
 echo "docker run $repositiory/$user/$detectron2_image"
 echo "docker run $repositiory/$user/$huggingface_image"
 echo "docker run $repositiory/$user/$deepdoctection_image"

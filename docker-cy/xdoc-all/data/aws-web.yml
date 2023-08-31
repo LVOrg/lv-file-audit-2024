@@ -28,7 +28,8 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
-    cnn: mongodb://10.0.2.140:27017,10.0.2.224:27017,10.0.2.65:27017/?replicaSet=rs0&readPreference=secondary
+    cnn: mongodb%3A%2F%2F10.0.2.140%3A27017%2C10.0.2.224%3A27017%2C10.0.2.65%3A27017%2F%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
+    admin_db_name: 'hps-file-test'
   # The clarefication of MongoDB or Mongos Routers
 
   elastic_search:
@@ -92,8 +93,8 @@ webApi:
   configMapName: xdoc-config
   replicas: 2
   # number of replicate, depend on numof K8S workers
-  repository:  nttlong/py310-xdoc
-  tag: amd.cpu.9.30.7
+  repository:  docker.lacviet.vn/xdoc/py310-xdoc
+  tag: amd.cpu.9.30.9
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image

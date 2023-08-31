@@ -11,11 +11,11 @@ import fastapi
 import datetime
 import cy_kit
 from cyx.vn_predictor import VnPredictor
-vn_pre = cy_kit.singleton(VnPredictor)
-txt_non_accent = "Kiem tra he thong Tieng Viet khong dau"
-txt_accent  = vn_pre.get_text(txt_non_accent)
-print(txt_non_accent)
-print(txt_accent)
+# vn_pre = cy_kit.singleton(VnPredictor)
+# txt_non_accent = "Kiem tra he thong Tieng Viet khong dau"
+# txt_accent  = vn_pre.get_text(txt_non_accent)
+# print(txt_non_accent)
+# print(txt_accent)
 import cy_web
 from cyx.common.msg import MessageService
 from cyx.common.brokers import Broker

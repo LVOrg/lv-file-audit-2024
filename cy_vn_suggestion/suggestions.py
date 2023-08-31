@@ -1,7 +1,11 @@
 import gc
 import typing
-
-from cy_vn_suggestion.analyzers import generate_variants, analyzer_words, __reverse_tone__
+from cy_vn_suggestion import utils
+from cy_vn_suggestion.analyzers import (
+    generate_variants,
+    analyzer_words,
+    __reverse_tone__
+)
 from cy_vn_suggestion.generators import (
     covert_to_suggestion_ele,
     generate_suggestions, SuggestionElement
@@ -60,14 +64,15 @@ def generate_from_vn_spell(words):
                 lst = [SuggestionElement(w) for w in tone]
             else:
                 lst = [SuggestionElement(x)]
-        elif len_x < 8 and not vn_spell.lookup(x):
+        elif len_x <=4  and not vn_spell.lookup(x):
             lst = [SuggestionElement(w) for w in vn_spell.suggest(x) if __compare_word__(x, w)]
             if vn_spell.lookup(x):
                 lst += [SuggestionElement(x)]
-        elif len_x>=8 and not en_spell.lookup(x):
+        # elif len_x>=8 and not en_spell.lookup(x):
+        elif not en_spell.lookup(x):
             sub_list,sub_lens = generate_suggestions(x,separate_sticky_words=True)
             for sl in sub_list:
-                lst+=[sl]
+                ret+=[sl]
                 ret_lens+=[len(sl)]
         lst += [SuggestionElement(x)]
         ret += [lst]

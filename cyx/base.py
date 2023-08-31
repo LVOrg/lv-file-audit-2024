@@ -2,7 +2,7 @@ import logging
 import pathlib
 import os
 import cy_kit
-
+__client__ = {}
 
 class Config:
     def __init__(self):
@@ -107,8 +107,16 @@ class DbConnect:
         if app_name == 'admin':
             db_name = self.admin_db_name
         return DB(client=self.client, db_name=db_name)
-
-
+import urllib
+def __create_client__(db)->MongoClient:
+    if isinstance(db, str):
+        if __client__.get(db) is None:
+            __client__[db] = MongoClient(urllib.parse.unquote(config.db))
+        return __client__[db]
+    else:
+        if __client__.get(db.host) is None:
+            __client__[db.host] = MongoClient(**db.to_dict())
+        return __client__[db.host]
 class __DbContext__:
     def __init__(self, db_name: str, client: MongoClient):
         self.client = client
@@ -125,7 +133,7 @@ class __DbContext__:
 class DbClient:
     def __init__(self):
         self.config = config
-        self.client = MongoClient(**config.db.to_dict())
+        self.client = __create_client__(config.db)
         print("Create connection")
 
 
