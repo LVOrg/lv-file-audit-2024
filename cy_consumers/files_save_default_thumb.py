@@ -44,36 +44,43 @@ from cyx.common.share_storage import ShareStorageService
 from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
 from cy_xdoc.services.files import FileServices
 from cy_xdoc.services.search_engine import SearchEngine
-
+from cyx.loggers import LoggerService
 
 @broker(message=cyx.common.msg.MSG_FILE_SAVE_DEFAULT_THUMB)
 class Process:
-    def __init__(self, search_engine: SearchEngine = cy_kit.singleton(SearchEngine),
+    def __init__(self,
+                 search_engine: SearchEngine = cy_kit.singleton(SearchEngine),
                  file_storage_services=cy_kit.singleton(MongoDbFileService),
-                 file_services=cy_kit.singleton(FileServices)):
+                 file_services=cy_kit.singleton(FileServices),
+                 logger = cy_kit.singleton(LoggerService)
+                 ):
         self.search_engine = search_engine
         self.file_storage_services = file_storage_services
         self.file_services = file_services
+        self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        full_file_path = msg_info.Data['processing_file']
-        fs = self.file_storage_services.store_file(
-            app_name=msg_info.AppName,
-            source_file=full_file_path,
-            rel_file_store_path=f"thumb/{msg_info.Data['FullFileNameLower']}.webp",
-        )
+        try:
+            full_file_path = msg_info.Data['processing_file']
+            fs = self.file_storage_services.store_file(
+                app_name=msg_info.AppName,
+                source_file=full_file_path,
+                rel_file_store_path=f"thumb/{msg_info.Data['FullFileNameLower']}.webp",
+            )
 
-        self.file_services.update_main_thumb_id(
-            app_name=msg_info.AppName,
-            upload_id=msg_info.Data["_id"],
-            main_thumb_id=fs.get_id()
-        )
+            self.file_services.update_main_thumb_id(
+                app_name=msg_info.AppName,
+                upload_id=msg_info.Data["_id"],
+                main_thumb_id=fs.get_id()
+            )
 
-        self.search_engine.update_data_field(
-            app_name=msg_info.AppName,
-            id=msg_info.Data["_id"],
-            field_path="data_item.HasThumb",
-            field_value=True
-        )
-        msg.delete(msg_info)
-        print(f"update {full_file_path} to thumb of file")
+            self.search_engine.update_data_field(
+                app_name=msg_info.AppName,
+                id=msg_info.Data["_id"],
+                field_path="data_item.HasThumb",
+                field_value=True
+            )
+            msg.delete(msg_info)
+            print(f"update {full_file_path} to thumb of file")
+        except Exception as e:
+            self.logger.error(e)

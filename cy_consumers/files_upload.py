@@ -38,6 +38,7 @@ import pathlib
 import sys
 import threading
 import time
+
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
 import cy_kit
@@ -46,6 +47,8 @@ from cyx.common.msg import MessageService, MessageInfo
 from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.common.brokers import Broker
 from cyx.common import config
+from cyx.common.msg import broker
+from cyx.common.share_storage import ShareStorageService
 import json
 
 log_dir = os.path.join(
@@ -54,10 +57,10 @@ log_dir = os.path.join(
 
 )
 print(f"logs to {log_dir}")
-logs = cy_kit.create_logs(
-    log_dir=log_dir,
-    name=pathlib.Path(__file__).stem
-)
+# logs = cy_kit.create_logs(
+#     log_dir=log_dir,
+#     name=pathlib.Path(__file__).stem
+# )
 if isinstance(config.get('rabbitmq'), dict):
     """
     If config of app is using Rabbitmq, thou config runtime  MessageService to RabitmqMsg
@@ -83,49 +86,48 @@ from cyx.common.temp_file import TempFiles
 temp_file = cy_kit.singleton(TempFiles)
 
 
-# def on_receive_msg(msg_info: MessageInfo):
-
-
 def get_scree():
-    messge_to_screen  =f"\n" \
-                        f"MSG_FILE_UPLOAD\n" \
-                        f"├── MSG_FILE_GENERATE_IMAGE_FROM_VIDEO\n" \
-                        f"│   ├── MSG_FILE_GENERATE_PDF_FROM_IMAGE\n" \
-                        f"│   │   └── MSG_FILE_OCR_CONTENT\n" \
-                        f"│   │       └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE\n" \
-                        f"│   └── MSG_FILE_GENERATE_THUMBS\n" \
-                        f"│       ├── MSG_FILE_SAVE_DEFAULT_THUMB\n" \
-                        f"│       └── MSG_FILE_SAVE_CUSTOM_THUMB\n" \
-                        f"├── MSG_FILE_EXTRACT_TEXT_FROM_VIDEO\n" \
-                        f"├── MSG_FILE_GENERATE_IMAGE_FROM_OFFICE\n" \
-                        f"│   └── MSG_FILE_GENERATE_THUMBS\n" \
-                        f"│       ├── MSG_FILE_SAVE_DEFAULT_THUMB\n" \
-                        f"│       └── MSG_FILE_SAVE_CUSTOM_THUMB\n" \
-                        f"├── MSG_FILE_GENERATE_IMAGE_FROM_PDF\n" \
-                        f"│   └── MSG_FILE_OCR_CONTENT\n" \
-                        f"│       └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE\n" \
-                        f"├── MSG_FILE_GENERATE_PDF_FROM_IMAGE\n" \
-                        f"│   └── MSG_FILE_OCR_CONTENT\n" \
-                        f"│       └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE\n" \
-                        f"├── MSG_FILE_GENERATE_THUMBS\n" \
-                        f"│   ├── MSG_FILE_SAVE_DEFAULT_THUMB\n" \
-                        f"│   └── MSG_FILE_SAVE_CUSTOM_THUMB\n" \
-                        f"└── MSG_FILE_OCR_CONTENT\n" \
-                        f"    └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE"
+    messge_to_screen = f"\n" \
+                       f"MSG_FILE_UPLOAD\n" \
+                       f"├── MSG_FILE_GENERATE_IMAGE_FROM_VIDEO\n" \
+                       f"│   ├── MSG_FILE_GENERATE_PDF_FROM_IMAGE\n" \
+                       f"│   │   └── MSG_FILE_OCR_CONTENT\n" \
+                       f"│   │       └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE\n" \
+                       f"│   └── MSG_FILE_GENERATE_THUMBS\n" \
+                       f"│       ├── MSG_FILE_SAVE_DEFAULT_THUMB\n" \
+                       f"│       └── MSG_FILE_SAVE_CUSTOM_THUMB\n" \
+                       f"├── MSG_FILE_EXTRACT_TEXT_FROM_VIDEO\n" \
+                       f"├── MSG_FILE_GENERATE_IMAGE_FROM_OFFICE\n" \
+                       f"│   └── MSG_FILE_GENERATE_THUMBS\n" \
+                       f"│       ├── MSG_FILE_SAVE_DEFAULT_THUMB\n" \
+                       f"│       └── MSG_FILE_SAVE_CUSTOM_THUMB\n" \
+                       f"├── MSG_FILE_GENERATE_IMAGE_FROM_PDF\n" \
+                       f"│   └── MSG_FILE_OCR_CONTENT\n" \
+                       f"│       └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE\n" \
+                       f"├── MSG_FILE_GENERATE_PDF_FROM_IMAGE\n" \
+                       f"│   └── MSG_FILE_OCR_CONTENT\n" \
+                       f"│       └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE\n" \
+                       f"├── MSG_FILE_GENERATE_THUMBS\n" \
+                       f"│   ├── MSG_FILE_SAVE_DEFAULT_THUMB\n" \
+                       f"│   └── MSG_FILE_SAVE_CUSTOM_THUMB\n" \
+                       f"└── MSG_FILE_OCR_CONTENT\n" \
+                       f"    └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE"
     return messge_to_screen
 
-print(get_scree())
-# msg.consume(
-#     msg_type=cyx.common.msg.MSG_FILE_UPLOAD,
-#     handler=on_receive_msg
-# )
 
-from cyx.common.msg import broker
-from cyx.common.share_storage import ShareStorageService
+print(get_scree())
+
+from cyx.loggers import LoggerService
+
+
 @broker(message=cyx.common.msg.MSG_FILE_UPLOAD)
 class Process:
-    def __init__(self,shared_storage_service = cy_kit.singleton(ShareStorageService)):
-        print("consumer init")
+    def __init__(self,
+                 shared_storage_service=cy_kit.singleton(ShareStorageService),
+                 logger=cy_kit.singleton(LoggerService)
+                 ):
+        self.logger = logger
+        self.logger.info(f"consumer {cyx.common.msg.MSG_FILE_UPLOAD} init")
         self.temp_file = temp_file
 
         self.output_dir = shared_storage_service.get_temp_dir(self.__class__)
@@ -136,6 +138,7 @@ class Process:
             file_ext=msg_info.Data["FileExt"],
             upload_id=msg_info.Data["_id"]
         )
+        self.logger.info(f"msg={self.message_type}, upload_file={full_file_path}")
         """
         Get file from message
         """
@@ -149,6 +152,7 @@ class Process:
             Eliminate message never occur again
             Loại bỏ tin nhắn không bao giờ xảy ra nữa
             """
+            self.logger.info(f"msg={self.message_type}, upload_file={full_file_path},file was not found")
             return
 
         print(f"{full_file_path} was receive")
@@ -161,11 +165,11 @@ class Process:
 
             msg.delete(msg_info)
             print(f"{full_file_path} was not found")
-            logs.info(f"{full_file_path} was not found")
+            self.logger.info(f"{full_file_path} was not found")
             return
 
         print(f"Receive file {full_file_path}")
-        logs.info(f"Receive file {full_file_path}")
+        self.logger.info(f"Receive file {full_file_path}")
         try:
 
             if not isinstance(msg_info, MessageInfo):
@@ -188,7 +192,7 @@ class Process:
                 data=msg_info.Data
             )
             print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
-            logs.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
+            self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
             if file_ext.lower() == "pdf":
                 msg.emit(
                     app_name=msg_info.AppName,
@@ -222,7 +226,7 @@ class Process:
                     data=msg_info.Data
                 )
                 print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
-                logs.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
+                self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
 
                 msg_info.Data["processing_file"] = full_file_path
                 msg.emit(
@@ -233,7 +237,7 @@ class Process:
                 """
                 Human-readable-content file could be used for Search Content Engine
                 """
-                logs.info(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n{full_file_path}")
+                self.logger.info(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n{full_file_path}")
                 print(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n{full_file_path}")
             if mime_type.startswith('video/'):
                 """
@@ -299,5 +303,4 @@ class Process:
             print(f"{full_file_path}\n is ok")
         except Exception as e:
             msg.delete(msg_info)
-            logs.exception(e)
-            print(e)
+            self.logger.exception(e)

@@ -53,7 +53,7 @@ class EasyOCRService:
         )
         print(f"EasyOCR will locate dataset at ")
         self.use_gpu = False
-        self.langs = easyocr_get_langs_suport()
+        self.langs = ["vi","en"]
         self.reader = easyocr.Reader(
             self.langs, gpu=self.use_gpu,
             model_storage_directory=self.__data_set_path__
@@ -88,3 +88,5 @@ class EasyOCRService:
 
             ret = " ".join(_r)
             return ret + "\n" + ret_1
+        else:
+            return  ""

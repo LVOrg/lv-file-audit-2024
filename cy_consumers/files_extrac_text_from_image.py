@@ -32,76 +32,82 @@ else:
         implement_class=Broker
     )
 msg = cy_kit.singleton(MessageService)
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.__str__(),
-    "logs"
-
-)
-logs = cy_kit.create_logs(
-    log_dir=log_dir,
-    name=pathlib.Path(__file__).stem
-)
 
 
-def on_receive_msg(msg_info: MessageInfo):
-    from cy_xdoc.services.search_engine import SearchEngine
-    from cy_xdoc.services.files import FileServices
-    easy_service = cy_kit.singleton(EasyOCRService)
-    file_services = cy_kit.singleton(FileServices)
-    search_engine = cy_kit.singleton(SearchEngine)
-    full_file = msg_info.Data.get("processing_file")
-    if full_file is None:
-        msg.delete(msg_info)
-        return
-    if not os.path.isfile(full_file):
-        # full_file = temp_file.get_path(
-        #     app_name=msg_info.AppName,
-        #     file_ext=msg_info.Data["FileExt"],
-        #     upload_id=msg_info.Data["_id"]
-        # )
-        if full_file is None:
-            msg.delete(msg_info)
-            print(f"Generate pdf from {full_file}:\nfile was not found")
-            return
-    print(f"Generate image form {full_file}")
-    pdf_file = None
-    try:
 
-        upload_item = file_services.get_upload_register(
-            app_name=msg_info.AppName,
-            upload_id=msg_info.Data["_id"]
-        )
-        if upload_item:
+
+
+
+
+# msg.consume(
+#     msg_type=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
+#     handler=on_receive_msg
+# )
+from cyx.common.msg import broker
+from cy_xdoc.services.search_engine import SearchEngine
+from cy_xdoc.services.files import FileServices
+from cyx.loggers import LoggerService
+@broker(message=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE)
+class Process:
+    def __init__(self,
+                 easy_service=cy_kit.singleton(EasyOCRService),
+                 file_services = cy_kit.singleton(FileServices),
+                 search_engine = cy_kit.singleton(SearchEngine),
+                 logger = cy_kit.singleton(LoggerService)
+    ):
+        self.easy_service = easy_service
+        self.file_services = file_services
+        self.search_engine = search_engine
+        self.logger = logger
+
+    def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        try:
+            full_file = msg_info.Data.get("processing_file")
+            if full_file is None:
+                msg.delete(msg_info)
+                return
             if not os.path.isfile(full_file):
-                msg.delete(msg_info)
-                return
-            content = easy_service.get_text(image_file=full_file)
-            if content == "":
-                msg.delete(msg_info)
-                return
+                # full_file = temp_file.get_path(
+                #     app_name=msg_info.AppName,
+                #     file_ext=msg_info.Data["FileExt"],
+                #     upload_id=msg_info.Data["_id"]
+                # )
+                if full_file is None:
+                    msg.delete(msg_info)
+                    print(f"Generate pdf from {full_file}:\nfile was not found")
+                    return
+            print(f"Generate image form {full_file}")
+            pdf_file = None
             try:
-                search_engine.update_content(
+
+                upload_item = self.file_services.get_upload_register(
                     app_name=msg_info.AppName,
-                    id=msg_info.Data["_id"],
-                    content=content,
-                    data_item=upload_item
+                    upload_id=msg_info.Data["_id"]
                 )
-            except Exception as e:
-                print(f"{__file__} search_engine.update_content is error")
-                print(e)
-            print(f"Generate pdf from {full_file}:\nPDF file is {pdf_file}")
-            logs.info(f"Generate pdf from {full_file}:\nPDF file is {pdf_file}")
-            msg.delete(msg_info)
+                if upload_item:
+                    if not os.path.isfile(full_file):
+                        msg.delete(msg_info)
+                        return
+                    content = self.easy_service.get_text(image_file=full_file)
+                    if content == "":
+                        msg.delete(msg_info)
+                        return
+                    try:
+                        self.search_engine.update_content(
+                            app_name=msg_info.AppName,
+                            id=msg_info.Data["_id"],
+                            content=content,
+                            data_item=upload_item
+                        )
+                    except Exception as e:
+                        self.logger.error(e)
+                        return
+                    self.logger.info(f"Generate pdf from {full_file}:\nPDF file is {pdf_file}")
+                    msg.delete(msg_info)
 
-    except img2pdf.AlphaChannelError as e:
-        logs.exception(e)
-        msg.delete(msg_info)
-        print(f"Generate pdf from {full_file} is error:\n")
-        print(e)
-        return
-
-
-msg.consume(
-    msg_type=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
-    handler=on_receive_msg
-)
+            except img2pdf.AlphaChannelError as e:
+                self.logger.error(e)
+                msg.delete(msg_info)
+                return
+        except Exception as e:
+            self.logger.error(e)

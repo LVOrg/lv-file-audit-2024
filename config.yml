@@ -147,7 +147,7 @@ rabbitmq__:
 rabbitmq:
   port: 31674
   server: 172.16.7.91
-  msg: v2
+  msg: v3
 broker:
   is_use: true
   servers: 172.16.7.91:30992
