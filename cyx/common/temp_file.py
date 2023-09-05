@@ -121,6 +121,7 @@ class TempFiles:
         :return:
         """
         full_path = self.get_path(app_name, upload_id, file_ext)
+        print(f"Save file to {full_path}")
         if not os.path.isfile(full_path):
             with open(full_path, "wb") as f:
                 f.write(content)
