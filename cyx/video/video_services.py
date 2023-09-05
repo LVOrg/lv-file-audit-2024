@@ -59,24 +59,27 @@ class VideoService:
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir, exist_ok=True)
         output_file = os.path.join(output_dir, f"{file_name}.mp3")
-        cap = cv2.VideoCapture(file_path)
-
-        audio_data = np.empty(shape=(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), 2), dtype=np.float32)
-        count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        for i in range(count):
-            ret, frame = cap.read()
-            if not ret:
-                break
-            audio_data[i] = frame[:, :, 1]
-            printProgressBar(
-                iteration=i,
-                prefix="Process",
-                length=50,
-                total = count
-            )
-
-        cap.release()
-
-        audio = pydub.AudioSegment.from_array(audio_data, format='float32')
-        audio.export(output_file, format='mp3')
+        import moviepy.editor as mp
+        clip = mp.VideoFileClip(file_path)
+        clip.audio.write_audiofile(output_file)
+        # cap = cv2.VideoCapture(file_path)
+        #
+        # audio_data = np.empty(shape=(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), 2), dtype=np.float32)
+        # count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        # for i in range(count):
+        #     ret, frame = cap.read()
+        #     if not ret:
+        #         break
+        #     audio_data[i] = frame[:, :, 1]
+        #     printProgressBar(
+        #         iteration=i,
+        #         prefix="Process",
+        #         length=50,
+        #         total = count
+        #     )
+        #
+        # cap.release()
+        #
+        # audio = pydub.AudioSegment.from_array(audio_data, format='float32')
+        # audio.export(output_file, format='mp3')
         return output_file

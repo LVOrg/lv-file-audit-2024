@@ -22,7 +22,8 @@ def run(img):
     # img_svc = cy_kit.singleton(cy_services.ocr.easy.ReadTextService)
     video_svc = cy_kit.singleton(VideoService)
     info = video_svc.get_info(img.orig_name)
-    return info,info.__dict__
+    audio_file = video_svc.extract_audio(img.orig_name,"/home/vmadmin/python/cy-py/share-storage/test")
+    return info,info.__dict__, audio_file
     # r = img_svc.read_with_block(img)
     # img_svc.draw_result(r,img)
     # # global working_path
@@ -39,7 +40,7 @@ def run(img):
 input_gallary = gr.Image(label='Image Input', source="upload")
 upload_video = gr.File(label='Image Input', source="upload")
 
-io = gr.Interface(fn=run, inputs=[upload_video], outputs=['text','json'], title='Test EasyOCR',
+io = gr.Interface(fn=run, inputs=[upload_video], outputs=['text','json','audio'], title='Test EasyOCR',
 description='This is the test of Easy OCR')
 io.launch(
 server_name="0.0.0.0",
