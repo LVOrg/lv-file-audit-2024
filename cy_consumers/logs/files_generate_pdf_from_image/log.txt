@@ -123,3 +123,8 @@ PDF file is /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-proce
 [2023-07-12 16:03:22,539] INFO [name.on_receive_msg:102] files.upload.ocr.content
 /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/95303a20-f3a3-41ab-b1fa-d3c01889cef0.pdf:
 original file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/95303a20-f3a3-41ab-b1fa-d3c01889cef0.png
+[2023-09-05 08:58:42,845] INFO [name.on_receive_msg:74] Generate pdf from /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/012adf5b-cdcd-4812-96cd-475b4a2a071c.jpg:
+PDF file is /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/tmp/cyx.media.image_extractor/ImageExtractorService/tmp/pdf/012adf5b-cdcd-4812-96cd-475b4a2a071c.pdf
+[2023-09-05 08:58:47,688] INFO [name.on_receive_msg:102] files.upload.ocr.content
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/012adf5b-cdcd-4812-96cd-475b4a2a071c.pdf:
+original file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/012adf5b-cdcd-4812-96cd-475b4a2a071c.jpg

@@ -95,57 +95,57 @@ class DB:
         return DbCollection[T](cls, self.__client__, self.__db_name__)
 
 
-class DbConnect:
-    def __init__(self):
-        self.connect_config = config.db
-        self.admin_db_name = config.admin_db_name
-        self.client = MongoClient(**self.connect_config.to_dict())
-        print("load connect is ok")
+# class DbConnect:
+#     def __init__(self):
+#         self.connect_config = config.db
+#         self.admin_db_name = config.admin_db_name
+#         self.client = MongoClient(**self.connect_config.to_dict())
+#         print("load connect is ok")
+#
+#     def db(self, app_name):
+#         db_name = app_name
+#         if app_name == 'admin':
+#             db_name = self.admin_db_name
+#         return DB(client=self.client, db_name=db_name)
+# import urllib
+# def __create_client__(db)->MongoClient:
+#     if isinstance(db, str):
+#         if __client__.get(db) is None:
+#             __client__[db] = MongoClient(urllib.parse.unquote(config.db))
+#         return __client__[db]
+#     else:
+#         if __client__.get(db.host) is None:
+#             __client__[db.host] = MongoClient(**db.to_dict())
+#         return __client__[db.host]
+# class __DbContext__:
+#     def __init__(self, db_name: str, client: MongoClient):
+#         self.client = client
+#         self.db_name = db_name
+#
+#     def doc(self, cls: T):
+#         return cy_docs.context(
+#             client=self.client,
+#             cls=cls
+#
+#         )[self.db_name]
+#
+#
+# class DbClient:
+#     def __init__(self):
+#         self.config = config
+#         self.client = __create_client__(config.db)
+#         print("Create connection")
 
-    def db(self, app_name):
-        db_name = app_name
-        if app_name == 'admin':
-            db_name = self.admin_db_name
-        return DB(client=self.client, db_name=db_name)
-import urllib
-def __create_client__(db)->MongoClient:
-    if isinstance(db, str):
-        if __client__.get(db) is None:
-            __client__[db] = MongoClient(urllib.parse.unquote(config.db))
-        return __client__[db]
-    else:
-        if __client__.get(db.host) is None:
-            __client__[db.host] = MongoClient(**db.to_dict())
-        return __client__[db.host]
-class __DbContext__:
-    def __init__(self, db_name: str, client: MongoClient):
-        self.client = client
-        self.db_name = db_name
 
-    def doc(self, cls: T):
-        return cy_docs.context(
-            client=self.client,
-            cls=cls
-
-        )[self.db_name]
-
-
-class DbClient:
-    def __init__(self):
-        self.config = config
-        self.client = __create_client__(config.db)
-        print("Create connection")
-
-
-class BaseService:
-    def __init__(self, db_connect: DbConnect = cy_kit.singleton(DbConnect)):
-        self.db_connect: DbConnect = db_connect
-
-    def db_name(self, app_name: str):
-        if app_name == 'admin':
-            return config.admin_db_name
-        else:
-            return app_name
-
-    def db(self, app_name: str):
-        return __DbContext__(self.db_name(app_name), self.client)
+# class BaseService:
+#     def __init__(self, db_connect: DbConnect = cy_kit.singleton(DbConnect)):
+#         self.db_connect: DbConnect = db_connect
+#
+#     def db_name(self, app_name: str):
+#         if app_name == 'admin':
+#             return config.admin_db_name
+#         else:
+#             return app_name
+#
+#     def db(self, app_name: str):
+#         return __DbContext__(self.db_name(app_name), self.client)

@@ -36,3 +36,60 @@
 [2023-08-10 11:19:35,423] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/5c919480-deb6-47a0-a11c-3fff65e704c8.mp4
 [2023-08-10 11:19:35,428] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
 /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/5c919480-deb6-47a0-a11c-3fff65e704c8.mp4
+[2023-09-05 08:55:35,178] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/11c93522-5a4d-400f-9560-d903bf5166ec.docx
+[2023-09-05 08:55:35,187] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/11c93522-5a4d-400f-9560-d903bf5166ec.docx
+[2023-09-05 08:55:35,191] INFO [name.on_receive_msg:178] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/11c93522-5a4d-400f-9560-d903bf5166ec.docx
+[2023-09-05 08:55:35,192] INFO [name.on_receive_msg:189] files.upload.update.search.from.file
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/11c93522-5a4d-400f-9560-d903bf5166ec.docx
+[2023-09-05 08:55:35,216] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/81a01a84-6c4f-476a-9c31-6a104bfe2092.docx
+[2023-09-05 08:55:35,220] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/81a01a84-6c4f-476a-9c31-6a104bfe2092.docx
+[2023-09-05 08:55:35,222] INFO [name.on_receive_msg:178] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/81a01a84-6c4f-476a-9c31-6a104bfe2092.docx
+[2023-09-05 08:55:35,224] INFO [name.on_receive_msg:189] files.upload.update.search.from.file
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/81a01a84-6c4f-476a-9c31-6a104bfe2092.docx
+[2023-09-05 08:55:37,107] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/80a2d424-f8bf-4f57-b000-ea494a3a4201.pdf
+[2023-09-05 08:55:37,108] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/80a2d424-f8bf-4f57-b000-ea494a3a4201.pdf
+[2023-09-05 08:55:37,175] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/03c7d39a-0186-466b-b09e-b37d8fe8429e.docx
+[2023-09-05 08:55:37,177] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/03c7d39a-0186-466b-b09e-b37d8fe8429e.docx
+[2023-09-05 08:55:37,179] INFO [name.on_receive_msg:178] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/03c7d39a-0186-466b-b09e-b37d8fe8429e.docx
+[2023-09-05 08:55:37,180] INFO [name.on_receive_msg:189] files.upload.update.search.from.file
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/03c7d39a-0186-466b-b09e-b37d8fe8429e.docx
+[2023-09-05 08:58:42,552] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/012adf5b-cdcd-4812-96cd-475b4a2a071c.jpg
+[2023-09-05 08:58:42,557] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/012adf5b-cdcd-4812-96cd-475b4a2a071c.jpg
+[2023-09-05 09:07:40,715] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/9fac1acb-7f18-4b6d-b452-2e81c34cc607.docx
+[2023-09-05 09:07:40,719] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/9fac1acb-7f18-4b6d-b452-2e81c34cc607.docx
+[2023-09-05 09:07:40,721] INFO [name.on_receive_msg:178] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/9fac1acb-7f18-4b6d-b452-2e81c34cc607.docx
+[2023-09-05 09:07:40,722] INFO [name.on_receive_msg:189] files.upload.update.search.from.file
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/9fac1acb-7f18-4b6d-b452-2e81c34cc607.docx
+[2023-09-05 09:07:41,132] INFO [name.on_receive_msg:117] /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/029e2d11-40da-423a-bc37-e44ee2b5b47a.docx was not found
+[2023-09-05 09:07:41,153] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/faaf93ea-33ef-421b-a0b4-1f221211a385.docx
+[2023-09-05 09:07:41,158] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/faaf93ea-33ef-421b-a0b4-1f221211a385.docx
+[2023-09-05 09:07:41,160] INFO [name.on_receive_msg:178] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/faaf93ea-33ef-421b-a0b4-1f221211a385.docx
+[2023-09-05 09:07:41,161] INFO [name.on_receive_msg:189] files.upload.update.search.from.file
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/faaf93ea-33ef-421b-a0b4-1f221211a385.docx
+[2023-09-05 09:09:27,534] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/b0da944c-9d5f-4f84-a586-e0325cb8111a.pdf
+[2023-09-05 09:09:27,537] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/b0da944c-9d5f-4f84-a586-e0325cb8111a.pdf
+[2023-09-05 09:11:12,443] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/422e6746-92e0-4ec3-8182-ac2483c1578a.png
+[2023-09-05 09:11:12,446] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/422e6746-92e0-4ec3-8182-ac2483c1578a.png
+[2023-09-05 09:13:47,988] INFO [name.on_receive_msg:121] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/3705c234-d3bb-4445-972f-1b83d32e0d7b.PNG
+[2023-09-05 09:13:48,065] INFO [name.on_receive_msg:144] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/3705c234-d3bb-4445-972f-1b83d32e0d7b.PNG
+[2023-09-05 09:19:53,984] INFO [name.on_receive_msg:168] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/bd331f38-778a-4fab-a463-92f005efd5d7.PNG
+[2023-09-05 09:19:53,996] INFO [name.on_receive_msg:191] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/bd331f38-778a-4fab-a463-92f005efd5d7.PNG
+[2023-09-05 09:30:59,308] INFO [name.on_receive_msg:168] Receive file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/420bd22f-a1b7-4b94-834e-79abdb82d516.PNG
+[2023-09-05 09:30:59,310] INFO [name.on_receive_msg:191] files.upload.generate.image.from.office
+/home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/420bd22f-a1b7-4b94-834e-79abdb82d516.PNG

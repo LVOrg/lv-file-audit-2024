@@ -83,3 +83,5 @@
 [2023-07-12 16:04:19,489] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/fd7d2afc-a023-4cee-aa0b-765e1814cf84.pdf
 [2023-07-12 16:04:19,679] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/af45fc98-471a-40b6-b33d-500c05aa16a8.pdf
 [2023-07-12 16:04:19,847] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/95303a20-f3a3-41ab-b1fa-d3c01889cef0.pdf
+[2023-09-05 08:57:26,760] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/80a2d424-f8bf-4f57-b000-ea494a3a4201.pdf
+[2023-09-05 08:58:47,698] INFO [name.th_run:67] Do OCR file /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/files.upload.generate.pdf/012adf5b-cdcd-4812-96cd-475b4a2a071c.pdf

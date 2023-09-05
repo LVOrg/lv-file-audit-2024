@@ -9,7 +9,7 @@ sys.path.append(
 )
 import cy_kit
 from cy_xdoc.services.apps import App
-from cyx.base import DbConnect
+from cyx.common.base import DbConnect
 import cy_docs
 
 connector = cy_kit.singleton(DbConnect)

@@ -26,3 +26,7 @@
 [2023-07-12 15:57:20,338] INFO [name.on_receive_msg:61] get content from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/bafdcead-fdb6-4c20-8560-870039f8d8c0.txt
 [2023-07-12 15:57:20,396] INFO [name.on_receive_msg:64] get content from /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/bafdcead-fdb6-4c20-8560-870039f8d8c0.txt is ok
 [2023-07-12 15:57:20,719] INFO [name.on_receive_msg:83] /home/vmadmin/python/v6/file-service-02/share-storage/tmp-file-processing/sync/lv-docs/bafdcead-fdb6-4c20-8560-870039f8d8c0.txt was updated to search engine
+[2023-09-05 08:57:56,684] INFO [name.on_receive_msg:61] get content from /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/11c93522-5a4d-400f-9560-d903bf5166ec.docx
+[2023-09-05 08:57:57,978] INFO [name.on_receive_msg:64] get content from /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/developer/11c93522-5a4d-400f-9560-d903bf5166ec.docx is ok
+[2023-09-05 09:11:54,411] INFO [name.on_receive_msg:61] get content from /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/9fac1acb-7f18-4b6d-b452-2e81c34cc607.docx
+[2023-09-05 09:11:54,807] INFO [name.on_receive_msg:64] get content from /home/vmadmin/python/cy-py/share-storage/tmp-file-processing/sync/lv-docs/9fac1acb-7f18-4b6d-b452-2e81c34cc607.docx is ok

@@ -14,3 +14,4 @@
 [2023-06-29 13:42:45,375] INFO [name.on_receive_msg:64] <cyx.common.msg.MessageInfo object at 0x7f56a4222220>
 [2023-06-29 13:43:19,694] INFO [name.on_receive_msg:64] <cyx.common.msg.MessageInfo object at 0x7f56a4222bb0>
 [2023-07-12 14:54:31,498] INFO [name.on_receive_msg:64] <cyx.common.msg.MessageInfo object at 0x7f1f3a10f1f0>
+[2023-09-05 08:57:05,609] INFO [name.on_receive_msg:64] <cyx.common.msg.MessageInfo object at 0x7f46f9aa5990>
