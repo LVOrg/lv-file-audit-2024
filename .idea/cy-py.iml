@@ -2,7 +2,35 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/a" />
+      <excludeFolder url="file://$MODULE_DIR$/accent_predictor" />
+      <excludeFolder url="file://$MODULE_DIR$/archetypal_fastapi" />
+      <excludeFolder url="file://$MODULE_DIR$/audio-test" />
+      <excludeFolder url="file://$MODULE_DIR$/b" />
+      <excludeFolder url="file://$MODULE_DIR$/bard" />
+      <excludeFolder url="file://$MODULE_DIR$/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/brokers" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/c-setup-tem" />
+      <excludeFolder url="file://$MODULE_DIR$/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/csharp_source" />
+      <excludeFolder url="file://$MODULE_DIR$/cy-core" />
+      <excludeFolder url="file://$MODULE_DIR$/data-dict" />
+      <excludeFolder url="file://$MODULE_DIR$/dataset" />
+      <excludeFolder url="file://$MODULE_DIR$/dataset-01" />
+      <excludeFolder url="file://$MODULE_DIR$/dataset-v2" />
+      <excludeFolder url="file://$MODULE_DIR$/detectron2" />
+      <excludeFolder url="file://$MODULE_DIR$/docker-cy" />
       <excludeFolder url="file://$MODULE_DIR$/env" />
+      <excludeFolder url="file://$MODULE_DIR$/flagged" />
+      <excludeFolder url="file://$MODULE_DIR$/gradio_test" />
+      <excludeFolder url="file://$MODULE_DIR$/link_tham_khao" />
+      <excludeFolder url="file://$MODULE_DIR$/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/notes" />
+      <excludeFolder url="file://$MODULE_DIR$/pre_test_build" />
+      <excludeFolder url="file://$MODULE_DIR$/test_code" />
+      <excludeFolder url="file://$MODULE_DIR$/test_samples" />
+      <excludeFolder url="file://$MODULE_DIR$/web" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (cy-py)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
