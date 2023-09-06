@@ -1,0 +1,28 @@
+<body>
+
+    <form id="office_form" name="office_form" target="office_frame" action="https://office.com/590f664d-a857-466f-9d0a-8239d29acb63
+/action/open?documentId=12345678-9012-3456-7890-000000000000" method="post">
+        <input name="access_token" value="<ACCESS_TOKEN_VALUE>" type="hidden" />
+        <input name="access_token_ttl" value="<ACCESS_TOKEN_TTL_VALUE>" type="hidden" />
+        <input name="user_id" value="<USER_ID_VALUE>" type="hidden" />
+        <input name="owner_id" value="<OWNER_ID_VALUE>" type="hidden" />
+    </form>
+
+    <span id="frameholder"></span>
+
+    <script type="text/javascript">
+        var frameholder = document.getElementById('frameholder');
+        var office_frame = document.createElement('iframe');
+        office_frame.name = 'office_frame';
+        office_frame.id = 'office_frame';
+
+        // The title should be set for accessibility
+        office_frame.title = 'Office Frame';
+
+        // This attribute allows true fullscreen mode in slideshow view
+        // when using PowerPoint's 'view' action.
+        office_frame.setAttribute('allowfullscreen', 'true');
+
+        // The sandbox attribute is needed to allow automatic redirection to the O365 sign-in page in the business user flow
+        office_frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-popups-to-escape-sandbox');
+        frameholder.appendChild(office_frame);

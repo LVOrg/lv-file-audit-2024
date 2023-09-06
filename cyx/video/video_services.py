@@ -4,28 +4,12 @@ import pathlib
 import pydub
 import cv2
 import numpy as np
+import cv2
+import easyocr
+import time
+import langdetect
 
 
-def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
-    # Print New Line on Complete
-    if iteration == total:
-        print()
 
 
 class VideoInfo:
@@ -37,10 +21,16 @@ class VideoInfo:
     def __repr__(self):
         return f"fps={self.fps},duration={self.duration},resolution={self.width}x{self.height}"
 
-
+from cyx.common.temp_file import TempFiles
+from cyx.console.console_services import ConsoleServices
+import cy_kit
 class VideoService:
-    def __init__(self):
-        pass
+    def __init__(self,
+                 tmp_file = cy_kit.singleton(TempFiles),
+                 console = cy_kit.singleton(ConsoleServices)
+                 ):
+        self.tmp_file = tmp_file
+        self.console = console
 
     def get_info(self, file_path: str) -> VideoInfo:
         cap = cv2.VideoCapture(file_path)
@@ -58,28 +48,73 @@ class VideoService:
         file_name = pathlib.Path(file_path).name
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir, exist_ok=True)
+
         output_file = os.path.join(output_dir, f"{file_name}.mp3")
         import moviepy.editor as mp
         clip = mp.VideoFileClip(file_path)
         clip.audio.write_audiofile(output_file)
-        # cap = cv2.VideoCapture(file_path)
-        #
-        # audio_data = np.empty(shape=(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), 2), dtype=np.float32)
-        # count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        # for i in range(count):
-        #     ret, frame = cap.read()
-        #     if not ret:
-        #         break
-        #     audio_data[i] = frame[:, :, 1]
-        #     printProgressBar(
-        #         iteration=i,
-        #         prefix="Process",
-        #         length=50,
-        #         total = count
-        #     )
-        #
-        # cap.release()
-        #
-        # audio = pydub.AudioSegment.from_array(audio_data, format='float32')
-        # audio.export(output_file, format='mp3')
+
         return output_file
+
+    def extract_text(self,file_name:str)->dict:
+        reader = easyocr.Reader(['en', 'vi'])
+        # Open the video file
+        cap = cv2.VideoCapture(file_name)
+        frames_count =  cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        # Set the start time to zero
+        start_time = 0
+
+        # Get the FPS
+        fps = cap.get(cv2.CAP_PROP_FPS)
+
+        # Initialize a list to store the captions
+        captions = []
+
+        # Initialize a list to store the times of the captions
+        times = []
+
+        # Loop over the frames in the video
+        frame_index = 0
+        while True:
+            # Read the next frame
+            ret, frame = cap.read(frame_index)
+
+            # If the frame is not read successfully, break
+            if not ret:
+                break
+
+            # Detect and recognize text in the frame
+            texts = reader.readtext(frame, detail=0)
+            text = " ".join(texts)
+            self.console.progress_bar(
+                iteration= frame_index,
+                total = frames_count,
+                prefix="Read text"
+            )
+
+            # Check if the text is a caption
+
+            if len(text) > 10:
+                # Detect the language of the text
+                language = langdetect.detect(text)
+
+                # Check if the language is in the list of languages
+                if language not in ["en", "vi"]:
+                    continue
+
+            # Calculate the time in seconds
+            time_in_seconds = start_time + (fps * frame_index)
+            frame_index += fps * 5
+
+            # Add the caption to the list of captions
+            captions.append(text)
+
+            # Add the time of the caption to the list of times
+            times.append(time_in_seconds)
+
+        # Close the video file
+        cap.release()
+
+        # Print the captions and their times
+        ret = dict(zip(captions, times))
+        return ret

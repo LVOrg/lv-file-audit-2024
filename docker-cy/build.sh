@@ -5,9 +5,9 @@ docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
 export user=xdoc
 export user_=nttlong
-export platform=linux/amd64
+export platform_=linux/amd64
 export platform__=linux/arm64/v8
-export platform_=linux/amd64,linux/arm64/v8
+export platform=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
 export os='debian'
