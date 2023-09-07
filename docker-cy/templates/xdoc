@@ -41,5 +41,7 @@ COPY ./../gradio_test /web
 RUN chmod u+x /app/*.sh
 RUN chmod u+x /web/*.sh
 RUN python3 -m pip install phunspell
+RUN python3 -m pip install fuzzywuzzy
+RUN python3 -m pip install xmltodict
 WORKDIR /app
 #   docker run -p 8012:8012 nttlong/py310-xdoc:amd.cpu.9.30.7 python3 /app/cy_xdoc/server.py

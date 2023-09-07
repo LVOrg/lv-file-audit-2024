@@ -8,8 +8,9 @@ import cv2
 import easyocr
 import time
 import langdetect
-
-
+from fuzzywuzzy import fuzz
+import pytesseract
+import PIL
 
 
 class VideoInfo:
@@ -56,9 +57,10 @@ class VideoService:
 
         return output_file
 
-    def extract_text(self,file_name:str)->dict:
-        reader = easyocr.Reader(['en', 'vi'])
+    def extract_text(self,file_name:str,langs =["vi","en"],elapse_time_in_seconds =5)->dict:
+        reader = easyocr.Reader(langs)
         # Open the video file
+        info =self.get_info(file_name)
         cap = cv2.VideoCapture(file_name)
         frames_count =  cap.get(cv2.CAP_PROP_FRAME_COUNT)
         # Set the start time to zero
@@ -75,45 +77,50 @@ class VideoService:
 
         # Loop over the frames in the video
         frame_index = 0
-        while True:
+        is_continue  =  (frame_index< frames_count)
+        old_text = ""
+        while is_continue:
             # Read the next frame
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+
             ret, frame = cap.read(frame_index)
 
             # If the frame is not read successfully, break
             if not ret:
                 break
 
+
             # Detect and recognize text in the frame
+
             texts = reader.readtext(frame, detail=0)
+            # text = pytesseract.image_to_string(frame,lang="eng+vie")
+
+
+            del frame
+            gc.collect()
             text = " ".join(texts)
-            self.console.progress_bar(
-                iteration= frame_index,
-                total = frames_count,
-                prefix="Read text"
-            )
-
-            # Check if the text is a caption
-
-            if len(text) > 10:
-                # Detect the language of the text
-                language = langdetect.detect(text)
-
-                # Check if the language is in the list of languages
-                if language not in ["en", "vi"]:
-                    continue
-
-            # Calculate the time in seconds
+            ratio = fuzz.ratio(old_text, text)
+            if ratio < 25.0:
+                captions.append(text)
+                times.append(time_in_seconds)
             time_in_seconds = start_time + (fps * frame_index)
-            frame_index += fps * 5
+            old_text = text
 
-            # Add the caption to the list of captions
-            captions.append(text)
-
-            # Add the time of the caption to the list of times
-            times.append(time_in_seconds)
+            self.console.progress_bar(
+                iteration=frame_index,
+                total=frames_count,
+                prefix="Read text",
+                printEnd=f"Found {len(captions)},info={info},{frame_index}/{frames_count}",
+                length=50
+            )
+            frame_index = min(frames_count,frame_index+fps * elapse_time_in_seconds)
+            is_continue = (frame_index < frames_count)
+            if frame_index>frames_count:
+                break
 
         # Close the video file
         cap.release()
+        print("Finish, collecting data ...")
 
         # Print the captions and their times
         ret = dict(zip(captions, times))

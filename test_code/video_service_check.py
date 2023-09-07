@@ -21,26 +21,13 @@ from cyx.video.video_services import VideoService
 def run(img):
     # img_svc = cy_kit.singleton(cy_services.ocr.easy.ReadTextService)
     video_svc = cy_kit.singleton(VideoService)
-    info = video_svc.get_info(img.orig_name)
-    audio_file = video_svc.extract_audio(img.orig_name,"/home/vmadmin/python/cy-py/share-storage/test")
-    return info,info.__dict__, audio_file
-    # r = img_svc.read_with_block(img)
-    # img_svc.draw_result(r,img)
-    # # global working_path
-    # # tmp_dir= os.path.join(working_path,"tmp")
-    # # os.makedirs(tmp_dir,exist_ok=True)
-    # # new_file= f"{tmp_dir}/{uuid.uuid4().__str__()}.png"
-    # # cylibs.save_numpy_array_as_image(img,new_file)
-    # # lans,score = cylibs.detect_image_lang(new_file)
-    # svc.read_with_block(img)
-    # return cylibs.read_text_from_image(img,["vi","en","ch_sim"],
-    #                                    f"/home/vmadmin/python/v6/file-service-02/share-storage/dataset/easyocr")
-    # return img,{}
-# with gr.Blocks() as demo:
+    info = video_svc.get_info(img)
+    ret_text = video_svc.extract_text(img)
+    return info,ret_text
 input_gallary = gr.Image(label='Image Input', source="upload")
-upload_video = gr.File(label='Image Input', source="upload")
+upload_video = gr.Video(label='Video Input', source="upload")
 
-io = gr.Interface(fn=run, inputs=[upload_video], outputs=['text','json','audio'], title='Test EasyOCR',
+io = gr.Interface(fn=run, inputs=[upload_video], outputs=['text','json'], title='Test EasyOCR',
 description='This is the test of Easy OCR')
 io.launch(
 server_name="0.0.0.0",

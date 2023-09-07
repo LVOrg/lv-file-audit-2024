@@ -1,11 +1,19 @@
 <body>
 
-    <form id="office_form" name="office_form" target="office_frame" action="https://office.com/590f664d-a857-466f-9d0a-8239d29acb63
-/action/open?documentId=12345678-9012-3456-7890-000000000000" method="post">
-        <input name="access_token" value="<ACCESS_TOKEN_VALUE>" type="hidden" />
-        <input name="access_token_ttl" value="<ACCESS_TOKEN_TTL_VALUE>" type="hidden" />
-        <input name="user_id" value="<USER_ID_VALUE>" type="hidden" />
-        <input name="owner_id" value="<OWNER_ID_VALUE>" type="hidden" />
+    <form id="office_form" name="office_form" target="office_frame"
+            action="https://FFC-word-view.officeapps.live.com/wv/wordviewerframe.aspx?WOPISrc=https://https://codx.lacviet.com.vn/files/api/office365"
+          method="post">
+
+<!--          action1="https://office.com/e2cf4881-49e5-4a9e-b896-d1b73a6b89e2/action/open?documentId=C7A35802-0DC9-4A44-AECC-6C6B2C10ABBF"-->
+<!--        method="post"-->
+<!--        >-->
+        <input name="access_token"
+               value="eyJ0eXAiOiJKV1QiLCJub25jZSI6IkRKM05VMzZteWdKYkpDNTZtRGVjajJrQlQtemVZQkpJZzdrX3VfTHRodHciLCJhbGciOiJSUzI1NiIsIng1dCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiJodHRwczovL2dyYXBoLm1pY3Jvc29mdC5jb20iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NjU5MGZmMy02MWUzLTQ4ZGEtOTk5MC1kNGY5MDFlODc3NTUvIiwiaWF0IjoxNjk0MDUwNTE0LCJuYmYiOjE2OTQwNTA1MTQsImV4cCI6MTY5NDA1NDQxNCwiYWlvIjoiRTJGZ1lOQnVDTkV2V2JaVzZsN1hyaDhyNHo0K0FRQT0iLCJhcHBfZGlzcGxheW5hbWUiOiJsb25nLXRlc3QiLCJhcHBpZCI6ImUyY2Y0ODgxLTQ5ZTUtNGE5ZS1iODk2LWQxYjczYTZiODllMiIsImFwcGlkYWNyIjoiMSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzU2NTkwZmYzLTYxZTMtNDhkYS05OTkwLWQ0ZjkwMWU4Nzc1NS8iLCJpZHR5cCI6ImFwcCIsIm9pZCI6Ijg5NzE0OGUzLWU1ZTQtNGY1NC1hMTdmLTg2Yzc4MGY2MDhhYyIsInJoIjoiMC5BU3NBOHc5WlZ1Tmgya2laa05UNUFlaDNWUU1BQUFBQUFBQUF3QUFBQUFBQUFBQXJBQUEuIiwic3ViIjoiODk3MTQ4ZTMtZTVlNC00ZjU0LWExN2YtODZjNzgwZjYwOGFjIiwidGVuYW50X3JlZ2lvbl9zY29wZSI6IkFTIiwidGlkIjoiNTY1OTBmZjMtNjFlMy00OGRhLTk5OTAtZDRmOTAxZTg3NzU1IiwidXRpIjoiSFYtQnNmazJTVVdZdW9vRXZMa2hBUSIsInZlciI6IjEuMCIsIndpZHMiOlsiMDk5N2ExZDAtMGQxZC00YWNiLWI0MDgtZDVjYTczMTIxZTkwIl0sInhtc190Y2R0IjoxMzc4ODg3OTEwfQ.JSn7XXG_VsZKYCBz_ROJX_ghCPnJVrsZg4FX82ebCkv7BX6V4FHIwLsBcwV6mi3Ncxp_wyp0KNuXB9c37TtJhTRnRHhXGvK7QfEi2CwvxTo_ixbqGd-XaiiicyKNaf3tdR6Vjda3jQES7yjh5-v0ih03nDB1Fbn9_CSt6KhUW5DgOzeaXaOIz126bFrjYL1gu1W_aQ_rCQXbW-RjDJB1jztsCQZQynMSiUg5IGVpWKUjC4QoLVqaoAzQznGWER-F4ZU--9RFlso4Xpa-uMHVtLQWiJzK3yJrvmeYnpKw6Ua-ddCU_cQZXEnKek8JX1JXEW5Wrg7IxbZhcmwAwC_wig"
+               type="hidden"
+        />
+<!--        <input name="access_token_ttl" value="34" type="hidden" />-->
+<!--        <input name="user_id" value="1291a08e-1d18-4224-a417-e6aa890f75c5" type="hidden" />-->
+<!--        <input name="owner_id" value="1291a08e-1d18-4224-a417-e6aa890f75c5" type="hidden" />-->
     </form>
 
     <span id="frameholder"></span>
@@ -26,3 +34,7 @@
         // The sandbox attribute is needed to allow automatic redirection to the O365 sign-in page in the business user flow
         office_frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-popups-to-escape-sandbox');
         frameholder.appendChild(office_frame);
+        document.getElementById("office_form").submit();
+    </script>
+
+</body>

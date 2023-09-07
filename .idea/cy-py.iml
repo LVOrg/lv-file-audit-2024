@@ -28,7 +28,6 @@
       <excludeFolder url="file://$MODULE_DIR$/logs" />
       <excludeFolder url="file://$MODULE_DIR$/notes" />
       <excludeFolder url="file://$MODULE_DIR$/pre_test_build" />
-      <excludeFolder url="file://$MODULE_DIR$/test_code" />
       <excludeFolder url="file://$MODULE_DIR$/test_samples" />
       <excludeFolder url="file://$MODULE_DIR$/web" />
     </content>
