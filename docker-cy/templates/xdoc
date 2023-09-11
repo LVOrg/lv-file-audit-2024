@@ -6,7 +6,6 @@ ARG TARGETARCH
 ARG OS
 
 COPY ./../cy_consumers /app/cy_consumers
-
 COPY ./../cy_utils /app/cy_utils
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cyx /app/cyx
@@ -15,7 +14,7 @@ RUN python3 /app/compact.py /app/cy_vn_suggestion
 COPY ./../resource /app/resource
 COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
-COPY ./../cy_controllers /apps/cy_controllers
+COPY ./../cy_controllers /app/cy_controllers
 RUN python3 -c 'import cv2'
 #COPY --from=ocr /usr /usr
 #RUN gs -h gs -?; exit 1

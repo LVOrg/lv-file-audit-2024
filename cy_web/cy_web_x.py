@@ -1227,8 +1227,10 @@ import starlette.requests
 
 def validate_token_in_request(self, request):
     token = None
-    if request.cookies.get('access_token_cookie', None) is not None:
+    if request.cookies.get('access_token_cookie') is not None:
         token = request.cookies['access_token_cookie']
+    elif request.cookies.get('cy-files-token') is not None:
+        token = request.cookies['cy-files-token']
     else:
         authorization: str = request.headers.get("Authorization")
         if authorization is None:

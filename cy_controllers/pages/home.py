@@ -88,5 +88,5 @@ class PagesController:
             return Response(status_code=401)
         application,username = request_service.get_info(request)
         res = cy_web.render_template("index.html", {"request": request, "app": get_meta_data()})
-        res.set_cookie("token",token_service.generate_token(app=application,username=username))
+        token_service.set_cookie(res,token_service.generate_token(app=application,username=username))
         return res
