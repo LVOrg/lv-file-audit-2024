@@ -10,7 +10,9 @@ from passlib.context import CryptContext
 
 
 class AccountService:
-    def __init__(self, db_connect:DbConnect=cy_kit.inject(DbConnect)):
+    def __init__(self,
+                 db_connect:DbConnect=cy_kit.singleton(DbConnect)
+                 ):
         self.db_connect = db_connect
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -81,3 +83,4 @@ class AccountService:
             doc.fields.Email <<email
         )
         return ret
+

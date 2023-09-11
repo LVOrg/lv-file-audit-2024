@@ -67,7 +67,7 @@ async def get_sso_token(request:Request,  token: str = Depends(Authenticate)):
     if app_name is None:
         return Response(status_code=401)
 
-    ret_url=cy_web.get_host_url()
+    ret_url = cy_web.get_host_url()
     account_service = cy_kit.inject(cy_xdoc.services.accounts.AccountService)
     app_service = cy_kit.inject(cy_xdoc.services.apps.AppServices)
     if app_name!='admin':

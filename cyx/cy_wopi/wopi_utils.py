@@ -1,0 +1,5 @@
+WOPI_BASE_PATH = "/wopi/"
+WOPI_CHILDREN_PATH = "/children"
+WOPI_CONTENTS_PATH = "/contents"
+WOPI_FILES_PATH = "files/"
+WOPI_FOLDERS_PATH = "folders/"
