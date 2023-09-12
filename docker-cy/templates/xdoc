@@ -11,7 +11,7 @@ COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cyx /app/cyx
 COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
 RUN python3 /app/compact.py /app/cy_vn_suggestion
-COPY ./../resource /app/resource
+#COPY ./../resource /app/resource
 COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
 COPY ./../cy_controllers /app/cy_controllers
