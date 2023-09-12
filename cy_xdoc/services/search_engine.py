@@ -124,11 +124,14 @@ class SearchEngine:
             """
             Set ignore doc len when calculate search score 
             """
-            cy_es.cy_es_x.similarity_settings(
-                client=self.client,
-                index=index_name,
-                field_name=self.get_content_field_name(),
-                algorithm_type="BM25", b_value=0, k1_value=10)
+            try:
+                cy_es.cy_es_x.similarity_settings(
+                    client=self.client,
+                    index=index_name,
+                    field_name=self.get_content_field_name(),
+                    algorithm_type="BM25", b_value=0, k1_value=10)
+            except Exception as e:
+                pass
             self.similarity_settings_cache[app_name] = True
         if self.__index_mapping_total_fields_limit.get(app_name) is None:
             """

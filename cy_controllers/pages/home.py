@@ -77,6 +77,7 @@ class PagesController:
         "{directory:path}", summary="Home page"
     )
     async def page_single(self, directory: str, request: Request):
+        from cyx.base import config
         directory = directory.split('?')[0]
         check_dir_path = os.path.abspath(os.path.join(
             cy_web.get_static_dir(),
@@ -87,6 +88,10 @@ class PagesController:
         if not os.path.exists(check_dir_path):
             return Response(status_code=401)
         application,username = request_service.get_info(request)
+        """
+        /home/vmadmin/python/cy-py/cy_controllers/pages/resource/html/login.html
+        /home/vmadmin/python/cy-py/cy_controllers/pages/resource/html/index.html
+        """
         res = cy_web.render_template("index.html", {"request": request, "app": get_meta_data()})
         token_service.set_cookie(res,token_service.generate_token(app=application,username=username))
         return res

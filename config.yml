@@ -65,7 +65,7 @@ admin_db_name_25: media-server
 admin_db_name: lv-docs
 # unvicorn server listener list all ip
 
-jinja_templates_dir: ./cy_controllers/pages/resource/templates/html
+jinja_templates_dir: ./cy_controllers/pages/resource/html
 static_dir: ./cy_controllers/pages/resource/static
 
 
