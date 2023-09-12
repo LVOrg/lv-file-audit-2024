@@ -117,5 +117,5 @@ fileJobUnused:
   replicas: 2
   repository: nttlong/py310-xdoc
   pullPolicy: IfNotPresent
-  tag: amd.cpu.9.30.7
+  tag: amd.cpu.9.31.17
   mountPath: /app/share-storage
