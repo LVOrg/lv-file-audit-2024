@@ -92,7 +92,7 @@ config:
     server: 'rabbitmq.rabbitmq-dev.svc.cluster.local'
     #Broker server
 #    temp_directory: 'app/share-storage'
-    msg: durable-version
+    msg: qtcs-v01
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
@@ -135,7 +135,7 @@ webApi:
   replicas: 2
   # number of replicate, depend on numof K8S workers
   repository:  nttlong/py310-xdoc
-  tag: amd.cpu.9.31.16
+  tag: amd.cpu.9.31.17
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image
