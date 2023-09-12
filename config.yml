@@ -65,8 +65,8 @@ admin_db_name_25: media-server
 admin_db_name: lv-docs
 # unvicorn server listener list all ip
 
-jinja_templates_dir: ./templates
-static_dir: ./resource/static
+jinja_templates_dir: ./cy_controllers/pages/resource/templates/html
+static_dir: ./cy_controllers/pages/resource/static
 
 
 # Below setting is the real hostname when end user who'd like to reach UI of website

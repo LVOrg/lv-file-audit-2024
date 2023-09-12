@@ -741,7 +741,8 @@ class BaseWebApp:
         controller_dir = controller_dir.replace('/', os.sep)
         if not os.path.isdir(controller_dir):
             print(f"{controller_dir} was not found")
-            self.logs.error(msg=f"{controller_dir} was not found")
+            # self.logs.error(msg=f"{controller_dir} was not found")
+            raise (f"{controller_dir} was not found")
             return
         root_dir, dirs, files = list(os.walk(controller_dir))[0]
 

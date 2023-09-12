@@ -55,6 +55,7 @@ class BasicAuth:
                                 headers={"Location": location})
 
     def get_auth_bearer(self, request: Request):
+        from cyx.token_manager.token_service import FILE_SERVICE_COOKIE_KEY
         try:
             authorization = request.headers.get("Authorization")
             if authorization:
@@ -63,6 +64,8 @@ class BasicAuth:
             else:
                 if request.cookies and request.cookies.get('access_token_cookie'):
                     return None,request.cookies.get('access_token_cookie')
+                elif request.cookies and request.cookies.get(FILE_SERVICE_COOKIE_KEY):
+                    return None, request.cookies.get(FILE_SERVICE_COOKIE_KEY)
                 return None,None
         except jwt.exceptions.DecodeError:
             return None, None

@@ -38,7 +38,8 @@ class RabitmqMsg:
 
         :return:
         """
-
+        if self.__channel__ and  self.__channel__.connection and self.__channel__.connection.is_open:
+            self.__channel__.connection.close()
         try:
             if not self.__channel__ or not self.__channel__.connection.is_open:
                 self.__credentials__ = pika.PlainCredentials(self.__username__, self.__password__)
@@ -119,7 +120,11 @@ class RabitmqMsg:
 
                 self.__try_connect__()
                 time.sleep(10)
-            self.__channel__.queue_declare(queue=self.get_real_msg(msg_type), auto_delete=False)
+            self.__channel__.queue_declare(
+                queue=self.get_real_msg(msg_type),
+                auto_delete=False,
+
+            )
             self.__is_declare__ = True
         self.__channel__.basic_consume(queue=self.get_real_msg(msg_type), on_message_callback=callback, auto_ack=True)
         try:
@@ -258,9 +263,9 @@ class RabitmqMsg:
         try:
             print(f"msg to {self.__server__}:{self.__port__}\nmsg={message_type} in app={app_name}")
             if not self.__is_declare__:
-                self.__channel__.queue_declare(queue=self.get_real_msg(message_type))
+                self.__channel__.queue_declare(queue=self.get_real_msg(message_type),durable=True)
                 self.__is_declare__ = True
-            self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
+            self.__channel__.basic_publish(exchange='lv-file', routing_key=self.get_real_msg(message_type), body=msg )
         except pika.exceptions.StreamLostError as e:
             print("Error:")
             print(e)
@@ -269,16 +274,19 @@ class RabitmqMsg:
             if not self.__is_declare__:
                 self.__channel__.queue_declare(queue=self.get_real_msg(message_type))
                 self.__is_declare__ = True
-            self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
+            self.__channel__.basic_publish(exchange='lv-file', routing_key=self.get_real_msg(message_type), body=msg )
         except AssertionError as e:
             print("Error:")
             print(e)
             self.__channel__ = None
             self.__try_connect__()
             if not self.__is_declare__:
-                self.__channel__.queue_declare(queue=self.get_real_msg(message_type))
+                self.__channel__.queue_declare(
+                    queue=self.get_real_msg(message_type),
+                    durable=True
+                )
                 self.__is_declare__ = True
-            self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
+            self.__channel__.basic_publish(exchange='lv-file', routing_key=self.get_real_msg(message_type), body=msg )
 
 
 
