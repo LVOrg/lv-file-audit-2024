@@ -71,6 +71,7 @@ class RegisterUploadResult:
     """
     RelUrlThumb: str
     FileSize: int
+    SearchEngineInsertTimeInSecond: float
 
 
 @cy_web.model(all_fields_are_optional=True)

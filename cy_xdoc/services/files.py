@@ -217,7 +217,7 @@ class FileServices:
                 meta_info=meta_data
 
             )
-
+        t = datetime.datetime.now()
         self.search_engine.create_or_update_privileges(
             app_name=app_name,
             upload_id=id,
@@ -226,6 +226,9 @@ class FileServices:
             meta_info=meta_data
 
         )
+        n = (datetime.datetime.now() -t).total_seconds()
+
+
 
         return cy_docs.DocumentObject(
             NumOfChunks=num_of_chunks,
@@ -239,7 +242,8 @@ class FileServices:
             RelUrlThumb=f"api/{app_name}/thumb/{id}/{pathlib.Path(server_file_name_only).name.lower()}.webp",
             FileSize=file_size,
             UrlThumb=f"{web_host_root_url}/api/{app_name}/thumb/{id}/{pathlib.Path(server_file_name_only).name.lower()}.webp",
-            OriginalFileName=client_file_name
+            OriginalFileName=client_file_name,
+            SearchEngineInsertTimeInSecond = n
         )
 
     def get_upload_register(self, app_name: str, upload_id: str):
