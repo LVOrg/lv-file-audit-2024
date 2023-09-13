@@ -65,6 +65,8 @@ class BasicAuth:
             elif request.headers.get("Authorization"):
                 scheme, param = get_authorization_scheme_param(request.headers.get("Authorization"))
                 return scheme, param
+            else:
+                return None,None
 
         except jwt.exceptions.DecodeError:
             return None, None
@@ -72,19 +74,46 @@ class BasicAuth:
         except Exception as e:
             return None, None
 
-    def check_request(self,app_name:str, request: Request):
+    async def check_request(self,app_name:str, request: Request):
+        from cy_xdoc.services.accounts import AccountService
+        from fastapi.security import HTTPBasic, HTTPBasicCredentials
+
+        cr = await HTTPBasic()(request)
+        check_app,check_user = tuple(cr.username.split('/'))
+        check_password = cr.password
+        acc_svc = cy_kit.singleton(AccountService)
+        ok = acc_svc.validate(app_name=check_app,
+                              username=check_user,
+
+                              password=check_password)
+        if ok:
+            return
+
+
         scheme, token = self.get_auth_bearer(request)
+        print(scheme,token)
         if token:
             token_infor = self.token_verifier.verify(share_key=self.share_key,token=token)
+            print(token_infor)
             if token_infor:
                 setattr(request,'token_infor',token_infor)
             else:
                 self.raise_expr(ret_url=request.url._url, app_name=app_name)
         else:
-            if request.headers.get('user-agent'):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect auth",
+                headers={"WWW-Authenticate": "Basic"},
+            )
 
-                user_agent = parse(request.headers.get('user-agent'))
-                self.raise_expr(ret_url=request.url._url, app_name=app_name)
+            # from cyx.token_manager.token_service import FILE_SERVICE_COOKIE_KEY
+            # from cyx.token_manager.request_service import RequestService
+            #
+            # if request.headers.get('user-agent'):
+            #
+            #     user_agent = parse(request.headers.get('user-agent'))
+            #     self.raise_expr(ret_url=request.url._url, app_name=app_name)
+
 
 
 

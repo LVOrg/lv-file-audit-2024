@@ -1,0 +1,21 @@
+pip3 install grpcio --no-cache-dir
+
+pip3 install doctr --no-cache-dir
+pip3 install deepdoctection --no-cache-dir
+pip3 install easyocr --no-cache-dir
+pip3 install ghostscript --no-cache-dir
+pip3 install -r docker-build/base-files-slim.req.txt --no-cache-dir
+pip3 install git+https://github.com/huggingface/datasets.git --no-cache-dir
+pip3 install git+https://github.com/huggingface/transformers.git --no-cache-dir
+pip3 install git+https://github.com/mindee/doctr.git --no-cache-dir
+pip3 install git+https://github.com/deepdoctection/deepdoctection.git@f251dca0df9d051fe133ba489d42c6ae2b27597a  --no-cache-dir
+#pip3 install git+https://github.com/facebookresearch/detectron2.git@4aca4bdaa9ad48b8e91d7520e0d0815bb8ca0fb1  --no-cache-dir
+pip3 uninstall pytesseract -y
+pip3 install pytesseract
+
+pip3 uninstall python-doctr -y
+pip3 install python-doctr==0.6.0
+
+pip3 uninstall packaging -y
+pip3 install packaging==20.9
+#-------------xong-------------------------

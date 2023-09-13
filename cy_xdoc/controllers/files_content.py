@@ -25,7 +25,7 @@ async def get_content_of_files(app_name: str, directory: str, request: fastapi.R
     upload_id = directory.split('/')[0]
     upload = file_service.get_upload_register_with_cache(app_name, upload_id)
     if not upload.IsPublic:
-        auth_service.check_request(app_name, request)
+        await auth_service.check_request(app_name, request)
     mime_type, _ = mimetypes.guess_type(directory)
     if mime_type.startswith('image/'):
 
