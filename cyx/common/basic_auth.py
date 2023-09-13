@@ -13,6 +13,7 @@ import cyx.common
 import cyx.common.cacher
 import jwt.exceptions
 import cy_xdoc.services.apps
+from user_agents import parse
 class BasicAuth:
     def __init__(self,
                     token_verifier:TokenVerifier=cy_kit.singleton(TokenVerifier),
@@ -57,16 +58,14 @@ class BasicAuth:
     def get_auth_bearer(self, request: Request):
         from cyx.token_manager.token_service import FILE_SERVICE_COOKIE_KEY
         try:
-            authorization = request.headers.get("Authorization")
-            if authorization:
-                scheme, param = get_authorization_scheme_param(authorization)
+            if request.cookies and request.cookies.get('access_token_cookie'):
+                return None, request.cookies.get('access_token_cookie')
+            elif request.cookies and request.cookies.get(FILE_SERVICE_COOKIE_KEY):
+                return None, request.cookies.get(FILE_SERVICE_COOKIE_KEY)
+            elif request.headers.get("Authorization"):
+                scheme, param = get_authorization_scheme_param(request.headers.get("Authorization"))
                 return scheme, param
-            else:
-                if request.cookies and request.cookies.get('access_token_cookie'):
-                    return None,request.cookies.get('access_token_cookie')
-                elif request.cookies and request.cookies.get(FILE_SERVICE_COOKIE_KEY):
-                    return None, request.cookies.get(FILE_SERVICE_COOKIE_KEY)
-                return None,None
+
         except jwt.exceptions.DecodeError:
             return None, None
 
@@ -83,7 +82,7 @@ class BasicAuth:
                 self.raise_expr(ret_url=request.url._url, app_name=app_name)
         else:
             if request.headers.get('user-agent'):
-                from user_agents import parse
+
                 user_agent = parse(request.headers.get('user-agent'))
                 self.raise_expr(ret_url=request.url._url, app_name=app_name)
 

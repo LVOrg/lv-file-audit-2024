@@ -133,7 +133,7 @@ webApi:
   # inquire about Web Host server from thee's DEV-OP
   configMapName: xdoc-config
   replicas: 2
-  # number of replicate, depend on numof K8S workers
+  # number of replicate, depend on num of K8S workers
   repository:  nttlong/py310-xdoc
   tag: amd.cpu.9.31.17
   #The tag name is describe how many stage in image:
