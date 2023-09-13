@@ -34,10 +34,10 @@ from cyx.loggers import LoggerService
 
 logger = cy_kit.singleton(LoggerService)
 print(config)
-# from  cyx.vn_predictor import VnPredictor
-# vn_predictor= cy_kit.singleton(VnPredictor)
-# fx=vn_predictor.get_text("Kiem tra tieng viet khong dau")
-# print(fx)
+from  cyx.vn_predictor import VnPredictor
+vn_predictor= cy_kit.singleton(VnPredictor)
+fx=vn_predictor.get_text("Kiem tra tieng viet khong dau")
+print(fx)
 from cyx.common.base import DbConnect
 
 cnn = cy_kit.singleton(DbConnect)

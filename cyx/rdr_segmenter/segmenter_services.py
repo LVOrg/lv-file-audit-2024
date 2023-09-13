@@ -59,4 +59,7 @@ class VnSegmenterService:
         return self.parse_word_segment(content,boot,clears)
 
     def underscore_segment_word(self,txt:str):
-        return " ".join([ x.replace(' ','_') for x in self.word_tokenize(txt)]).lstrip('. ').rstrip(' .')
+        try:
+            return " ".join([ x.replace(' ','_') for x in self.word_tokenize(txt)]).lstrip('. ').rstrip(' .')
+        except:
+            return txt

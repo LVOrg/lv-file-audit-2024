@@ -70,7 +70,7 @@ async def get_content_of_files(app_name: str, directory: str, request: fastapi.R
     if request.query_params.get('download') is not None:
         import urllib
 
-        file_name_form_url =request.url.path.split('/')[request.url.path.split('/').__len__()-1]
+        file_name_form_url = request.url.path.split('/')[request.url.path.split('/').__len__()-1]
         file_name_form_url= urllib.parse.quote(file_name_form_url)
         ret.headers["Content-Disposition"]=f"attachment; filename={file_name_form_url}"
     return ret

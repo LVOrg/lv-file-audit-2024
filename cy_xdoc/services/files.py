@@ -5,6 +5,8 @@ import datetime
 import mimetypes
 import os.path
 import pathlib
+import threading
+import time
 import typing
 import uuid
 
@@ -206,26 +208,40 @@ class FileServices:
             doc.fields.meta_data << meta_data
 
         )
-
-        @cy_kit.thread_makeup()
-        def search_engine_create_or_update_privileges():
-            self.search_engine.create_or_update_privileges(
-                app_name=app_name,
-                upload_id=id,
-                data_item=doc.context @ id,
-                privileges=privileges_server,
-                meta_info=meta_data
-
-            )
         t = datetime.datetime.now()
-        self.search_engine.create_or_update_privileges(
-            app_name=app_name,
-            upload_id=id,
-            data_item=doc.context @ id,
-            privileges=privileges_server,
-            meta_info=meta_data
+        def search_engine_create_or_update_privileges():
+            re_try_count = 0
+            while re_try_count<3:
+                try:
+                    self.search_engine.create_or_update_privileges(
+                        app_name=app_name,
+                        upload_id=id,
+                        data_item=doc.context @ id,
+                        privileges=privileges_server,
+                        meta_info=meta_data
 
+                    )
+                    re_try_count =3
+                except Exception as e:
+                    str_date = datetime.datetime.now().strftime("%Y-%d-%m:%H:%M:%S")
+                    print(f"{str_date}: Insert data to Elastic Search Error {e}, ret-try {re_try_count+1}")
+                    re_try_count +=1
+                    time.sleep(0.5)
+        th = threading.Thread(
+            target=search_engine_create_or_update_privileges,
+            args=()
         )
+
+        th.start()
+
+        # self.search_engine.create_or_update_privileges(
+        #     app_name=app_name,
+        #     upload_id=id,
+        #     data_item=doc.context @ id,
+        #     privileges=privileges_server,
+        #     meta_info=meta_data
+        #
+        # )
         n = (datetime.datetime.now() -t).total_seconds()
 
 
