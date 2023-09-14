@@ -100,9 +100,16 @@ Server-Timing: miss, db;dur=53, app;dur=47.2"""
 cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
 from cy_controllers import PagesController
+from cy_controllers.apps.app_controller import AppsController
 
 app.include_router(
     prefix=cy_web.get_host_dir(),
-    router=PagesController.router())
+    router=PagesController.router()
+)
+app.include_router(
+    prefix=cy_web.get_host_dir(),
+    router=AppsController.router()
+)
 if __name__ == "__main__":
     cy_web.start_with_uvicorn(worker=int(config.workers or 2))
+

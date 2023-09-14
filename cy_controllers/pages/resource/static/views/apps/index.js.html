@@ -29,7 +29,7 @@
                             <div class="app-label">Created on :</div> <span>{{p.RegisteredOn|date:'dd-MM-yyyy'}}</span>
                             <div class="app-label">Most recently activities :</div> <span>{{p.LatestAccess|date:'dd-MM-yyyy'}}</span>
                             <div class="app-label">Activities score :</div> <span>{{p.AccessCount}}</span>
-                        <div class="app-label">Re-Index</div><span><button>Run ...</button></span>
+                        <div class="app-label">Re-Index</div><span><button ng-click="doReIndex(p.Name).then()">Run ...</button></span>
 
                         </rcmpct-grid>
                 </rcmpct-grid>

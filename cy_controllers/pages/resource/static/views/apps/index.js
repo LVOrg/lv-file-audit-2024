@@ -33,6 +33,14 @@ var appsView = await View(import.meta, class AppsView extends BaseScope {
         this.$applyAsync();
 
     }
+    async doReIndex(appName) {
+        debugger;
+        var ret = await api.post(`apps/${appName}/re_index`, {
+
+        });
+        alert(ret);
+
+    }
     //async loadFullTextSearch() {
     //    redirect("search")
     //}

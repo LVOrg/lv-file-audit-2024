@@ -81,7 +81,8 @@ def files_upload(app_name: str, UploadId: str, Index: int, FilePart: UploadFile,
                     )
                     print(traceback_string)
                     print(e)
-            threading.Thread(target=post_to_broker,args=()).start()
+
+            threading.Thread(target=post_to_broker, args=()).start()
         else:
             temp_files.push(
                 app_name=app_name,
