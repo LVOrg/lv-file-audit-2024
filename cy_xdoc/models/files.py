@@ -335,3 +335,4 @@ class DocUploadRegister:
     BrokerErrorLog: typing.Optional[str]
     SearchEngineMetaIsUpdate: typing.Optional[bool]
     BrokerMsgUploadIsOk: typing.Optional[bool]
+    ReRunMessage: typing.Optional[bool]

@@ -94,7 +94,7 @@ deep learning models. It does not implement models but enables you to build pipe
 libraries for object detection, OCR and selected NLP tasks and provides an integrated framework for fine-tuning, 
 evaluating and running models. For more specific text processing tasks use one of the many other great NLP libraries"""
 MSG_FILE_EXTRACT_AUDIO_FROM_VIDEO = "files.upload.extract.audio.from.video"
-MS_APP_RE_INDEX_ALL = "apps.re-index.all"
+MSG_APP_RE_INDEX_ALL = "apps.re-index.all"
 import datetime
 from typing import List
 

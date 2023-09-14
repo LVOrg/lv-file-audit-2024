@@ -36,6 +36,9 @@ data:
   - name: fix-hanger-content
     endpoint: fix_hanger_content.py
     replicate: 1
+  - name: app-reindex-all-data
+    endpoint: app_re_index_all_data.py
+
 #  - name: files-layout-analizer
 #    endpoint: files_layout_analizer.py
 

@@ -35,7 +35,7 @@ class AppsController:
         import cyx.common.msg
         self.msg_service.emit(
             app_name = app_name,
-            message_type=cyx.common.msg.MS_APP_RE_INDEX_ALL,
+            message_type=cyx.common.msg.MSG_APP_RE_INDEX_ALL,
             data = dict(
                 app_name = app_name,
                 emit_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")

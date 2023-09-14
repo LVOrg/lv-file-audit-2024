@@ -9,18 +9,15 @@ var searchView = await View(import.meta, class LogsView extends BaseScope {
 
     async init() {
 
-        this.data = await api.post(`logs/views`, {
-            Token: window.token
-        })
+        this.data = await api.post(`logs/views`,{})
 
 
         this.$apply();
     }
     async doRefresh() {
+        debugger;
 
-        this.data = await api.post(`logs/views`, {
-            Token: window.token
-        })
+        this.data = await api.post(`logs/views`,{})
         this.$applyAsync();
     }
 

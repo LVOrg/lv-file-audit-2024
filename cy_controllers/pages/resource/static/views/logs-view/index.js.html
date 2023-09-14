@@ -73,15 +73,18 @@
                 <table>
                     <tr>
                         <td>Time</td>
-                        <td>{{p.CreateDate|date:'dd-MM-yyyy hh:mm:ss'}}</td>
+                        <td>{{p.CreatedOn|date:'dd-MM-yyyy hh:mm:ss'}}</td>
                     </tr>
                     <tr>
-                        <td>Exception</td>
-                        <td>{{p.Exception}}</td>
+                        <td>Type</td>
+                        <td>{{p.LogType}}</td>
                     </tr>
                     <tr>
                         <td colspan="2">
-                            {{p.Content}}
+                            <div style="max-height:120px;overflow-y:auto;background-color:#000;color:#fff">
+                                {{p.Content}}
+                            </div>
+
                         </td>
                     </tr>
                 </table>

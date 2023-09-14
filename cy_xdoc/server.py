@@ -101,7 +101,9 @@ cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
 from cy_controllers import PagesController
 from cy_controllers.apps.app_controller import AppsController
-
+from cy_controllers.logs.logs_controller import LogsController
+from cyx.loggers import LoggerService
+logger_service = cy_kit.singleton(LoggerService)
 app.include_router(
     prefix=cy_web.get_host_dir(),
     router=PagesController.router()
@@ -110,6 +112,11 @@ app.include_router(
     prefix=cy_web.get_host_dir(),
     router=AppsController.router()
 )
+app.include_router(
+prefix=cy_web.get_host_dir(),
+    router=LogsController.router()
+)
 if __name__ == "__main__":
+    logger_service.info(f"Strat web app worker={config.workers or 2}")
     cy_web.start_with_uvicorn(worker=int(config.workers or 2))
 
