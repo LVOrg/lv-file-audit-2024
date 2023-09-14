@@ -1,5 +1,6 @@
 import mimetypes
-
+import threading
+import traceback
 import humanize
 
 import cy_docs
@@ -16,6 +17,7 @@ from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.temp_file import TempFiles
 from cyx.common.brokers import Broker
 
+
 @cy_web.hanlder("post", "{app_name}/files/upload")
 def files_upload(app_name: str, UploadId: str, Index: int, FilePart: UploadFile,
                  token=Depends(Authenticate)) -> UploadFilesChunkInfoResult:
@@ -25,9 +27,8 @@ def files_upload(app_name: str, UploadId: str, Index: int, FilePart: UploadFile,
     file_service: FileServices = cy_kit.singleton(FileServices)
     file_storage_service: FileStorageService = cy_kit.singleton(FileStorageService)
     msg_service: MessageService = cy_kit.singleton(MessageService)
-    broker:Broker = cy_kit.singleton(Broker)
+    broker: Broker = cy_kit.singleton(Broker)
     temp_files = cy_kit.singleton(TempFiles)
-
 
     upload_item = file_service.get_upload_register(app_name, upload_id=UploadId)
     if upload_item is None:
@@ -61,11 +62,26 @@ def files_upload(app_name: str, UploadId: str, Index: int, FilePart: UploadFile,
         fs.push(content_part, Index)
         upload_item.MainFileId = fs.get_id()
         if not temp_files.is_use:
-            msg_service.emit(
-                app_name=app_name,
-                message_type="files.upload",
-                data=upload_item
-            )
+            def post_to_broker():
+                try:
+                    msg_service.emit(
+                        app_name=app_name,
+                        message_type="files.upload",
+                        data=upload_item
+                    )
+                    upload_register_doc.context.update(
+                        upload_register_doc.fields.Id == UploadId,
+                        upload_register_doc.fields.BrokerMsgUploadIsOk << True
+                    )
+                except Exception as e:
+                    traceback_string = traceback.format_exc()
+                    upload_register_doc.context.update(
+                        upload_register_doc.fields.Id == UploadId,
+                        upload_register_doc.fields.BrokerErrorLog << traceback_string
+                    )
+                    print(traceback_string)
+                    print(e)
+            threading.Thread(target=post_to_broker,args=()).start()
         else:
             temp_files.push(
                 app_name=app_name,
@@ -89,24 +105,44 @@ def files_upload(app_name: str, UploadId: str, Index: int, FilePart: UploadFile,
     if num_of_chunks_complete == nun_of_chunks - 1 and temp_files.is_use:
         try:
             upload_item["Status"] = 1
-            file_service.search_engine.update_content(
-                app_name = app_name,
-                id = UploadId,
-                content= "",
-                data_item= upload_item,
-                update_meta=False
 
+            def update_search_engine_content():
 
-            )
-            try:
-                broker.emit(
+                file_service.search_engine.update_content(
                     app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                    data=upload_item
+                    id=UploadId,
+                    content="",
+                    data_item=upload_item,
+                    update_meta=False
+
                 )
-                print(f"rais msg {cyx.common.msg.MSG_FILE_UPLOAD}")
-            except Exception as e:
-                print(e)
+
+            threading.Thread(target=update_search_engine_content, args=()).start()
+
+            def post_msg_upload():
+                print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD}")
+                try:
+                    broker.emit(
+                        app_name=app_name,
+                        message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                        data=upload_item
+                    )
+                    print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD} is ok")
+                    upload_register_doc.context.update(
+                        upload_register_doc.fields.Id == UploadId,
+                        upload_register_doc.fields.BrokerMsgUploadIsOk << True
+                    )
+                except Exception as e:
+                    traceback_string = traceback.format_exc()
+                    upload_register_doc.context.update(
+                        upload_register_doc.fields.Id == UploadId,
+                        upload_register_doc.fields.BrokerErrorLog << traceback_string
+                    )
+                    print(traceback_string)
+                    print(e)
+
+            threading.Thread(target=post_msg_upload, args=()).start()
+
 
         except Exception as e:
             raise e
@@ -137,7 +173,6 @@ def files_upload(app_name: str, UploadId: str, Index: int, FilePart: UploadFile,
         upload_register_doc.fields.FileModuleController << file_controller
 
     )
-
 
     del FilePart
     return ret.to_pydantic()

@@ -20,6 +20,7 @@ import cyx.common.file_storage
 import cy_xdoc.services.search_engine
 import cyx.common.base
 import cyx.common.cacher
+import traceback
 
 
 class FileServices:
@@ -87,7 +88,11 @@ class FileServices:
                 cy_docs.fields.Height >> doc.fields.VideoResolutionHeight,
                 cy_docs.fields.Duration >> doc.fields.VideoDuration,
                 cy_docs.fields.FPS >> doc.fields.VideoFPS
-            )
+            ),
+            doc.fields.SearchEngineErrorLog,
+            doc.fields.SearchEngineMetaIsUpdate,
+            doc.fields.BrokerMsgUploadIsOk,
+            doc.fields.BrokerErrorLog
 
         )
         for x in items:
@@ -221,8 +226,20 @@ class FileServices:
                         meta_info=meta_data
 
                     )
+                    doc.context.update(
+                        doc.fields.id == id,
+                        doc.fields.SearchEngineMetaIsUpdate << True
+                    )
                     re_try_count =3
+
                 except Exception as e:
+                    if re_try_count+1>=3:
+                        traceback_string = traceback.format_exc()
+                        doc.context.update(
+                            doc.fields.id == id,
+                            doc.fields.SearchEngineErrorLog << traceback_string
+                        )
+                        print(traceback_string)
                     str_date = datetime.datetime.now().strftime("%Y-%d-%m:%H:%M:%S")
                     print(f"{str_date}: Insert data to Elastic Search Error {e}, ret-try {re_try_count+1}")
                     re_try_count +=1

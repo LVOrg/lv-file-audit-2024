@@ -39,3 +39,7 @@ class FileUploadRegisterInfo:
     HasThumb:bool
     OcrContentUrl:str
     OCRFileId:str
+    SearchEngineErrorLog: typing.Optional[str]
+    SearchEngineMetaIsUpdate: typing.Optional[bool]
+    BrokerMsgUploadIsOk: typing.Optional[bool]
+    BrokerErrorLog: typing.Optional[str]

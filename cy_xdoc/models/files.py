@@ -328,3 +328,10 @@ class DocUploadRegister:
     """
     A flag is make sure that 
     """
+    SearchEngineErrorLog: typing.Optional[str]
+    """
+    If meta data and privilege insert to Elastic Search Error logs will be here
+    """
+    BrokerErrorLog: typing.Optional[str]
+    SearchEngineMetaIsUpdate: typing.Optional[bool]
+    BrokerMsgUploadIsOk: typing.Optional[bool]
