@@ -25,7 +25,14 @@ class FileStorageObject:
         pass
 
     @classmethod
+    async def push_async(cls, content: bytes, chunk_index: int):
+        pass
+    @classmethod
     def get_id(cls)->str:
+        pass
+
+    @classmethod
+    async def get_id_async(cls) -> str:
         pass
     def close(self):
         pass
@@ -83,6 +90,12 @@ class FileStorageService:
         """
         raise NotImplemented
     def create(self, app_name: str, rel_file_path: str, content_type: str, chunk_size: int,
+               size) -> FileStorageObject:
+        """
+        some how to implement thy source here ...
+        """
+        raise NotImplemented
+    async def create_async(self, app_name: str, rel_file_path: str, content_type: str, chunk_size: int,
                size) -> FileStorageObject:
         """
         some how to implement thy source here ...

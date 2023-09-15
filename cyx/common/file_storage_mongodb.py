@@ -89,7 +89,8 @@ class MongoDbFileStorage:
 
     def get_id(self) -> str:
         return str(self.fs._id)
-
+    async def get_id_async(self) -> str:
+        return str(self.fs._id)
     def push(self, content: bytes, chunk_index):
         cy_docs.file_add_chunks(
             client= self.db.client,
@@ -97,7 +98,11 @@ class MongoDbFileStorage:
             file_id=self.fs._id,
             data= content
         )
-
+    async def push_async(self, content: bytes, chunk_index):
+        return self.push(
+            content=content,
+            chunk_index=chunk_index
+        )
 
 
     def close(self):
@@ -110,6 +115,16 @@ class MongoDbFileStorage:
 
 
 class MongoDbFileService(Base):
+    async def create_async(self,app_name:str,rel_file_path:str,content_type:str,chunk_size:int,size)->MongoDbFileStorage:
+        return self.create(
+            app_name =app_name,
+            rel_file_path =rel_file_path,
+            content_type = content_type,
+            chunk_size = chunk_size,
+            size =size
+
+        )
+
     def create(self, app_name: str, rel_file_path: str,content_type:str, chunk_size: int, size: int) -> MongoDbFileStorage:
         mongo_db_chunk_size = chunk_size
         logical_chunk_size=1

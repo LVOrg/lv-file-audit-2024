@@ -1012,6 +1012,7 @@ class WebApp(BaseWebApp):
         if not isinstance(web_application, WebApp):
             raise Exception("Web application can not start")
         run_path = f"{start_path}:web_application.app"
+        print(run_path)
         # if not self.dev_mode:
         #     run_path=web_application.app
         # if self.dev_mode:
@@ -1083,7 +1084,7 @@ async def windows_fxi_javascript_resource(request: Request, call_next):
 def start_with_guicorn(worker):
     global web_application
     if isinstance(web_application, WebApp):
-        web_application.unvicorn_start(
+        web_application.gunicorn_start(
             f"{WebApp.__module__}",
             worker
         )

@@ -281,7 +281,8 @@ class FileServices:
 
     def get_upload_register(self, app_name: str, upload_id: str):
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
-
+    async def get_upload_register_async(self, app_name: str, upload_id: str):
+        return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
     def get_upload_register_with_cache(self, app_name, upload_id):
         ret = self.cacher.get_by_key(self.cache_type, f"{app_name}/{upload_id}")
         if not ret:

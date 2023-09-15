@@ -104,7 +104,13 @@ class TempFiles:
         任何文件處理的根目錄，正確地，子目錄中的某種方式屬於根目錄
         """
         return self.__tem_path__
-
+    async def push_async(self, upload_id: str, app_name: str, file_ext: str, content: bytes):
+        return self.push(
+            upload_id=upload_id,
+            app_name = app_name,
+            file_ext = file_ext,
+            content = content
+        )
     def push(self, upload_id: str, app_name: str, file_ext: str, content: bytes):
         """
         Create or append content to file

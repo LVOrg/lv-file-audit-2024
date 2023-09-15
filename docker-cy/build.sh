@@ -231,7 +231,7 @@ buildFunc $base_py-cy_docs $cy_docs_tag_build $repositiory/$user/$cython_image $
 #buildFunc $base_py-cy-env $cy_env_tag $top_image $os
 #------------ cy_env -------------------
 rm -f $base_py-cy-env && cp -f ./templates/cy-env ./$base_py-cy-env-cpu
-cy_env_cpu_tag=4
+cy_env_cpu_tag=5
 cy_env_cpu_tag_build=$(tag $cy_env_cpu_tag)
 cy_env_image=$base_py-cy-env-cpu:$cy_env_cpu_tag_build
 buildFunc $base_py-cy-env-cpu $cy_env_cpu_tag_build $repositiory/$user/$torch_image
@@ -352,6 +352,8 @@ RUN pip uninstall opencv-python-headless -y && \
     pip uninstall opencv-python -y
 RUN python3 -m pip install -r /check/framework.req.txt
 ARG TARGETARCH
+RUN python3 -m pip uninstall opencv-python -y
+RUN python3 -m pip install opencv-python==4.5.4.60
 RUN chmod u+x /check/*.sh
 RUN /check/opencv.sh
 
@@ -362,6 +364,7 @@ RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
 RUN /check/tessract.sh
 RUN /check/tika.sh
 RUN /check/dotnet.sh
+
 RUN python3 -c 'import cv2;print(cv2);'
 ">>$base_py-xdoc-framework
 xdoc_framework_tag=cpu.$com_tag.$(($deep_learning_tag+$cy_env_cpu_tag+$cy_core_tag+2))
@@ -375,7 +378,7 @@ xdoc_py_auto_gui_tagbuild=$(tag $xdoc_py_auto_gui_tag)
 #buildFunc xdoc-py-auto-gui $xdoc_py_auto_gui_tagbuild $top_image $os
 #----- apps--------------
 rm -f $base_py-xdoc && cp -f ./templates/xdoc ./$base_py-xdoc
-xdoc_tag=$xdoc_framework_tag.26
+xdoc_tag=$xdoc_framework_tag.30
 xdoc_tag_build=$(tag $xdoc_tag)
 xdoc_image=$base_py-xdoc:$xdoc_tag_build
 buildFunc $base_py-xdoc $xdoc_tag_build $repositiory/$user/$xdoc_framework_image $os
