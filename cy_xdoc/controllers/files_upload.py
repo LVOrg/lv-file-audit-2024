@@ -112,7 +112,7 @@ async def files_upload(app_name: str, UploadId: str, Index: int, FilePart: Uploa
             print(f"await temp_files.push_async() = {n}")
     else:
         s = datetime.datetime.utcnow()
-        fs = await file_storage_service.get_file_by_id_async(
+        fs = await file_storage_service.get_file_by_name_async(
             app_name=app_name,
             rel_file_path=server_file_name
         )

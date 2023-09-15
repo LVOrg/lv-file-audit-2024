@@ -57,6 +57,7 @@ class RabitmqMsg:
             return False
 
     def __init__(self):
+        print("Init rabbitmq")
         self.msg_type = None
         self.__channel__: pika.adapters.blocking_connection.BlockingChannel = None
         self.__connection__: pika.BlockingConnection = None

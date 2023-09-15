@@ -50,7 +50,11 @@ class FileStorageService:
         some how to implement thy source here ...
         """
         raise NotImplemented
-
+    async def get_file_by_name_async(self, app_name, rel_file_path: str) -> FileStorageObject:
+        """
+        some how to implement thy source here ...
+        """
+        raise NotImplemented
     def copy(self, app_name: str, rel_file_path_from: str, rel_file_path_to, run_in_thread: bool) -> FileStorageObject:
         """
                 Copy file

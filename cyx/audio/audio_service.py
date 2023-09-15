@@ -20,7 +20,9 @@ class AudioService:
 
         audio_chunks = split_on_silence(sound, min_silence_len, silence_thresh)
         ret =[]
+        i=0
         for chunk in audio_chunks:
             chunk.export(f"{output_dir_name}/output_{i}.mp3", format="mp3")
             ret+=[f"{output_dir_name}/output_{i}.mp3"]
+            i+=1
         return ret

@@ -95,7 +95,7 @@ class MongoDbFileStorage:
         cy_docs.file_add_chunks(
             client= self.db.client,
             db_name=self.db.name,
-            file_id=self.fs._id,
+            file_id= self.fs._id,
             data= content
         )
     async def push_async(self, content: bytes, chunk_index):
@@ -126,24 +126,30 @@ class MongoDbFileService(Base):
         )
 
     def create(self, app_name: str, rel_file_path: str,content_type:str, chunk_size: int, size: int) -> MongoDbFileStorage:
-        mongo_db_chunk_size = chunk_size
-        logical_chunk_size=1
-        if chunk_size>=1024*1024*2:
-            a,b = divmod(chunk_size,1024*64)
-            if b==0:
-                mongo_db_chunk_size = 1024*32
-                logical_chunk_size = a
+        try:
+            mongo_db_chunk_size = chunk_size
+            logical_chunk_size=1
+            if chunk_size>=1024*1024*2:
+                a,b = divmod(chunk_size,1024*64)
+                if b==0:
+                    mongo_db_chunk_size = 1024*32
+                    logical_chunk_size = a
 
-        fs = cy_docs.create_file(
-            client=self.client,
-            db_name=self.db_name(app_name),
-            file_name=rel_file_path,
-            chunk_size=mongo_db_chunk_size,
-            file_size=size,
-            content_type = content_type
+            fs = cy_docs.create_file(
+                client=self.client,
+                db_name=self.db_name(app_name),
+                file_name=rel_file_path,
+                chunk_size=mongo_db_chunk_size,
+                file_size=size,
+                content_type = content_type
 
-        )
-        return MongoDbFileStorage(fs,self.client.get_database(self.db_name(app_name)),logical_chunk_size = logical_chunk_size)
+            )
+            return MongoDbFileStorage(fs,self.client.get_database(self.db_name(app_name)),logical_chunk_size = logical_chunk_size)
+        except pymongo.errors.DuplicateKeyError:
+            return self.get_file_by_name(
+                app_name = app_name,
+                rel_file_path = rel_file_path
+            )
 
     def store_file(self, app_name:str, source_file:str, rel_file_store_path:str)-> MongoDbFileStorage:
         ret = self.get_file_by_name(
@@ -201,6 +207,8 @@ class MongoDbFileService(Base):
         ret = MongoDbFileStorage(fs,self.client.get_database(self.db_name(app_name)))
         return ret
 
+    async def get_file_by_name_async(self, app_name, rel_file_path: str) -> MongoDbFileStorage:
+        return self.get_file_by_name(app_name=app_name,rel_file_path=rel_file_path)
     def get_file_by_id(self, app_name: str, id: str) -> MongoDbFileStorage:
         fs = cy_docs.file_get(self.client, self.db_name(app_name), bson.ObjectId(id))
 
