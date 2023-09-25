@@ -54,7 +54,7 @@ cy_app_web = cy_web.create_web_app(
     dev_mode=cyx.common.config.debug,
 
 )
-import asyncio
+
 
 cy_web.add_cors(["*"])
 from starlette.concurrency import iterate_in_threadpool

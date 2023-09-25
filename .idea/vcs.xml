@@ -4,5 +4,6 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/data-dict/vietnamese-wordlist" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/detectron2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/uniconvertor" vcs="Git" />
   </component>
 </project>
