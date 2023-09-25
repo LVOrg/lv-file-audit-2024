@@ -220,7 +220,7 @@ cy_web_image=$base_py-cy_web:$cy_web_tag_build
 buildFunc $base_py-cy_web $cy_web_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_docs -------------------
 rm -f $base_py-cy_docs && cp -f ./templates/cy_docs ./$base_py-cy_docs
-cy_docs_tag=4
+cy_docs_tag=5
 cy_docs_tag_build=$(tag $cy_docs_tag)
 cy_docs_image=$base_py-cy_docs:$cy_docs_tag_build
 buildFunc $base_py-cy_docs $cy_docs_tag_build $repositiory/$user/$cython_image $os
