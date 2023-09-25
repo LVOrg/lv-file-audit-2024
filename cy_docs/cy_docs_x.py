@@ -28,6 +28,8 @@ import pydantic
 from datetime import datetime
 
 
+
+
 def get_version() -> str:
     import os
     return f"0.0.4{os.path.splitext(__file__)[1]}"
@@ -1460,15 +1462,28 @@ class Document:
         self.collection_name = collection_name
         self.indexes = indexes
         self.unique_keys = unique_keys
-
+        self.__majority_concern__ = None
+    def set_majority_concern(self):
+        self.__majority_concern__ = True
     def __getitem__(self, item):
+        from pymongo.read_concern import ReadConcern
+        from pymongo.write_concern import WriteConcern
+        from pymongo.read_preferences import ReadPreference
+
         global __cache_index__
         global __cache_unique__
         global __lock__
-
-        coll = self.client.get_database(item).get_collection(
-            self.collection_name
-        )
+        if self.__majority_concern__:
+            coll = self.client.get_database(item).get_collection(
+                self.collection_name,
+                read_concern=ReadConcern('majority'),
+                write_concern=WriteConcern('majority'),
+                read_preference=ReadPreference.PRIMARY
+            )
+        else:
+            coll = self.client.get_database(item).get_collection(
+                self.collection_name
+            )
         for x in self.unique_keys:
             key = f"{item}.{self.collection_name}.{x}"
             if __cache_unique__.get(key) is None:
@@ -1648,13 +1663,15 @@ def document_define(name: str, indexes: List[str], unique_keys: List[str]):
     return wrapper
 
 
-def context(client, cls):
+def context(client, cls,majority=False):
     ret = Document(
         collection_name=cls.__document_name__,
         indexes=cls.__document_indexes__,
         unique_keys=cls.__document_unique_keys__,
         client=client
     )
+    if majority:
+        ret.set_majority_concern()
     return ret
 
 
@@ -1740,12 +1757,13 @@ def file_add_chunk(client: pymongo.MongoClient, db_name: str, file_id: bson.Obje
     del chunk_data
 
 
-from pymongo import InsertOne
+from pymongo import InsertOne, ReadPreference
 import pymongo.errors
 
 
-def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes):
-    files_context = context(client, __fs_files__)[db_name]
+def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes,index_chunk:int=0):
+    files_context = context(client, __fs_files__,majority=True)[db_name]
+
     fs = files_context.find_one(
         {
             "_id": file_id
@@ -1754,10 +1772,18 @@ def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.Obj
     if fs is None:
         raise pymongo.errors.CursorNotFound("File was not found")
     # db_context = context(client, __fs_files_chunks__)[db_name]
-    start_chunk_index = fs.get("currentChunkIndex") or 0
-
     num_of_chunks, m = divmod(len(data), fs.chunkSize)
     if m > 0: num_of_chunks += 1
+    if index_chunk>0:
+        index_chunk = index_chunk * num_of_chunks
+    start_chunk_index = fs.get("currentChunkIndex") or 0
+    files_context.update(
+        fields._id == file_id,
+        fields.currentChunkIndex << (start_chunk_index + num_of_chunks)
+    )
+
+
+
     remain = len(data)
     start = 0
     requests = []
@@ -1784,13 +1810,10 @@ def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.Obj
         bypass_document_validation=True
     )
 
-    files_context.update(
-        fields._id == file_id,
-        fields.currentChunkIndex << (start_chunk_index + num_of_chunks)
-    )
-    n = (datetime.datetime.utcnow() - t).total_seconds() * 1000
 
-    print(f"{start_chunk_index} in {n}")
+
+
+
 
 
 def file_get_iter_contents(client, db_name, files_id, from_chunk_index_index, num_of_chunks):

@@ -66,7 +66,7 @@ async def codx_integrate(request: fastapi.Request, next):
     return res
 
 
-# @cy_web.middleware()
+@cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     try:
         start_time = datetime.datetime.utcnow()

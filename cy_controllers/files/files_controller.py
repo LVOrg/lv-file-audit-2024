@@ -42,8 +42,8 @@ from cyx.common.file_storage_mongodb import (
     MongoDbFileService,MongoDbFileStorage
 )
 
-__cache__ = dict()
-__cache_thread__ = dict()
+
+
 
 @controller.resource()
 class FilesController:
@@ -62,7 +62,7 @@ class FilesController:
 
     async def get_upload_binary_async(self, FilePart: UploadFile):
         content_part = await FilePart.read(FilePart.size)
-        FilePart.close()
+        await FilePart.close()
         return content_part
 
     async def create_storage_file_async(self, app_name, rel_file_path, chunk_size, content_type, size):
@@ -75,22 +75,14 @@ class FilesController:
         return fs
 
     def delete_cache_upload_register(self, app_name, upload_id):
-        global __cache__
-        key = f"{self.request.url.path}/{app_name}/{upload_id}"
-        del __cache__[key]
+        pass
 
     async def get_upload_register_async(self, app_name, upload_id):
-        global __cache__
-        key = f"{self.request.url.path}/{app_name}/{upload_id}"
-        if __cache__.get(key) is None:
-            upload_item = await self.file_service.get_upload_register_async(
-                app_name=app_name,
-                upload_id=upload_id
-            )
-            __cache__[key] = upload_item
-            return upload_item
-        else:
-            return __cache__[key]
+        upload_item = await self.file_service.get_upload_register_async(
+            app_name=app_name,
+            upload_id=upload_id
+        )
+        return upload_item
 
     async def push_file_to_temp_folder_async(self, app_name, content, upload_id, file_ext):
         def pushing_file():
@@ -140,17 +132,13 @@ class FilesController:
         data["MainFileId"] = main_file_id
 
     async def push_file_async(self,app_name:str,upload_id:str, fs:MongoDbFileStorage, content_part, Index):
-        # global __cache_thread__
-        # thread_name = f"{app_name}/{upload_id}"
-        # if __cache_thread__.get(thread_name) is None:
-        #     __cache_thread__[thread_name] = threading.Thread()
-        #     __cache_thread__[thread_name].start()
+
 
         def pushing_file():
             fs.push(content_part, Index)
         th = threading.Thread(target=pushing_file)
         th.start()
-        th.join()
+        # th.join()
 
 
 

@@ -96,7 +96,8 @@ class MongoDbFileStorage:
             client= self.db.client,
             db_name=self.db.name,
             file_id= self.fs._id,
-            data= content
+            data= content,
+            index_chunk=chunk_index
         )
     async def push_async(self, content: bytes, chunk_index):
         return self.push(

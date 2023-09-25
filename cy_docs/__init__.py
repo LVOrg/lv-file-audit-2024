@@ -123,12 +123,13 @@ def file_add_chunk(client: pymongo.MongoClient, db_name: str, file_id: bson.Obje
     )
 
 
-def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes):
+def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes,index_chunk:int=0):
     return cy_docs_x.file_add_chunks(
         client=client,
         db_name=db_name,
         file_id=file_id,
-        data=data
+        data=data,
+        index_chunk=index_chunk
     )
 
 

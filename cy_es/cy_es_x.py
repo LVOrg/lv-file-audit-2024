@@ -1593,7 +1593,11 @@ def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") 
                 ret_data = ESDocumentObjectInfo(data=ret)
                 return ret_data
             except elasticsearch.exceptions.RequestError as e:
+                if e.status_code == 400:
+                    client.indices.close(index=index)
                 time.sleep(0.3)
+                if e.status_code == 400:
+                    client.indices.open(index=index)
                 count+=1
     except elasticsearch.exceptions.NotFoundError as e:
         return None
@@ -2414,7 +2418,14 @@ def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc")
     :param doc_type:
     :return:
     """
-    return client.exists(index=index, id=id, doc_type=doc_type)
+    count = 0
+    while count<10:
+        try:
+            return client.exists(index=index, id=id, doc_type=doc_type)
+        except elasticsearch.exceptions.RequestError as e:
+            time.sleep(0.3)
+            count +=1
+
 
 
 def count(client: Elasticsearch, index: str):
@@ -2740,15 +2751,27 @@ def update_data_fields(
                 d = create_dict_from_key_path_value(k, v)
                 data = {**data, **d}
         if has_data:
-            client.update(
-                index=index,
-                id=id,
-                body={
-                    "doc": data
+            count =0
+            while count<10:
+                try:
+                    client.update(
+                        index=index,
+                        id=id,
+                        body={
+                            "doc": data
 
-                },
-                doc_type=doc_type
-            )
+                        },
+                        doc_type=doc_type
+                    )
+                    count=11
+                except elasticsearch.exceptions.AuthorizationException as e:
+                    client.indices.close(index = index)
+                    time.sleep(0.3)
+                    client.indices.open(index=index)
+                    count +=1
+                except:
+                    time.sleep(0.3)
+                    count+=1
         return True
 
     except elasticsearch.exceptions.NotFoundError as e:
