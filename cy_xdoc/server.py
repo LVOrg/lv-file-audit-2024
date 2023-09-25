@@ -66,7 +66,7 @@ async def codx_integrate(request: fastapi.Request, next):
     return res
 
 
-@cy_web.middleware()
+# @cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     try:
         start_time = datetime.datetime.utcnow()
@@ -165,13 +165,18 @@ class StandaloneApplication(BaseApplication):
     def load(self):
         return self.application
 number_of_workers = get_number_of_cpus()[0]
-
+if config.workers!="auto":
+    if isinstance(config.workers,int):
+        number_of_workers = config.workers
+    else:
+        number_of_workers = 1
 if __name__ == "__main__":
     options = {
         "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
-        "workers": 1,
+        "workers": number_of_workers,
         "worker_class": "uvicorn.workers.UvicornWorker",
     }
+    print(options)
     StandaloneApplication(app, options).run()
 # if __name__ == "__main__":
 #

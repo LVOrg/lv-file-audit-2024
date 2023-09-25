@@ -77,7 +77,7 @@ api_url__: http://172.16.13.72:8012/lvfile/api
 api_url_: http://172.16.1.210:801/api
 
 bind: 0.0.0.0:8012
-workers: 2
+workers: auto
 jwt:
   secret_key: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
   algorithm: HS256

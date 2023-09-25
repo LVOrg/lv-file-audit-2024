@@ -1586,10 +1586,19 @@ class ESDocumentObjectInfo:
 def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> ESDocumentObjectInfo:
     index = index.lower()
     try:
-        ret = client.get(index=index, id=id, doc_type=doc_type)
-        return ESDocumentObjectInfo(data=ret)
+        count=0
+        while count<10:
+            try:
+                ret = client.get(index=index, id=id, doc_type=doc_type)
+                ret_data = ESDocumentObjectInfo(data=ret)
+                return ret_data
+            except elasticsearch.exceptions.RequestError as e:
+                time.sleep(0.3)
+                count+=1
     except elasticsearch.exceptions.NotFoundError as e:
         return None
+
+
 
 
 def __convert_exception__(e):
