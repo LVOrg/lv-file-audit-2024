@@ -346,6 +346,8 @@ def create_filter_from_dict(filter: dict, suggest_handler=None):
 
 
 def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> bool:
+    if index=="True" or index==True:
+        raise Exception("error index type")
     return cy_es_x.is_exist(
         client=client,
         index=index,

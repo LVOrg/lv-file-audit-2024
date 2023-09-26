@@ -2550,68 +2550,68 @@ Configuring a custom similarity is considered an expert feature and the builtin 
     try:
         settings = client.indices.get_settings(index=index)
         settings_index = settings[index]
-        if settings_index.get('settings') and settings_index['settings'].get('index') and settings_index['settings'][
-            'index'].get('similarity') and settings_index['settings']['index']['similarity'].get('bm25_similarity'):
-            try:
-                client.indices.put_mapping(
-                    index=index,
-                    body=
-                    {
-                        "properties": {
-                            field_name: {
-                                "type": "text",
-                                "similarity": "bm25_similarity",
-                                "fielddata": True
-                            },
-                            f"{field_name}_lower": {
-                                "type": "text",
-                                "similarity": "bm25_similarity",
-                                "fielddata": True
-                            }
-
-                        }
-                    }
-                )
-            except Exception as e:
-                print(e)
+        # if settings_index.get('settings') and settings_index['settings'].get('index') and settings_index['settings'][
+        #     'index'].get('similarity') and settings_index['settings']['index']['similarity'].get('bm25_similarity'):
+        #     try:
+        #         client.indices.put_mapping(
+        #             index=index,
+        #             body=
+        #             {
+        #                 "properties": {
+        #                     field_name: {
+        #                         "type": "text",
+        #                         "similarity": "bm25_similarity",
+        #                         "fielddata": True
+        #                     },
+        #                     f"{field_name}_lower": {
+        #                         "type": "text",
+        #                         "similarity": "bm25_similarity",
+        #                         "fielddata": True
+        #                     }
+        #
+        #                 }
+        #             }
+        #         )
+        #     except Exception as e:
+        #         print(e)
 
 
 
 
     except elasticsearch.exceptions.NotFoundError as e:
         client.indices.create(index=index)
-    try:
-        # settings[index]['settings']['index']['similarity']['bm25_similarity']
-        client.indices.close(index=index)
-        settings = {
-            "index": {
-                "similarity": {
-                    "bm25_similarity": {
-                        "type": algorithm_type,
-                        "b": b_value,  # b gần về 0 sẽ bỏ qua độ dài của câu
-                        "k1": k1_value
-                    }
-                }
-            }
-        }
-        client.indices.put_settings(index=index, body=settings)
-        client.indices.put_mapping(
-            index=index,
-            body=
-            {
-                "properties": {
-                    field_name: {
-                        "type": "text",
-                        "similarity": "bm25_similarity",
-                        "fielddata": True
-                    }
-
-                }
-            }
-        )
-        client.indices.open(index=index)
-    except Exception as e:
-        print(e)
+    # try:
+    #     # settings[index]['settings']['index']['similarity']['bm25_similarity']
+    #     client.indices.close(index=index)
+    #     settings = {
+    #         "index": {
+    #             "similarity": {
+    #                 "bm25_similarity": {
+    #                     "type": algorithm_type,
+    #                     "b": b_value,  # b gần về 0 sẽ bỏ qua độ dài của câu
+    #                     "k1": k1_value
+    #                 }
+    #             }
+    #         }
+    #     }
+    #     client.indices.put_settings(index=index, body=settings)
+    #     client.indices.put_mapping(
+    #         index=index,
+    #         body=
+    #         {
+    #             "properties": {
+    #                 field_name: {
+    #                     "type": "text",
+    #                     "similarity": "bm25_similarity",
+    #                     "fielddata": True
+    #                 }
+    #
+    #             }
+    #         }
+    #     )
+    #     client.indices.open(index=index)
+    # except Exception as e:
+    #     print(e)
 
 
 import bson

@@ -111,7 +111,7 @@ class TempFiles:
             file_ext = file_ext,
             content = content
         )
-    def push(self, upload_id: str, app_name: str, file_ext: str, content: bytes):
+    def push(self, upload_id: str, app_name: str, file_ext: str, content: bytes,sync_file_if_not_exit=True):
         """
         Create or append content to file
         The method will automatically create a sub folder in root folder (thou could get infor of
@@ -126,7 +126,7 @@ class TempFiles:
         :param content: binary content will be added
         :return:
         """
-        full_path = self.get_path(app_name, upload_id, file_ext)
+        full_path = self.get_path(app_name, upload_id, file_ext,sync_file_if_not_exit)
         print(f"Save file to {full_path}")
         if not os.path.isfile(full_path):
             with open(full_path, "wb") as f:
@@ -142,7 +142,7 @@ class TempFiles:
         """
         return self.__tem_path__
 
-    def get_path(self, app_name, upload_id, file_ext) -> str:
+    def get_path(self, app_name, upload_id, file_ext,sync_file_if_not_exit=True) -> str:
         """
         Get Full path file in tenant with root temporary directory in get_root_dir()
         Example: get_path( app_name ='my-app',upload_id='123',file_ext='txt')
@@ -161,7 +161,8 @@ class TempFiles:
         if not os.path.isdir(app_dir):
             os.makedirs(app_dir, exist_ok=True)
         ret = os.path.join(app_dir, f"{upload_id}.{file_ext}")
-        if not os.path.isfile(ret):
+        if not os.path.isfile(ret) and sync_file_if_not_exit:
+
             """
             if file is not exist in temp folder
             get it from Mongodb

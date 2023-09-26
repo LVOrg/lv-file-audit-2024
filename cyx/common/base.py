@@ -91,7 +91,7 @@ class DbConnect:
                 }
             )
         threading.Thread(target=run,args=()).start()
-        print(f"access {app_name}")
+
 
 
 class __DbContext__:

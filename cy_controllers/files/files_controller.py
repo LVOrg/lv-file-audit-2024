@@ -44,7 +44,6 @@ from cyx.common.file_storage_mongodb import (
 
 
 
-
 @controller.resource()
 class FilesController:
     dependencies = [
@@ -75,30 +74,44 @@ class FilesController:
         return fs
 
     def delete_cache_upload_register(self, app_name, upload_id):
+        # global __cache__
+        # key = f"{self.request.url.path}/{app_name}/{upload_id}"
+        # del __cache__[key]
         pass
 
     async def get_upload_register_async(self, app_name, upload_id):
+        st = datetime.datetime.utcnow()
         upload_item = await self.file_service.get_upload_register_async(
             app_name=app_name,
             upload_id=upload_id
         )
+        n=(datetime.datetime.utcnow()-st)
+        print(f"get_upload_register_async={n}")
         return upload_item
 
     async def push_file_to_temp_folder_async(self, app_name, content, upload_id, file_ext):
+        st = datetime.datetime.utcnow()
         def pushing_file():
             self.temp_files.push(
                 app_name=app_name,
                 content=content,
                 upload_id=upload_id,
-                file_ext=file_ext
+                file_ext=file_ext,
+                sync_file_if_not_exit=False
             )
 
         pushing_file_th = threading.Thread(target=pushing_file)
         pushing_file_th.start()
         pushing_file_th.join()
+        n= (datetime.datetime.utcnow()-st).total_seconds()
+        print(f"push_file_to_temp_folder_async={n}")
 
     async def get_main_file_id_async(self, fs):
-        return await fs.get_id_async()
+        st = datetime.datetime.utcnow()
+        ret = await fs.get_id_async()
+        n = (datetime.datetime.utcnow() - st).total_seconds()
+        print(f"get_main_file_id_async={n}")
+        return ret
 
     async def update_upload_status_async(self,
                                          app_name,
@@ -107,7 +120,10 @@ class FilesController:
                                          num_of_chunks_complete,
                                          status,
                                          main_file_id):
+        st = datetime.datetime.utcnow()
         upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
+        n=(datetime.datetime.utcnow()-st).total_seconds()
+        print(f"self.file_service.db_connect.db(app_name).doc(DocUploadRegister)={n}")
 
         def update_process():
             upload_register_doc.context.update(
@@ -120,12 +136,17 @@ class FilesController:
 
             )
 
-
+        st = datetime.datetime.utcnow()
         threading.Thread(target=update_process).start()
+        n = (datetime.datetime.utcnow() - st).total_seconds()
+        print(f"threading.Thread(target=update_process).start()={n}")
+        st = datetime.datetime.utcnow()
         data = await self.get_upload_register_async(
             app_name=app_name,
             upload_id=upload_id
         )
+        n = (datetime.datetime.utcnow() - st).total_seconds()
+        print(f"await self.get_upload_register_async={n}")
         data["SizeUploaded"] = size_uploaded
         data["NumOfChunksCompleted"] = num_of_chunks_complete
         data["status"] = status
@@ -133,13 +154,14 @@ class FilesController:
 
     async def push_file_async(self,app_name:str,upload_id:str, fs:MongoDbFileStorage, content_part, Index):
 
-
+        st = datetime.datetime.utcnow()
         def pushing_file():
             fs.push(content_part, Index)
         th = threading.Thread(target=pushing_file)
         th.start()
-        # th.join()
-
+        th.join()
+        n = (datetime.datetime.utcnow() - st).total_seconds()
+        print(f"push_file_async={n}")
 
 
     async def update_search_engine_async(self, app_name, id, content, data_item, update_meta):
@@ -197,12 +219,8 @@ class FilesController:
                            Index: Annotated[int, Form()],
                            FilePart: Annotated[UploadFile, File()]) -> UploadFilesChunkInfoResult:
         start_time = datetime.datetime.utcnow()
-        s = datetime.datetime.utcnow()
-        content_part = await self.get_upload_binary_async(FilePart)
 
-        n = (datetime.datetime.utcnow() - s).total_seconds()
-        print(FilePart.file.name)
-        print(f"read file from request = {n}")
+        content_part = await self.get_upload_binary_async(FilePart)
         upload_item = await self.get_upload_register_async(
             app_name=app_name,
             upload_id=UploadId
@@ -224,13 +242,12 @@ class FilesController:
         size_uploaded = upload_item.SizeUploaded or 0
         num_of_chunks_complete = upload_item.NumOfChunksCompleted or 0
         nun_of_chunks = upload_item.NumOfChunks or 0
-        main_file_id = upload_item.MainFileId
+        # main_file_id = upload_item.MainFileId
         chunk_size_in_bytes = upload_item.ChunkSizeInBytes or 0
         server_file_name = upload_item.FullFileNameLower
         content_type, _ = mimetypes.guess_type(server_file_name)
 
         if num_of_chunks_complete == 0:
-            s = datetime.datetime.utcnow()
             fs = await self.create_storage_file_async(
                 app_name=app_name,
                 rel_file_path=server_file_name,
@@ -271,16 +288,13 @@ class FilesController:
                 content_part = content_part,
                 Index =Index
             )
-            if self.temp_files.is_use:
-                s = datetime.datetime.utcnow()
-                await self.temp_files.push_async(
-                    app_name=app_name,
-                    content=content_part,
-                    upload_id=UploadId,
-                    file_ext=upload_item[upload_register_doc.fields.FileExt]
-                )
-                n = (datetime.datetime.utcnow() - s).total_seconds()
-                print(f"temp_files.push_async = {n}")
+            await self.push_temp_file_async(
+                app_name=app_name,
+                content=content_part,
+                upload_id=UploadId,
+                file_ext=upload_item[upload_register_doc.fields.FileExt]
+            )
+
         if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
             upload_item["Status"] = 1
             await self.update_search_engine_async(
@@ -317,16 +331,7 @@ class FilesController:
             main_file_id=fs.get_id()
         )
 
-        n = (datetime.datetime.utcnow() - s).total_seconds()
-        print(f"upload_register_doc.context.update_async = {n}")
-
-        s = datetime.datetime.utcnow()
         ret_data = ret.to_pydantic()
-        n = (datetime.datetime.utcnow() - s).total_seconds()
-        print(f"data.to_pydantic()= {n}")
-        total_time = (datetime.datetime.utcnow() - start_time).total_seconds()
-        print(f"total_time= {total_time}")
-        del FilePart
 
         if status == 1:
             self.delete_cache_upload_register(
@@ -335,3 +340,15 @@ class FilesController:
             )
 
         return ret_data
+
+    async def push_temp_file_async(self, app_name, content, upload_id, file_ext):
+        st= datetime.datetime.utcnow()
+        if self.temp_files.is_use:
+            await self.temp_files.push_async(
+                app_name=app_name,
+                content=content,
+                upload_id=upload_id,
+                file_ext=file_ext
+            )
+        n = (datetime.datetime.utcnow()-st).total_seconds()
+        print(f"push_temp_file_async={n}")
