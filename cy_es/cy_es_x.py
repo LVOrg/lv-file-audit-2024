@@ -1593,12 +1593,15 @@ def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") 
                 ret_data = ESDocumentObjectInfo(data=ret)
                 return ret_data
             except elasticsearch.exceptions.RequestError as e:
+
                 if e.status_code == 400:
                     client.indices.close(index=index)
                 time.sleep(0.3)
                 if e.status_code == 400:
                     client.indices.open(index=index)
                 count+=1
+                if count > 10:
+                    raise e
     except elasticsearch.exceptions.NotFoundError as e:
         return None
 
@@ -1649,6 +1652,9 @@ def __create_doc__(client: Elasticsearch, index: str, body: typing.Optional[typi
         return ESDocumentObjectInfo(res), None
     except elasticsearch.RequestError as er:
         if er.status_code == 400:
+            client.indices.close(index=index)
+            time.sleep(1)
+            client.indices.open(index=index)
             if try_count > 0:
                 print(f"Create doc in {index} with id {id} fails, resume count ={try_count}")
                 time.sleep(1)
@@ -2423,9 +2429,15 @@ def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc")
         try:
             return client.exists(index=index, id=id, doc_type=doc_type)
         except elasticsearch.exceptions.RequestError as e:
-            time.sleep(0.3)
+            if e.status_code==400:
+                client.indices.close(index==index)
+                time.sleep(0.3)
+                client.indices.open(index == index)
+            else:
+                time.sleep(0.3)
             count +=1
-
+            if count>10:
+                raise e
 
 
 def count(client: Elasticsearch, index: str):
