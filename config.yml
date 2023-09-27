@@ -153,3 +153,4 @@ broker:
   servers: 172.16.7.91:30992
   msg: xdoc
 #  temp_directory: ./brokers/tmp-files
+cache_server: 172.16.7.91:30999
