@@ -81,6 +81,12 @@ class FilesController:
         pass
 
     async def get_upload_register_async(self, app_name, upload_id)->cy_docs.DocumentObject:
+        """
+        This function use memcache
+        :param app_name:
+        :param upload_id:
+        :return:
+        """
         st = datetime.datetime.utcnow()
         cache_value = self.file_service.cache_upload_register_get(
             upload_id=upload_id
@@ -91,9 +97,9 @@ class FilesController:
                 app_name=app_name,
                 upload_id=upload_id
             )
-            self.file_service.cache_upload_register_get(
+            self.file_service.cache_upload_register_set(
                 upload_id = upload_id,
-                doc_data=upload_item
+                doc_data = upload_item
             )
         else:
             upload_item = cache_value
@@ -163,6 +169,10 @@ class FilesController:
         data["NumOfChunksCompleted"] = num_of_chunks_complete
         data["status"] = status
         data["MainFileId"] = main_file_id
+        self.file_service.cache_upload_register_set(
+            UploadId = upload_id,
+            doc_data = data
+        )
 
     async def push_file_async(self,app_name:str,upload_id:str, fs:MongoDbFileStorage, content_part, Index):
 
@@ -177,6 +187,15 @@ class FilesController:
 
 
     async def update_search_engine_async(self, app_name, id, content, data_item, update_meta):
+        """
+        run in thread
+        :param app_name:
+        :param id:
+        :param content:
+        :param data_item:
+        :param update_meta:
+        :return:
+        """
         try:
             def update_search_engine_content():
 
