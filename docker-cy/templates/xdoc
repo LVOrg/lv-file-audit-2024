@@ -16,7 +16,6 @@ COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
 COPY ./../cy_controllers /app/cy_controllers
 RUN python3 -c 'import cv2'
-RUN python3 -m pip install redis==4.0.3
 RUN python3 -m pip install python-memcached==1.59
 #memcache-service.lv-cache:11211
 #mc = pymemcache.Client(['memcache-service.lv-cache:11211'])

@@ -636,8 +636,10 @@ class FileServices:
         )
         return ret
 
-    def cache_upload_register_get(self, upload_id:str)->cy_docs.DocumentObject:
+    def cache_upload_register_get(self, upload_id:str)->typing.Optional[cy_docs.DocumentObject]:
         ret = self.memcache_service.get_dict(key=upload_id)
+        if ret is None:
+            return None
         ret_doc = cy_docs.DocumentObject(ret)
         return ret_doc
 
