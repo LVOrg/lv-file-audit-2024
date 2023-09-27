@@ -7,17 +7,28 @@ from cyx.common.base import DbConnect
 from cy_xdoc.models.users import User
 from cy_xdoc.models.sso import SSO
 from passlib.context import CryptContext
-
+from cyx.cache_service.memcache_service import MemcacheServices
 
 class AccountService:
     def __init__(self,
-                 db_connect:DbConnect=cy_kit.singleton(DbConnect)
+                 db_connect:DbConnect=cy_kit.singleton(DbConnect),
+                 cache =  cy_kit.singleton(MemcacheServices)
                  ):
         self.db_connect = db_connect
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.cache = cache
 
     def verify_password(self, plain_password, hashed_password):
-        return self.pwd_context.verify(plain_password, hashed_password)
+        key = f"{plain_password}/{hashed_password}"
+        if self.cache.get_bool_value(key) is not None:
+            return self.cache.get_bool_value(key)
+        check = self.pwd_context.verify(plain_password, hashed_password)
+        if check:
+            self.cache.set_bool_value(key,check)
+            return check
+        else:
+            return check
+
 
     def get_password_hash(self, hash_data: str):
         return self.pwd_context.hash(hash_data)

@@ -170,6 +170,9 @@ if config.workers!="auto":
         number_of_workers = config.workers
     else:
         number_of_workers = 1
+from cyx.cache_service.memcache_service import MemcacheServices
+cache_service = cy_kit.singleton(MemcacheServices)
+cache_service.check_connection(timeout=60*15)
 if __name__ == "__main__":
     options = {
         "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),

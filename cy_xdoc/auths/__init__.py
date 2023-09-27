@@ -8,7 +8,7 @@ __is_the_first_time__ = None
 
 import cy_xdoc.services.apps
 
-
+from cyx.cache_service.memcache_service import MemcacheServices
 
 
 @cy_web.auth_type(OAuth2PasswordBearer)
@@ -20,10 +20,15 @@ class Authenticate:
 
         return True
 
-    def validate_account(self,request: Request, username: str, password: str) -> bool:
+    def validate_account(self, request: Request, username: str, password: str) -> dict:
         global __is_the_first_time__
-        account_service = cy_kit.inject(cy_xdoc.services.accounts.AccountService)
-        app_service = cy_kit.inject(cy_xdoc.services.apps.AppServices)
+        account_service = cy_kit.singleton(cy_xdoc.services.accounts.AccountService)
+        app_service = cy_kit.singleton(cy_xdoc.services.apps.AppServices)
+        cache_service = cy_kit.singleton(MemcacheServices)
+        key = f"validate_account/{username}/{password}"
+        cache_value = cache_service.get_dict(key)
+        if isinstance(cache_value, dict):
+            return cache_value
         if __is_the_first_time__ is None:
             app_service.create_default_app(
                 login_url=cy_web.get_host_url() + "/login",
@@ -35,11 +40,13 @@ class Authenticate:
         app_name = username.split('/')[0]
         username = username.split('/')[1]
         if account_service.validate(app_name, username, password):
-            return dict(
+            ret = dict(
                 application=app_name,
                 username=username,
                 is_ok=True
             )
+            cache_service.set_dict(key,ret,expiration=60*60*4)
+            return ret
         else:
             return dict(
                 application=app_name,

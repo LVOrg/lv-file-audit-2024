@@ -42,7 +42,7 @@ from cyx.common.file_storage_mongodb import (
     MongoDbFileService,MongoDbFileStorage
 )
 
-
+from cyx.cache_service.memcache_service import MemcacheServices
 
 @controller.resource()
 class FilesController:
@@ -55,6 +55,7 @@ class FilesController:
     msg_service: MessageService = cy_kit.singleton(MessageService)
     broker: Broker = cy_kit.singleton(Broker)
     temp_files = cy_kit.singleton(TempFiles)
+    memcache_service = cy_kit.singleton(MemcacheServices)
 
     def __init__(self, request: Request):
         self.request = request
@@ -79,12 +80,23 @@ class FilesController:
         # del __cache__[key]
         pass
 
-    async def get_upload_register_async(self, app_name, upload_id):
+    async def get_upload_register_async(self, app_name, upload_id)->cy_docs.DocumentObject:
         st = datetime.datetime.utcnow()
-        upload_item = await self.file_service.get_upload_register_async(
-            app_name=app_name,
+        cache_value = self.file_service.cache_upload_register_get(
             upload_id=upload_id
         )
+        upload_item = None
+        if cache_value is None:
+            upload_item = await self.file_service.get_upload_register_async(
+                app_name=app_name,
+                upload_id=upload_id
+            )
+            self.file_service.cache_upload_register(
+                upload_id = upload_id,
+                doc_data=upload_item
+            )
+        else:
+            upload_item = cache_value
         n=(datetime.datetime.utcnow()-st)
         print(f"get_upload_register_async={n}")
         return upload_item

@@ -22,6 +22,8 @@ import cyx.common.base
 import cyx.common.cacher
 import traceback
 from cyx.loggers import LoggerService
+from cyx.cache_service.memcache_service import MemcacheServices
+
 
 class FileServices:
     """
@@ -34,7 +36,8 @@ class FileServices:
                  search_engine=cy_kit.singleton(cy_xdoc.services.search_engine.SearchEngine),
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
-                 logger = cy_kit.singleton(LoggerService)):
+                 logger=cy_kit.singleton(LoggerService),
+                 memcache_service = cy_kit.singleton(MemcacheServices)):
 
         self.file_storage_service: cyx.common.file_storage.FileStorageService = file_storage_service
         self.search_engine = search_engine
@@ -42,6 +45,7 @@ class FileServices:
         self.cacher = cacher
         self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
         self.logger = logger
+        self.memcache_service = memcache_service
 
     def get_queryable_doc(self, app_name: str) -> cyx.common.base.DbCollection[DocUploadRegister]:
         """
@@ -134,22 +138,24 @@ class FileServices:
     def find_file_async(self, app_name, relative_file_path):
         pass
 
-    def get_main_main_thumb_file(self, app_name:str, upload_id:str):
+    def get_main_main_thumb_file(self, app_name: str, upload_id: str):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
         if upload is None:
             return None
         ret = self.file_storage_service.get_file_by_id(app_name=app_name, id=upload.ThumbFileId)
         # self.get_file(app_name, upload.ThumbFileId)
         return ret
-    async def get_main_main_thumb_file_async(self, app_name:str, upload_id:str):
+
+    async def get_main_main_thumb_file_async(self, app_name: str, upload_id: str):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
         if upload is None:
             return None
         ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=upload.ThumbFileId)
         # self.get_file(app_name, upload.ThumbFileId)
         return ret
+
     def add_new_upload_info(self,
-                            app_name:str,
+                            app_name: str,
                             client_file_name: str,
                             is_public: bool,
                             file_size: int,
@@ -175,58 +181,101 @@ class FileServices:
             app_name=app_name,
             privileges_type_from_client=privileges_type
         )
+        def cahe_register():
+            cache_doc = cy_docs.DocumentObject()
+            cache_doc[doc.fields.id] = id
+            cache_doc[doc.fields.FileName] = client_file_name
+            cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
+            cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
+            cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
+            cache_doc[doc.fields.FileExt ] =  os.path.splitext(client_file_name)[1].split('.')[1]
+            cache_doc[doc.fields.FullFileName ] =  f"{id}/{server_file_name_only}"
+            cache_doc[doc.fields.FullFileNameLower ] =  f"{id}/{server_file_name_only}".lower()
+            cache_doc[doc.fields.FullFileNameWithoutExtenstion ] =  f"{id}/{pathlib.Path(server_file_name_only).stem}"
+            cache_doc[doc.fields.FullFileNameWithoutExtenstionLower ] =  f"{id}/{pathlib.Path(server_file_name_only).stem}".lower()
+            cache_doc[doc.fields.ServerFileName ] =  f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
+            cache_doc[doc.fields.AvailableThumbSize ] =  thumbs_support
+            cache_doc[doc.fields.ChunkSizeInKB ] =  chunk_size / 1024
+            cache_doc[doc.fields.ChunkSizeInBytes ] =  chunk_size
+            cache_doc[doc.fields.NumOfChunks ] =  num_of_chunks
+            cache_doc[doc.fields.NumOfChunksCompleted ] =  0
+            cache_doc[doc.fields.SizeInHumanReadable ] =  humanize.filesize.naturalsize(file_size)
+            cache_doc[doc.fields.SizeUploaded ] =  0
+            cache_doc[doc.fields.ProcessHistories ] =  []
+            cache_doc[doc.fields.MimeType ] =  mime_type
+            cache_doc[doc.fields.IsPublic ] =  is_public
+            cache_doc[doc.fields.Status ] =  0
+            cache_doc[doc.fields.RegisterOn ] =  datetime.datetime.utcnow()
+            cache_doc[doc.fields.RegisterOnDays ] =  datetime.datetime.utcnow().day
+            cache_doc[doc.fields.RegisterOnMonths ] =  datetime.datetime.utcnow().month
+            cache_doc[doc.fields.RegisterOnYears ] =  datetime.datetime.utcnow().year
+            cache_doc[doc.fields.RegisterOnHours ] =  datetime.datetime.utcnow().hour
+            cache_doc[doc.fields.RegisterOnMinutes ] =  datetime.datetime.utcnow().minute
+            cache_doc[doc.fields.RegisterOnSeconds ] =  datetime.datetime.utcnow().second
+            cache_doc[doc.fields.RegisteredBy ] =  app_name
+            cache_doc[doc.fields.HasThumb ] =  False
+            cache_doc[doc.fields.LastModifiedOn ] =  datetime.datetime.utcnow()
+            cache_doc[doc.fields.SizeInBytes ] =  file_size
+            cache_doc[doc.fields.Privileges ] =  privileges_server
+            cache_doc[doc.fields.ClientPrivileges ] =  privileges_client
+            cache_doc[doc.fields.meta_data ] =  meta_data
+            self.cache_upload_register_set(
+                UploadId=id,
+                doc_data=cache_doc
+            )
+        cahe_register()
         def insert_register():
             retry_count = 0
-            while retry_count<10:
+            while retry_count < 10:
                 try:
                     doc.context.insert_one(
-                    doc.fields.id << id,
-                    doc.fields.FileName << client_file_name,
-                    doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
-                    doc.fields.FileNameLower << client_file_name.lower(),
-                    doc.fields.FileExt << os.path.splitext(client_file_name)[1].split('.')[1],
-                    doc.fields.FullFileName << f"{id}/{server_file_name_only}",
-                    doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
-                    doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
-                    doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
-                    doc.fields.ServerFileName << f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}",
-                    doc.fields.AvailableThumbSize << thumbs_support,
-
-                    doc.fields.ChunkSizeInKB << chunk_size / 1024,
-                    doc.fields.ChunkSizeInBytes << chunk_size,
-                    doc.fields.NumOfChunks << num_of_chunks,
-                    doc.fields.NumOfChunksCompleted << 0,
-                    doc.fields.SizeInHumanReadable << humanize.filesize.naturalsize(file_size),
-                    doc.fields.SizeUploaded << 0,
-                    doc.fields.ProcessHistories << [],
-                    doc.fields.MimeType << mime_type,
-                    doc.fields.IsPublic << is_public,
-                    doc.fields.Status << 0,
-                    doc.fields.RegisterOn << datetime.datetime.utcnow(),
-                    doc.fields.RegisterOnDays << datetime.datetime.utcnow().day,
-                    doc.fields.RegisterOnMonths << datetime.datetime.utcnow().month,
-                    doc.fields.RegisterOnYears << datetime.datetime.utcnow().year,
-                    doc.fields.RegisterOnHours << datetime.datetime.utcnow().hour,
-                    doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
-                    doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
-                    doc.fields.RegisteredBy << app_name,
-                    doc.fields.HasThumb << False,
-                    doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
-                    doc.fields.SizeInBytes << file_size,
-                    doc.fields.Privileges << privileges_server,
-                    doc.fields.ClientPrivileges << privileges_client,
-                    doc.fields.meta_data << meta_data
-                )
+                        doc.fields.id << id,
+                        doc.fields.FileName << client_file_name,
+                        doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
+                        doc.fields.FileNameLower << client_file_name.lower(),
+                        doc.fields.FileExt << os.path.splitext(client_file_name)[1].split('.')[1],
+                        doc.fields.FullFileName << f"{id}/{server_file_name_only}",
+                        doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
+                        doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
+                        doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
+                        doc.fields.ServerFileName << f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}",
+                        doc.fields.AvailableThumbSize << thumbs_support,
+                        doc.fields.ChunkSizeInKB << chunk_size / 1024,
+                        doc.fields.ChunkSizeInBytes << chunk_size,
+                        doc.fields.NumOfChunks << num_of_chunks,
+                        doc.fields.NumOfChunksCompleted << 0,
+                        doc.fields.SizeInHumanReadable << humanize.filesize.naturalsize(file_size),
+                        doc.fields.SizeUploaded << 0,
+                        doc.fields.ProcessHistories << [],
+                        doc.fields.MimeType << mime_type,
+                        doc.fields.IsPublic << is_public,
+                        doc.fields.Status << 0,
+                        doc.fields.RegisterOn << datetime.datetime.utcnow(),
+                        doc.fields.RegisterOnDays << datetime.datetime.utcnow().day,
+                        doc.fields.RegisterOnMonths << datetime.datetime.utcnow().month,
+                        doc.fields.RegisterOnYears << datetime.datetime.utcnow().year,
+                        doc.fields.RegisterOnHours << datetime.datetime.utcnow().hour,
+                        doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
+                        doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
+                        doc.fields.RegisteredBy << app_name,
+                        doc.fields.HasThumb << False,
+                        doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
+                        doc.fields.SizeInBytes << file_size,
+                        doc.fields.Privileges << privileges_server,
+                        doc.fields.ClientPrivileges << privileges_client,
+                        doc.fields.meta_data << meta_data
+                    )
                 except Exception as e:
                     time.sleep(0.1)
-                    retry_count+=1
-                    if retry_count>10:
+                    retry_count += 1
+                    if retry_count > 10:
                         self.logger.error(e)
+
         threading.Thread(target=insert_register).start()
-        t = datetime.datetime.now()
+
         def search_engine_create_or_update_privileges():
             re_try_count = 0
-            while re_try_count<3:
+            while re_try_count < 3:
                 try:
                     self.search_engine.create_or_update_privileges(
                         app_name=app_name,
@@ -240,10 +289,10 @@ class FileServices:
                         doc.fields.id == id,
                         doc.fields.SearchEngineMetaIsUpdate << True
                     )
-                    re_try_count =3
+                    re_try_count = 3
 
                 except Exception as e:
-                    if re_try_count+1>=3:
+                    if re_try_count + 1 >= 3:
                         traceback_string = traceback.format_exc()
                         doc.context.update(
                             doc.fields.id == id,
@@ -251,26 +300,16 @@ class FileServices:
                         )
                         self.logger.error(e)
                     str_date = datetime.datetime.now().strftime("%Y-%d-%m:%H:%M:%S")
-                    print(f"{str_date}: Insert data to Elastic Search Error {e}, ret-try {re_try_count+1}")
-                    re_try_count +=1
+                    print(f"{str_date}: Insert data to Elastic Search Error {e}, ret-try {re_try_count + 1}")
+                    re_try_count += 1
                     time.sleep(0.5)
+
         th = threading.Thread(
             target=search_engine_create_or_update_privileges,
             args=()
         )
-
+        st = datetime.datetime.utcnow()
         th.start()
-
-        # self.search_engine.create_or_update_privileges(
-        #     app_name=app_name,
-        #     upload_id=id,
-        #     data_item=doc.context @ id,
-        #     privileges=privileges_server,
-        #     meta_info=meta_data
-        #
-        # )
-        n = (datetime.datetime.now() -t).total_seconds()
-
 
 
         return cy_docs.DocumentObject(
@@ -286,13 +325,15 @@ class FileServices:
             FileSize=file_size,
             UrlThumb=f"{web_host_root_url}/api/{app_name}/thumb/{id}/{pathlib.Path(server_file_name_only).name.lower()}.webp",
             OriginalFileName=client_file_name,
-            SearchEngineInsertTimeInSecond = n
+            SearchEngineInsertTimeInSecond=(datetime.datetime.utcnow() - st).total_seconds()
         )
 
     def get_upload_register(self, app_name: str, upload_id: str):
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+
     async def get_upload_register_async(self, app_name: str, upload_id: str):
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+
     def get_upload_register_with_cache(self, app_name, upload_id):
         ret = self.cacher.get_by_key(self.cache_type, f"{app_name}/{upload_id}")
         if not ret:
@@ -382,7 +423,7 @@ class FileServices:
                 item.OCRFileId = bson.ObjectId(ocr_fsg.get_id())
 
         @cy_kit.thread_makeup()
-        def copy_thumbs(app_name: str, to_id:str, thumbs_list: typing.List[str]):
+        def copy_thumbs(app_name: str, to_id: str, thumbs_list: typing.List[str]):
             for x in thumbs_list:
                 rel_path = x[item.id.__len__():]
                 self.file_storage_service.copy(
@@ -392,15 +433,14 @@ class FileServices:
                     rel_file_path_from=x
                 )
 
-
         self.search_engine.copy(
             app_name, from_id=upload_id, to_id=item.id, attach_data=item, run_in_thread=True)
         item.Status = 1
 
-        item.ThumbHeight=700
+        item.ThumbHeight = 700
         item.ThumbId = None
-        data_insert = document_context.fields.reduce(item,skip_require=False)
-        ret=document_context.context.insert_one(data_insert)
+        data_insert = document_context.fields.reduce(item, skip_require=False)
+        ret = document_context.context.insert_one(data_insert)
         copy_thumbs(app_name=app_name, to_id=data_insert._id, thumbs_list=item.AvailableThumbs or []).start()
         return data_insert
 
@@ -513,6 +553,7 @@ class FileServices:
                             privilege_context.context.insert_one(
                                 privilege_context.fields.Name << x.Type.lower().lower().strip()
                             )
+
                         threading.Thread(target=run_insert).start()
                         """
                         Bo sung danh sach dac quyen, ho tro cho gia dien khi loc theo dac quyen
@@ -521,6 +562,7 @@ class FileServices:
                         """
                         Bo sung danh sach dac quyen va gia tri
                         """
+
                         def running():
                             privileges_value_item = privilege_value_context.context @ (
                                     (
@@ -537,6 +579,7 @@ class FileServices:
                                     privilege_value_context.fields.Value << v,
                                     privilege_value_context.fields.Name << x.Type.lower().lower().strip()
                                 )
+
                         threading.Thread(target=running).start()
                     privileges_server[x.Type.lower()] = [v.strip() for v in x.Values.lower().split(',')]
                     privileges_client += [{
@@ -545,7 +588,7 @@ class FileServices:
                 check_types[x.Type.lower().strip()] = x
         return privileges_server, privileges_client
 
-    def get_main_file_of_upload_by_rel_file_path(self, app_name, rel_file_path, runtime_file_reader = None):
+    def get_main_file_of_upload_by_rel_file_path(self, app_name, rel_file_path, runtime_file_reader=None):
         if runtime_file_reader is not None:
             return runtime_file_reader.get_file_by_name(
                 app_name=app_name,
@@ -582,3 +625,19 @@ class FileServices:
             doc_context.fields.OCRFileId << ocr_file_id
 
         )
+
+    def cache_upload_register_set(self,
+                             UploadId:str,
+                             doc_data: cy_docs.DocumentObject):
+        ret = self.memcache_service.set_dict(
+            key=UploadId,
+            data = doc_data.to_json_convertable(),
+            expiration = 30*60
+        )
+        return ret
+
+    def cache_upload_register_get(self, upload_id:str)->cy_docs.DocumentObject:
+        ret = self.memcache_service.get_dict(key=upload_id)
+        ret_doc = cy_docs.DocumentObject(ret)
+        return ret_doc
+
