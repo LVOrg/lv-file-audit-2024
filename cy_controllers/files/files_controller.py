@@ -91,7 +91,7 @@ class FilesController:
                 app_name=app_name,
                 upload_id=upload_id
             )
-            self.file_service.cache_upload_register(
+            self.file_service.cache_upload_register_get(
                 upload_id = upload_id,
                 doc_data=upload_item
             )
