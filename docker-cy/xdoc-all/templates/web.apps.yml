@@ -63,6 +63,7 @@ spec:
             - rabbitmq.server=$(rabbitmq.server)
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
+            - cache_server = $(cache_server)
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:
             - configMapRef:
@@ -76,3 +77,4 @@ spec:
             - containerPort: 80
 ---
 {{end}}
+---

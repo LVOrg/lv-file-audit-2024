@@ -27,5 +27,6 @@ data:
   rabbitmq.server: '{{ $rb.server }}'
   rabbitmq.msg: '{{ $rb.msg }}'
   temp_directory_: /app/share-storage
+  cache_server: memcache-service.file-cache:11211
 ---
 {{end}}
