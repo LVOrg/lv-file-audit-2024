@@ -170,15 +170,17 @@ if config.workers!="auto":
         number_of_workers = config.workers
     else:
         number_of_workers = 1
-# if __name__ == "__main__":
-#     options = {
-#         "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
-#         "workers": number_of_workers,
-#         "worker_class": "uvicorn.workers.UvicornWorker",
-#     }
-#     print(options)
-#     StandaloneApplication(app, options).run()
 if __name__ == "__main__":
+    options = {
+        "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
+        "workers": number_of_workers,
+        "worker_class": "uvicorn.workers.UvicornWorker",
+        "timeout_keep_alive":30,
+        "timeout_graceful_shutdown":10
+    }
+    print(options)
+    StandaloneApplication(app, options).run()
+# if __name__ == "__main__":
 
     # application = WSGIApplication(cy_web.get_fastapi_app())
     # number_of_workers = get_number_of_cpus()[0]
@@ -190,7 +192,7 @@ if __name__ == "__main__":
 
 
 
-    cy_web.start_with_uvicorn(worker=number_of_workers)
+    # cy_web.start_with_uvicorn(worker=number_of_workers)
     # cy_web.start_with_guicorn(worker=number_of_workers)
     # from gunicorn.app import wsgiapp
     #

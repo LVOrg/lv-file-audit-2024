@@ -91,7 +91,7 @@ storage_longhorn:
 fileJob:
   namespace: xdoc-job-v10
   configMapName: xdoc-job-config
-  replicas: 1
+  replicas: 2
   repository: nttlong/py310-xdoc
   pullPolicy: IfNotPresent
   tag: amd.cpu.9.37.33

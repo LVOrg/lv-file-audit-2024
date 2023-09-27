@@ -21,7 +21,7 @@ import cy_xdoc.services.search_engine
 import cyx.common.base
 import cyx.common.cacher
 import traceback
-
+from cyx.loggers import LoggerService
 
 class FileServices:
     """
@@ -29,17 +29,19 @@ class FileServices:
     """
 
     def __init__(self,
-                 file_storage_service: cyx.common.file_storage.FileStorageService = cy_kit.inject(
+                 file_storage_service: cyx.common.file_storage.FileStorageService = cy_kit.singleton(
                      cyx.common.file_storage.FileStorageService),
-                 search_engine=cy_kit.inject(cy_xdoc.services.search_engine.SearchEngine),
-                 db_connect=cy_kit.inject(cyx.common.base.DbConnect),
-                 cacher=cy_kit.inject(cyx.common.cacher.CacherService)):
+                 search_engine=cy_kit.singleton(cy_xdoc.services.search_engine.SearchEngine),
+                 db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
+                 cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
+                 logger = cy_kit.singleton(LoggerService)):
 
         self.file_storage_service: cyx.common.file_storage.FileStorageService = file_storage_service
         self.search_engine = search_engine
         self.db_connect = db_connect
         self.cacher = cacher
         self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
+        self.logger = logger
 
     def get_queryable_doc(self, app_name: str) -> cyx.common.base.DbCollection[DocUploadRegister]:
         """
@@ -173,46 +175,54 @@ class FileServices:
             app_name=app_name,
             privileges_type_from_client=privileges_type
         )
+        def insert_register():
+            retry_count = 0
+            while retry_count<10:
+                try:
+                    doc.context.insert_one(
+                    doc.fields.id << id,
+                    doc.fields.FileName << client_file_name,
+                    doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
+                    doc.fields.FileNameLower << client_file_name.lower(),
+                    doc.fields.FileExt << os.path.splitext(client_file_name)[1].split('.')[1],
+                    doc.fields.FullFileName << f"{id}/{server_file_name_only}",
+                    doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
+                    doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
+                    doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
+                    doc.fields.ServerFileName << f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}",
+                    doc.fields.AvailableThumbSize << thumbs_support,
 
-        ret = doc.context.insert_one(
-            doc.fields.id << id,
-            doc.fields.FileName << client_file_name,
-            doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
-            doc.fields.FileNameLower << client_file_name.lower(),
-            doc.fields.FileExt << os.path.splitext(client_file_name)[1].split('.')[1],
-            doc.fields.FullFileName << f"{id}/{server_file_name_only}",
-            doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
-            doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
-            doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
-            doc.fields.ServerFileName << f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}",
-            doc.fields.AvailableThumbSize << thumbs_support,
-
-            doc.fields.ChunkSizeInKB << chunk_size / 1024,
-            doc.fields.ChunkSizeInBytes << chunk_size,
-            doc.fields.NumOfChunks << num_of_chunks,
-            doc.fields.NumOfChunksCompleted << 0,
-            doc.fields.SizeInHumanReadable << humanize.filesize.naturalsize(file_size),
-            doc.fields.SizeUploaded << 0,
-            doc.fields.ProcessHistories << [],
-            doc.fields.MimeType << mime_type,
-            doc.fields.IsPublic << is_public,
-            doc.fields.Status << 0,
-            doc.fields.RegisterOn << datetime.datetime.utcnow(),
-            doc.fields.RegisterOnDays << datetime.datetime.utcnow().day,
-            doc.fields.RegisterOnMonths << datetime.datetime.utcnow().month,
-            doc.fields.RegisterOnYears << datetime.datetime.utcnow().year,
-            doc.fields.RegisterOnHours << datetime.datetime.utcnow().hour,
-            doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
-            doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
-            doc.fields.RegisteredBy << app_name,
-            doc.fields.HasThumb << False,
-            doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
-            doc.fields.SizeInBytes << file_size,
-            doc.fields.Privileges << privileges_server,
-            doc.fields.ClientPrivileges << privileges_client,
-            doc.fields.meta_data << meta_data
-
-        )
+                    doc.fields.ChunkSizeInKB << chunk_size / 1024,
+                    doc.fields.ChunkSizeInBytes << chunk_size,
+                    doc.fields.NumOfChunks << num_of_chunks,
+                    doc.fields.NumOfChunksCompleted << 0,
+                    doc.fields.SizeInHumanReadable << humanize.filesize.naturalsize(file_size),
+                    doc.fields.SizeUploaded << 0,
+                    doc.fields.ProcessHistories << [],
+                    doc.fields.MimeType << mime_type,
+                    doc.fields.IsPublic << is_public,
+                    doc.fields.Status << 0,
+                    doc.fields.RegisterOn << datetime.datetime.utcnow(),
+                    doc.fields.RegisterOnDays << datetime.datetime.utcnow().day,
+                    doc.fields.RegisterOnMonths << datetime.datetime.utcnow().month,
+                    doc.fields.RegisterOnYears << datetime.datetime.utcnow().year,
+                    doc.fields.RegisterOnHours << datetime.datetime.utcnow().hour,
+                    doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
+                    doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
+                    doc.fields.RegisteredBy << app_name,
+                    doc.fields.HasThumb << False,
+                    doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
+                    doc.fields.SizeInBytes << file_size,
+                    doc.fields.Privileges << privileges_server,
+                    doc.fields.ClientPrivileges << privileges_client,
+                    doc.fields.meta_data << meta_data
+                )
+                except Exception as e:
+                    time.sleep(0.1)
+                    retry_count+=1
+                    if retry_count>10:
+                        self.logger.error(e)
+        threading.Thread(target=insert_register).start()
         t = datetime.datetime.now()
         def search_engine_create_or_update_privileges():
             re_try_count = 0
@@ -239,7 +249,7 @@ class FileServices:
                             doc.fields.id == id,
                             doc.fields.SearchEngineErrorLog << traceback_string
                         )
-                        print(traceback_string)
+                        self.logger.error(e)
                     str_date = datetime.datetime.now().strftime("%Y-%d-%m:%H:%M:%S")
                     print(f"{str_date}: Insert data to Elastic Search Error {e}, ret-try {re_try_count+1}")
                     re_try_count +=1
@@ -499,9 +509,11 @@ class FileServices:
     
                     """
                     if privilege_item is None:
-                        privilege_context.context.insert_one(
-                            privilege_context.fields.Name << x.Type.lower().lower().strip()
-                        )
+                        def run_insert():
+                            privilege_context.context.insert_one(
+                                privilege_context.fields.Name << x.Type.lower().lower().strip()
+                            )
+                        threading.Thread(target=run_insert).start()
                         """
                         Bo sung danh sach dac quyen, ho tro cho gia dien khi loc theo dac quyen
                         """
@@ -509,22 +521,23 @@ class FileServices:
                         """
                         Bo sung danh sach dac quyen va gia tri
                         """
-                        privileges_value_item = privilege_value_context.context @ (
-                                (
-                                        privilege_value_context.fields.Value == v
-                                ) & (
-                                        privilege_value_context.fields.Name == x.Type.lower().lower().strip()
-                                )
-                        )
-                        if not privileges_value_item:
-                            """
-                            Neu chua co
-                            """
-                            privilege_value_context.context.insert_one(
-                                privilege_value_context.fields.Value << v,
-                                privilege_value_context.fields.Name << x.Type.lower().lower().strip()
+                        def running():
+                            privileges_value_item = privilege_value_context.context @ (
+                                    (
+                                            privilege_value_context.fields.Value == v
+                                    ) & (
+                                            privilege_value_context.fields.Name == x.Type.lower().lower().strip()
+                                    )
                             )
-
+                            if not privileges_value_item:
+                                """
+                                Neu chua co
+                                """
+                                privilege_value_context.context.insert_one(
+                                    privilege_value_context.fields.Value << v,
+                                    privilege_value_context.fields.Name << x.Type.lower().lower().strip()
+                                )
+                        threading.Thread(target=running).start()
                     privileges_server[x.Type.lower()] = [v.strip() for v in x.Values.lower().split(',')]
                     privileges_client += [{
                         x.Type: x.Values

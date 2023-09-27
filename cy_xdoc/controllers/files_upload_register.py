@@ -7,7 +7,7 @@ from cy_xdoc.controllers.models.files_register import RegisterUploadInfo, Regist
 
 
 @cy_web.hanlder("post", "{app_name}/files/register")
-def register_new_upload(app_name: str, Data: RegisterUploadInfo,
+async def register_new_upload(app_name: str, Data: RegisterUploadInfo,
                               token=fastapi.Depends(cy_xdoc.auths.Authenticate)) -> RegisterUploadInfoResult:
     """
     <p>
