@@ -63,9 +63,13 @@ class LogsController:
             if filter.Instance is not None:
                 filter_expr = (fields.PodName==filter.Instance) & filter_expr
             if filter.FormTime is not None:
-                filter_expr = (fields.CreatedOn >= datetime.datetime.combine(filter.FormTime.date(),datetime.time(0,0,0))) & filter_expr
+                filter_expr = (fields.CreatedOn >= datetime.datetime.combine(
+                    filter.FormTime.date(),
+                    datetime.time(0,0,0))) & filter_expr
             if filter.ToTime is not None:
-                filter_expr = (fields.CreatedOn >= datetime.datetime.combine(filter.ToTime.date(),datetime.time(0,0,0))) & filter_expr
+                filter_expr = (fields.CreatedOn >= datetime.datetime.combine(
+                    filter.ToTime.date(),
+                    datetime.time(0,0,0))) & filter_expr
 
         if filter_expr is None:
             items = context.aggregate().sort(
