@@ -36,10 +36,12 @@ from cyx.loggers import LoggerService
 
 logger = cy_kit.singleton(LoggerService)
 print(config)
-from  cyx.vn_predictor import VnPredictor
-vn_predictor= cy_kit.singleton(VnPredictor)
-fx=vn_predictor.get_text("Kiem tra tieng viet khong dau")
-print(fx)
+config.debug = True
+if config.debug == False:
+    from  cyx.vn_predictor import VnPredictor
+    vn_predictor= cy_kit.singleton(VnPredictor)
+    fx=vn_predictor.get_text("Kiem tra tieng viet khong dau")
+    print(fx)
 from cyx.common.base import DbConnect
 
 cnn = cy_kit.singleton(DbConnect)
@@ -184,18 +186,16 @@ if __name__ == "__main__":
     print(options)
     StandaloneApplication(app, options).run()
 # if __name__ == "__main__":
-
-    # application = WSGIApplication(cy_web.get_fastapi_app())
-    # number_of_workers = get_number_of_cpus()[0]
-    # number_of_workers = 1
-    # logger_service.info(f"Strat web app worker={number_of_workers}")
+#
+#
+#     logger_service.info(f"Strat web app worker={number_of_workers}")
 
     import gunicorn
     from gunicorn import SERVER
 
 
 
-    # cy_web.start_with_uvicorn(worker=number_of_workers)
+    cy_web.start_with_uvicorn(worker=number_of_workers)
     # cy_web.start_with_guicorn(worker=number_of_workers)
     # from gunicorn.app import wsgiapp
     #

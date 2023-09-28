@@ -599,6 +599,8 @@ class Field(__BaseField__):
 
     # all logical
     def __and__(self, other):
+        if other is None:
+            return self
         if not isinstance(other, Field):
             raise Exception(f"and operation require 2 Field. While {type(other)}")
         return Field(
@@ -611,6 +613,8 @@ class Field(__BaseField__):
         )
 
     def __or__(self, other):
+        if other is None:
+            return self
         if not isinstance(other, Field):
             raise Exception(f"and operation require 2 Field")
         return Field(
@@ -1361,13 +1365,14 @@ class AggregateDocument:
             for x in group_by:
                 if isinstance(x, dict):
                     _id = {**_id, **x}
-                elif isinstance(x, Field) and x.__alias__:
+                elif isinstance(x, Field):
                     if isinstance(x.__data__, dict) and x.__alias__:
                         _id = {**_id, **{x.__alias__: x.__data__}}
                     elif x.__name__:
                         _id = {**_id, **{x.__name__: f"${x.__name__}"}}
                     else:
                         raise Exception("Invalid expression")
+
         if isinstance(accumulators, dict):
             _fields = accumulators
         elif isinstance(accumulators, Field):
