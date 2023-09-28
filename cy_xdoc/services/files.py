@@ -353,6 +353,8 @@ class FileServices:
         :return:
         """
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+        if upload is None:
+            return
         delete_file_list = upload.AvailableThumbs or []
         delete_file_list_by_id = []
         if upload.MainFileId is not None: delete_file_list_by_id = [str(upload.MainFileId)]
