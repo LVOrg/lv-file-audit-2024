@@ -86,7 +86,7 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
 
         }
         catch (ex) {
-            alert(ex);
+            msgError(ex);
         }
     }
     async doUploadFiles() {

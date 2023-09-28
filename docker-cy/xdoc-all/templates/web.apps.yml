@@ -63,7 +63,8 @@ spec:
             - rabbitmq.server=$(rabbitmq.server)
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
-            - cache_server = $(cache_server)
+            - cache_server=$(cache_server)
+            - workers=$(workers)
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:
             - configMapRef:

@@ -23,7 +23,11 @@ async def get_content_of_files(app_name: str, directory: str, request: fastapi.R
     cache_dir = file_cacher_service.get_path(os.path.join(app_name, "images"))
     file_service = cy_kit.singleton(cy_xdoc.services.files.FileServices)
     upload_id = directory.split('/')[0]
-    upload = file_service.get_upload_register_with_cache(app_name, upload_id)
+    upload = file_service.get_upload_register(app_name, upload_id)
+    if upload is None:
+        from fastapi import Response
+        response = Response(content="Resource not found", status_code=404)
+        return response
     if not upload.IsPublic:
         await auth_service.check_request(app_name, request)
     mime_type, _ = mimetypes.guess_type(directory)

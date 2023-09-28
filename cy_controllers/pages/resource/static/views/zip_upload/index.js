@@ -40,7 +40,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
             }
         }
         catch (ex) {
-            alert(ex);
+            msgError(ex);
         }
 
     }

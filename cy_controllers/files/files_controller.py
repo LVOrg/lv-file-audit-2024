@@ -98,7 +98,7 @@ class FilesController:
                 upload_id=upload_id
             )
             self.file_service.cache_upload_register_set(
-                upload_id = upload_id,
+                UploadId = upload_id,
                 doc_data = upload_item
             )
         else:
