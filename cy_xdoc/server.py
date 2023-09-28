@@ -175,16 +175,29 @@ if config.workers!="auto":
 from cyx.cache_service.memcache_service import MemcacheServices
 # cache_service = cy_kit.singleton(MemcacheServices)
 # cache_service.check_connection(timeout=60*60*2)
+if config.worker_class:
+    worker_class =f"uvicorn.workers.{config.worker_class}"
+else:
+    worker_class = "uvicorn.workers.UvicornWorker"
+timeout_keep_alive=30
+timeout_graceful_shutdown = 30
+if config.timeout_keep_alive:
+    timeout_keep_alive = config.timeout_keep_alive
+if config.timeout_graceful_shutdown:
+    timeout_keep_alive = config.timeout_graceful_shutdown
 if __name__ == "__main__":
-    options = {
-        "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
-        "workers": number_of_workers,
-        "worker_class": "uvicorn.workers.UvicornWorker",
-        "timeout_keep_alive":30,
-        "timeout_graceful_shutdown":10
-    }
-    print(options)
-    StandaloneApplication(app, options).run()
+    if config.server_type == "unvicorn":
+        options = {
+            "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
+            "workers": number_of_workers,
+            "worker_class": worker_class,
+            "timeout_keep_alive":30,
+            "timeout_graceful_shutdown":10
+        }
+        print(options)
+        StandaloneApplication(app, options).run()
+    else:
+        cy_web.start_with_uvicorn(worker=number_of_workers)
 # if __name__ == "__main__":
 #
 #
@@ -195,8 +208,8 @@ if __name__ == "__main__":
 
 
 
-    cy_web.start_with_uvicorn(worker=number_of_workers)
-    # cy_web.start_with_guicorn(worker=number_of_workers)
+    # cy_web.start_with_uvicorn(worker=number_of_workers)
+
     # from gunicorn.app import wsgiapp
     #
     #

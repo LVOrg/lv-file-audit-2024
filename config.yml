@@ -78,6 +78,12 @@ api_url_: http://172.16.1.210:801/api
 
 bind: 0.0.0.0:8012
 workers: auto
+worker_class_: UvicornWorker #UvicornH11Worker
+worker_class: UvicornH11Worker #UvicornH11Worker
+timeout_keep_alive: 30
+timeout_graceful_shutdown: 30
+server_type_: unvicorn
+server_type: gunvicorn
 jwt:
   secret_key: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
   algorithm: HS256
@@ -136,7 +142,7 @@ media_plugins:
   - enig_frames.plugins.thumbs.exe_file:ExeFile
   - enig_frames.plugins.ocr.images:Images
   - enig_frames.plugins.ocr.pdf_file:PdfFile
-timeout_keep_alive: 5
+
 tika_server: http://localhost:12345
 #temp_directory: ./brokers/tmp-files
 #http://172.16.0.80:31672/

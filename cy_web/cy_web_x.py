@@ -1086,7 +1086,7 @@ def start_with_guicorn(worker):
     if isinstance(web_application, WebApp):
         web_application.gunicorn_start(
             f"{WebApp.__module__}",
-            worker
+
         )
         print("web run on:")
         print(web_application.host_url)
