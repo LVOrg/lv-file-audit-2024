@@ -154,6 +154,28 @@ class FileServices:
         # self.get_file(app_name, upload.ThumbFileId)
         return ret
 
+    async  def add_new_upload_info_async(self,
+                            app_name: str,
+                            client_file_name: str,
+                            is_public: bool,
+                            file_size: int,
+                            chunk_size: int,
+                            thumbs_support: str,
+                            web_host_root_url: str,
+                            privileges_type,
+                            meta_data: dict = None):
+        return self.add_new_upload_info(
+            app_name=app_name,
+            client_file_name=client_file_name,
+            is_public=is_public,
+            file_size=file_size,
+            chunk_size=chunk_size,
+            thumbs_support=thumbs_support,
+            web_host_root_url=web_host_root_url,
+            privileges_type=privileges_type,
+            meta_data=meta_data
+        )
+
     def add_new_upload_info(self,
                             app_name: str,
                             client_file_name: str,

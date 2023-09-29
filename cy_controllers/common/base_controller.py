@@ -27,6 +27,8 @@ from cyx.common.file_storage_mongodb import (
 
 from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.loggers import LoggerService
+from fastapi import APIRouter,Depends
+from fastapi_router_controller import Controller
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)

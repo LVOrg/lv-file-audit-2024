@@ -6,7 +6,7 @@ from cy_xdoc.services.files import FileServices
 from cy_xdoc.controllers.models.files_register import RegisterUploadInfo, RegisterUploadInfoResult
 
 
-@cy_web.hanlder("post", "{app_name}/files/register")
+# @cy_web.hanlder("post", "{app_name}/files/register")
 async def register_new_upload(app_name: str, Data: RegisterUploadInfo,
                               token=fastapi.Depends(cy_xdoc.auths.Authenticate)) -> RegisterUploadInfoResult:
     """
@@ -58,6 +58,7 @@ async def register_new_upload(app_name: str, Data: RegisterUploadInfo,
     from cy_xdoc.services.search_engine import SearchEngine
     search_engine = cy_kit.singleton(SearchEngine)
     privileges = Data.Privileges
+
     ret = file_service.add_new_upload_info(
         app_name=app_name,
         chunk_size=Data.ChunkSizeInKB * 1024,

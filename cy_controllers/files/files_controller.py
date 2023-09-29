@@ -43,22 +43,16 @@ from cyx.common.file_storage_mongodb import (
 )
 
 from cyx.cache_service.memcache_service import MemcacheServices
+from cy_controllers.common.base_controller import BaseController
 
 @controller.resource()
-class FilesController:
+class FilesController(BaseController):
     dependencies = [
         Depends(Authenticate)
     ]
-    msg_service = cy_kit.singleton(RabitmqMsg)
-    file_service: FileServices = cy_kit.singleton(FileServices)
-    file_storage_service: MongoDbFileService = cy_kit.singleton(MongoDbFileService)
-    msg_service: MessageService = cy_kit.singleton(MessageService)
-    broker: Broker = cy_kit.singleton(Broker)
-    temp_files = cy_kit.singleton(TempFiles)
-    memcache_service = cy_kit.singleton(MemcacheServices)
 
     def __init__(self, request: Request):
-        self.request = request
+        super().__init__(request)
 
     async def get_upload_binary_async(self, FilePart: UploadFile):
         content_part = await FilePart.read(FilePart.size)
