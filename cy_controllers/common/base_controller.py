@@ -29,6 +29,9 @@ from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.loggers import LoggerService
 from fastapi import APIRouter,Depends
 from fastapi_router_controller import Controller
+from cyx.common.file_cacher import FileCacherService
+from fastapi.responses import FileResponse
+import mimetypes
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -39,6 +42,7 @@ class BaseController:
     temp_files = cy_kit.singleton(TempFiles)
     memcache_service = cy_kit.singleton(MemcacheServices)
     logger_service = cy_kit.singleton(LoggerService)
+    file_cacher_service = cy_kit.singleton(FileCacherService)
 
     def __init__(self, request: Request):
         self.request = request

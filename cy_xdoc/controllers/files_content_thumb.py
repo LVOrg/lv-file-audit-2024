@@ -8,7 +8,7 @@ import mimetypes
 import cy_xdoc
 from cyx.common.file_cacher import FileCacherService
 file_cacher_service = cy_kit.singleton(FileCacherService)
-@cy_web.hanlder("get","{app_name}/thumb/{directory:path}")
+# @cy_web.hanlder("get","{app_name}/thumb/{directory:path}")
 async def get_thumb_of_files(app_name: str, directory: str, request: Request):
     """
     Xem hoặc tải nội dung file

@@ -2,16 +2,15 @@ from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
     Depends,
-    FastAPI,
-    HTTPException,
-    status,
     Request,
-    Response,
-    UploadFile,
-    Form, File
-)
+    Response
 
-from cy_controllers.common.base_controller import BaseController, Authenticate
+)
+import cy_web
+import os
+from cy_controllers.common.base_controller import (
+    BaseController, Authenticate,FileResponse,mimetypes
+)
 router = APIRouter()
 controller = Controller(router)
 @controller.resource()
@@ -19,9 +18,6 @@ class FilesContentController(BaseController):
     dependencies = [
         Depends(Authenticate)
     ]
-    def __init__(self, request: Request):
-        super().__init__(request)
-
     @controller.route.post(
         "/api/{app_name}/files/test", summary="Upload file"
     )
@@ -29,3 +25,34 @@ class FilesContentController(BaseController):
         self.logger_service.info(app_name)
 
         return  "OK"
+    @controller.router.get(
+        "/api/{app_name}/thumbs/{directory:path}"
+    )
+    async def get_thumb_of_files(self,app_name: str, directory: str, request: Request):
+        """
+        Xem hoặc tải nội dung file
+        :param app_name:
+        :return:
+        """
+        # from cy_xdoc.controllers.apps import check_app
+        # check_app(app_name)
+
+        thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
+        cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
+        if cache_thumb_path:
+            return FileResponse(cache_thumb_path)
+
+        upload_id = directory.split('/')[0]
+        fs = await self.service_file.get_main_main_thumb_file_async(app_name, upload_id)
+        self.service_file.db_connect.db(app_name)
+        if fs is None:
+            return Response(
+                status_code=401
+            )
+        content = fs.read(fs.get_size())
+        fs.seek(0)
+        cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
+        del content
+        mime_type, _ = mimetypes.guess_type(directory)
+        ret = await cy_web.cy_web_x.streaming_async(fs, request, mime_type)
+        return ret
