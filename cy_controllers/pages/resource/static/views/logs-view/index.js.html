@@ -52,21 +52,69 @@
     </style>
     <div class="header layout-rows">
         <div class="layout-rows header-panel">
-
+            <div>
+                <label>{{$res("Instance")}}:&nbsp;</label>
+            </div>
             <div class="dock full">
-                <div class="input-group" style="width:100%">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary btn-sm" ng-click="doRefresh().then()" type="button">{{$res("Refresh")}}</button>
-                    </div>
-                </div>
+                <input list="instance-list" class="form-control form-control-sm" ng-model="logInstance"/>
+                <datalist id="instance-list">
+                    <option ng-repeat="p in listOfInstances" value="{{p.PodName}}">
+                        {{p.PodName}}
+                    </option>
+                </datalist>
+            </div>
+            <div>
+                <label>&nbsp;{{$res("Type")}}:&nbsp;</label>
+            </div>
+            <div>
+                <select class="form-control form-control-sm" ng-model="logType" style="min-width:120px">
+                    <option ng-repeat="p in listOfTypes" value="{{p.LogType}}">
+                        {{p.LogType}}
+                    </option>
+                </select>
+
             </div>
 
 
 
 
+
+
+        </div>
+
+    </div>
+    <div class="header layout-rows">
+        <div class="layout-rows header-panel">
+            <div>
+                <label>{{$res("From")}}: &nbsp;</label>
+            </div>
+            <div>
+                <input type="datetime-local" class="form-control form-control-sm"  ng-model="logFrom"/>
+            </div>
+            <div>
+                <label>&nbsp;{{$res("To")}}: &nbsp;</label>
+            </div>
+            <div>
+                <input type="datetime-local" class="form-control form-control-sm"  ng-model="logTo"/>
+            </div>
+            <div>
+                <label>&nbsp;{{$res("Items per page")}}: &nbsp;</label>
+            </div>
+            <div>
+                <input type="number" class="form-control form-control-sm"  ng-model="logLimit"/>
+            </div>
+            <div class="dock full">
+
+            </div>
+            <div >
+                <div class="input-group" style="width:100%">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm" ng-click="doRefresh().then()" type="button">{{$res("View")}}</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
     <div class="dock full" style="margin:15px;overflow-y:auto;margin:0;padding:0">
         <div class="layout-rows shadow-box " ng-repeat="p in data">
             <div style="margin:10px">

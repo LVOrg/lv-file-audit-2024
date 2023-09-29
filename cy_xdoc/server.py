@@ -36,7 +36,7 @@ from cyx.loggers import LoggerService
 
 logger = cy_kit.singleton(LoggerService)
 print(config)
-config.debug = True
+
 if config.debug == False:
     from  cyx.vn_predictor import VnPredictor
     vn_predictor= cy_kit.singleton(VnPredictor)
