@@ -46,6 +46,7 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
 
 
         try {
+            debugger;
             var reg = await api.post(`${this.appName}/files/register`, {
                 Data: {
                     FileName: fileUpload.name,
@@ -56,7 +57,7 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
                     Privileges: this.data.tags,
                     meta_data: {}
                 }
-            });
+            },true);
             if (reg.Error) {
                 msgError(reg.Error.Message)
                 return
@@ -78,7 +79,7 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
                         UploadId: regData.UploadId,
                         Index: i,
                         FilePart: filePart
-                    }, true);
+                    },true);
 
                     if (chunk.Error) {
                         msgError(chunk.Error.message)
@@ -111,7 +112,8 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
 
         }
 
-        await Promise.all(actions)
+        await Promise.all(actions);
+        msgOK(this.$res("All files were uploaded"));
 
         
     }
