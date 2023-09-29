@@ -378,7 +378,7 @@ xdoc_py_auto_gui_tagbuild=$(tag $xdoc_py_auto_gui_tag)
 #buildFunc xdoc-py-auto-gui $xdoc_py_auto_gui_tagbuild $top_image $os
 #----- apps--------------
 rm -f $base_py-xdoc && cp -f ./templates/xdoc ./$base_py-xdoc
-xdoc_tag=$xdoc_framework_tag.43
+xdoc_tag=$xdoc_framework_tag.44
 xdoc_tag_build=$(tag $xdoc_tag)
 xdoc_image=$base_py-xdoc:$xdoc_tag_build
 buildFunc $base_py-xdoc $xdoc_tag_build $repositiory/$user/$xdoc_framework_image $os
@@ -455,9 +455,13 @@ echo "docker run -p 8014:8014 $repositiory/$user/$gradio_test_image python3 /app
 #py3_dotnet=1
 #buildFunc $base_py-dotnet $py3_dotnet
 #docker buildx create --use --config /etc/containerd/config.toml
-#eyJhbGciOiJSUzI1NiIsImtpZCI6IlU3RWRfUWNIZXJ4ejVHZGh6LVFOWWFTeWFadTlvbDRrOUtwcjk2WG10aW8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzExMTYyOTA2LCJpYXQiOjE2Nzk2MjY5MDYsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJhZG1pbi11c2VyIiwidWlkIjoiNzE3MWMwYjEtZTc2Yi00NDMzLTg5M2EtYmMwODI5MWJlMWJkIn19LCJuYmYiOjE2Nzk2MjY5MDYsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbi11c2VyIn0.bN2TwDzTynRF3s2At8gzRiF6q-CXcQDhQ31CR7aMskq7oqNyWw8MV_w2BJotCN_gdHIKzbgHG7cKyJRIr4woU6-pumwa8V-FWmO9OM0mhQ4qAB4WzhOyboTl7zVQ6ja_-XJtty9aDpe8-XM_1nMGne3cyiDJibuwMDwUQno5UgW-YqpnKZC7a9UG1AD0_T-C6kaagUCyo67mTtN2GmArLIvP-5qG1f1i1QsfomiqNZ-0jVss4_3ovbkjbLE0KWQ1QxaaJRKL8hJPUbkwQD-rWAC9nTLafYmN9WLHyebadMgIezgVuCljzJZVYNu6mk9s3k_ymRu8QofgFVB_1CYYuw
+#eyJhbGciOiJSUzI1NiIsImtpZCI6IlU3RWRfUWNIZXJ4ejVHZGh6LVFOWWFTeWFadTlvbDRrOUtwcjk2WG10aW8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzI3NDkzODU4LCJpYXQiOjE2OTU5NTc4NTgsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJhZG1pbi11c2VyIiwidWlkIjoiNzE3MWMwYjEtZTc2Yi00NDMzLTg5M2EtYmMwODI5MWJlMWJkIn19LCJuYmYiOjE2OTU5NTc4NTgsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbi11c2VyIn0.vW64Vj5BMBnba0XOkcQ3XucEcRN1qncoDf1fE5HZbn1yHbgRG2YcRdVt2HoUNLn9-KhBuQx-fcHzsCw70A_YkqD4ig6g6MwjaIZyCWNaxKfxlIrhYVGYbOpsJYOCcGeUKmOvMYU4mVnobcaClYjxpmCD_OUiR-AOpcLyJAeyEb21XbwAVrAty8TiP2O6tD1plUqQz8ngZk5iNLtvLr5_2NicjxhLl2YSzol_CaMWjuebMUvzBdqRhE_wZf7AcmLudWbCCTl8m_3JU7J7HqqXMLppKTrDBbvaiLb6PqIwmT0TKH_PoxtPy46WpwNG6jX_bS83r3E4RyV8ipku84cgiQ
+
+
 #[root@LACVIET-VM11 var]# helm --set name=dev-job-only upgrade --install xdoc-job-18 xdoc/xdoc-all
 #
 #curl -XPUT 'http://192.168.18.36:9200/lv-codx_congtyqc/_settings?preserve_existing=true' -d '{"index.highlight.max_analyzed_offset" : "999999999"}'helm repo add grafana https://grafana.github.io/helm-charts
 
 #docker run -p 8012:8012 nttlong/py310-xdoc:amd.cpu.9.25.4 python3  /app/cy_xdoc/server.py
+kubectl delete deployment dashboard-metrics-scraper -n  kubernetes-dashboard --cascade
+helm --set name=aws-web template xdoc-web xdoc/xdoc-all

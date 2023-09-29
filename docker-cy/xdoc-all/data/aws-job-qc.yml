@@ -87,6 +87,6 @@ fileJob:
   repository_: nttlong/py310-xdoc
   pullPolicy: IfNotPresent
 
-  tag: amd.cpu.9.39.42
+  tag: amd.cpu.9.39.44
   mountPath: /app/share-storage
   #docker run  -v $(pwd)/../share-storage:/ap/share-storage -p 8012:8012 docker.lacviet.vn/xdoc/py310-xdoc:amd.cpu.9.30.7 python3  /app/cy_xdoc/server.py db=mongodb://admin:Lacviet#123@172.16.0.83:27018/admin

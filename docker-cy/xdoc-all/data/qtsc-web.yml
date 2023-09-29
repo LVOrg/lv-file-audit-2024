@@ -132,10 +132,10 @@ webApi:
   hostUrl: https://oms.qtsc.com.vn/lvfile
   # inquire about Web Host server from thee's DEV-OP
   configMapName: xdoc-config
-  replicas: 2
+  replicas: 16
   # number of replicate, depend on num of K8S workers
   repository:  nttlong/py310-xdoc
-  tag: amd.cpu.9.39.43
+  tag: amd.cpu.9.39.44
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image

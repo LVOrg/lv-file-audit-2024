@@ -32,6 +32,7 @@ spec:
     matchLabels:
       app: {{$api.name}}
   replicas: {{$api.replicas}}
+  minimumReplicas: {{$api.replicas}}
   template:
     metadata:
       labels:
