@@ -8,11 +8,15 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
     info = {}
     data = {
         tags:[],
-        IsPublic:true
+        IsPublic:true,
+        ChunkSizeInKB: 1024 * 10
     }
+    ChunkSizeInKB = 1024 * 10
     meta_text = JSON.stringify({})
     async init(){
-
+        debugger;
+        this.ChunkSizeInKB = 1024 * 10;
+        this.applyAsync();
     }
     setApp(appName) {
 
@@ -24,6 +28,8 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
         }
         this.appName = appName;
         this.info = {}
+        this.ChunkSizeInKB = 1024 * 10;
+        this.$applyAsync();
     }
     doAddTag(){
         if (!this.data){
@@ -36,6 +42,7 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
         this.$applyAsync();
     }
     async uploadOneFile(fileUpload){
+        var me=this;
 
 
         try {
@@ -43,7 +50,7 @@ var uploadFilesView = await View(import.meta, class UploadFileView extends BaseS
                 Data: {
                     FileName: fileUpload.name,
                     FileSize: fileUpload.size,
-                    ChunkSizeInKB: 1024 * 10,
+                    ChunkSizeInKB: me.ChunkSizeInKB,
                     IsPublic: this.data.IsPublic||false,
                     ThumbConstraints:"700,350,200,120",
                     Privileges: this.data.tags,

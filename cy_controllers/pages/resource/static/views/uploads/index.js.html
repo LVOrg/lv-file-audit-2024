@@ -21,21 +21,28 @@
         }
     </style>
     <div>
-    <div class="layout-columns">
+    <div class="layout-rows">
         <div>
-            <rcmpct-grid cols="1fr 2fr">
-
-        <label>{{$res("Select files")}}:</label>
-        <div>
-            <input type="file" id="file" multiple/>
+            <label>{{$res("Select files")}}:</label>
         </div>
-        <label>
-            {{$res("Is Public")}}:
-        </label>
+        <div>
+            <input type="file" id="file" multiple="">
+        </div>
+        <div>
+            <label>
+                    {{$res("Is Public")}}:
+            </label>
+        </div>
         <div>
             <input type="checkbox" ng-model="data.IsPublic"/>
         </div>
-    </rcmpct-grid>
+        <div>
+            <label>
+                    {{$res("Chunk size in KB")}}:
+            </label>
+        </div>
+        <div>
+            <input type="number" ng-model="ChunkSizeInKB"/>
         </div>
 
 
@@ -43,15 +50,17 @@
     </div>
         <div class="dock full" style="overflow-y:auto">
             <div>
-                <div ng-repeat="p in info" style="width:50%;border:solid 1px #000000">
-                    <div>
-                        {{p.name}}
-                    </div>
+                <rcmpct-grid cols="1fr 1fr">
+                    <div ng-repeat="p in info" style="width:50%;border:solid 1px #000000">
+                        <div>
+                            {{p.name}}
+                        </div>
 
-                    <div style="margin-top:10px;margin-bottom:10px">
-                        <rcmpct-progressbar style="width:100%;height:24px" ng-value="{{p.chunk_info.Percent}}" color="#000000" />
+                        <div style="border:solid 1px #fcfcfc">
+                            <rcmpct-progressbar style="width:100%;height:24px" ng-value="{{p.chunk_info.Percent}}" color="#000000" />
+                        </div>
                     </div>
-                </div>
+                </rcmpct-grid>
 
             </div>
 
