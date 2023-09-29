@@ -14,12 +14,7 @@ from cyx.common import config
 import fastapi
 import datetime
 import cy_kit
-# from cyx.vn_predictor import VnPredictor
-# vn_pre = cy_kit.singleton(VnPredictor)
-# txt_non_accent = "Kiem tra he thong Tieng Viet khong dau"
-# txt_accent  = vn_pre.get_text(txt_non_accent)
-# print(txt_non_accent)
-# print(txt_accent)
+
 import cy_web
 from cyx.common.msg import MessageService
 from cyx.common.brokers import Broker
@@ -108,27 +103,10 @@ Server-Timing: miss, db;dur=53, app;dur=47.2"""
 
 cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
-from cy_controllers import PagesController
-from cy_controllers.apps.app_controller import AppsController
-from cy_controllers.logs.logs_controller import LogsController
-from cy_controllers.files.files_controller import FilesController
-from cyx.loggers import LoggerService
-logger_service = cy_kit.singleton(LoggerService)
-app.include_router(
-    prefix=cy_web.get_host_dir(),
-    router=PagesController.router()
-)
-app.include_router(
-    prefix=cy_web.get_host_dir(),
-    router=AppsController.router()
-)
-app.include_router(
-    prefix=cy_web.get_host_dir(),
-    router=LogsController.router()
-)
-app.include_router(
-    router=  FilesController.router(),
-    prefix=cy_web.get_host_dir(),
+from cy_xdoc.load_controllers import load_controller
+load_controller(
+    app,
+    cy_web.get_host_dir()
 )
 import multiprocessing
 def get_number_of_cpus():
