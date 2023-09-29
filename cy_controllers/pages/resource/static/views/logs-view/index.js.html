@@ -116,8 +116,9 @@
         </div>
     </div>
     <div class="dock full" style="margin:15px;overflow-y:auto;margin:0;padding:0">
-        <div class="layout-rows shadow-box " ng-repeat="p in data">
-            <div style="margin:10px">
+        <div rcmpct-lazy-scroll source="data" item-var="p" class="colums" on-request-data="doLoadMore" page-size="{{logLimit}}">
+            <rcmpct-template>
+                <div style="margin:10px;border:solid 2px #0c0c0c">
                 <table>
                     <tr>
                         <td>Time</td>
@@ -142,7 +143,8 @@
                 </table>
 
             </div>
-
+            </rcmpct-template>
         </div>
+
     </div>
 </div>

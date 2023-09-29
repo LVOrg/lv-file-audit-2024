@@ -35,6 +35,7 @@ class FilterInfo:
     LogType: typing.Optional[str]
     Instance: typing.Optional[str]
     Limit: typing.Optional[int]
+    PageIndex: typing.Optional[int]
 
 @controller.resource()
 class LogsController:
@@ -55,12 +56,15 @@ class LogsController:
         fields = self.logger_service.get_mongo_db().fields
         filter_expr = None
         limit = 50
+        page_index = 0
         if filter is not  None:
+            if filter.PageIndex is not None:
+                page_index = filter.PageIndex
             if filter.Limit is not None:
                 limit = filter.Limit
-            if filter.LogType is not None:
+            if filter.LogType is not None  and filter.LogType!="":
                 filter_expr = (fields.LogType==filter.LogType) & filter_expr
-            if filter.Instance is not None:
+            if filter.Instance is not None and filter.Instance!="":
                 filter_expr = (fields.PodName==filter.Instance) & filter_expr
             if filter.FormTime is not None:
                 filter_expr = (fields.CreatedOn >= datetime.datetime.combine(
@@ -82,6 +86,8 @@ class LogsController:
                 fields.CreatedOn.desc()
             ).match(
                 filter = filter_expr
+            ).skip(
+                limit*page_index
             ).limit(limit)
             ret = [x.to_pydantic() for x in items]
             return ret

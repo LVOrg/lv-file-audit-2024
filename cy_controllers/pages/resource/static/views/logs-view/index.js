@@ -15,8 +15,24 @@ var searchView = await View(import.meta, class LogsView extends BaseScope {
         this.logLimit = 20;
         this.$applyAsync();
     }
+    doLoadMore(sender) {
+        var me=sender;
+
+        api.post(`logs/views`,{
+                FormTime: me.scope.logFrom,
+                ToTime: me.scope.logTo,
+                LogType: me.scope.logType,
+                Instance: me.scope.logInstance,
+                Limit: me.scope.logLimit,
+                PageIndex: sender.pageIndex
+        }).then(r => {
+            sender.done(r);
+        });
+
+
+    }
     async doRefresh() {
-        debugger;
+
         var me=this;
 
         this.data = await api.post(`logs/views`,{
