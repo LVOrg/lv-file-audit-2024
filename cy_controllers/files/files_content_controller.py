@@ -9,16 +9,18 @@ from fastapi import (
 import cy_web
 import os
 from cy_controllers.common.base_controller import (
-    BaseController, Authenticate,FileResponse,mimetypes
+    BaseController, FileResponse,mimetypes
 )
 router = APIRouter()
 controller = Controller(router)
+from fastapi.responses import FileResponse
+import mimetypes
 @controller.resource()
 class FilesContentController(BaseController):
-    dependencies = [
-        Depends(Authenticate)
-    ]
-    @controller.route.post(
+
+    def __init__(self,request:Request):
+        self.request = request
+    @controller.route.get(
         "/api/{app_name}/files/test", summary="Upload file"
     )
     async def test(self,app_name:str)->str:
@@ -26,11 +28,12 @@ class FilesContentController(BaseController):
 
         return  "OK"
     @controller.router.get(
-        "/api/{app_name}/thumbs/{directory:path}"
+        "/api/{app_name}/thumb/{directory:path}"
     )
-    async def get_thumb_of_files(self,app_name: str, directory: str, request: Request):
+    async def get_thumb_of_files_async(self,app_name: str, directory: str):
         """
         Xem hoặc tải nội dung file
+        :param directory:
         :param app_name:
         :return:
         """
@@ -43,16 +46,16 @@ class FilesContentController(BaseController):
             return FileResponse(cache_thumb_path)
 
         upload_id = directory.split('/')[0]
-        fs = await self.service_file.get_main_main_thumb_file_async(app_name, upload_id)
-        self.service_file.db_connect.db(app_name)
+        fs = await self.file_service.get_main_main_thumb_file_async(app_name, upload_id)
+        self.file_service.db_connect.db(app_name)
         if fs is None:
             return Response(
-                status_code=401
+                status_code=404
             )
         content = fs.read(fs.get_size())
         fs.seek(0)
         cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
         del content
         mime_type, _ = mimetypes.guess_type(directory)
-        ret = await cy_web.cy_web_x.streaming_async(fs, request, mime_type)
+        ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
         return ret

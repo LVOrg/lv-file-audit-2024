@@ -15,6 +15,7 @@ import humanize
 import cy_docs
 import cy_kit
 import cy_web
+import gridfs.errors
 from cy_xdoc.models.files import DocUploadRegister, Privileges, PrivilegesValues
 import cyx.common.file_storage
 import cy_xdoc.services.search_engine
@@ -139,12 +140,15 @@ class FileServices:
         pass
 
     def get_main_main_thumb_file(self, app_name: str, upload_id: str):
-        upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
-        if upload is None:
+        try:
+            upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+            if upload is None:
+                return None
+            ret = self.file_storage_service.get_file_by_id(app_name=app_name, id=upload.ThumbFileId)
+            # self.get_file(app_name, upload.ThumbFileId)
+            return ret
+        except gridfs.errors.NoFile as e:
             return None
-        ret = self.file_storage_service.get_file_by_id(app_name=app_name, id=upload.ThumbFileId)
-        # self.get_file(app_name, upload.ThumbFileId)
-        return ret
 
     async def get_main_main_thumb_file_async(self, app_name: str, upload_id: str):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id

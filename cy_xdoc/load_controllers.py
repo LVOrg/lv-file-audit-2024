@@ -8,12 +8,12 @@ from cyx.loggers import LoggerService
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
 controllers_list=[
-        PagesController,
+        FilesContentController,
         AppsController,
         LogsController,
         FilesController,
-        FilesContentController,
-        FilesRegisterController
+        FilesRegisterController,
+        PagesController
     ]
 def load_controller(app,host_dir):
 

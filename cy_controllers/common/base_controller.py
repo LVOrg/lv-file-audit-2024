@@ -22,18 +22,19 @@ from cyx.common.rabitmq_message import RabitmqMsg
 import cy_docs
 import cyx.common.msg
 from cyx.common.file_storage_mongodb import (
-    MongoDbFileService,MongoDbFileStorage
+    MongoDbFileService, MongoDbFileStorage
 )
 
 from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.loggers import LoggerService
-from fastapi import APIRouter,Depends
+from fastapi import APIRouter, Depends
 from fastapi_router_controller import Controller
 from cyx.common.file_cacher import FileCacherService
 from fastapi.responses import FileResponse
 import mimetypes
-class BaseController:
 
+
+class BaseController:
     msg_service = cy_kit.singleton(RabitmqMsg)
     file_service: FileServices = cy_kit.singleton(FileServices)
     file_storage_service: MongoDbFileService = cy_kit.singleton(MongoDbFileService)
