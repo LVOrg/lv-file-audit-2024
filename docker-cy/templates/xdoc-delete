@@ -1,10 +1,15 @@
 ARG BASE
-#FROM jbarlow83/ocrmypdf:latest as ocr
-#RUN rm -fr /usr/share/doc
+
 FROM ${BASE}
 ARG TARGETARCH
 ARG OS
-
+COPY ./../docker-cy/check/check_underthesea.py /app/check_underthesea.py
+RUN python3 /app/check_underthesea.py
+# Cai nay la toan bo moi truong thu vien cua
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    apt update && apt-get upgrade -y &&  apt install build-essential -y ;\
+    fi
+RUN pip install underthesea
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_utils /app/cy_utils
 COPY ./../cy_xdoc /app/cy_xdoc

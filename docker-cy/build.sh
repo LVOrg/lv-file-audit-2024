@@ -7,7 +7,7 @@ export user=xdoc
 export user_=nttlong
 export platform=linux/amd64
 export platform__=linux/arm64/v8
-export platform_=linux/amd64,linux/arm64/v8
+export platform__=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
 export os='debian'
@@ -231,7 +231,7 @@ buildFunc $base_py-cy_docs $cy_docs_tag_build $repositiory/$user/$cython_image $
 #buildFunc $base_py-cy-env $cy_env_tag $top_image $os
 #------------ cy_env -------------------
 rm -f $base_py-cy-env && cp -f ./templates/cy-env ./$base_py-cy-env-cpu
-cy_env_cpu_tag=5
+cy_env_cpu_tag=6
 cy_env_cpu_tag_build=$(tag $cy_env_cpu_tag)
 cy_env_image=$base_py-cy-env-cpu:$cy_env_cpu_tag_build
 buildFunc $base_py-cy-env-cpu $cy_env_cpu_tag_build $repositiory/$user/$torch_image
@@ -317,9 +317,7 @@ RUN /check/dotnet.sh
 RUN python3 -c 'import cv2;print(cv2);'
 
 ">>$base_py-com
-#export BUILDKIT_PROGRESS=
-#export platform=linux/amd64,linux/arm64/v8
-#export platform_=linux/amd64
+
 com_tag=$(($libreoffice_tag+$tessract_tag+$javac_tag+$opencv_tag+$cy_gs_cv2_tag +3))
 com_tag_build=$(tag $com_tag)
 com_image=$base_py-com:$com_tag_build
@@ -371,34 +369,44 @@ xdoc_framework_tag=cpu.$com_tag.$(($deep_learning_tag+$cy_env_cpu_tag+$cy_core_t
 xdoc_framework_tag_build=$(tag $xdoc_framework_tag)
 xdoc_framework_image=$base_py-xdoc-framework:$xdoc_framework_tag_build
 buildFunc $base_py-xdoc-framework $xdoc_framework_tag_build $top_image $os
-#------------py_auto_gui -----------------
-rm -f xdoc-py-auto-gui && cp -f ./templates/py-auto-gui ./xdoc-py-auto-gui
-xdoc_py_auto_gui_tag=1
-xdoc_py_auto_gui_tagbuild=$(tag $xdoc_py_auto_gui_tag)
-#buildFunc xdoc-py-auto-gui $xdoc_py_auto_gui_tagbuild $top_image $os
+#----- build-extra-lib------------
+rm -f $base_py-cy_extra-lib && cp -f ./templates/xdoc-extra-lib ./$base_py-cy_extra-lib
+cy_extra_lib_tag=1
+cy_extra_lib_tag_build=$(tag $cy_extra_lib_tag)
+cy_extra_lib_tag_image=$base_py-cy_extra-lib:$cy_extra_lib_tag_build
+buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $top_image $os
 #----- apps--------------
-rm -f $base_py-xdoc && cp -f ./templates/xdoc ./$base_py-xdoc
-xdoc_tag=$xdoc_framework_tag.44
-xdoc_tag_build=$(tag $xdoc_tag)
-xdoc_image=$base_py-xdoc:$xdoc_tag_build
-buildFunc $base_py-xdoc $xdoc_tag_build $repositiory/$user/$xdoc_framework_image $os
+rm -f $base_py-xdoc
+echo "
+FROM $repositiory/$user/$cy_extra_lib_tag_image as ext
+FROM $repositiory/$user/$xdoc_framework_image
+ARG TARGETARCH
+ARG OS
+COPY --from=ext /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
+COPY ./../docker-cy/check/check_underthesea.py /app/check_underthesea.py
+RUN python3 /app/check_underthesea.py
+# Cai nay la toan bo moi truong thu vien cua
+#RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+#    apt update && apt-get upgrade -y &&  apt install build-essential -y ;\
+#    fi
+COPY ./../cy_consumers /app/cy_consumers
+COPY ./../cy_utils /app/cy_utils
+COPY ./../cy_xdoc /app/cy_xdoc
+COPY ./../cyx /app/cyx
+COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
+RUN python3 /app/compact.py /app/cy_vn_suggestion
+#COPY ./../resource /app/resource
+COPY ./../config.yml /app/config.yml
+COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
+COPY ./../cy_controllers /app/cy_controllers
+RUN python3 -c 'import cv2'
+">>$base_py-xdoc
+xdoc_tag=45
+xdoc_tag_build=$(tag $xdoc_framework_tag).$(($cy_extra_lib_tag+xdoc_tag))
+buildFunc $base_py-xdoc $xdoc_tag_build $top_image $os
 to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong
-#--------------------------------------------------
 
-#-------- dataset image--------------------------
-torch_dataset_huggingface=torch-dataset-huggingface
-rm -f xdoc-dataset-huggingface && cp -f ./templates/torch-dataset-huggingface ./xdoc-dataset-huggingface
-torch_dataset_huggingface_tag=2
-#buildFunc xdoc-dataset-huggingface $torch_dataset_huggingface_tag $repositiory/$user/xdoc-dataset-huggingface $os
-#--------------------------------------------------------
 
-rm -f xdoc-dataset-layout-microsoft && cp -f ./templates/torch-dataset-layout-microsoft ./xdoc-dataset-layout-microsoft
-torch_dataset_layout_microsoft_tag=2
-#buildFunc xdoc-dataset-layout-microsoft $torch_dataset_layout_microsoft_tag $repositiory/$user/xdoc-dataset-layout-microsoft $os
-#------------------------------------------------------
-rm -f xdoc-dataset-layouts && cp -f ./templates/torch-dataset-layouts ./xdoc-dataset-layouts
-torch_dataset_layouts_tag=2
-#buildFunc xdoc-dataset-layouts $torch_dataset_layouts_tag $repositiory/$user/xdoc-dataset-layouts $os
 #------------------------------------------------------
 echo "----------------------------------------------"
 echo " In order to run image with arm64 platform:"
