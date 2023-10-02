@@ -374,28 +374,46 @@ rm -f $base_py-cy_extra-lib && cp -f ./templates/xdoc-extra-lib ./$base_py-cy_ex
 cy_extra_lib_tag=2
 cy_extra_lib_tag_build=$(tag $cy_extra_lib_tag)
 cy_extra_lib_tag_image=$base_py-cy_extra-lib:$cy_extra_lib_tag_build
-buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $repositiory/$user/$cython_image $os
+#buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $repositiory/$user/$cython_image $os
 #----- apps--------------
 rm -f $base_py-xdoc
 echo "
-FROM $repositiory/$user/$cy_extra_lib_tag_image as ext
+#FROM $repositiory/$user/$cy_extra_lib_tag_image as ext
 FROM $repositiory/$user/$xdoc_framework_image
 ARG TARGETARCH
 ARG OS
-COPY --from=ext /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
+#COPY --from=ext /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
 COPY ./../docker-cy/check/check_underthesea.py /app/check_underthesea.py
-RUN python3 /app/check_underthesea.py
+
 # Cai nay la toan bo moi truong thu vien cua
-#RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
-#    apt update && apt-get upgrade -y &&  apt install build-essential -y ;\
-#    fi
+RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+    apt update && apt-get upgrade -y &&  apt install build-essential -y ;\
+    fi
+RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+    apt install meson ninja-build python3-dev python3-pip;\
+    fi
+RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+    git clone https://github.com/PyO3/maturin.git;\
+    fi
+RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+    cd maturin;\
+    fi
+RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+    meson build --target=arm64;\
+    fi
+RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
+    ninja -C build install;\
+    fi
+RUN pip install underthesea
+RUN python3 /app/check_underthesea.py
+RUN /check/py_vncorenlp.sh
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_utils /app/cy_utils
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cyx /app/cyx
 COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
 RUN python3 /app/compact.py /app/cy_vn_suggestion
-RUN /check/py_vncorenlp.sh
+
 #COPY ./../resource /app/resource
 COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr

@@ -23,6 +23,15 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     pip install fasttext; \
     fi
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    apt install git -y; \
+    git clone https://github.com/undertheseanlp/underthesea.git; \
+    fi
+#RUN if [ "$TARGETARCH" = "arm64" ]; then \
+#    pip install --upgrade pip; \
+#    git submodule add --force --name thing https://github.com/person/thing.git submodules/thing
+#    pip install git+https://github.com/undertheseanlp/underthesea.git; \
+#    fi
 RUN python3 /app/check_underthesea.py
 RUN python3 -m pip install python-memcached==1.59
 RUN python3 -m pip install fastapi-controller

@@ -82,7 +82,7 @@ storage_longhorn:
 fileJob:
   namespace: xdoc-job-v1
   configMapName: xdoc-job-config
-  replicas: 4
+  replicas: 1
 
   pullPolicy: IfNotPresent
   repository: nttlong/py310-xdoc

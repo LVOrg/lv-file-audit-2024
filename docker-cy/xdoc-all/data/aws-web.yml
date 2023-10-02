@@ -91,7 +91,7 @@ webApi:
   hostUrl: https://apps.codx.vn/lvfile
   # inquire about Web Host server from thee's DEV-OP
   configMapName: xdoc-config
-  replicas: 15
+  replicas: 4
   # number of replicate, depend on numof K8S workers
   repository_:  docker.lacviet.vn/xdoc/py310-xdoc
   tag_: amd.cpu.9.31.17
