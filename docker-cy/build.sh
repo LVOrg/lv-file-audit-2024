@@ -5,9 +5,9 @@ docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
 export user=xdoc
 export user_=nttlong
-export platform=linux/amd64
+export platform__=linux/amd64
 export platform__=linux/arm64/v8
-export platform__=linux/amd64,linux/arm64/v8
+export platform=linux/amd64,linux/arm64/v8
 export repositiory=docker.lacviet.vn
 export repositiory_=docker.io
 export os='debian'
@@ -355,7 +355,7 @@ RUN python3 -m pip install opencv-python==4.5.4.60
 RUN chmod u+x /check/*.sh
 RUN /check/opencv.sh
 
-RUN /check/py_vncorenlp.sh
+#RUN /check/py_vncorenlp.sh
 RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
       /check/libreoffice.sh ;\
      fi
@@ -371,10 +371,10 @@ xdoc_framework_image=$base_py-xdoc-framework:$xdoc_framework_tag_build
 buildFunc $base_py-xdoc-framework $xdoc_framework_tag_build $top_image $os
 #----- build-extra-lib------------
 rm -f $base_py-cy_extra-lib && cp -f ./templates/xdoc-extra-lib ./$base_py-cy_extra-lib
-cy_extra_lib_tag=1
+cy_extra_lib_tag=2
 cy_extra_lib_tag_build=$(tag $cy_extra_lib_tag)
 cy_extra_lib_tag_image=$base_py-cy_extra-lib:$cy_extra_lib_tag_build
-buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $top_image $os
+buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $repositiory/$user/$cython_image $os
 #----- apps--------------
 rm -f $base_py-xdoc
 echo "
@@ -395,6 +395,7 @@ COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cyx /app/cyx
 COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
 RUN python3 /app/compact.py /app/cy_vn_suggestion
+RUN /check/py_vncorenlp.sh
 #COPY ./../resource /app/resource
 COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
