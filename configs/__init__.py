@@ -7,10 +7,10 @@ import cyx.common.msg_mongodb
 import cyx.common.msg
 import cyx.common.file_storage_mongodb
 
-cy_kit.config_provider(
-    from_class=cyx.common.file_storage.FileStorageService,
-    implement_class=cyx.common.file_storage_mongodb.MongoDbFileService
-)
+# cy_kit.config_provider(
+#     from_class=cyx.common.file_storage.FileStorageService,
+#     implement_class=cyx.common.file_storage_mongodb.MongoDbFileService
+# )
 
 """
 Cau hinh luu file dung mongodb

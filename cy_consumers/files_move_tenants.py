@@ -48,10 +48,10 @@ class Process:
 
     def do_move(self,from_app, to_app, ids):
         from cy_xdoc.services.files import FileServices
-        from cyx.common.file_storage import FileStorageService
+        from cyx.common.file_storage_mongodb import MongoDbFileStorage
         tmp_file = cy_kit.singleton(TempFiles)
         files = cy_kit.singleton(FileServices)
-        fs = cy_kit.singleton(FileStorageService)
+        fs = cy_kit.singleton(MongoDbFileStorage)
         db_context = files.get_queryable_doc(from_app).context
         db_context_to = files.get_queryable_doc(to_app).context
         root_dir = tmp_file.get_root_dir()

@@ -43,11 +43,11 @@ def move_tenant(Data:DataMoveTanent, token=fastapi.Depends(Authenticate)):
             )
         )
     from cy_xdoc.services.files import FileServices
-    from cyx.common.file_storage import FileStorageService
+    from cyx.common.file_storage_mongodb import MongoDbFileStorage
     from cyx.common.brokers import Broker
     from cyx.common.temp_file import TempFiles
     file_service: FileServices = cy_kit.singleton(FileServices)
-    file_storage_service: FileStorageService = cy_kit.singleton(FileStorageService)
+    file_storage_service: MongoDbFileStorage = cy_kit.singleton(MongoDbFileStorage)
 
     broker: Broker = cy_kit.singleton(Broker)
     obsever_id = str(uuid.uuid4())

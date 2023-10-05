@@ -7,6 +7,7 @@ import mimetypes
 import cy_xdoc.services.files
 from cyx.common.file_cacher import FileCacherService
 file_cacher_service = cy_kit.singleton(FileCacherService)
+from cyx.common.file_storage_mongodb import  MongoDbFileStorage
 @cy_web.hanlder(method="get",path="{app_name}/thumbs/{directory:path}")
 async def get_thumb_of_files(app_name: str, directory: str,request:Request):
     """
@@ -16,7 +17,7 @@ async def get_thumb_of_files(app_name: str, directory: str,request:Request):
     """
     # from cy_xdoc.controllers.apps import check_app
     # check_app(app_name)
-    file_storage_service =  cy_kit.singleton(cyx.common.file_storage.FileStorageService)
+    file_storage_service =  cy_kit.singleton(cyx.common.file_storage.MongoDbFileStorage)
 
     thumb_dir_cache = file_cacher_service.get_path(os.path.join(app_name, "custom_thumbs"))
     cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))

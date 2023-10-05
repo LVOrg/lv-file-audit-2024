@@ -40,7 +40,7 @@ class FileServices:
                  logger=cy_kit.singleton(LoggerService),
                  memcache_service = cy_kit.singleton(MemcacheServices)):
 
-        self.file_storage_service: cyx.common.file_storage.FileStorageService = file_storage_service
+        self.file_storage_service =  file_storage_service
         self.search_engine = search_engine
         self.db_connect = db_connect
         self.cacher = cacher
