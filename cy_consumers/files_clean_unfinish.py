@@ -12,7 +12,8 @@ sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 import cy_docs
 import cy_kit
 from cy_xdoc.services.apps import AppServices
-
+from cyx.loggers import LoggerService
+logger = cy_kit.singleton(LoggerService)
 
 def clean_app(app_name: str, day_ago: int = 2):
     """
@@ -50,12 +51,12 @@ def clean_app(app_name: str, day_ago: int = 2):
         qr.fields.SizeUploaded
     )
     for x in items:
-        print(f"app={app_name} remove {x._id}")
+        logger.info(f"app={app_name} remove {x._id}")
         try:
             file_service.remove_upload(app_name=app_name, upload_id=x._id)
         except Exception as e:
-            print(f"app={app_name} remove {x._id} fail")
-            print(e)
+            logger.info(f"app={app_name} remove {x._id} fail")
+            logger.info(e)
 
 
 if __name__ == "__main__":
@@ -63,10 +64,10 @@ if __name__ == "__main__":
     while True:
         apps = apps_service.get_list(app_name='admin')
         for x in apps:
-            print(f"Process {x['Name']}")
+            logger.info(f"Process {x['Name']}")
             try:
                 clean_app(x["Name"])
             except Exception as e:
                 print(e)
         time.sleep(2 * 24 * 60 * 50)  # wait until the next 2 days
-        print(f"I am waiting until the next 2 days")
+        logger.info(f"I am waiting until the next 2 days")

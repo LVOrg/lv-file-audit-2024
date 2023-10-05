@@ -21,10 +21,7 @@ log_dir = os.path.join(
     "logs"
 
 )
-logs = cy_kit.create_logs(
-    log_dir=log_dir,
-    name=pathlib.Path(__file__).stem
-)
+
 if isinstance(config.get('rabbitmq'), dict):
     cy_kit.config_provider(
         from_class=MessageService,
@@ -41,53 +38,50 @@ content_services = cy_kit.singleton(ContentsServices)
 content, info = content_services.get_text(__file__)
 
 
-def on_receive_msg(msg_info: MessageInfo):
-    # try:
-    from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
-    try:
-        from cy_xdoc.services.files import FileServices
-        from cy_xdoc.services.search_engine import SearchEngine
-        search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
-        file_services = cy_kit.singleton(FileServices)
 
-        full_file_path = msg_info.Data['processing_file']
-        if not os.path.isfile(full_file_path):
-            logs.info(f"{full_file_path} was not found")
-            print(f"{full_file_path} was not found")
+from cyx.common.msg import broker
+from cyx.loggers import LoggerService
+
+
+@broker(message=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE)
+class Process:
+    def __init__(self, logger=cy_kit.singleton(LoggerService)):
+        self.logger = logger
+
+    def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        try:
+            from cy_xdoc.services.files import FileServices
+            from cy_xdoc.services.search_engine import SearchEngine
+            search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
+            file_services = cy_kit.singleton(FileServices)
+
+            full_file_path = msg_info.Data['processing_file']
+            if not os.path.isfile(full_file_path):
+                self.logger.info(f"{full_file_path} was not found msg was delete")
+                msg.delete(msg_info)
+                return
+
+            self.logger.info(f"get content from {full_file_path}")
+            content, info = content_services.get_text(full_file_path)
+            self.logger.info(f"get content from {full_file_path} is ok")
+            if content is None:
+                self.logger.info(f"get content from{full_file_path} and get no content")
+                msg.delete(msg_info)
+                return
+
+            upload_item = file_services.get_upload_register(
+                app_name=msg_info.AppName,
+                upload_id=msg_info.Data["_id"]
+            )
+            search_engine.update_content(
+                app_name=msg_info.AppName,
+                id=msg_info.Data["_id"],
+                content=content,
+                meta_data=info,
+                data_item=upload_item
+            )
+
+            self.logger.info(f"{full_file_path} was updated to search engine")
             msg.delete(msg_info)
-            return
-
-        print(f"get content from {full_file_path}")
-        logs.info(f"get content from {full_file_path}")
-        content, info = content_services.get_text(full_file_path)
-        print(f"get content from {full_file_path} is ok")
-        logs.info(f"get content from {full_file_path} is ok")
-        if content is None:
-            print(f"get content from{full_file_path} and get no content")
-            logs.info(f"get content from{full_file_path} and get no content")
-            msg.delete(msg_info)
-            return
-
-        upload_item = file_services.get_upload_register(
-            app_name=msg_info.AppName,
-            upload_id=msg_info.Data["_id"]
-        )
-        search_engine.update_content(
-            app_name=msg_info.AppName,
-            id=msg_info.Data["_id"],
-            content=content,
-            meta_data=info,
-            data_item=upload_item
-        )
-        print(f"{full_file_path} was updated to search engine")
-        logs.info(f"{full_file_path} was updated to search engine")
-        msg.delete(msg_info)
-    except Exception as e:
-        logs.info(e)
-        print(e)
-
-
-msg.consume(
-    msg_type=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,
-    handler=on_receive_msg
-)
+        except Exception as e:
+            self.logger.error(e)
