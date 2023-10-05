@@ -31,6 +31,7 @@
       <excludeFolder url="file://$MODULE_DIR$/test_samples" />
       <excludeFolder url="file://$MODULE_DIR$/web" />
       <excludeFolder url="file://$MODULE_DIR$/share-storage" />
+      <excludeFolder url="file://$MODULE_DIR$/long-test" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (cy-py)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -95,6 +95,8 @@ libraries for object detection, OCR and selected NLP tasks and provides an integ
 evaluating and running models. For more specific text processing tasks use one of the many other great NLP libraries"""
 MSG_FILE_EXTRACT_AUDIO_FROM_VIDEO = "files.upload.extract.audio.from.video"
 MSG_APP_RE_INDEX_ALL = "apps.re-index.all"
+MSG_LIBRE_OFFICE_CONVERT_TO_IMAGE = "libre.office.convert.process"
+MSG_LIBRE_OFFICE_CONVERT_TO_IMAGE_FINISH = "libre.office.convert.finish"
 import datetime
 from typing import List
 

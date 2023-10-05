@@ -28,7 +28,8 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
-    cnn: mongodb://admin-doc:123456@192.168.18.36:27018/lv-docs
+    cnn_: mongodb://192.168.18.36:27017,192.168.18.38:27017/?replicaSet%3Drs0%26readPreference%3Dsecondary
+    cnn: mongodb://192.168.18.36:27017
       # The clarefication of MongoDB or Mongos Routers
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'

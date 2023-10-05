@@ -2,36 +2,20 @@ ARG BASE
 FROM ${BASE}
 ARG TARGETARCH
 ARG OS
-#RUN python3 -m pip install maturin
-COPY ./../docker-cy/check/check_underthesea.py /app/check_underthesea.py
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    pip install python-crfsuite; \
-    fi
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    pip install numpy; \
-    pip install underthesea==1.1.4rc1;\
-    fi
+RUN mkdir /tmp-build && cd /tmp-build
 
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-    python3 -m pip install underthesea;\
-    fi
-#RUN python3 -m pip install sklearn-crfsuite
-#RUN python3 -m pip install underthesea==1.2.0
+
+COPY ./../docker-cy/templates/underthesea-core.sh /tmp-build/build.sh
+
+RUN chmod u+x /tmp-build/build.sh
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    pip install -U scikit-learn scipy matplotlib; \
+    /tmp-build/build.sh; \
     fi
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    pip install fasttext; \
-    fi
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    apt install git -y; \
-    git clone https://github.com/undertheseanlp/underthesea.git; \
-    fi
-#RUN if [ "$TARGETARCH" = "arm64" ]; then \
-#    pip install --upgrade pip; \
-#    git submodule add --force --name thing https://github.com/person/thing.git submodules/thing
-#    pip install git+https://github.com/undertheseanlp/underthesea.git; \
-#    fi
-RUN python3 /app/check_underthesea.py
-RUN python3 -m pip install python-memcached==1.59
+# Install required packages
+RUN python3 -m pip install underthesea
 RUN python3 -m pip install fastapi-controller
+#RUN if [ "$TARGETARCH" = "arm64" ]; then \
+#    python3 -m pip install underthesea  --no-deps; \
+#    fi
+COPY ./../docker-cy/check/check_underthesea.py /app/check_underthesea.py
+RUN python3 /app/check_underthesea.py

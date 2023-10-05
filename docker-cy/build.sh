@@ -1,15 +1,16 @@
 #!/bin/sh
 export BUILDKIT_PROGRESS=
-
+#Maximum size of node pool = (100 pods * 1 CPU core/pod + 2 GB/pod) / (4 CPU cores/node + 8 GB/node) = 25 nodes
+#docker run -it linuxserver/libreoffice /bin/bash
 docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
-export user=xdoc
-export user_=nttlong
-export platform__=linux/amd64
+export user_=xdoc
+export user=nttlong
+export platform=linux/amd64
 export platform__=linux/arm64/v8
-export platform=linux/amd64,linux/arm64/v8
-export repositiory=docker.lacviet.vn
-export repositiory_=docker.io
+export platform_=linux/amd64,linux/arm64/v8
+export repositiory_=docker.lacviet.vn
+export repositiory=docker.io
 export os='debian'
 
 
@@ -286,11 +287,8 @@ ARG TARGETARCH
 RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
     apt update && apt-get upgrade -y &&  apt install build-essential -y; \
     fi
-
 COPY --from=office / /
 RUN chmod u+x /check/*.sh
-
-
 RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
       /check/libreoffice.sh ;\
      fi
@@ -303,9 +301,6 @@ COPY --from=cv2 /usr/local /usr/local
 RUN  /check/opencv.sh
 COPY --from=vn /app /app
 RUN pip install underthesea
-
-
-
 RUN /check/opencv.sh
 RUN /check/py_vncorenlp.sh
 RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
@@ -322,7 +317,7 @@ com_tag=$(($libreoffice_tag+$tessract_tag+$javac_tag+$opencv_tag+$cy_gs_cv2_tag 
 com_tag_build=$(tag $com_tag)
 com_image=$base_py-com:$com_tag_build
 buildFunc $base_py-com $com_tag_build $top_image $os
-buildFunc $base_py-com $com_tag_build $top_image $os
+#buildFunc $base_py-com $com_tag_build $top_image $os
 #----- app-framework--------------
 rm -f $base_py-xdoc-framework
 echo "
@@ -374,37 +369,18 @@ rm -f $base_py-cy_extra-lib && cp -f ./templates/xdoc-extra-lib ./$base_py-cy_ex
 cy_extra_lib_tag=2
 cy_extra_lib_tag_build=$(tag $cy_extra_lib_tag)
 cy_extra_lib_tag_image=$base_py-cy_extra-lib:$cy_extra_lib_tag_build
-#buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $repositiory/$user/$cython_image $os
+buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $repositiory/$user/$cython_image $os
 #----- apps--------------
 rm -f $base_py-xdoc
 echo "
-#FROM $repositiory/$user/$cy_extra_lib_tag_image as ext
+FROM $repositiory/$user/$cy_extra_lib_tag_image as ext
 FROM $repositiory/$user/$xdoc_framework_image
 ARG TARGETARCH
 ARG OS
-#COPY --from=ext /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
+COPY --from=ext /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
 COPY ./../docker-cy/check/check_underthesea.py /app/check_underthesea.py
 
 # Cai nay la toan bo moi truong thu vien cua
-RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
-    apt update && apt-get upgrade -y &&  apt install build-essential -y ;\
-    fi
-RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
-    apt install meson ninja-build python3-dev python3-pip;\
-    fi
-RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
-    git clone https://github.com/PyO3/maturin.git;\
-    fi
-RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
-    cd maturin;\
-    fi
-RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
-    meson build --target=arm64;\
-    fi
-RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
-    ninja -C build install;\
-    fi
-RUN pip install underthesea
 RUN python3 /app/check_underthesea.py
 RUN /check/py_vncorenlp.sh
 COPY ./../cy_consumers /app/cy_consumers
@@ -431,11 +407,14 @@ echo "----------------------------------------------"
 echo " In order to run image with arm64 platform:"
 echo "1-install:
       sudo apt-get install qemu binfmt-support qemu-user-static
+      In centos7:
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       2- docker run --platform=linux/arm64/v8  ...
       example:
-      docker run --platform=linux/arm64/v8  docker.lacviet.vn/xdoc/py310-com:arm.9 python3 -c 'import time;time.sleep(100000000)'
-
-      docker run --platform=linux/arm64/v8 \
+      docker run -it --platform=linux/arm64/v8 -v \$(pwd):/build  docker.lacviet.vn/xdoc/py310-com:arm.9 /bin/bash
+      docker run --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 python3 -c 'import time;time.sleep(100000000)'
+      docker run  --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 /bin/bash
+      docker run -docker run --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 python3 -c 'import time;time.sleep(100000000)'-platform=linux/arm64/v8 \
         -v /home/vmadmin/python/v6/file-service-02/from-image-build/arm64:/app \
         $repositiory/$user/$cy_core_image python3 -c 'import time;time.sleep(100000000)'"
 echo "---------------------------------------------------"
@@ -490,5 +469,35 @@ echo "docker run -p 8014:8014 $repositiory/$user/$gradio_test_image python3 /app
 #curl -XPUT 'http://192.168.18.36:9200/lv-codx_congtyqc/_settings?preserve_existing=true' -d '{"index.highlight.max_analyzed_offset" : "999999999"}'helm repo add grafana https://grafana.github.io/helm-charts
 
 #docker run -p 8012:8012 nttlong/py310-xdoc:amd.cpu.9.25.4 python3  /app/cy_xdoc/server.py
-kubectl delete deployment dashboard-metrics-scraper -n  kubernetes-dashboard --cascade
-helm --set name=aws-web template xdoc-web xdoc/xdoc-all
+#Tên Máy
+#
+#LAB-VM08
+#
+#Hệ Điều Hành
+#
+#CentOS 7
+#
+#CPU
+#
+#4 vCPU
+#
+#RAM
+#
+#8 GB
+#
+#HDD
+#
+#800 GB
+#
+#IP
+#
+#192.168.18.38
+#
+#TK Admin
+#
+#vmadmin
+#
+#Ngày khởi tạo
+#
+#28/9/2023
+#P@ssw@)23rd
