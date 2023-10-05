@@ -19,40 +19,11 @@ from cyx.common import config
 from cyx.common.temp_file import TempFiles
 from cyx.media.pdf import PDFService
 from cyx.media.image_extractor import ImageExtractorService
-
-import json
-
-
-if isinstance(config.get('rabbitmq'), dict):
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.__str__(),
-    "logs"
-
-)
-
-
-
-
-
-
+msg = cy_kit.singleton(RabitmqMsg)
 if sys.platform == "linux":
     import signal
-
     signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-# msg.consume(
-#     msg_type=cyx.common.msg.MSG_FILE_OCR_CONTENT,
-#     handler=on_receive_msg
-# )
+
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
 @broker(message=cyx.common.msg.MSG_FILE_OCR_CONTENT)

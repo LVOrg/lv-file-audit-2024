@@ -394,9 +394,11 @@ RUN python3 /app/compact.py /app/cy_vn_suggestion
 COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
 COPY ./../cy_controllers /app/cy_controllers
+RUN python3 -m pip install python-memcached
+
 RUN python3 -c 'import cv2'
 ">>$base_py-xdoc
-xdoc_tag=45
+xdoc_tag=47
 xdoc_tag_build=$(tag $xdoc_framework_tag).$(($cy_extra_lib_tag+xdoc_tag))
 buildFunc $base_py-xdoc $xdoc_tag_build $top_image $os
 to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong

@@ -11,8 +11,9 @@ from fastapi import Depends, UploadFile
 from cy_xdoc.controllers.models.file_upload import UploadFilesChunkInfoResult
 import cy_kit
 from cy_xdoc.services.files import FileServices
-from cyx.common.file_storage import FileStorageService
-from cyx.common.msg import MessageService
+from cyx.common.file_storage_mongodb import MongoDbFileStorage
+# from cyx.common.msg import MessageService
+from cyx.common.rabitmq_message import RabitmqMsg
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.temp_file import TempFiles
 from cyx.common.brokers import Broker
@@ -25,8 +26,8 @@ def files_upload(app_name: str, UploadIds: typing.List[str],
     # check_app(app_name)
     ret= []
     file_service: FileServices = cy_kit.singleton(FileServices)
-    file_storage_service: FileStorageService = cy_kit.singleton(FileStorageService)
-    msg_service: MessageService = cy_kit.singleton(MessageService)
+    file_storage_service: MongoDbFileStorage = cy_kit.singleton(MongoDbFileStorage)
+    msg_service: RabitmqMsg = cy_kit.singleton(RabitmqMsg)
     broker:Broker = cy_kit.singleton(Broker)
     temp_files = cy_kit.singleton(TempFiles)
     for UploadId in UploadIds:

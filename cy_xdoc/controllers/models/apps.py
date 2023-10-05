@@ -32,6 +32,9 @@ class AppInfoRegister(AppInfo):
     """
     Password: typing.Optional[str]
 @cy_web.model()
+class AppInfoRegisterModel:
+    Data: typing.Optional[AppInfoRegister]
+@cy_web.model()
 class AppInfoRegisterResult:
     Data:typing.Optional[AppInfo]
     Error:typing.Optional[ErrorResult]

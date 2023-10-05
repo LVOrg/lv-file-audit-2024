@@ -22,44 +22,7 @@ import json
 temp_file = cy_kit.singleton(TempFiles)
 pdf_file_service = cy_kit.singleton(PDFService)
 image_extractor_service = cy_kit.singleton(ImageExtractorService)
-if isinstance(config.get('rabbitmq'), dict):
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.__str__(),
-    "logs"
-
-)
-logs = cy_kit.create_logs(
-    log_dir=log_dir,
-    name=pathlib.Path(__file__).stem
-)
-
-
-# def on_receive_msg(msg_info: MessageInfo):
-
-    # except FileNotFoundError as e:
-    #     logs.info(f"{full_file} was not found skip")
-    #     msg.delete(msg_info)
-    #
-    # except Exception as e:
-    #     logs.exception(e)
-    #     msg.delete(msg_info)
-    #     print(e)
-
-
-# msg.consume(
-#     msg_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-#     handler=on_receive_msg
-# )
+msg = cy_kit.singleton(RabitmqMsg)
 from cyx.common.msg import broker
 from cyx.common.share_storage import ShareStorageService
 from cy_xdoc.services.files import FileServices
@@ -87,7 +50,7 @@ class Process:
             if not os.path.isfile(full_file):
                 msg.delete(msg_info)
                 return
-            print(full_file)
+            self.logger.info(full_file)
             default_thumb = None
             try:
                 default_thumb = image_extractor_service.create_thumb(
@@ -96,6 +59,7 @@ class Process:
 
                 )
             except PIL.UnidentifiedImageError as e:
+                self.logger.error(e)
                 msg.delete(msg_info)
                 return
 
@@ -130,7 +94,7 @@ class Process:
                         message_type=cyx.common.msg.MSG_FILE_SAVE_CUSTOM_THUMB,
                         data=msg_info.Data
                     )
-                    print(f"{cyx.common.msg.MSG_FILE_SAVE_CUSTOM_THUMB}->{msg_info.Data['processing_file']}")
+                    self.logger.info (f"{cyx.common.msg.MSG_FILE_SAVE_CUSTOM_THUMB}->{msg_info.Data['processing_file']}")
                     available_thumbs += [f"thumbs/{msg_info.Data['_id']}/{x}.webp"]
                 self.file_services.update_available_thumbs(
                     upload_id=msg_info.Data["_id"],

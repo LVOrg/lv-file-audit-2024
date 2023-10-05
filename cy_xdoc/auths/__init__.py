@@ -46,6 +46,9 @@ class Authenticate:
                 is_ok=True
             )
             cache_service.set_dict(key,ret,expiration=60*60*4)
+            setattr(request,"username",username)
+            setattr(request, "password", password)
+            setattr(request, "application", app_name)
             return ret
         else:
             return dict(

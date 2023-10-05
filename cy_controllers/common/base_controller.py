@@ -13,7 +13,7 @@ from fastapi import (
 from cy_xdoc.auths import Authenticate
 import cy_kit
 from cy_xdoc.services.files import FileServices
-from cyx.common.file_storage import FileStorageService
+
 from cyx.common.msg import MessageService
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.temp_file import TempFiles
@@ -33,17 +33,19 @@ from cyx.common.file_cacher import FileCacherService
 from fastapi.responses import FileResponse
 import mimetypes
 
-
+import cy_kit
+from cyx.common.rabitmq_message import RabitmqMsg
+from cy_xdoc.services.apps import AppServices,AppsCacheService
 class BaseController:
     msg_service = cy_kit.singleton(RabitmqMsg)
     file_service: FileServices = cy_kit.singleton(FileServices)
     file_storage_service: MongoDbFileService = cy_kit.singleton(MongoDbFileService)
-    msg_service: MessageService = cy_kit.singleton(MessageService)
     broker: Broker = cy_kit.singleton(Broker)
     temp_files = cy_kit.singleton(TempFiles)
     memcache_service = cy_kit.singleton(MemcacheServices)
     logger_service = cy_kit.singleton(LoggerService)
     file_cacher_service = cy_kit.singleton(FileCacherService)
-
+    service_app: AppServices = cy_kit.singleton(AppServices)
+    apps_cache: AppsCacheService = cy_kit.singleton(AppsCacheService)
     def __init__(self, request: Request):
         self.request = request

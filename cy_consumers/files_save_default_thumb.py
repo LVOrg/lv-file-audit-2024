@@ -12,33 +12,8 @@ from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.common.brokers import Broker
 from cyx.common import config
 
-import json
+msg = cy_kit.singleton(RabitmqMsg)
 
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.__str__(),
-    "logs"
-
-)
-logs = cy_kit.create_logs(
-    log_dir=log_dir,
-    name=pathlib.Path(__file__).stem
-)
-if isinstance(config.get('rabbitmq'), dict):
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
-
-# msg.consume(
-#     msg_type=cyx.common.msg.MSG_FILE_SAVE_DEFAULT_THUMB,
-#     handler=on_receive_msg
-# )
 from cyx.common.msg import broker
 from cyx.common.share_storage import ShareStorageService
 from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService

@@ -22,24 +22,9 @@ import json
 temp_file = cy_kit.singleton(TempFiles)
 pdf_file_service = cy_kit.singleton(PDFService)
 image_extractor_service = cy_kit.singleton(ImageExtractorService)
-if isinstance(config.get('rabbitmq'), dict):
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
-
+msg = cy_kit.singleton(RabitmqMsg)
 import fitz
 print(fitz.version)
-
-
-
-
 if sys.platform == "linux":
     import signal
 

@@ -43,7 +43,7 @@ class FileStorageObject:
 
 
 
-class FileStorageService:
+class FileStorageService_delete:
 
     def get_file_by_name(self, app_name, rel_file_path: str) -> FileStorageObject:
         """

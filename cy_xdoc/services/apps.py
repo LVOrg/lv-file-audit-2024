@@ -7,6 +7,16 @@ from cyx.common.base import DbConnect
 from cy_xdoc.models.apps import App
 import cyx.common
 import cyx.common.cacher
+from cyx.cache_service.memcache_service import MemcacheServices
+class AppsCacheService:
+    def __init__(self,cacher=cy_kit.singleton(MemcacheServices)):
+        self.cacher = cacher
+        self.cache_key = "APP:CACHE"
+
+    def clear_cache(self):
+        self.cacher.delete_key(self.cache_key)
+
+
 class AppServices:
 
     def __init__(self,

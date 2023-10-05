@@ -25,15 +25,15 @@ import traceback
 from cyx.loggers import LoggerService
 from cyx.cache_service.memcache_service import MemcacheServices
 
-
+from cyx.common.file_storage_mongodb import MongoDbFileService
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
     """
 
     def __init__(self,
-                 file_storage_service: cyx.common.file_storage.FileStorageService = cy_kit.singleton(
-                     cyx.common.file_storage.FileStorageService),
+                 file_storage_service: MongoDbFileService = cy_kit.singleton(
+                     MongoDbFileService),
                  search_engine=cy_kit.singleton(cy_xdoc.services.search_engine.SearchEngine),
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),

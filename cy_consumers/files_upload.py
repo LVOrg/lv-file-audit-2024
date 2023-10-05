@@ -49,38 +49,9 @@ from cyx.common.brokers import Broker
 from cyx.common import config
 from cyx.common.msg import broker
 from cyx.common.share_storage import ShareStorageService
-import json
 
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.__str__(),
-    "logs"
 
-)
-print(f"logs to {log_dir}")
-# logs = cy_kit.create_logs(
-#     log_dir=log_dir,
-#     name=pathlib.Path(__file__).stem
-# )
-if isinstance(config.get('rabbitmq'), dict):
-    """
-    If config of app is using Rabbitmq, thou config runtime  MessageService to RabitmqMsg
-    Nếu cấu hình của ứng dụng đang sử dụng Rabbitmq, bạn hãy cấu hình MessageService thời gian chạy thành RabitmqMsg
-    """
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    """
-    Use default Broker (Kafka)
-    Sử dụng Nhà môi giới mặc định (Kafka)
-
-    """
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
+msg = cy_kit.singleton(RabitmqMsg)
 from cyx.common.temp_file import TempFiles
 
 temp_file = cy_kit.singleton(TempFiles)

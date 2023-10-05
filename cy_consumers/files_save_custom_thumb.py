@@ -13,29 +13,9 @@ from cyx.common.brokers import Broker
 from cyx.common import config
 
 import json
-
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.__str__(),
-    "logs"
-
-)
-
-if isinstance(config.get('rabbitmq'), dict):
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
-
+msg = cy_kit.singleton(RabitmqMsg)
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
-
-
 @broker(message=cyx.common.msg.MSG_FILE_SAVE_CUSTOM_THUMB)
 class Process:
     def __init__(self,

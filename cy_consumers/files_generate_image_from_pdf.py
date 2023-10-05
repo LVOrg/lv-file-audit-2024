@@ -19,52 +19,39 @@ import json
 
 temp_file = cy_kit.singleton(TempFiles)
 pdf_file_service = cy_kit.singleton(PDFService)
-if isinstance(config.get('rabbitmq'), dict):
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.__str__(),
-    "logs"
 
-)
-logs = cy_kit.create_logs(
-    log_dir=log_dir,
-    name= pathlib.Path(__file__).stem
-)
+msg = cy_kit.singleton(RabitmqMsg)
+from cyx.common.msg import broker
+from cyx.loggers import LoggerService
+@broker(cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF)
+class Process:
+    def __init__(self,
+                 logger=cy_kit.singleton(LoggerService)
+                 ):
+        self.logger = logger
 
-def on_receive_msg(msg_info: MessageInfo):
-    full_file = temp_file.get_path(
-        app_name=msg_info.AppName,
-        file_ext=msg_info.Data["FileExt"],
-        upload_id=msg_info.Data["_id"]
+    def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        try:
+            full_file = temp_file.get_path(
+                app_name=msg_info.AppName,
+                file_ext=msg_info.Data["FileExt"],
+                upload_id=msg_info.Data["_id"]
 
-    )
-    print(f"Generate image form {full_file}")
-    img_file = pdf_file_service.get_image(full_file)
-    ret = temp_file.move_file(
-        from_file=img_file,
-        app_name=msg_info.AppName,
-        sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
-    )
-    msg_info.Data["processing_file"] = ret
-    msg.emit(
-        app_name=msg_info.AppName,
-        message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-        data=msg_info.Data
-    )
-    msg.delete(msg_info)
-    logs.info(msg_info)
-
-
-msg.consume(
-    msg_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF,
-    handler=on_receive_msg
-)
+            )
+            self.logger(f"Generate image form {full_file}")
+            img_file = pdf_file_service.get_image(full_file)
+            ret = temp_file.move_file(
+                from_file=img_file,
+                app_name=msg_info.AppName,
+                sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
+            )
+            msg_info.Data["processing_file"] = ret
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+                data=msg_info.Data
+            )
+            msg.delete(msg_info)
+            self.logger.info(msg_info)
+        except Exception as e:
+            self.logger.error(e)

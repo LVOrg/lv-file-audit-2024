@@ -21,17 +21,8 @@ from cyx.easy_ocr import EasyOCRService
 
 temp_file = cy_kit.singleton(TempFiles)
 
-if isinstance(config.get('rabbitmq'), dict):
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=RabitmqMsg
-    )
-else:
-    cy_kit.config_provider(
-        from_class=MessageService,
-        implement_class=Broker
-    )
-msg = cy_kit.singleton(MessageService)
+
+msg = cy_kit.singleton(RabitmqMsg)
 
 
 
