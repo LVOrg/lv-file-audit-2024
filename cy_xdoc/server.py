@@ -34,10 +34,10 @@ logger = cy_kit.singleton(LoggerService)
 print(config)
 
 # if config.debug == False:
-from  cyx.vn_predictor import VnPredictor
-vn_predictor= cy_kit.singleton(VnPredictor)
-fx=vn_predictor.get_text("Kiem tra tieng viet khong dau hello")
-print(fx)
+# from  cyx.vn_predictor import VnPredictor
+# vn_predictor= cy_kit.singleton(VnPredictor)
+# fx=vn_predictor.get_text("Kiem tra tieng viet khong dau hello")
+# print(fx)
 from cyx.common.base import DbConnect
 
 cnn = cy_kit.singleton(DbConnect)
@@ -86,9 +86,9 @@ async def estimate_time(request: fastapi.Request, next):
 
         end_time = datetime.datetime.utcnow()
         async def apply_time(res):
-            res.headers["time:start"] = start_time.strftime("%H:%M:%S")
-            res.headers["time:end"] = end_time.strftime("%H:%M:%S")
-            res.headers["time:total(second)"] = (end_time - start_time).total_seconds().__str__()
+            # res.headers["time:start"] = start_time.strftime("%H:%M:%S")
+            # res.headers["time:end"] = end_time.strftime("%H:%M:%S")
+            # res.headers["time:total(second)"] = (end_time - start_time).total_seconds().__str__()
             res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
             return res
         res = await apply_time(res)
@@ -165,6 +165,9 @@ if config.timeout_keep_alive:
     timeout_keep_alive = config.timeout_keep_alive
 if config.timeout_graceful_shutdown:
     timeout_keep_alive = config.timeout_graceful_shutdown
+
+# if __name__ =="__main__":
+
 if __name__ == "__main__":
     if config.server_type == "unvicorn":
         options = {
@@ -176,6 +179,18 @@ if __name__ == "__main__":
         }
         print(options)
         StandaloneApplication(app, options).run()
+    elif config.server_type == "hypercorn":
+        import hypercorn.config, hypercorn.run
+
+        _config_ = hypercorn.config.Config()
+        _config_.bind = [f"{cy_app_web.bind_ip}:{cy_app_web.bind_port}"]
+        _config_.application_path = "cy_web:get_fastapi_app()"
+        _config_.workers = number_of_workers
+        _config_.keep_alive_timeout = config.timeout_keep_alive
+        # _config_.h2_max_concurrent_streams = 100
+        _config_.worker_class = config.worker_class
+        print(_config_.__dict__)
+        hypercorn.run.run(_config_)
     else:
         cy_web.start_with_uvicorn(worker=number_of_workers)
 # if __name__ == "__main__":

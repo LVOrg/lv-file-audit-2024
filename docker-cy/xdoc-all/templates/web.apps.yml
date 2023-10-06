@@ -65,10 +65,10 @@ spec:
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
             - cache_server=$(cache_server)
-            - workers=1
-            - server_type=unvicorn
-            - worker_class=UvicornWorker
-            - timeout_keep_alive=360
+            - workers=$(workers)
+            - server_type=$(server_type.hypercorn)
+            - worker_class=$(worker_class.trio)
+            - timeout_keep_alive=$(timeout_keep_alive)
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:
             - configMapRef:
