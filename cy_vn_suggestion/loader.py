@@ -1,5 +1,6 @@
 import collections
 import datetime
+import gc
 import pathlib
 import os
 import threading
@@ -57,24 +58,32 @@ def load_ordered_dict_from_file(file_name):
 
 
 __resource_loader_lock__ = threading.Lock()
+__memcache_client__ = None
 
 
 def __get_config__(dataset_path: str = None) -> cy_vn_suggestion.settings.Config:
     __version__dir_name__ = __version__.replace(".", "_")
+
     if dataset_path is None:
         dataset_path = os.path.join(__working_dir__, "share-storage", "datasets", pathlib.Path(__file__).stem,
                                     __version__dir_name__)
         if not os.path.isdir(dataset_path):
             os.makedirs(dataset_path, exist_ok=True)
-    start_load_at = datetime.datetime.now()
 
     global __config__
     global __accents_chars__
     global __tones_ignore__
+    global __memcache_client__
     if not isinstance(__config__, Config):
+
         source_dir = pathlib.Path(__file__).parent.__str__()
         source_dir = os.path.join(source_dir, "data", __version__dir_name__)
         print(f"source dir from lib -> {source_dir}")
+        if __memcache_client__:
+            __config__ = __memcache_client__.get(source_dir)
+        if isinstance(__config__, Config):
+            return __config__
+
         __config__ = Config()
         accent_data = [
             "UÙÚỦỤŨƯỪỨỬỰỮ",
@@ -131,34 +140,28 @@ def __get_config__(dataset_path: str = None) -> cy_vn_suggestion.settings.Config
                     _l += __config__.tones.get(x + y + z)
                     if len(_l) > 10:
                         _l = []
-    n = datetime.datetime.now() - start_load_at
-    print(f"load data from {dataset_path}, in {n.total_seconds()} second(s)")
+
     return __config__
 
 
+__is_use_memcache__ = False
+
+__config_size__ = 0
 def get_config(reload: bool = False) -> Config:
     global __config__
     global __resource_loader_lock__
+
+
+    global __config_size__
+
     if reload:
         __config__ = None
     if __config__ is None:
         __resource_loader_lock__.acquire()
         __get_config__()
-
-        total_removed_items_in_grams_1 = 0
-        # grams_1_keys = list(__config__.grams_1.keys())
-        # for k in grams_1_keys:
-        #     if len(k) >= 2 and k[-2] in __invalid_end__:
-        #         if __config__.grams_1.get(k):
-        #             del __config__.grams_1[k]
-        #             total_removed_items_in_grams_1 += 1
-        #     if len(k) >= 1 and (k[-1] in __invalid_end__) or (k[0] in __invalid_start_1__):
-        #         if __config__.grams_1.get(k):
-        #             del __config__.grams_1[k]
-        #             total_removed_items_in_grams_1 += 1
-        # print(f"Total {total_removed_items_in_grams_1} items removed in grams_1")
-        # for x in __remove_gram_1_words:
-        #     if __config__.grams_1.get(x):
-        #         del __config__.grams_1[x]
+        import sys
+        __config_size__ = sys.getsizeof(__config__.grams_2)+sys.getsizeof(__config__.tones)+sys.getsizeof(__config__.grams_1)+sys.getsizeof(__config__.accents)+sys.getsizeof(__config__.grams_2)
+        print(f"Load config with size is {__config_size__/(1024*1024*1024)} GB")
         __resource_loader_lock__.release()
+
     return __config__

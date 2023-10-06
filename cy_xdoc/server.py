@@ -1,3 +1,4 @@
+import gc
 import json
 import pathlib
 import sys
@@ -32,11 +33,11 @@ from cyx.loggers import LoggerService
 logger = cy_kit.singleton(LoggerService)
 print(config)
 
-if config.debug == False:
-    from  cyx.vn_predictor import VnPredictor
-    vn_predictor= cy_kit.singleton(VnPredictor)
-    fx=vn_predictor.get_text("Kiem tra tieng viet khong dau")
-    print(fx)
+# if config.debug == False:
+from  cyx.vn_predictor import VnPredictor
+vn_predictor= cy_kit.singleton(VnPredictor)
+fx=vn_predictor.get_text("Kiem tra tieng viet khong dau hello")
+print(fx)
 from cyx.common.base import DbConnect
 
 cnn = cy_kit.singleton(DbConnect)
@@ -98,6 +99,7 @@ async def estimate_time(request: fastapi.Request, next):
     """HTTP/1.1 200 OK
 
 Server-Timing: miss, db;dur=53, app;dur=47.2"""
+    gc.collect()
     return res
 
 

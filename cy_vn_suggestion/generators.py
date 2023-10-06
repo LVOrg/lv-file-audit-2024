@@ -54,10 +54,10 @@ def __gen__(pre_fix, vowel, end_fix):
     return sub_list
 
 
-def generate_probably_word(word: str) -> typing.List[str]:
+def generate_probably_word(word: str,memcache_server=None) -> typing.List[str]:
     ret = []
     _, pre_fix, vowel, end_fix, _, _ = analyzer_words(word)[0][0]
-    return __gen__(pre_fix, vowel, end_fix)
+    return __gen__(pre_fix, vowel, end_fix,memcache_server=memcache_server)
 
 
 def generate_suggestions(txt: str,

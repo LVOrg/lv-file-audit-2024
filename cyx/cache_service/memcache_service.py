@@ -3,7 +3,7 @@ import time
 import typing
 
 from cyx.common import config
-from memcache import Client, _Host, SERVER_MAX_KEY_LENGTH, SERVER_MAX_VALUE_LENGTH
+from memcache import Client
 import cy_kit
 from cyx.loggers import LoggerService
 
