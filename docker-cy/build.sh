@@ -401,7 +401,7 @@ RUN python3 -m pip install python-memcached
 RUN python3 -m pip install hypercorn[trio]
 RUN python3 -c 'import cv2'
 ">>$base_py-xdoc
-xdoc_tag=49
+xdoc_tag=51
 xdoc_tag_build=$(tag $xdoc_framework_tag).$(($cy_extra_lib_tag+xdoc_tag))
 buildFunc $base_py-xdoc $xdoc_tag_build $top_image $os
 #to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong

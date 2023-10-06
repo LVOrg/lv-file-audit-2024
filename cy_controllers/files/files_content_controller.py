@@ -123,3 +123,56 @@ class FilesContentController(BaseController):
             file_name_form_url = urllib.parse.quote(file_name_form_url)
             ret.headers["Content-Disposition"] = f"attachment; filename={file_name_form_url}"
         return ret
+
+
+    @controller.router.get("/api/{app_name}/thumbs/{directory:path}")
+    async def get_thumb_of_files(self,app_name: str, directory: str):
+        """
+        Xem hoặc tải nội dung file
+        :param app_name:
+        :return:
+        """
+        # from cy_xdoc.controllers.apps import check_app
+        # check_app(app_name)
+
+        thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "custom_thumbs"))
+        cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
+        if cache_thumb_path:
+            return FileResponse(cache_thumb_path)
+
+        fs = self.file_storage_service.get_file_by_name(
+            app_name=app_name,
+            rel_file_path=f"thumbs/{directory}"
+        )
+        if fs is None:
+            """
+            Allow original thumb if custom size thumb not avalaable
+            Modified on: 01-05-2023
+            """
+            thumb_dir_cache = os.path.join(app_name, "custom_thumbs")
+            cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
+            if cache_thumb_path:
+                return FileResponse(cache_thumb_path)
+
+            upload_id = directory.split('/')[0]
+
+
+            fs = self.service_file.get_main_main_thumb_file(app_name, upload_id)
+            if fs is None:
+                return Response(
+                    status_code=401
+                )
+            content = fs.read(fs.get_size())
+            fs.seek(0)
+            cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
+            del content
+            mime_type, _ = mimetypes.guess_type(directory)
+            ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+            return ret
+        content = fs.read(fs.get_size())
+        fs.seek(0)
+        cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
+        del content
+        mime_type, _ = mimetypes.guess_type(directory)
+        ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+        return ret

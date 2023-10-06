@@ -28,16 +28,16 @@ data:
   rabbitmq.msg: '{{ $rb.msg }}'
   temp_directory_: /app/share-storage
   cache_server: memcache-service.file-cache:11211
-  workers: auto
-  worker_class.uvicorn: UvicornWorker #UvicornH11Worker
-  worker_class.h11: UvicornH11Worker #UvicornH11Worker
-  worker_class.uvloop: uvloop
-  worker_class.trio: trio
-  timeout_keep_alive: 30
-  timeout_graceful_shutdown: 30
-  server_type.unvicorn: unvicorn
-  server_type.hypercorn: hypercorn
-  server_type.default: auto
-  h2_max_concurrent_streams: 100
+  workers: 'auto'
+  worker_class.uvicorn: 'UvicornWorker' #UvicornH11Worker
+  worker_class.h11: 'UvicornH11Worker' #UvicornH11Worker
+  worker_class.uvloop: 'uvloop'
+  worker_class.trio: 'trio'
+  timeout_keep_alive: '30'
+  timeout_graceful_shutdown: '30'
+  server_type.unvicorn: 'unvicorn'
+  server_type.hypercorn: 'hypercorn'
+  server_type.default: 'auto'
+  h2_max_concurrent_streams: '100'
 ---
 {{end}}

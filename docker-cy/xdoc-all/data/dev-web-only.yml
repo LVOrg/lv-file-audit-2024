@@ -118,7 +118,7 @@ webApi:
   replicas: 8
   # number of replicate, depend on numof K8S workers
   repository:  nttlong/py310-xdoc
-  tag: amd.cpu.9.39.44
+  tag: amd.cpu.9.40.52
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image

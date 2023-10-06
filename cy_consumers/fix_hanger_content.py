@@ -28,15 +28,16 @@ files = cy_kit.singleton(cy_xdoc.services.files.FileServices)
 
 def fix_hanger_contents(app_name: str):
 
-    utc_date= datetime.datetime.utcnow()- datetime.timedelta(days=1)
+    utc_date= datetime.datetime.utcnow()- datetime.timedelta(days=0,hours=0,minutes=30)
     broker: cyx.common.brokers.Broker = cy_kit.singleton(cyx.common.brokers.Broker)
     qr = files.get_queryable_doc(app_name=app_name)
     lst = qr.context.aggregate() \
         .match(
+        (qr.fields.RegisterOn <= utc_date) & \
         (qr.fields.Status == 0) & \
         cy_docs.EXPR(qr.fields.SizeInBytes == qr.fields.SizeUploaded)
-    ) \
-        .sort(qr.fields.RegisterOn.desc()).limit(5).to_json_convertable()
+    ).limit(20) \
+        .sort(qr.fields.RegisterOn.desc()).to_json_convertable()
     lst = list(lst)
     print(f"{app_name} found {len(lst)}")
     for x in lst:
@@ -63,4 +64,4 @@ if __name__ == "__main__":
                 fix_hanger_contents(x["Name"])
             except Exception as e:
                 print(e)
-        time.sleep(30)
+        time.sleep(30*60)
