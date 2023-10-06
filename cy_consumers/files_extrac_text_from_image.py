@@ -1,6 +1,7 @@
 # python /home/vmadmin/python/v6/file-service-02/cy_consumers/files_generate_pdf_from_image.py temp_directory=./brokers/tmp rabbitmq.server=172.16.7.91 rabbitmq.port=31672 debug=1
 import pathlib
 import sys
+import time
 
 import PIL
 import img2pdf
@@ -38,6 +39,7 @@ from cyx.common.msg import broker
 from cy_xdoc.services.search_engine import SearchEngine
 from cy_xdoc.services.files import FileServices
 from cyx.loggers import LoggerService
+import elasticsearch.exceptions
 @broker(message=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE)
 class Process:
     def __init__(self,
@@ -83,22 +85,42 @@ class Process:
                     if content == "":
                         msg.delete(msg_info)
                         return
-                    try:
-                        self.search_engine.update_content(
-                            app_name=msg_info.AppName,
-                            id=msg_info.Data["_id"],
-                            content=content,
-                            data_item=upload_item
-                        )
-                    except Exception as e:
-                        self.logger.error(e)
-                        return
+                    try_count = 10
+                    while try_count>0:
+                        try:
+                            self.search_engine.update_content(
+                                app_name=msg_info.AppName,
+                                id=msg_info.Data["_id"],
+                                content=content,
+                                data_item=upload_item
+                            )
+                            try_count = 0
+                        except elasticsearch.exceptions.ConnectionTimeout as e:
+                            self.logger.error(e,more_info=dict(
+                                es_index = msg_info.AppName,
+                                data = msg_info.Data,
+                                msg=f"next re-try time {try_count}"
+                            ))
+                            time.sleep(5)
+                            try_count =-1
+                        except Exception as e:
+                            self.logger.error(e,more_info=dict(
+                                es_index = msg_info.AppName,
+                                data = msg_info.Data
+                            ))
+                            return
                     self.logger.info(f"Generate pdf from {full_file}:\nPDF file is {pdf_file}")
                     msg.delete(msg_info)
 
             except img2pdf.AlphaChannelError as e:
-                self.logger.error(e)
+                self.logger.error(e,more_info=dict(
+                            es_index = msg_info.AppName,
+                            data = msg_info.Data
+                        ))
                 msg.delete(msg_info)
                 return
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,more_info=dict(
+                            es_index = msg_info.AppName,
+                            data = msg_info.Data
+                        ))

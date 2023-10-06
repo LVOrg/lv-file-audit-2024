@@ -395,13 +395,13 @@ COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
 COPY ./../cy_controllers /app/cy_controllers
 RUN python3 -m pip install python-memcached
-
+RUN python3 -m pip install hypercorn[trio]
 RUN python3 -c 'import cv2'
 ">>$base_py-xdoc
-xdoc_tag=47
+xdoc_tag=49
 xdoc_tag_build=$(tag $xdoc_framework_tag).$(($cy_extra_lib_tag+xdoc_tag))
 buildFunc $base_py-xdoc $xdoc_tag_build $top_image $os
-to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong
+#to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong
 
 
 #------------------------------------------------------
@@ -414,6 +414,7 @@ echo "1-install:
       2- docker run --platform=linux/arm64/v8  ...
       example:
       docker run -it --platform=linux/arm64/v8 -v \$(pwd):/build  docker.lacviet.vn/xdoc/py310-com:arm.9 /bin/bash
+
       docker run --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 python3 -c 'import time;time.sleep(100000000)'
       docker run  --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 /bin/bash
       docker run -docker run --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 python3 -c 'import time;time.sleep(100000000)'-platform=linux/arm64/v8 \
@@ -503,3 +504,4 @@ echo "docker run -p 8014:8014 $repositiory/$user/$gradio_test_image python3 /app
 #
 #28/9/2023
 #P@ssw@)23rd
+#docker run -it --platform=linux/arm64/v8 -v $(pwd):/build  docker.lacviet.vn/xdoc/py310-com:arm.9 /bin/bash

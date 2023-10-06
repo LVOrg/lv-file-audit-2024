@@ -54,10 +54,14 @@ class Process:
                 upload_id=msg_info.Data["_id"]
 
             )
-            self.logger(f"Generate image form {full_file}")
-            self.logger(f"Generate image form {full_file} start")
+            if full_file is None:
+                self.logger.info(f"Generate image form nothing")
+                msg.delete(msg_info)
+
+            self.logger.info(f"Generate image form {full_file}")
+            self.logger.info(f"Generate image form {full_file} start")
             img_file = libre_office_service.get_image(file_path=full_file)
-            self.logger(f"Generate image form {full_file} end")
+            self.logger.info(f"Generate image form {full_file} end")
             ret = temp_file.move_file(
                 from_file=img_file,
                 app_name=msg_info.AppName,
@@ -69,8 +73,11 @@ class Process:
                 message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
                 data=msg_info.Data
             )
-            self.logger(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n {full_file}")
+            self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n {full_file}")
             msg.delete(msg_info)
             self.logger.info(msg_info)
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,more_info=dict(
+                            es_index = msg_info.AppName,
+                            data = msg_info.Data
+                        ))

@@ -178,6 +178,7 @@ if __name__ == "__main__":
             "timeout_graceful_shutdown":10
         }
         print(options)
+        logger.info(json.dumps(options))
         StandaloneApplication(app, options).run()
     elif config.server_type == "hypercorn":
         import hypercorn.config, hypercorn.run
@@ -192,7 +193,10 @@ if __name__ == "__main__":
         _config_.worker_class = config.worker_class
         if config.timeout_graceful_shutdown!="auto":
             _config_.shutdown_timeout = config.timeout_graceful_shutdown
+        config.ALPNProtocols = ["h2", "http/2"]
+
         print(_config_.__dict__)
+        logger.info(json.dumps(_config_.__dict__))
         hypercorn.run.run(_config_)
     else:
         cy_web.start_with_uvicorn(worker=number_of_workers)

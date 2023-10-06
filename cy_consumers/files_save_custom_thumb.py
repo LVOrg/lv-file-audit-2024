@@ -46,4 +46,4 @@ class Process:
             msg.delete(msg_info)
             self.logger.info(f"Save {full_file_path} to {upload_id}")
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,msg_info=msg_info.Data)

@@ -61,7 +61,7 @@ class Process:
                 )
                 self.logger.info(f"Do OCR file {full_file} is ok:\n{ocr_file}")
             except ocrmypdf.exceptions.InputFileError as e:
-                self.logger.info(f"Do OCR file {full_file} is error")
+                self.logger.error(d,msg_info=msg_info.Data)
                 msg.delete(msg_info)
             ret = self.temp_file.move_file(
                 from_file=ocr_file,

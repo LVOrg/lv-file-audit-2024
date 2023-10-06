@@ -51,7 +51,7 @@ class Process:
                         msg.delete(msg_info)
                         return
                 else:
-                    print(f"Generate pdf from {full_file}:\nfile was not found")
+                    self.logger.info(f"Generate pdf from {full_file}:\nfile was not found")
                     msg.delete(msg_info)
                     return
             self.logger.info(f"Generate image form {full_file}")
@@ -60,14 +60,12 @@ class Process:
                 pdf_file = image_extractor_service.convert_to_pdf(file_path=full_file, file_ext="pdf")
                 self.logger.info(f"Generate pdf from {full_file}:\nPDF file is {pdf_file}")
             except PIL.UnidentifiedImageError as e:
-                self.logger.info(f"Generate pdf from {full_file} is error:\n")
-                self.logger.error(e)
+                self.logger.error(e,msg_info=msg_info.Data)
                 msg.delete(msg_info)
 
                 return
             except img2pdf.AlphaChannelError as e:
-                self.logger.info(f"Generate pdf from {full_file} is error:\n")
-                self.logger.error(e)
+                self.logger.error(e,msg_info=msg_info.Data)
                 msg.delete(msg_info)
                 return
 

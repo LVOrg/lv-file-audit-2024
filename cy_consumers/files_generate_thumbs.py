@@ -59,7 +59,7 @@ class Process:
 
                 )
             except PIL.UnidentifiedImageError as e:
-                self.logger.error(e)
+                self.logger.error(e,msg_info=msg_info.Data)
                 msg.delete(msg_info)
                 return
 
@@ -104,4 +104,4 @@ class Process:
                 )
             msg.delete(msg_info)
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,msg_info.Data)

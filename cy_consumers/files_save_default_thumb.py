@@ -56,6 +56,6 @@ class Process:
                 field_value=True
             )
             msg.delete(msg_info)
-            print(f"update {full_file_path} to thumb of file")
+            self.logger.info(f"update {full_file_path} to thumb of file")
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,msg_info=msg_info.Data)

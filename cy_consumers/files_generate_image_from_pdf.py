@@ -38,7 +38,7 @@ class Process:
                 upload_id=msg_info.Data["_id"]
 
             )
-            self.logger(f"Generate image form {full_file}")
+            self.logger.info(f"Generate image form {full_file}")
             img_file = pdf_file_service.get_image(full_file)
             ret = temp_file.move_file(
                 from_file=img_file,
@@ -54,4 +54,4 @@ class Process:
             msg.delete(msg_info)
             self.logger.info(msg_info)
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,msg_info=msg_info.Data)

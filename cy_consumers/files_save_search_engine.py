@@ -67,4 +67,4 @@ class Process:
             self.logger.info(f"{full_file_path} was updated to search engine")
             msg.delete(msg_info)
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,msg_info= msg_info.Data)

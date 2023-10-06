@@ -117,4 +117,4 @@ class Process:
             ids = msg_info.Data["ids"]
             self.do_move(from_app=from_app, to_app=to_app, ids=ids)
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,msg_info=dict(from_app=from_app, to_app=to_app, ids=ids))

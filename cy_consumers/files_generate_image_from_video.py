@@ -47,7 +47,7 @@ class Process:
                 img_file = video_service.get_image(full_file)
                 self.logger.info(f"Generate image from {full_file} was complete at:\n {img_file}")
             except Exception as e:
-                self.logger.error(e)
+                self.logger.error(e,msg_info=msg_info.Data)
                 msg.delete(msg_info)
                 return
             ret = temp_file.move_file(

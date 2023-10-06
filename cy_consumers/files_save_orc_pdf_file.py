@@ -52,7 +52,7 @@ class Process:
 
                 self.logger.info(f"app={msg_info.AppName} save thumb file {server_orc_file_path} is OK")
             except pymongo.errors.DuplicateKeyError as e:
-                self.logger(e)
+                self.logger(e,msg_info= msg_info.Data)
                 msg.delete(msg_info)
                 return
 
@@ -76,4 +76,4 @@ class Process:
             msg.delete(msg_info)
             self.logger.info(f'update {full_file_path} to ORC of file of {msg_info.Data["_id"]}')
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e,msg_info= msg_info.Data)

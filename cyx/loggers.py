@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import logging
@@ -72,6 +73,8 @@ class LoggerService:
 
     def info(self, txt):
         try:
+            if isinstance(txt,dict):
+                txt = json.dumps(txt,indent=1)
             now = datetime.datetime.utcnow()
             print(f'[INFO][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {txt}')
             self.__logger__.info(txt)
@@ -97,9 +100,12 @@ class LoggerService:
                 self.pod_name = full_name
         return self.pod_name
 
-    def error(self, ex):
+    def error(self, ex,more_info=None):
+        if isinstance(more_info,dict):
+            more_info = json.dumps(more_info,indent=1)
         now = datetime.datetime.utcnow()
         content = traceback.format_exc()
+        content =f"{more_info}/n/n-----------------{content}"
         print(f'[ERROR][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {content}')
 
         self.__logger__.exception("An exception occurred: %s", ex, exc_info=True)
