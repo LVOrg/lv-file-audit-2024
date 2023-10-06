@@ -20,9 +20,13 @@ apps_list = apps.get_list("admin")
 for app in apps_list:
     # if app.Name not in ["default"]:
     #     continue
+    if app.Name!="congtyqc":
+        continue
     qr = files.get_queryable_doc(app.Name)
     items = qr.context.aggregate().match(
-        ((qr.fields.HasThumb == False) | (cy_docs.not_exists(qr.fields.HasThumb))) & \
+        (((qr.fields.HasThumb == False) | (cy_docs.not_exists(qr.fields.HasThumb)))| \
+         (qr.fields.Status==0)
+         )& \
         (cy_docs.EXPR(qr.fields.SizeInBytes ==qr.fields.SizeUploaded))
     ).sort(
         qr.fields.RegisterOn.desc()
@@ -34,4 +38,10 @@ for app in apps_list:
             message_type=cyx.common.msg.MSG_FILE_UPLOAD,
             data=x
         )
+        qr.context.update(
+            qr.fields.Id==x.Id,
+            qr.fields.Status<<1
+        )
+
+
 

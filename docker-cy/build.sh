@@ -388,6 +388,9 @@ COPY ./../cy_utils /app/cy_utils
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cyx /app/cyx
 COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
+RUN python3 /app/compact.py app/cyx
+RUN python3 /app/compact.py /app/cy_utils
+RUN python3 /app/compact.py /app/cyx
 RUN python3 /app/compact.py /app/cy_vn_suggestion
 
 #COPY ./../resource /app/resource

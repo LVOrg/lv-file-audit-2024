@@ -1,3 +1,14 @@
+from fastapi import (
+    APIRouter,
+    Depends,
+    FastAPI,
+    HTTPException,
+    status,
+    Request,
+    Response,
+    UploadFile,
+    Form, File
+)
 from cy_controllers import PagesController
 from cy_controllers.apps.app_controller import AppsController
 from cy_controllers.logs.logs_controller import LogsController
@@ -24,6 +35,9 @@ def load_controller(app,host_dir):
                 router=fx.router()
             )
         except Exception as e:
-            logger_service.error(e)
+            logger_service.error(e,more_info=dict(
+                controller = fx.__name__
+            ))
+
             raise (e)
 

@@ -33,11 +33,10 @@ def fix_hanger_contents(app_name: str):
     qr = files.get_queryable_doc(app_name=app_name)
     lst = qr.context.aggregate() \
         .match(
-        (qr.fields.RegisterOn <= utc_date) & \
         (qr.fields.Status == 0) & \
         cy_docs.EXPR(qr.fields.SizeInBytes == qr.fields.SizeUploaded)
     ) \
-        .sort(qr.fields.RegisterOn.desc()).to_json_convertable()
+        .sort(qr.fields.RegisterOn.desc()).limit(5).to_json_convertable()
     lst = list(lst)
     print(f"{app_name} found {len(lst)}")
     for x in lst:
@@ -64,4 +63,4 @@ if __name__ == "__main__":
                 fix_hanger_contents(x["Name"])
             except Exception as e:
                 print(e)
-        time.sleep(24*69*60)
+        time.sleep(30)

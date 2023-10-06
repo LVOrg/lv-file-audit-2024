@@ -28,6 +28,9 @@ security = HTTPBasic()
 def verify_auth(request:Request, credentials: HTTPBasicCredentials = Depends(security)):
     check_app, check_user  = token_service.get_info_from_token(request)
     if check_app and check_user:
+        request_service.set_info(
+            request=request, app_name=check_app, username=check_user
+        )
         return True
     acc_svc = cy_kit.singleton(AccountService)
     username = credentials.username
@@ -52,31 +55,33 @@ def verify_auth(request:Request, credentials: HTTPBasicCredentials = Depends(sec
 
     return credentials.username
 
-
+import cyx.common.basic_auth
 @controller.resource()
 class PagesController:
     # add class wide dependencies e.g. auth
     dependencies = [
         Depends(verify_auth)
     ]
-
+    auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     # you can define in the Controller init some FastApi Dependency and them are automatically loaded in controller methods
     def __init__(self,request: Request):
-        pass
+        self.request = request
 
     @controller.route.get(
         "/", summary="Home page"
     )
-    def home_page(self, request: Request):
+    def home_page(self):
+
         return cy_web.render_template(
             rel_path_to_template="index.html",
-            render_data={"request": request, "app": get_meta_data()}
+            render_data={"request": self.request, "app": get_meta_data()}
         )
+
 
     @controller.route.get(
         "{directory:path}", summary="Home page"
     )
-    async def page_single(self, directory: str, request: Request):
+    async def page_single(self, directory: str):
         from cyx.base import config
         directory = directory.split('?')[0]
         check_dir_path = os.path.abspath(os.path.join(
@@ -87,11 +92,16 @@ class PagesController:
 
         if not os.path.exists(check_dir_path):
             return Response(status_code=401)
-        application,username = request_service.get_info(request)
+        application,username = request_service.get_info(self.request)
+        if application!="admin":
+            await self.auth_service.check_request("admin", self.request)
+        if username is None:
+            await self.auth_service.check_request(application, self.request)
+
         """
         /home/vmadmin/python/cy-py/cy_controllers/pages/resource/html/login.html
         /home/vmadmin/python/cy-py/cy_controllers/pages/resource/html/index.html
         """
-        res = cy_web.render_template("index.html", {"request": request, "app": get_meta_data()})
+        res = cy_web.render_template("index.html", {"request": self.request, "app": get_meta_data()})
         token_service.set_cookie(res,token_service.generate_token(app=application,username=username))
         return res

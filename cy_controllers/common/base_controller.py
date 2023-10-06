@@ -32,7 +32,7 @@ from fastapi_router_controller import Controller
 from cyx.common.file_cacher import FileCacherService
 from fastapi.responses import FileResponse
 import mimetypes
-
+import fastapi
 import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
 from cy_xdoc.services.apps import AppServices,AppsCacheService
@@ -47,5 +47,7 @@ class BaseController:
     file_cacher_service = cy_kit.singleton(FileCacherService)
     service_app: AppServices = cy_kit.singleton(AppServices)
     apps_cache: AppsCacheService = cy_kit.singleton(AppsCacheService)
+    auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
+    config = cyx.common.config
     def __init__(self, request: Request):
         self.request = request
