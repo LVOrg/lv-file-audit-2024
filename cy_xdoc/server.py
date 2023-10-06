@@ -187,8 +187,11 @@ if __name__ == "__main__":
         _config_.application_path = "cy_web:get_fastapi_app()"
         _config_.workers = number_of_workers
         _config_.keep_alive_timeout = config.timeout_keep_alive
-        # _config_.h2_max_concurrent_streams = 100
+        if config.h2_max_concurrent_streams!="auto":
+            _config_.h2_max_concurrent_streams = config.h2_max_concurrent_streams
         _config_.worker_class = config.worker_class
+        if config.timeout_graceful_shutdown!="auto":
+            _config_.shutdown_timeout = config.timeout_graceful_shutdown
         print(_config_.__dict__)
         hypercorn.run.run(_config_)
     else:

@@ -38,5 +38,6 @@ data:
   server_type.unvicorn: unvicorn
   server_type.hypercorn: hypercorn
   server_type.default: auto
+  h2_max_concurrent_streams: 100
 ---
 {{end}}
