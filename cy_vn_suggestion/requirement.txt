@@ -1,0 +1,5 @@
+phunspell
+numpy
+fastapi
+uvicorn
+requests

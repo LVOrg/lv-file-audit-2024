@@ -1,0 +1,6 @@
+FROM python:3.10.12-slim-bookworm
+COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
+RUN python3 -m pip install -r /app/cy_vn_suggestion/requirement.txt
+ENTRYPOINT ["python3", "/app/cy_vn_suggestion/cy_vn_sugestion_server.py"]
+
+#docker buildx build -t docker.io/nttlong/vn-suggestion:amd.1  --platform=linux/amd64 ./.. -f cy_vns_suggestion_docker  --push=true --output type=registry
