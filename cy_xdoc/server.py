@@ -4,7 +4,7 @@ import pathlib
 import sys
 import os
 
-import gunicorn.app.wsgiapp
+
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())

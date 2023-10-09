@@ -111,7 +111,7 @@ rm -f $base_py-libreoffice && cp -f ./templates/libreoffice ./$base_py-libreoffi
 libreoffice_tag=1
 libreoffice_tag_build=$(tag $libreoffice_tag)
 libreoffice_image=$base_py-libreoffice:$libreoffice_tag_build
-buildFunc $base_py-libreoffice $libreoffice_tag_build $top_image $os
+#buildFunc $base_py-libreoffice $libreoffice_tag_build $top_image $os
 #--------------------------------------------------------------------
 #---------------- build tessract------------------------------------
 rm -f $base_py-tessract && cp -f ./templates/tessract ./$base_py-tessract
@@ -275,19 +275,19 @@ buildFunc $base_py-cy_gs_cv2 $cy_gs_cv2_tag_build $top_image $os
 #---------------------combine all components---------------------------
 rm -f $base_py-com
 echo "
-FROM $repositiory/$user/$libreoffice_image as office
+#FROM $repositiory/$user/$libreoffice_image as office
 FROM $repositiory/$user/$tessract_image as tessract
-FROM $repositiory/$user/$javac_image as javac
+#FROM $repositiory/$user/$javac_image as javac
 #FROM $repositiory/$user/$opencv_image as opencv
 FROM $repositiory/$user/$cy_gs_cv2_image as cv2
-FROM $repositiory/$user/$cy_vn_image as vn
+#FROM $repositiory/$user/$cy_vn_image as vn
 FROM $top_image
 COPY ./../docker-cy/check /check
 ARG TARGETARCH
 RUN if [ \"\$TARGETARCH\" = \"arm64\" ]; then \
     apt update && apt-get upgrade -y &&  apt install build-essential -y; \
     fi
-COPY --from=office / /
+#COPY --from=office / /
 RUN chmod u+x /check/*.sh
 RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
       /check/libreoffice.sh ;\
@@ -296,10 +296,10 @@ RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
 #COPY --from=tessract /usr/bin /usr/share
 COPY --from=tessract / /
 RUN /check/tessract.sh
-COPY --from=javac /usr/lib /usr/lib
+#COPY --from=javac /usr/lib /usr/lib
 COPY --from=cv2 /usr/local /usr/local
 RUN  /check/opencv.sh
-COPY --from=vn /app /app
+#COPY --from=vn /app /app
 RUN pip install underthesea
 RUN /check/opencv.sh
 RUN /check/py_vncorenlp.sh
@@ -307,13 +307,12 @@ RUN if [ \"\$TARGETARCH\" = \"adm64\" ]; then \
       /check/libreoffice.sh ;\
      fi
 RUN /check/tessract.sh
-RUN /check/tika.sh
-RUN /check/dotnet.sh
+#RUN /check/tika.sh
 RUN python3 -c 'import cv2;print(cv2);'
 
 ">>$base_py-com
 
-com_tag=$(($libreoffice_tag+$tessract_tag+$javac_tag+$opencv_tag+$cy_gs_cv2_tag +3))
+com_tag=$(($libreoffice_tag+$tessract_tag+$javac_tag+$opencv_tag+$cy_gs_cv2_tag +4))
 com_tag_build=$(tag $com_tag)
 com_image=$base_py-com:$com_tag_build
 buildFunc $base_py-com $com_tag_build $top_image $os
@@ -330,6 +329,7 @@ COPY --from=dlrn /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
 COPY --from=core /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
 COPY --from=core /app /app
 COPY --from=env /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 RUN pip uninstall pymongo -y && rm -fr /check
 RUN pip install easyocr --no-cache-dir
 
@@ -373,16 +373,16 @@ buildFunc $base_py-cy_extra-lib $cy_extra_lib_tag_build $repositiory/$user/$cyth
 #----- apps--------------
 rm -f $base_py-xdoc
 echo "
-FROM $repositiory/$user/$cy_extra_lib_tag_image as ext
+##FROM $repositiory/$user/$cy_extra_lib_tag_image as ext
 FROM $repositiory/$user/$xdoc_framework_image
 ARG TARGETARCH
 ARG OS
-COPY --from=ext /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
+#COPY --from=ext /usr/local/lib/$(python_dir) /usr/local/lib/$(python_dir)
 COPY ./../docker-cy/check/check_underthesea.py /app/check_underthesea.py
 
 # Cai nay la toan bo moi truong thu vien cua
 RUN python3 /app/check_underthesea.py
-RUN /check/py_vncorenlp.sh
+#RUN /check/py_vncorenlp.sh
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_utils /app/cy_utils
 COPY ./../cy_xdoc /app/cy_xdoc

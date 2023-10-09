@@ -1,0 +1,18 @@
+FROM linuxserver/libreoffice
+RUN apk add py3-pip
+RUN pip install pyyaml
+RUN pip install pymongo
+RUN pip install pydantic
+RUN pip install pika
+RUN mkdir -p /app
+COPY ./../cy_docs /app/cy_docs
+COPY ./../cyx /app/cyx
+COPY ./../cy_kit /app/cy_kit
+COPY ./../cy_consumers /app/cy_consumers
+COPY ./../config.yml /app/config.yml
+RUN python3 /app/cy_consumers/libre_office_check.py
+ENTRYPOINT [""]
+#docker  buildx build --platform=linux/amd64 ./.. -f file-libre-office -t docker.lacviet.vn/xdoc/alpine-libre-office:3 --push=true --output type=registry
+#host_share_dir=/home/vmadmin/python/cy-py/share-storage
+#docker run -it -v  $host_share_dir:/app/share-storage  docker.lacviet.vn/xdoc/alpine-libre-office:3  python3 /app/cy_consumers/libre_office.py
+#docker run -it -v  $host_share_dir:/app/share-storage  docker.lacviet.vn/xdoc/alpine-libre-office:2  /bin/bash

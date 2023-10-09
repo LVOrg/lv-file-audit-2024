@@ -12,8 +12,8 @@ from cy_vn_suggestion.generators import (
 )
 from cy_vn_suggestion.gram_calculators import calculator_matrix
 from cy_vn_suggestion.settings import __tones__
-
-
+import phunspell
+vn_spell = phunspell.Phunspell("vi_VN")
 def suggest(words: str,
             skip_if_in_langs: typing.Optional[typing.List[str]] = ["en_US"],
             correct_spell: bool = True,
