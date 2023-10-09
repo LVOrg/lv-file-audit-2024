@@ -97,3 +97,4 @@ fileJob:
   pullPolicy: IfNotPresent
   tag: amd.cpu.9.40.51
   mountPath: /app/share-storage
+  vn_suggest_url: vn-suggestion.xdoc-web:8000

@@ -69,8 +69,9 @@ spec:
             - server_type=$(server_type.hypercorn)
             - worker_class=$(worker_class.trio)
             - timeout_keep_alive=$(timeout_keep_alive)
-            - timeout_graceful_shutdown = $(timeout_graceful_shutdown)
-            - h2_max_concurrent_streams = $(h2_max_concurrent_streams)
+            - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
+            - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
+            - vn_suggest_url=$(vn_suggest_url)
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:
             - configMapRef:

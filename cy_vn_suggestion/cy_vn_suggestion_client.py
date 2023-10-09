@@ -19,6 +19,6 @@ def call_suggestion(txt:str)->str:
     else:
         raise Exception(f"Can not call {__url__}/suggest")
 
-config_server("http://172.16.13.72:8000")
+config_server("http://172.16.7.91:31944")
 fx=call_suggestion("kiem tra tieng viet khong dau")
 print(fx)
