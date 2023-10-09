@@ -1,0 +1,64 @@
+---
+{{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $storage := $data.storage}}
+    {{ $dataJson := toPrettyJson $api -}}
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==
+kind: Secret
+metadata:
+  name: harbor-secret-registry
+  namespace: {{$api.namespace}}
+type: kubernetes.io/dockerconfigjson
+---
+# The first we need deploy an application where Pod of web will run inside
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$api.name}}
+  namespace: {{$api.namespace}}
+spec:
+  selector:
+    matchLabels:
+      app: vn-suggestion
+  replicas: 1
+  #minimumReplicas: {{$api.replicas}}
+  template:
+    metadata:
+      labels:
+        app: vn-suggestion
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret-registry
+      containers:
+          image: docker.io/nttlong/vn-suggestion:amd.1
+          name: vn-suggestion
+          imagePullPolicy: {{$api.pullPolicy}}
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: vn-suggestion
+ namespace: {{$api.namespace}}
+ labels:
+   app: vn-suggestion
+spec:
+#  type: NodePort
+ selector:
+   app: {{$api.name}}
+ ports:
+   - name: "vn-suggestion-nod-port"
+     protocol: TCP
+     port: 8000
+     targetPort: 8000
+     nodePort: 30998
