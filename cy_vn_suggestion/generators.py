@@ -82,6 +82,9 @@ def generate_suggestions(txt: str,
                 if len(sub_list) > 0:
                     ret += [sub_list]
                     ret_len += [len(sub_list)]
+            elif analyzer_list is None:
+                ret += [[x]]
+                ret_len += [1]
             elif len(analyzer_list) == 1:
                 sub_list = []
                 _, pre_fix, vowel, end_fix, _, _ = analyzer_list[0]
