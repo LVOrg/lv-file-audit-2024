@@ -9,7 +9,6 @@ python-memcached
 passlib
 humanize
 requests
-underthesea
 tika
 PyJWT==1.7.1
 user-agents

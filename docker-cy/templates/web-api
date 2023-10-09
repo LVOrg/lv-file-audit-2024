@@ -7,6 +7,15 @@ COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
 COPY ./../cy_kit /app/cy_kit
 COPY ./../cy_logger /app/cy_logger
+COPY ./../gridfs /app/gridfs
+COPY ./../elasticsearch /app/elasticsearch
+COPY ./../pymongo /app/pymongo
+COPY ./../bson /app/bson
+COPY ./../config.yml /app/config.yml
+COPY ./../docker-cy/templates/web-api.req.txt /app/web-api.req.txt
+COPY ./../cy_controllers /app/cy_controllers
+RUN pip install --upgrade pip
+RUN python3 -m pip install -r  /app/web-api.req.txt
 COPY ./../cy_services /app/cy_services
 COPY ./../cy_ui /app/cy_ui
 COPY ./../cy_utils /app/cy_utils
@@ -16,10 +25,3 @@ COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
 COPY ./../cyx /app/cyx
-COPY ./../gridfs /app/gridfs
-COPY ./../elasticsearch /app/elasticsearch
-COPY ./../pymongo /app/pymongo
-COPY ./../bson /app/bson
-COPY ./../config.yml /app/config.yml
-COPY ./../docker-cy/templates/web-api.req.txt /app/web-api.req.txt
-RUN python3 -m pip install -r  /app/web-api.req.txt

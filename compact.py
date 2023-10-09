@@ -47,21 +47,24 @@ def generate_setup_file(full_gen_file, rel_dir):
         f.write(content)
 
 def get_list_of_file(full_compiler_dir):
-    ret = []
-    global working_dir
-    root_dir, dirs, files = list(os.walk(full_compiler_dir))[0]
+    try:
+        ret = []
+        global working_dir
+        root_dir, dirs, files = list(os.walk(full_compiler_dir))[0]
 
 
-    for file in files:
+        for file in files:
 
-        if pathlib.Path(file).name=="__init__.py":
-            continue
-        ret += [os.path.join(root_dir,file)]
-    for dif in dirs:
-        full_dir = os.path.join(root_dir, dif)
-        fx = get_list_of_file(full_dir)
-        ret += fx
-    return ret
+            if pathlib.Path(file).name=="__init__.py":
+                continue
+            ret += [os.path.join(root_dir,file)]
+        for dif in dirs:
+            full_dir = os.path.join(root_dir, dif)
+            fx = get_list_of_file(full_dir)
+            ret += fx
+        return ret
+    except Exception as e:
+        raise Exception(f"{full_compiler_dir} is error")
 
 def generate_setup_file_files(ouput_dir, module_name, content):
     global working_dir

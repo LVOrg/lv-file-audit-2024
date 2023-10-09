@@ -105,14 +105,7 @@ buildFunc(){
       exit "${exit_status}"
     fi
 }
-#----- web api build-----------
-rm -f web-api && cp -f ./templates/web-api ./web-api
-web_api_tag=1
-web_api_tag_build=$(tag $web_api_tag)
-web_api_tag_image=web-api:$web_api_tag_build
-buildFunc web-api $web_api_tag_build $top_image $os
 
-#------------------------------------------------------
 #---------------- build libre office------------------------------------
 rm -f $base_py-libreoffice && cp -f ./templates/libreoffice ./$base_py-libreoffice
 libreoffice_tag=1
