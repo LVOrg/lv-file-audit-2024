@@ -157,7 +157,7 @@ class FilesContentController(BaseController):
             upload_id = directory.split('/')[0]
 
 
-            fs = self.service_file.get_main_main_thumb_file(app_name, upload_id)
+            fs = self.file_service.get_main_main_thumb_file(app_name, upload_id)
             if fs is None:
                 return Response(
                     status_code=401

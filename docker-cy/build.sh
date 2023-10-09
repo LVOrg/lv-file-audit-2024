@@ -388,10 +388,9 @@ COPY ./../cy_utils /app/cy_utils
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cyx /app/cyx
 COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
-RUN python3 /app/compact.py app/cyx
-RUN python3 /app/compact.py /app/cy_utils
-RUN python3 /app/compact.py /app/cyx
-RUN python3 /app/compact.py /app/cy_vn_suggestion
+#RUN python3 /app/compact.py /app/cy_utils
+#RUN python3 /app/compact.py /app/cyx
+#RUN python3 /app/compact.py /app/cy_vn_suggestion
 
 #COPY ./../resource /app/resource
 COPY ./../config.yml /app/config.yml
@@ -401,7 +400,7 @@ RUN python3 -m pip install python-memcached
 RUN python3 -m pip install hypercorn[trio]
 RUN python3 -c 'import cv2'
 ">>$base_py-xdoc
-xdoc_tag=51
+xdoc_tag=53
 xdoc_tag_build=$(tag $xdoc_framework_tag).$(($cy_extra_lib_tag+xdoc_tag))
 buildFunc $base_py-xdoc $xdoc_tag_build $top_image $os
 #to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong
