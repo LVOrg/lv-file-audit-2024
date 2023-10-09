@@ -72,6 +72,7 @@ spec:
             - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
             - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
             - vn_suggest_url=$(vn_suggest_url)
+            - tika_server=$(tika_server)
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:
             - configMapRef:

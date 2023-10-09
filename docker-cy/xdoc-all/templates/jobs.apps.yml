@@ -71,6 +71,7 @@ spec:
             - rabbitmq.server=$(rabbitmq.server)
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
+            - tika_server=$(tika_server)
           image: {{ $fileJob.repository  }}:{{$fileJob.tag}}
           envFrom:
             - configMapRef:

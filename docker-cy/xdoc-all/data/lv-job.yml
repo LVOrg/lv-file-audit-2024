@@ -119,3 +119,4 @@ fileJob:
   tag: amd.cpu.9.39.44
   mountPath: /app/share-storage
   vn_suggest_url: vn-suggestion.xdoc-web:8000
+  tika_server: tika.xdoc-web:9998
