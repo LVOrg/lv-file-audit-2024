@@ -2,14 +2,17 @@ import os
 import pathlib
 import typing
 import re
-from underthesea import word_tokenize
+from vws import RDRSegmenter, Tokenizer
 
 
 
 class VnSegmenterService:
     def __init__(self):
-
-        self.word_tokenize = word_tokenize
+        self.rdrsegment = RDRSegmenter.RDRSegmenter()
+        self.tokenizer = Tokenizer.Tokenizer()
+        # self.word_tokenize = word_tokenize
+    def  word_tokenize(self,txt):
+        return self.rdrsegment.segmentRawSentences(self.tokenizer,txt)
     def parse_word_segment(self, content: str,boot: typing.List[float]=None,clears: typing.List[str]=None) -> str:
         if content is None:
             return ""

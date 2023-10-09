@@ -1,4 +1,5 @@
-FROM python:3.11-alpine
+FROM python:3.10-alpine
+RUN pythom3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
 COPY ./../cy_kit /app/cy_kit

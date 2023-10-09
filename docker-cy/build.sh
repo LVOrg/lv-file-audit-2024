@@ -105,7 +105,14 @@ buildFunc(){
       exit "${exit_status}"
     fi
 }
+#----- web api build-----------
+rm -f web-api && cp -f ./templates/web-api ./web-api
+web_api_tag=1
+web_api_tag_build=$(tag $web_api_tag)
+web_api_tag_image=web-api:$web_api_tag_build
+buildFunc web-api $web_api_tag_build $top_image $os
 
+#------------------------------------------------------
 #---------------- build libre office------------------------------------
 rm -f $base_py-libreoffice && cp -f ./templates/libreoffice ./$base_py-libreoffice
 libreoffice_tag=1
@@ -405,8 +412,6 @@ xdoc_tag_build=$(tag $xdoc_framework_tag).$(($cy_extra_lib_tag+xdoc_tag))
 buildFunc $base_py-xdoc $xdoc_tag_build $top_image $os
 #to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong
 
-
-#------------------------------------------------------
 echo "----------------------------------------------"
 echo " In order to run image with arm64 platform:"
 echo "1-install:

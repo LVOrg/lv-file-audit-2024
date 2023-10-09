@@ -12,8 +12,8 @@ from typing import List
 import pydantic
 from enum import Enum
 import os
-import underthesea
-
+#import underthesea
+from vws import RDRSegmenter, Tokenizer
 def get_info(client: Elasticsearch):
     return client.info()
 
@@ -2123,8 +2123,12 @@ def __build_search__(fields, content:str, suggest_handler=None):
         for x in ch:
             content = content.replace(x,f"\\{x}")
         return content
+
+    from vws import RDRSegmenter, Tokenizer
+    rdrsegment = RDRSegmenter.RDRSegmenter()
+    tokenizer = Tokenizer.Tokenizer()
     def make_expr(content:str,start_score:float)->str:
-        seg_words = underthesea.word_tokenize(content)
+        seg_words =  rdrsegment.segmentRawSentences(tokenizer,content)
         seg_words = [x for x in seg_words if ' ' in x]
         and_content_seg, or_content_seg = make_search(seg_words)
         ret = jon_expr([
