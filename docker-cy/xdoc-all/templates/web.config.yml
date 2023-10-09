@@ -39,6 +39,7 @@ data:
   server_type.hypercorn: 'hypercorn'
   server_type.default: 'auto'
   h2_max_concurrent_streams: '100'
-  vn_suggest_url: vn-suggestion.{{$api.configMapName}}:8000 #vn-suggestion.xdoc-web:8000 TCP
+  vn_suggest_url: vn-suggestion.{{$api.namespace}}:8000 #vn-suggestion.xdoc-web:8000 TCP
+  tika_server: tika.{{$api.namespace}}:9998
 ---
 {{end}}

@@ -148,7 +148,7 @@ media_plugins:
   - enig_frames.plugins.ocr.images:Images
   - enig_frames.plugins.ocr.pdf_file:PdfFile
 
-tika_server: http://localhost:12345
+tika_server: http://172.16.7.91:32532
 #temp_directory: ./brokers/tmp-files
 #http://172.16.0.80:31672/
 rabbitmq__:
