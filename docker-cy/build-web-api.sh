@@ -1,14 +1,11 @@
 #!/bin/bash
 
-docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
-export user=xdoc
-export user_=nttlong
+export user=nttlong
 export platform=linux/amd64
 export platform_=linux/arm64/v8
 export platform_=linux/amd64,linux/arm64/v8
-export repositiory=docker.lacviet.vn
-export repositiory_=docker.io
+export repositiory=docker.io
 export os='debian'
 
 
@@ -56,7 +53,7 @@ python_dir(){
     echo "python3.9"
   fi
 }
-dev='-dev'
+dev=''
 tag(){
   if [ "$platform" = "linux/amd64,linux/arm64/v8" ]; then
     echo "$1"
@@ -130,11 +127,29 @@ buildSourceFunc(){
 #$(realpath /home/ect/../test.py)
 }
 #/home/vmadmin/python/cy-py/docker-cy/../env_webapi/bin/python /home/vmadmin/python/cy-py/docker-cy/../compact.py /home/vmadmin/python/cy-py/docker-cy/../cyx.py
-buildSourceFunc
+
+#--------- web api core --------------
+rm -f web-api-core
+echo "
+FROM python:3.10-alpine
+RUN apk add git
+RUN pip install --upgrade pip
+RUN python3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git
+COPY ./../docker-cy/templates/web-api.req.txt /app/web-api.req.txt
+RUN python3 -m pip install -r  /app/web-api.req.txt
+">>web-api-core
+web_api_core_tag=1
+web_api_core_tag_build=$(tag $web_api_core_tag)
+web_api_core_image=web-api-core:$web_api_core_tag_build
+buildFunc web-api-core $web_api_core_tag_build $top_image $os
+
 #----- web api build-----------
+echo "build web api into C++"
+#buildSourceFunc
+echo "build web api into C++ is complete"
 rm -f web-api && cp -f ./templates/web-api ./web-api
-web_api_tag=1
+web_api_tag=$web_api_core_tag.1
 web_api_tag_build=$(tag $web_api_tag)
-web_api_tag_image=web-api:$web_api_tag_build
-buildFunc web-api $web_api_tag_build $top_image $os
+web_api_image=web-api:$web_api_tag_build
+buildFunc web-api $web_api_tag_build $repositiory/$user/$web_api_core_image $os
 #eyJhbGciOiJSUzI1NiIsImtpZCI6IlU3RWRfUWNIZXJ4ejVHZGh6LVFOWWFTeWFadTlvbDRrOUtwcjk2WG10aW8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzI3NDkzODU4LCJpYXQiOjE2OTU5NTc4NTgsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJhZG1pbi11c2VyIiwidWlkIjoiNzE3MWMwYjEtZTc2Yi00NDMzLTg5M2EtYmMwODI5MWJlMWJkIn19LCJuYmYiOjE2OTU5NTc4NTgsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbi11c2VyIn0.vW64Vj5BMBnba0XOkcQ3XucEcRN1qncoDf1fE5HZbn1yHbgRG2YcRdVt2HoUNLn9-KhBuQx-fcHzsCw70A_YkqD4ig6g6MwjaIZyCWNaxKfxlIrhYVGYbOpsJYOCcGeUKmOvMYU4mVnobcaClYjxpmCD_OUiR-AOpcLyJAeyEb21XbwAVrAty8TiP2O6tD1plUqQz8ngZk5iNLtvLr5_2NicjxhLl2YSzol_CaMWjuebMUvzBdqRhE_wZf7AcmLudWbCCTl8m_3JU7J7HqqXMLppKTrDBbvaiLb6PqIwmT0TKH_PoxtPy46WpwNG6jX_bS83r3E4RyV8ipku84cgiQ
