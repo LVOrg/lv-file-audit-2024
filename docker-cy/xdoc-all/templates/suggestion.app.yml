@@ -16,8 +16,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vn-suggestion
-  #namespace: {{$api.namespace}}
-  namespace: xdoc-web
+  namespace: {{$api.namespace}}
 spec:
   selector:
     matchLabels:

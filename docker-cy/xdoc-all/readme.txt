@@ -41,6 +41,7 @@ helm --set name=lv-job upgrade --install ???? xdoc/xdoc-all
 helm --set name=lv-web upgrade --install ??? xdoc/xdoc-all
 helm --set name=dev-job-only upgrade --install xdoc-job-18 xdoc/xdoc-all
 helm --set name=dev-web-only template xdoc-all
+helm --set name=aws-web template xdoc-all>>test.yml
 helm --set name=dev-web-only upgrade --install xdoc-web-1 xdoc/xdoc-all
 helm --set name=dev-web-only upgrade --install xdoc-web-1 xdoc/xdoc-all
 helm --set name=qtsc-web upgrade --install xdoc-web-1 xdoc/xdoc-all

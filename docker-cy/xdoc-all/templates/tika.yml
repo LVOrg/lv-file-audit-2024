@@ -16,8 +16,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tika
-  #namespace: {{$api.namespace}}
-  namespace: xdoc-web
+  namespace: {{$api.namespace}}
+  #namespace: xdoc-web
 spec:
   selector:
     matchLabels:
