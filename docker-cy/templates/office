@@ -1,12 +1,7 @@
-FROM linuxserver/libreoffice
-RUN apk add py3-pip
-RUN apk add git
-RUN python3 -m pip install fastapi
-RUN python3 -m pip install moviepy
-RUN python3 -m pip install pdfplumber
-RUN python3 -m pip install PyPDF2
-COPY ./../docker-cy/templates/office.req.txt /app/office.req.txt
-RUN python3 -m pip install -r /app/office.req.txt
+ARG BASE
+FROM ${BASE}
+ARG TARGETARCH
+ARG OS
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
 COPY ./../cy_kit /app/cy_kit
@@ -19,5 +14,9 @@ COPY ./../config.yml /app/config.yml
 COPY ./../docker-cy/templates/web-api.req.txt /app/web-api.req.txt
 COPY ./../cy_controllers /app/cy_controllers
 COPY ./../cy_consumers /app/cy_consumers
+COPY ./../cy_xdoc /app/cy_xdoc
+COPY ./../cy_web /app/cy_web
 COPY ./../cyx /app/cyx
-ENTRYPOINT [""]
+COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
+ENTRYPOINT ["/usr/bin/env"]
+RUN export PATH="$PATH:/usr/bin/python3"

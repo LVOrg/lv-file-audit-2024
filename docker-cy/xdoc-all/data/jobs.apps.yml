@@ -5,6 +5,7 @@ data:
   - name: generate-image-from-office
     endpoint: files_generate_image_from_office.py
     description: Generate image from any office file, replicate number should be number of worker
+    image: nttlong/office:amd.1.1
   - name: files-generate-image-from-pdf
     endpoint: files_generate_image_from_pdf.py
   - name: files-generate-image-from-video

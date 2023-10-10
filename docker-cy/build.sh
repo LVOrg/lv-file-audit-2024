@@ -106,6 +106,7 @@ buildFunc(){
     fi
 }
 
+#------------------------------------------------------
 #---------------- build libre office------------------------------------
 rm -f $base_py-libreoffice && cp -f ./templates/libreoffice ./$base_py-libreoffice
 libreoffice_tag=1

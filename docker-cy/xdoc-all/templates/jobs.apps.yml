@@ -72,7 +72,11 @@ spec:
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
             - tika_server=$(tika_server)
+          {{ if $value.image }}
+          image: {{$value.image}}
+          {{else}}
           image: {{ $fileJob.repository  }}:{{$fileJob.tag}}
+          {{end}}
           envFrom:
             - configMapRef:
                 name: {{$fileJob.configMapName}}
