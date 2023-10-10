@@ -36,6 +36,7 @@ import fastapi
 import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
 from cy_xdoc.services.apps import AppServices,AppsCacheService
+from cy_xdoc.services.search_engine import SearchEngine
 class BaseController:
     msg_service = cy_kit.singleton(RabitmqMsg)
     file_service: FileServices = cy_kit.singleton(FileServices)
@@ -49,5 +50,6 @@ class BaseController:
     apps_cache: AppsCacheService = cy_kit.singleton(AppsCacheService)
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
+    search_engine = cy_kit.singleton(SearchEngine)
     def __init__(self, request: Request):
         self.request = request

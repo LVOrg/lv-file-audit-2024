@@ -32,7 +32,7 @@ class UploadInfoResult(BaseModel):
     AvailableThumbs: typing.Optional[typing.List[str]]
     MarkDelete: typing.Optional[bool]
     Privileges: typing.Optional[dict]
-    ClientPrivileges: typing.Optional[dict]
+    ClientPrivileges: typing.Optional[typing.List[dict]]
 
 class ParamFileGetInfo(BaseModel):
     UploadId:str

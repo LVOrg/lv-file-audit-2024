@@ -1,3 +1,5 @@
+import typing
+
 from fastapi_router_controller import Controller
 import cy_xdoc.models.files
 from fastapi import (
@@ -9,34 +11,37 @@ from fastapi import (
 
 )
 from cy_controllers.models.file_contents import (
-    UploadInfoResult,ParamFileGetInfo
+    UploadInfoResult, ParamFileGetInfo
 )
 import fastapi.requests
 import cy_web
 import os
 from cy_controllers.common.base_controller import (
-    BaseController, FileResponse,mimetypes
+    BaseController, FileResponse, mimetypes
 )
+
 router = APIRouter()
 controller = Controller(router)
 from fastapi.responses import FileResponse
 import mimetypes
 import cy_docs
+
+
 @controller.resource()
 class FilesContentController(BaseController):
-
 
     @controller.route.get(
         "/api/{app_name}/files/test", summary="Upload file"
     )
-    async def test(self,app_name:str)->str:
+    async def test(self, app_name: str) -> str:
         self.logger_service.info(app_name)
 
-        return  "OK"
+        return "OK"
+
     @controller.router.get(
         "/api/{app_name}/thumb/{directory:path}"
     )
-    async def get_thumb(self,app_name: str, directory: str):
+    async def get_thumb(self, app_name: str, directory: str):
         """
         Xem hoặc tải nội dung file
         :param directory:
@@ -69,7 +74,7 @@ class FilesContentController(BaseController):
     @controller.router.get(
         "/api/{app_name}/file/{directory:path}"
     )
-    async def get_content(self,app_name: str, directory: str):
+    async def get_content(self, app_name: str, directory: str):
         cache_dir = self.file_cacher_service.get_path(os.path.join(app_name, "images"))
 
         upload_id = directory.split('/')[0]
@@ -130,9 +135,33 @@ class FilesContentController(BaseController):
             ret.headers["Content-Disposition"] = f"attachment; filename={file_name_form_url}"
         return ret
 
+    @controller.router.get("/api/{app_name}/file-ocr/{directory:path}")
+    async def get_content_orc(self,app_name: str, directory: str):
+        """
+        Xem hoặc tải nội dung file
+        :param app_name:
+        :return:
+        """
+        mime_type, _ = mimetypes.guess_type(directory)
+        upload_id = directory.split('/')[0]
+        upload = self.file_service.get_upload_register(app_name=app_name, upload_id=upload_id)
+        if upload is None:
+            return fastapi.Response(status_code=401)
+        if upload.get("OCRFileId") is None:
+            return fastapi.Response(status_code=401)
+        fs = self.file_storage_service.get_file_by_id(
+            app_name=app_name,
+            id=upload.OCRFileId
 
+        )
+
+        if fs is None:
+            return fastapi.Response(status_code=401)
+        mime_type, _ = mimetypes.guess_type(directory)
+        ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+        return ret
     @controller.router.get("/api/{app_name}/thumbs/{directory:path}")
-    async def get_thumb_of_files(self,app_name: str, directory: str):
+    async def get_thumb_of_files(self, app_name: str, directory: str):
         """
         Xem hoặc tải nội dung file
         :param app_name:
@@ -162,7 +191,6 @@ class FilesContentController(BaseController):
 
             upload_id = directory.split('/')[0]
 
-
             fs = self.file_service.get_main_main_thumb_file(app_name, upload_id)
             if fs is None:
                 return Response(
@@ -184,13 +212,13 @@ class FilesContentController(BaseController):
         return ret
 
     @controller.router.post("/api/{app_name}/files/info")
-    def get_info(self,app_name: str, data: ParamFileGetInfo=Body(...)) -> UploadInfoResult:
+    def get_info(self, app_name: str, data: ParamFileGetInfo = Body(...)) -> UploadInfoResult:
         """
         APi này lay chi tiet thong tin cua Upload
         :param app_name:
         :return:
         """
-        UploadId=data.UploadId
+        UploadId = data.UploadId
         doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
         upload_info = doc_context.context @ UploadId
         if upload_info is None:
@@ -226,3 +254,35 @@ class FilesContentController(BaseController):
         if upload_info.ClientPrivileges is None:
             upload_info.ClientPrivileges = []
         return upload_info.to_pydantic()
+
+    @controller.router.get("/api/{app_name}/content/readable")
+    def get_content_readable(
+            self,
+            app_name: str,
+            id: typing.Optional[str]):
+        """
+        This api get <br/>
+        chỉ nhận nội dung tải lên theo id
+        :param app_name:
+        :param doc_id:
+        :param data:
+        :param token:
+        :return:
+        """
+        # from cy_xdoc.controllers.apps import check_app
+        # check_app(app_name)
+        doc = self.search_engine.get_doc(
+            app_name=app_name,
+            id=id
+        )
+        if not doc:
+            return dict(
+                error=dict(
+                    code="ItemWasNotFound",
+                    description=f"Item with id={id} was not found"
+                )
+            )
+        else:
+            return dict(
+                content=doc.source.content
+            )

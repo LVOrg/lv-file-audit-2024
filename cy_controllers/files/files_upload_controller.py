@@ -46,7 +46,7 @@ from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
 
 @controller.resource()
-class FilesController(BaseController):
+class FilesUploadController(BaseController):
     dependencies = [
         Depends(Authenticate)
     ]
