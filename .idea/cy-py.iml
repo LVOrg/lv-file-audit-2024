@@ -36,7 +36,7 @@
       <excludeFolder url="file://$MODULE_DIR$/env_vn_sugesstion" />
       <excludeFolder url="file://$MODULE_DIR$/env_webapi" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (4)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
