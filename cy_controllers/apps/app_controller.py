@@ -1,5 +1,7 @@
 import datetime
-from cy_xdoc.controllers.models.apps import(
+import typing
+
+from cy_controllers.models.apps import(
         AppInfo,
         AppInfoRegister,
         AppInfoRegisterResult,
@@ -118,3 +120,30 @@ class AppsController(BaseController):
             )
             return ret
 
+    @controller.route.post("/api/admin/apps/get/{get_app_name}")
+    def get_info(self,get_app_name: str) -> AppInfo:
+        """
+        get application info if not exist return { AppId:null}
+        lấy thông tin ứng dụng nếu không tồn tại return { AppId: null}
+        :param get_app_name:
+        :param token:
+        :return:
+        """
+        app_name = "admin"
+        ret = self.service_app.get_item(app_name, app_get=get_app_name)
+        if ret:
+            return ret.to_pydantic()
+        else:
+            return self.cy_docs.create_empty_pydantic(AppInfo)
+
+    @controller.route.post("/api/admin/apps")
+    def get_list_of_apps(self) -> typing.List[AppInfo]:
+        """
+        Get list of application. Every tenant has one application in file system
+        Nhận danh sách ứng dụng. Mỗi đối tượng thuê có một ứng dụng trong hệ thống tệp
+        :param token:
+        :return:
+        """
+        app_name = "admin"
+        for app in self.service_app.get_list(app_name):
+            yield app.to_pydantic()
