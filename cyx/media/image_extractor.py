@@ -13,6 +13,8 @@ from cyx.media.core.graphics import GraphicsService
 from cyx.base import config
 
 from cyx.common.share_storage import ShareStorageService
+
+
 class ImageExtractorService:
     def __init__(
             self,
@@ -21,7 +23,7 @@ class ImageExtractorService:
             pdf_service: PDFService = cy_kit.singleton(PDFService),
             exe_service: ExeService = cy_kit.singleton(ExeService),
             graphics_service: GraphicsService = cy_kit.singleton(GraphicsService),
-            share_storage_service:ShareStorageService = cy_kit.singleton(ShareStorageService)
+            share_storage_service: ShareStorageService = cy_kit.singleton(ShareStorageService)
     ):
         self.share_storage_service = share_storage_service
         self.video_service: VideoServices = video_service
@@ -33,14 +35,15 @@ class ImageExtractorService:
         self.working_dir = pathlib.Path(__file__).parent.parent.parent.__str__()
         self.processing_folder = self.share_storage_service.get_temp_dir(ImageExtractorService)
         self.processing_tmp_pdf_folder = os.path.join(
-            self.processing_folder,"pdf"
+            self.processing_folder, "pdf"
         )
         if not os.path.isdir(self.processing_tmp_pdf_folder):
-            os.makedirs(self.processing_tmp_pdf_folder,exist_ok= True)
+            os.makedirs(self.processing_tmp_pdf_folder, exist_ok=True)
         if not os.path.isdir(self.processing_folder):
-            os.makedirs(self.processing_folder,exist_ok=True)
+            os.makedirs(self.processing_folder, exist_ok=True)
         self.graphics_service: GraphicsService = graphics_service
-        self.logs = cy_kit.create_logs(self.share_storage_service.get_logs_dir(ImageExtractorService),ImageExtractorService.__name__)
+        self.logs = cy_kit.create_logs(self.share_storage_service.get_logs_dir(ImageExtractorService),
+                                       ImageExtractorService.__name__)
 
     def get_image(self, file_path: str) -> str:
         mime_type, _ = mimetypes.guess_type(file_path)
@@ -57,7 +60,7 @@ class ImageExtractorService:
             return self.libre_office_service.get_image(file_path)
         return None
 
-    def create_thumb(self, image_file_path, size:int):
+    def create_thumb(self, image_file_path, size: int):
         try:
             filename_only = pathlib.Path(image_file_path).stem
             thumb_file_path = os.path.join(self.processing_folder, f"thumbnail_{filename_only}_{size}.webp")
@@ -74,7 +77,7 @@ class ImageExtractorService:
             self.logs.exception(e)
             raise e
 
-    def convert_to_pdf(self, file_path,file_ext=None):
+    def convert_to_pdf(self, file_path, file_ext=None):
         if file_ext is None:
             pdf_file = os.path.join(
                 self.processing_tmp_pdf_folder, f"{pathlib.Path(file_path).stem}{os.path.splitext(file_path)[1]}"
@@ -86,7 +89,7 @@ class ImageExtractorService:
         if os.path.isfile(pdf_file):
             return pdf_file
         image = Image.open(file_path)
-        pdf_bytes = img2pdf.convert(image.filename)
+        pdf_bytes = img2pdf.convert(image.filename, rotation=img2pdf.Rotation.ifvalid)
         file = open(pdf_file, "wb")
         file.write(pdf_bytes)
         image.close()
@@ -95,6 +98,3 @@ class ImageExtractorService:
         del file
         cy_kit.clean_up()
         return pdf_file
-
-
-    
