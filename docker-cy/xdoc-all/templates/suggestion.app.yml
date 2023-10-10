@@ -30,7 +30,7 @@ spec:
         app: vn-suggestion
     spec:
       containers:
-        - image: docker.io/nttlong/vn-suggestion:amd.1
+        - image: docker.io/nttlong/vn-suggestion:amd.3
           name: vn-suggestion
           imagePullPolicy: IfNotPresent
           ports:

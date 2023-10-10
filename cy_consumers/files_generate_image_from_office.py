@@ -75,7 +75,7 @@ class Process:
             )
             self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n {full_file}")
             msg.delete(msg_info)
-            self.logger.info(msg_info)
+            self.logger.info(msg_info.Data)
         except Exception as e:
             self.logger.error(e,more_info=dict(
                             es_index = msg_info.AppName,

@@ -3,7 +3,6 @@ import os.path
 import pathlib
 from PIL import Image
 import img2pdf
-import cy_web
 import cy_kit
 from cyx.media.video import VideoServices
 from cyx.media.libre_office import LibreOfficeService
