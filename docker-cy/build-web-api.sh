@@ -145,10 +145,10 @@ buildFunc web-api-core $web_api_core_tag_build $top_image $os
 
 #----- web api build-----------
 echo "build web api into C++"
-#buildSourceFunc
+buildSourceFunc
 echo "build web api into C++ is complete"
 rm -f web-api && cp -f ./templates/web-api ./web-api
-web_api_tag=$web_api_core_tag.1
+web_api_tag=$web_api_core_tag.2
 web_api_tag_build=$(tag $web_api_tag)
 web_api_image=web-api:$web_api_tag_build
 buildFunc web-api $web_api_tag_build $repositiory/$user/$web_api_core_image $os
