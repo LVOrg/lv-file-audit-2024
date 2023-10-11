@@ -1,0 +1,1 @@
+docker run -it --platform=linux/arm64/v8 -v $(pwd)/..:/build  nttlong/py310-cython:1 /build/all-libs-build/bkit.sh
