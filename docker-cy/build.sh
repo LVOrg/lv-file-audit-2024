@@ -414,7 +414,7 @@ echo "1-install:
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       2- docker run --platform=linux/arm64/v8  ...
       example:
-      docker run -it --platform=linux/arm64/v8 -v \$(pwd):/build  docker.lacviet.vn/xdoc/py310-com:arm.9 /bin/bash
+      docker run -it --platform=linux/arm64/v8 -v \$(pwd):/build  nttlong/py310-cython:1 /bin/bash
 
       docker run --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 python3 -c 'import time;time.sleep(100000000)'
       docker run  --platform=linux/arm64/v8 -v /home/vmadmin/python/cy-py/long-test:/long-test  docker.lacviet.vn/xdoc/py310-com:arm.9 /bin/bash

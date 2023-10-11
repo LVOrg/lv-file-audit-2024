@@ -8,7 +8,16 @@ import sys
 import pathlib
 import cython
 
+import platform
 
+cpu_arch = platform.processor()
+
+if cpu_arch == "arm":
+    print("CPU is ARM")
+elif cpu_arch == "amd64" or cpu_arch == "x86_64":
+    print("CPU is AMD")
+else:
+    print("CPU architecture unknown")
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 if sys.version_info.major ==3:
     print(sys.version)
@@ -125,10 +134,10 @@ list_of_files  = get_list_of_file(full_compiler_dir)
 python_files = [x for x in list_of_files if os.path.splitext(x)[1] =='.py']
 c_so_files = [x for x in list_of_files if os.path.splitext(x)[1] in ['.c','.so']]
 c_files_only = [x for x in list_of_files if os.path.splitext(x)[1] == '.c']
-if not is_dev:
-    for x in c_so_files:
-        os.remove(x)
-        print(f"{x} was delete")
+# if not is_dev:
+#     for x in c_so_files:
+#         os.remove(x)
+#         print(f"{x} was delete")
 # os.chdir(working_dir)
 if is_clear:
     print("all temp files was clear ")
