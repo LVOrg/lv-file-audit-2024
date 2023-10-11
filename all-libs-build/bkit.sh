@@ -13,12 +13,13 @@ buildSourceFunc(){
   path_to_env= "$(realpath $(pwd)/../env_webapi/bin)"
 
   echo "$path_to_env"
+  cd /build
   for LIB in ${lib_path[@]}; do
-    echo "$path_to_env /build/compact.py $(pwd)/$LIB"
+    echo "$path_to_env /build/compact.py $LIB"
     compact_path=/build/compact.py
     full_lib_path=/build/$LIB
-    echo "python $compact_path $full_lib_path"
-    python $compact_path $full_lib_path
+    echo "python3 compact.py $LIB"
+    python3 compact.py $LIB
   done
 #$(realpath /home/ect/../test.py)
 }
