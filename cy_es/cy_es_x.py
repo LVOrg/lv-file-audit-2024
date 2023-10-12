@@ -12,8 +12,10 @@ from typing import List
 import pydantic
 from enum import Enum
 import os
-#import underthesea
+# import underthesea
 from vws import RDRSegmenter, Tokenizer
+
+
 def get_info(client: Elasticsearch):
     return client.info()
 
@@ -146,7 +148,7 @@ class DocumentFields:
                  }
     """
 
-    def __init__(self, name: str = None,is_bool=False):
+    def __init__(self, name: str = None, is_bool=False):
         self.__name__ = name
         self.__es_expr__ = None
         self.__is_bool__ = is_bool
@@ -256,9 +258,10 @@ class DocumentFields:
             raise Exception("Not support")
 
     def __contains__(self, item):
-
-
-
+        special_characters = [
+            "+", "-", "=", "&&", "||", ">", "<",
+            "!" "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"
+        ]
 
         ret = DocumentFields()
         # self.__is_bool__ = True
@@ -275,43 +278,108 @@ class DocumentFields:
 
             field_name = self.__name__
             boost_score = 0.0
+            query_value = ""
+            first=""
+            last=""
             if "^" in field_name:
                 field_name = self.__name__.split("^")[0]
                 boost_score = float(self.__name__.split("^")[1])
             src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().contains(params.item)"
             if item[0] != '*' and item[-1] == '*':
+                query_value = item[:-1]
+                last="*"
                 src = f"(doc['{field_name}.keyword'].size()>0) && (doc['{field_name}.keyword'].value.toLowerCase().indexOf(params.item)==0)"
             elif item[0] == '*' and item[-1] != '*':
+                query_value = item[1:-1]
+                first="*"
                 src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().endsWith(params.item)"
+            elif item[0] == '*' and item[-1] == '*':
+                first="*"
+                last="*"
+                query_value = item[1:-1]
+            else:
+                query_value = item
+            search_value=""
+            for x in query_value:
+                if x in special_characters:
+                    search_value += f"\\{x}"
+                else:
+                    search_value += x
             # value
-            ret.__es_expr__ = {
-                "must":[
+            """
+            {
+                "bool": {
+                  "must": [
                     {
-                        "constant_score":{
-                            "filter": {
-                                 "script": {
-
-                        "script": {
-
-                            "source": f"return  {src};",
-                            "lang": "painless",
-                            "params": {
-                                "item": item.lstrip('*').rstrip('*').lower()
-                            }
-
-                        }
-
-
+                      "query_string": {
+                        "query": "*dove*",
+                        "fields": [
+                          "field1",
+                          "Name"
+                        ]
+                      }
+                    },
+                    {
+                      "query_string": {
+                        "query": "*3.75oz*",
+                        "fields": [
+                          "field1",
+                          "Name"
+                        ]
+                      }
                     }
+                  ]
+                }
+              }
+            """
+
+            ret.__es_expr__ = {
+                "must": [
+                    {
+                        "constant_score": {
+                            "filter": {
+                                "script": {
+
+                                    "script": {
+
+                                        "source": f"return  {src};",
+                                        "lang": "painless",
+                                        "params": {
+                                            "item": item.lstrip('*').rstrip('*').lower()
+                                        }
+
+                                    }
+
+                                }
                             },
-                            "boost":boost_score
+                            "boost": boost_score
                         }
                     }
                 ]
             }
+            if first =="" and last=="":
+                first="*"
+                last="*"
+            ret.__es_expr__ = {
+                "must": {
+                    "query_string": {
+                        "query": f"{first}{search_value}{last}",
+                        "fields": [field_name],
+                        # "allow_leading_wildcard": True,
+                        # "boost": boost_score,
+                        # "analyze_wildcard": True
+
+                    },
+
+                },
+                # "score_mode": "max"
+            }
+            if boost_score > 0:
+                ret.__es_expr__["must"]["query_string"]["boost"] = boost_score
             ret.__is_bool__ = True
             fx_check_field = DocumentFields(field_name) != None
             ret = fx_check_field & ret
+            ret.__highlight_fields__ += [field_name]
 
             return ret
         elif isinstance(item, list):
@@ -571,6 +639,17 @@ class DocumentFields:
                 key_name = self.__es_expr__["script"]["script"]['source']
                 self.__es_expr__["script"]["script"]['source'] = f"{key_name}==params.p"
                 self.__es_expr__["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            elif isinstance(self.__es_expr__,dict) and isinstance(self.__es_expr__.get("must"),list) and \
+                len(self.__es_expr__["must"])>1 and \
+                isinstance(self.__es_expr__["must"][1].get("bool"),dict) and \
+                 __check_is_painless_expr__(self.__es_expr__["must"][1]["bool"]["filter"]):
+                key_name = self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['source']
+                self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['source'] = f"{key_name}==params.p"
+                self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['params'] = {
                     "p": other
                 }
                 self.__is_bool__ = True
@@ -1016,7 +1095,6 @@ class DocumentFields:
 
     def to_nested(self):
 
-
         # ret = DocumentFields()
         # """
         # {
@@ -1052,8 +1130,10 @@ class DocumentFields:
         # }
         # ret.__is_bool__ = True
         # ret.__highlight_fields__  =self.get_highlight_fields()
-        self.__es_expr__['must']['query_string']['fields']=[self.__es_expr__['must']['query_string']['fields'][0]+".*"]
+        self.__es_expr__['must']['query_string']['fields'] = [
+            self.__es_expr__['must']['query_string']['fields'][0] + ".*"]
         return self
+
 
 def set_norms(field: DocumentFields, field_type: str, enable: bool) -> DocumentFields:
     return field.set_type(field_type).set_norms(enable)
@@ -1435,9 +1515,9 @@ def search(client: Elasticsearch,
         """
         fields = {}
         for x in highlight:
-            if isinstance(x,str):
+            if isinstance(x, str):
                 fields[x] = {}
-            elif isinstance(x,DocumentFields):
+            elif isinstance(x, DocumentFields):
                 fields[x.__name__] = {}
         __highlight = {
             "require_field_match": False,
@@ -1586,8 +1666,8 @@ class ESDocumentObjectInfo:
 def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> ESDocumentObjectInfo:
     index = index.lower()
     try:
-        count=0
-        while count<10:
+        count = 0
+        while count < 10:
             try:
                 ret = client.get(index=index, id=id, doc_type=doc_type)
                 ret_data = ESDocumentObjectInfo(data=ret)
@@ -1599,13 +1679,11 @@ def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") 
                 time.sleep(0.3)
                 if e.status_code == 400:
                     client.indices.open(index=index)
-                count+=1
+                count += 1
                 if count > 10:
                     raise e
     except elasticsearch.exceptions.NotFoundError as e:
         return None
-
-
 
 
 def __convert_exception__(e):
@@ -1940,13 +2018,13 @@ def hash_words(content: str, suggest_handler=None):
         if suggest_handler:
             try:
                 left_remain = suggest_handler(left)
-            except Exception  as e:
+            except Exception as e:
                 left_remain = left
             try:
                 right_remain = suggest_handler(right)
-            except Exception   as e:
+            except Exception as e:
                 right_remain = right
-        return (left,left_len), (right,-right_len), (left_remain,left_len), (right_remain,-right_len)
+        return (left, left_len), (right, -right_len), (left_remain, left_len), (right_remain, -right_len)
 
     ret = calculate_hash(False)
     return ret
@@ -1982,18 +2060,18 @@ def __build_search__depreciate_(fields, content, suggest_handler=None):
     fx_query_string_content_exactly = DocumentFields()
     content_exactly = []
     skip_count = 1
-    for ((left,left_len),(right,right_len),(left_suggest,_),(right_suggest,_)) in list_of_hash:
-        if left_len> skip_count:
+    for ((left, left_len), (right, right_len), (left_suggest, _), (right_suggest, _)) in list_of_hash:
+        if left_len > skip_count:
             content_exactly += [
                 {"constant_score":
-                     {
-                         "boost": 2000 * (left_len + 1),
-                         "filter": {
-                             "query_string": {
-                                 "query": f'\"{left}\"  \"{left_suggest}\"',
-                                 "fields": fields,
-                                 "fuzziness": "0.5"
-                }}}}
+                    {
+                        "boost": 2000 * (left_len + 1),
+                        "filter": {
+                            "query_string": {
+                                "query": f'\"{left}\"  \"{left_suggest}\"',
+                                "fields": fields,
+                                "fuzziness": "0.5"
+                            }}}}
             ]
         if right_len > skip_count:
             content_exactly += [
@@ -2007,8 +2085,6 @@ def __build_search__depreciate_(fields, content, suggest_handler=None):
                                 "fuzziness": "0.5"
                             }}}}
             ]
-
-
 
     fx_query_string_content_exactly.__es_expr__ = {
         "should": content_exactly
@@ -2058,13 +2134,13 @@ def __build_search__depreciate_(fields, content, suggest_handler=None):
     """
     fx_more_like_this = DocumentFields(is_bool=True)
     fx_more_like_this.__es_expr__ = {
-        "must":{
-            "more_like_this":{
-                "fields":fields,
+        "must": {
+            "more_like_this": {
+                "fields": fields,
                 "like": content,
                 "min_term_freq": 1,
                 "max_query_terms": 12,
-                "boost":10000
+                "boost": 10000
             }
         }
     }
@@ -2072,11 +2148,11 @@ def __build_search__depreciate_(fields, content, suggest_handler=None):
 
     ret = fx_query_string_content_exactly | \
           fx_query_string_content
-    ret =  fx_query_string_content
+    ret = fx_query_string_content
     return ret
 
 
-def __build_search__(fields, content:str, suggest_handler=None):
+def __build_search__(fields, content: str, suggest_handler=None):
     """
 
     :param fields:
@@ -2091,44 +2167,48 @@ def __build_search__(fields, content:str, suggest_handler=None):
     }
   }
     """
+
     def extract_fields(fields):
-        f,b = [],[]
+        f, b = [], []
         for x in fields:
             items = x.split("^")
-            if len(items)>1:
-                f+=[items[0]]
-                b+=[float(items[1])]
+            if len(items) > 1:
+                f += [items[0]]
+                b += [float(items[1])]
             else:
-                f+=[x]
-                b+=[None]
-        return  f,b
+                f += [x]
+                b += [None]
+        return f, b
 
-    def make_search(words:typing.List[str])->typing.Tuple[str,str]:
+    def make_search(words: typing.List[str]) -> typing.Tuple[str, str]:
         and_content = " ".join([f'(\"{x}\") AND' for x in words]).rstrip("AND")
         or_content = " ".join([f'(\"{x}\") OR' for x in words]).rstrip("OR")
-        return and_content,or_content
-    def jon_expr(contens:typing.List[str],start_score:float)->str:
+        return and_content, or_content
+
+    def jon_expr(contens: typing.List[str], start_score: float) -> str:
         ret = ""
         score_boost = start_score
 
         for x in contens:
-            if len(x)>0:
-                ret+= f"(({x})^{score_boost}) OR "
-                score_boost = score_boost/2
+            if len(x) > 0:
+                ret += f"(({x})^{score_boost}) OR "
+                score_boost = score_boost / 2
         ret = ret.rstrip(" OR ")
         return ret
 
-    def escape_special(content:str)->str:
-        ch=["+","-","*","?","|","[","]","^","$","(",")","\\","/",".",",","!","~","<",">","%","#","@",":"]
+    def escape_special(content: str) -> str:
+        ch = ["+", "-", "*", "?", "|", "[", "]", "^", "$", "(", ")", "\\", "/", ".", ",", "!", "~", "<", ">", "%", "#",
+              "@", ":"]
         for x in ch:
-            content = content.replace(x,f"\\{x}")
+            content = content.replace(x, f"\\{x}")
         return content
 
     from vws import RDRSegmenter, Tokenizer
     rdrsegment = RDRSegmenter.RDRSegmenter()
     tokenizer = Tokenizer.Tokenizer()
-    def make_expr(content:str,start_score:float)->str:
-        seg_words =  rdrsegment.segmentRawSentences(tokenizer,content)
+
+    def make_expr(content: str, start_score: float) -> str:
+        seg_words = rdrsegment.segmentRawSentences(tokenizer, content)
         seg_words = [x for x in seg_words if ' ' in x]
         and_content_seg, or_content_seg = make_search(seg_words)
         ret = jon_expr([
@@ -2138,11 +2218,12 @@ def __build_search__(fields, content:str, suggest_handler=None):
             content
         ], start_score)
         return ret
-    content = content.replace('  ',' ').lstrip(' ').rstrip(' ')
+
+    content = content.replace('  ', ' ').lstrip(' ').rstrip(' ')
     content = escape_special(content)
     suggest_content = None
-    suggest_search_content= None
-    _,boosts = extract_fields(fields)
+    suggest_search_content = None
+    _, boosts = extract_fields(fields)
     score_rate = 1.0
     # max_boost = 0.0
     # for x in boosts:
@@ -2150,13 +2231,13 @@ def __build_search__(fields, content:str, suggest_handler=None):
     #         if max_boost<x:
     #             max_boost = x
     # if max_boost>0:
-    score_rate = 1/(10**len(content.split(' ')))
+    score_rate = 1 / (10 ** len(content.split(' ')))
     expr_search = make_expr(content, score_rate)
     if callable(suggest_handler):
         suggest_content = suggest_handler(content)
 
     if suggest_content != content and suggest_search_content:
-        search_content = make_expr(suggest_content, score_rate/2)
+        search_content = make_expr(suggest_content, score_rate / 2)
         expr_search = f"({expr_search}) OR ({search_content})"
 
     fx_query_string_content = DocumentFields(is_bool=True)
@@ -2164,7 +2245,7 @@ def __build_search__(fields, content:str, suggest_handler=None):
     fx_query_string_content.__es_expr__ = {
         "must": {
             "query_string": {
-                "query": expr_search, #search_content,
+                "query": expr_search,  # search_content,
                 "fields": fields
 
             }
@@ -2206,10 +2287,9 @@ def __apply_function__(function_name, field_name, owner_caller=None, args=None, 
     :return:
     """
 
-
     if function_name == "$$day":
         check_field = DocumentFields(field_name) != None
-        ret = check_field & DocumentFields(field_name)
+        ret = DocumentFields(field_name)
         return check_field & ret.get_day_of_month()
     elif function_name == "$$month":
         check_field = DocumentFields(field_name) != None
@@ -2429,18 +2509,18 @@ def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc")
     :return:
     """
     count = 0
-    while count<10:
+    while count < 10:
         try:
             return client.exists(index=index, id=id, doc_type=doc_type)
         except elasticsearch.exceptions.RequestError as e:
-            if e.status_code==400:
-                client.indices.close(index==index)
+            if e.status_code == 400:
+                client.indices.close(index == index)
                 time.sleep(0.3)
                 client.indices.open(index == index)
             else:
                 time.sleep(0.3)
-            count +=1
-            if count>10:
+            count += 1
+            if count > 10:
                 raise e
 
 
@@ -2767,8 +2847,8 @@ def update_data_fields(
                 d = create_dict_from_key_path_value(k, v)
                 data = {**data, **d}
         if has_data:
-            count =0
-            while count<10:
+            count = 0
+            while count < 10:
                 try:
                     client.update(
                         index=index,
@@ -2779,15 +2859,15 @@ def update_data_fields(
                         },
                         doc_type=doc_type
                     )
-                    count=11
+                    count = 11
                 except elasticsearch.exceptions.AuthorizationException as e:
-                    client.indices.close(index = index)
+                    client.indices.close(index=index)
                     time.sleep(0.3)
                     client.indices.open(index=index)
-                    count +=1
+                    count += 1
                 except:
                     time.sleep(0.3)
-                    count+=1
+                    count += 1
         return True
 
     except elasticsearch.exceptions.NotFoundError as e:
@@ -3262,14 +3342,14 @@ def natural_logic_parse(expr: str):
             return {
                 "$not": __parse_logical_expr__(node.operand)
             }
-        if isinstance(node,ast.Call) and node.func.attr=='all':
+        if isinstance(node, ast.Call) and node.func.attr == 'all':
             p_value = node.func.value
-            field_name=""
-            while not hasattr(p_value,"id"):
-                field_name = getattr(p_value,"attr")+"."+field_name
+            field_name = ""
+            while not hasattr(p_value, "id"):
+                field_name = getattr(p_value, "attr") + "." + field_name
                 p_value = p_value.value
-            field_name = p_value.id+"."+field_name
-            return  field_name.rstrip(".")+".*"
+            field_name = p_value.id + "." + field_name
+            return field_name.rstrip(".") + ".*"
         raise NotImplemented()
 
     def parse_logic(expr: str):
@@ -3295,9 +3375,14 @@ def natural_logic_parse(expr: str):
 
 def delete_index(client: Elasticsearch, index: str):
     client.indices.delete(index=index, ignore=[400, 404])
+
+
 async def delete_index_async(client: Elasticsearch, index: str):
     return delete_index(client, index)
+
+
 import asyncio
+
 
 async def natural_logic_parse_async(expr):
     return natural_logic_parse(expr)

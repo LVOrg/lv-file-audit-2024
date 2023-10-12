@@ -11,7 +11,7 @@ from fastapi import (
 
 )
 from cy_controllers.models.file_contents import (
-    UploadInfoResult, ParamFileGetInfo
+    UploadInfoResult, ParamFileGetInfo,ReadableParam
 )
 import fastapi.requests
 import cy_web
@@ -255,11 +255,11 @@ class FilesContentController(BaseController):
             upload_info.ClientPrivileges = []
         return upload_info.to_pydantic()
 
-    @controller.router.get("/api/{app_name}/content/readable")
+    @controller.router.post("/api/{app_name}/content/readable")
     def get_content_readable(
             self,
             app_name: str,
-            id: typing.Optional[str]):
+            data: ReadableParam=Body(...)):
         """
         This api get <br/>
         chỉ nhận nội dung tải lên theo id
@@ -271,6 +271,7 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
+        id = data.id
         doc = self.search_engine.get_doc(
             app_name=app_name,
             id=id

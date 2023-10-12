@@ -2,6 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ansible/ansible-role-kubernetes" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ansible/elasticsearch-one-node" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ansible/mongodb" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ansible/mongodb-one-node" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/data-dict/vietnamese-wordlist" vcs="Git" />

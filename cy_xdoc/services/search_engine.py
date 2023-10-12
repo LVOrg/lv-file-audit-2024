@@ -26,7 +26,7 @@ from cy_xdoc.services.text_procesors import TextProcessService
 from cy_xdoc.services.file_content_extractors import FileContentExtractorService
 from cyx.rdr_segmenter.segmenter_services import VnSegmenterService
 import cyx.vn_predictor
-
+from  cyx.loggers import LoggerService
 
 class SearchEngine:
     """
@@ -49,7 +49,9 @@ class SearchEngine:
                      FileContentExtractorService
                  ),
                  vn=cy_kit.singleton(VnSegmenterService),
-                 vn_predictor=cy_kit.singleton(cyx.vn_predictor.VnPredictor)):
+                 vn_predictor=cy_kit.singleton(cyx.vn_predictor.VnPredictor),
+                 logger = cy_kit.singleton(LoggerService)):
+        self.logger = logger
         self.config = cyx.common.config
         self.client = elasticsearch.Elasticsearch(
             cyx.common.config.elastic_search.server
@@ -304,6 +306,8 @@ class SearchEngine:
             print(f"Elastic Search time = {n} second")
             return ret
         except elasticsearch.exceptions.RequestError as e:
+            self.logger.error(e,more_info=search_expr)
+
             if hasattr(e,"info")  and isinstance(e.info,dict) \
                     and e.info.get('error') \
                     and isinstance(e.info.get('error'),dict) \

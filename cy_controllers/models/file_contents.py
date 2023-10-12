@@ -36,3 +36,5 @@ class UploadInfoResult(BaseModel):
 
 class ParamFileGetInfo(BaseModel):
     UploadId:str
+class ReadableParam(BaseModel):
+    id: typing.Optional[str]
