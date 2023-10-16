@@ -1,0 +1,27 @@
+Tat ca cac worker phai cai
+sudo yum install nfs-utils
+Tai PC share file
+sudo yum install nfs-utils
+Tao thu muc share
+vi du:
+mkdr /k8s-share
+
+Va phai lam sao cho thu muc /k8s-share thong nhu the nay khi danh lenh stat
+ File: ‘/k8s-share’
+  Size: 60              Blocks: 0          IO Block: 4096   directory
+Device: fd00h/64768d    Inode: 1264342     Links: 5
+Access: (0755/drwxr-xr-x)  Uid: (65534/nfsnobody)   Gid: (65534/nfsnobody)
+Context: unconfined_u:object_r:default_t:s0
+Access: 2023-10-16 15:27:52.742579400 +0700
+Modify: 2023-10-16 17:00:24.892579400 +0700
+Change: 2023-10-16 17:00:24.892579400 +0700
+
+De lam duoc dieu nyay dau tien chay lenh
+sudo chown nfsnobody:nfsnobody /k8s-share
+sudo chmod 0755 /k8s-share
+
+Sau do khai bao them dong
+/k8s-share *(rw,sync,no_subtree_check)
+Vao file (neu khong co tao luon)
+/etc/exports
+

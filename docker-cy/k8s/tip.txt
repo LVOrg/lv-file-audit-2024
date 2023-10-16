@@ -1,0 +1,24 @@
+Truoc khi cai k8s kubeadm
+mkdir -p /proc
+mkdir -p /proc/sys
+mkdir -p /proc/sys/net
+mkdir -p /proc/sys/net/bridge
+echo "1">>/proc/sys/net/bridge/bridge-nf-call-iptables
+mkdir -p /proc/sys/net/ipv4
+echo "1">>/proc/sys/net/ipv4/ip_forward
+remove flannel if error
+
+rm -f /etc/cni/net.d/*calico*
+kubeadm token create --print-join-command
+kubectl describe pod -n default       metallb-controller-566d8f65f5-h6flp
+[root@LACVIET-VM19 ~]# sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+kubectl describe pod coredns-5dd5756b68-2hpf4 -n kube-system
+kubectl delete pod coredns-5dd5756b68-947nz -n kube-system --force
+kubectl delete pod coredns-5dd5756b68-qp7fx -n kube-system
+
+Cai Calico:
+kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/calico.yaml
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+kube describe pod kubernetes-dashboard-746fbfd67c-qd7jl -n lv-stats
+
