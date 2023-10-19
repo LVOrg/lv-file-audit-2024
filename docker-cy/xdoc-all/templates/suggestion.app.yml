@@ -18,6 +18,7 @@ metadata:
   name: vn-suggestion
   namespace: {{$api.namespace}}
 spec:
+
   selector:
     matchLabels:
       app: vn-suggestion
@@ -28,6 +29,11 @@ spec:
       labels:
         app: vn-suggestion
     spec:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
       containers:
         - image: docker.io/nttlong/vn-suggestion:amd.3
           name: vn-suggestion

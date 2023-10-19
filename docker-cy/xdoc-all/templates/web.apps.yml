@@ -38,6 +38,11 @@ spec:
       labels:
         app: {{$api.name}}
     spec:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
       imagePullSecrets:
         - name: harbor-secret-registry
       volumes:
@@ -73,6 +78,20 @@ spec:
             - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
             - vn_suggest_url=$(vn_suggest_url)
             - tika_server=$(tika_server)
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+            readinessProbe:
+              httpGet:
+                path: /api/healthz
+                port: 80
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              failureThreshold: 3
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:
             - configMapRef:

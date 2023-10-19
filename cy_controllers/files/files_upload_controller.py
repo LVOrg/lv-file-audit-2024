@@ -87,7 +87,7 @@ class FilesUploadController(BaseController):
         )
         upload_item = None
         if cache_value is None:
-            upload_item = await self.file_service.get_upload_register_async(
+            upload_item = self.file_service.get_upload_register(
                 app_name=app_name,
                 upload_id=upload_id
             )

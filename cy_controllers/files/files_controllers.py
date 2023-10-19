@@ -98,17 +98,20 @@ class FilesController(BaseController):
             ValueSearch: typing.Optional[str] = Body(default=None)):
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
+        try:
+            items =self.file_service.get_list(
+                app_name=app_name,
+                root_url=cy_web.get_host_url(),
+                page_size=PageSize,
+                page_index=PageIndex,
+                field_search=FieldSearch,
+                value_search=ValueSearch
 
-        items =self.file_service.get_list(
-            app_name=app_name,
-            root_url=cy_web.get_host_url(),
-            page_size=PageSize,
-            page_index=PageIndex,
-            field_search=FieldSearch,
-            value_search=ValueSearch
-
-        )
-        return [x.to_pydantic() for x in items]
+            )
+            return [x.to_pydantic() for x in items]
+        except Exception as e:
+            self.logger_service.error(e)
+            return []
 
 
 
@@ -159,3 +162,7 @@ class FilesController(BaseController):
             )
         )
         return obsever_id
+
+    @controller.router.get("/api/healthz")
+    async def healthcheck(self):
+        return {"status": "ok"}

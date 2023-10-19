@@ -1480,55 +1480,67 @@ class Document:
         global __lock__
         if self.__majority_concern__:
             coll = self.client.get_database(item).get_collection(
-                self.collection_name,
-                read_concern=ReadConcern('majority'),
-                write_concern=WriteConcern('majority'),
-                read_preference=ReadPreference.PRIMARY
+                self.collection_name
+                # read_concern=ReadConcern('majority'),
+                # write_concern=WriteConcern('majority'),
+                # read_preference=ReadPreference.PRIMARY
             )
         else:
             coll = self.client.get_database(item).get_collection(
                 self.collection_name
             )
-        for x in self.unique_keys:
-            key = f"{item}.{self.collection_name}.{x}"
-            if __cache_unique__.get(key) is None:
-                __lock__.acquire()
-                try:
-                    indexes = []
-                    for y in x.split(','):
-                        indexes.append(
-                            (y, pymongo.ASCENDING)
+        def run_create_index():
+            for x in self.unique_keys:
+                key = f"{item}.{self.collection_name}.{x}"
+                if __cache_unique__.get(key) is None:
+                    #__lock__.acquire()
+                    try:
+                        fx = coll.index_information()
+                        indexes = []
+                        for y in x.split(','):
+                            if fx.get(f"{x}_1") is None:
+                                indexes.append(
+                                    (y, pymongo.ASCENDING)
+                                )
+                        if len(indexes)>0:
+                            coll.create_index(
+                                indexes,
+                                background=True,
+                                unique=True,
+                                sparse=True,
+                            )
+                    except Exception as e:
+                        pass
+                    finally:
+                        #__lock__.release()
+                        __cache_unique__[key] = key
+            for x in self.indexes:
+                key = f"{item}.{self.collection_name}.{x}"
+                if __cache_index__.get(key) is None:
+                    #__lock__.acquire()
+                    try:
+                        indexes = []
+                        for y in x.split(','):
+                            indexes.append(
+                                (y, pymongo.ASCENDING)
+                            )
+                        coll.create_index(
+                            indexes,
+                            background=True
                         )
-                    coll.create_index(
-                        indexes,
-                        background=True,
-                        unique=True,
-                        sparse=True,
-                    )
-                except Exception as e:
-                    pass
-                finally:
-                    __lock__.release()
-                    __cache_unique__[key] = key
-        for x in self.indexes:
-            key = f"{item}.{self.collection_name}.{x}"
-            if __cache_index__.get(key) is None:
-                __lock__.acquire()
-                try:
-                    indexes = []
-                    for y in x.split(','):
-                        indexes.append(
-                            (y, pymongo.ASCENDING)
-                        )
-                    coll.create_index(
-                        indexes,
-                        background=True
-                    )
-                except Exception as e:
-                    pass
-                finally:
-                    __lock__.release()
-                    __cache_index__[key] = key
+                    except Exception as e:
+                        pass
+                    finally:
+                        #__lock__.release()
+                        __cache_index__[key] = key
+
+        thread = threading.Thread(target=run_create_index)
+
+        # Set the daemon property to True
+        thread.daemon = True
+
+        # Start the thread
+        thread.start()
 
         return DBDocument(coll)
 

@@ -28,7 +28,8 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
-    cnn: mongodb%3A%2F%2F10.0.2.140%3A27017%2C10.0.2.224%3A27017%2C10.0.2.65%3A27017%2F%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
+    cnn_: mongodb%3A%2F%2F10.0.2.140%3A27017%2C10.0.2.224%3A27017%2C10.0.2.65%3A27017%2F%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
+    cnn: mongodb://10.0.2.110:27017
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'hps-file-test'
 
@@ -85,8 +86,8 @@ fileJob:
   replicas: 1
 
   pullPolicy: IfNotPresent
-  repository: nttlong/py310-xdoc
-  tag: amd.cpu.9.39.44
+  repository: docker.lacviet.vn/xdoc/py310-xdoc
+  tag: amd.cpu.10.44.58
   mountPath: /app/share-storage
   vn_suggest_url: vn-suggestion.xdoc:8000
   #docker run  -v $(pwd)/../share-storage:/ap/share-storage -p 8012:8012 docker.lacviet.vn/xdoc/py310-xdoc:amd.cpu.9.30.7 python3  /app/cy_xdoc/server.py db=mongodb://admin:Lacviet#123@172.16.0.83:27018/admin

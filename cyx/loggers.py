@@ -78,9 +78,9 @@ class LoggerService:
             now = datetime.datetime.utcnow()
             print(f'[INFO][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {txt}')
             self.__logger__.info(txt)
-            self.write_to_mongodb(created_on=now, log_type="info", content=txt)
-        except:
-            pass
+            # self.write_to_mongodb(created_on=now, log_type="info", content=txt)
+        except Exception as ex:
+            self.__logger__.error(ex)
 
     def get_fullname_of_pod(self):
         if self.full_pod_name is None:
@@ -101,15 +101,18 @@ class LoggerService:
         return self.pod_name
 
     def error(self, ex,more_info=None):
-        if isinstance(more_info,dict):
-            more_info = json.dumps(more_info,indent=1)
-        now = datetime.datetime.utcnow()
-        content = traceback.format_exc()
-        content =f"{more_info}/n/n-----------------{content}"
-        print(f'[ERROR][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {content}')
+        try:
+            if isinstance(more_info,dict):
+                more_info = json.dumps(more_info,indent=1)
+            now = datetime.datetime.utcnow()
+            content = traceback.format_exc()
+            content =f"{more_info}/n/n-----------------{content}"
+            print(f'[ERROR][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {content}')
 
-        self.__logger__.exception("An exception occurred: %s", ex, exc_info=True)
-        self.write_to_mongodb(created_on=now, log_type="error", content=content)
+            self.__logger__.exception("An exception occurred: %s", ex, exc_info=True)
+            self.write_to_mongodb(created_on=now, log_type="error", content=content)
+        except Exception as ex:
+            self.__logger__.error(ex)
 
     def write_to_mongodb(self, created_on, log_type, content):
         def running():

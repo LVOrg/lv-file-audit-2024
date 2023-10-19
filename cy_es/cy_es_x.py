@@ -6,7 +6,7 @@ import time
 import typing
 import uuid
 
-import elasticsearch.exceptions
+import elasticsearch.exceptions65
 from elasticsearch import Elasticsearch
 from typing import List
 import pydantic

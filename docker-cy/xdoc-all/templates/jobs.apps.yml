@@ -58,7 +58,11 @@ spec:
             server: {{$storage.server}}
             path: {{$storage.directory}}
         {{end}}
-
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
       containers:
         - args:
             - python3

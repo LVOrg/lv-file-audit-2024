@@ -4,13 +4,13 @@ export BUILDKIT_PROGRESS=
 #docker run -it linuxserver/libreoffice /bin/bash
 docker login https://docker.lacviet.vn -u xdoc -p Lacviet#123
 #docker buildx create --use --config /etc/containerd/config.toml
-export user_=xdoc
-export user=nttlong
+export user=xdoc
+export user_=nttlong
 export platform=linux/amd64
 export platform__=linux/arm64/v8
 export platform_=linux/amd64,linux/arm64/v8
-export repositiory_=docker.lacviet.vn
-export repositiory=docker.io
+export repositiory=docker.lacviet.vn
+export repositiory_=docker.io
 export os='debian'
 
 
@@ -204,25 +204,25 @@ fast_client_image=$base_py-fast-client:$fast_client_tag_build
 buildFunc $base_py-fast-client $fast_client_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_es -------------------
 rm -f $base_py-cy_es && cp -f ./templates/cy_es ./$base_py-cy_es
-cy_es_tag=12
+cy_es_tag=13
 cy_es_tag_build=$(tag $cy_es_tag)
 cy_es_image=$base_py-cy_es:$cy_es_tag_build
 buildFunc $base_py-cy_es $cy_es_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_kit -------------------
 rm -f $base_py-cy_kit && cp -f ./templates/cy_kit ./$base_py-cy_kit
-cy_kit_tag=1
+cy_kit_tag=2
 cy_kit_tag_build=$(tag $cy_kit_tag)
 cy_kit_image=$base_py-cy_kit:$cy_kit_tag_build
 buildFunc $base_py-cy_kit $cy_kit_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_web -------------------
 rm -f $base_py-cy_web && cp -f ./templates/cy_web ./$base_py-cy_web
-cy_web_tag=3
+cy_web_tag=4
 cy_web_tag_build=$(tag $cy_web_tag)
 cy_web_image=$base_py-cy_web:$cy_web_tag_build
 buildFunc $base_py-cy_web $cy_web_tag_build $repositiory/$user/$cython_image $os
 #------------ cy_docs -------------------
 rm -f $base_py-cy_docs && cp -f ./templates/cy_docs ./$base_py-cy_docs
-cy_docs_tag=6
+cy_docs_tag=7
 cy_docs_tag_build=$(tag $cy_docs_tag)
 cy_docs_image=$base_py-cy_docs:$cy_docs_tag_build
 buildFunc $base_py-cy_docs $cy_docs_tag_build $repositiory/$user/$cython_image $os
@@ -392,7 +392,8 @@ COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
 #RUN python3 /app/compact.py /app/cy_utils
 #RUN python3 /app/compact.py /app/cyx
 #RUN python3 /app/compact.py /app/cy_vn_suggestion
-
+RUN apt install git -y
+RUN python3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git
 #COPY ./../resource /app/resource
 COPY ./../config.yml /app/config.yml
 COPY ./../dataset/easyocr /app/share-storage/dataset/easyocr
@@ -401,10 +402,10 @@ RUN python3 -m pip install python-memcached
 RUN python3 -m pip install hypercorn[trio]
 RUN python3 -c 'import cv2'
 ">>$base_py-xdoc
-xdoc_tag=54
+xdoc_tag=56
 xdoc_tag_build=$(tag $xdoc_framework_tag).$(($cy_extra_lib_tag+xdoc_tag))
 buildFunc $base_py-xdoc $xdoc_tag_build $top_image $os
-#to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong
+to_docker_hub $repositiory $user $base_py-xdoc $xdoc_tag_build nttlong
 
 echo "----------------------------------------------"
 echo " In order to run image with arm64 platform:"

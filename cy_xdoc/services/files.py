@@ -66,51 +66,60 @@ class FileServices:
             if field_search is None or field_search == "":
                 field_search = "FileName"
             arrg = arrg.match(getattr(doc.fields, field_search).like(value_search))
-        items = arrg.sort(
-            doc.fields.RegisterOn.desc(),
-            doc.fields.Status.desc()
-        ).skip(page_size * page_index).limit(page_size).project(
-            cy_docs.fields.UploadId >> doc.fields.id,
-            doc.fields.FileName,
-            doc.fields.Status,
-            doc.fields.SizeInHumanReadable,
-            doc.fields.ServerFileName,
-            doc.fields.IsPublic,
-            doc.fields.FullFileName,
-            doc.fields.MimeType,
-            cy_docs.fields.FileSize >> doc.fields.SizeInBytes,
-            cy_docs.fields.UploadID >> doc.fields.Id,
-            cy_docs.fields.CreatedOn >> doc.fields.RegisterOn,
-            doc.fields.FileNameOnly,
-            cy_docs.fields.UrlOfServerPath >> cy_docs.concat(root_url, f"/api/{app_name}/file/",
-                                                             doc.fields.FullFileName),
-            cy_docs.fields.RelUrlOfServerPath >> cy_docs.concat(f"api/{app_name}/file/", doc.fields.FullFileName),
-            cy_docs.fields.ThumbUrl >> cy_docs.concat(root_url, f"/api/{app_name}/thumb/", doc.fields.FullFileName,
-                                                      ".webp"),
-            doc.fields.AvailableThumbs,
-            doc.fields.HasThumb,
-            doc.fields.OCRFileId,
-            cy_docs.fields.Media >> (
-                cy_docs.fields.Width >> doc.fields.VideoResolutionWidth,
-                cy_docs.fields.Height >> doc.fields.VideoResolutionHeight,
-                cy_docs.fields.Duration >> doc.fields.VideoDuration,
-                cy_docs.fields.FPS >> doc.fields.VideoFPS
-            ),
-            doc.fields.SearchEngineErrorLog,
-            doc.fields.SearchEngineMetaIsUpdate,
-            doc.fields.BrokerMsgUploadIsOk,
-            doc.fields.BrokerErrorLog
+        items = None
+        try:
+            items = arrg.sort(
+                doc.fields.RegisterOn.desc(),
+                doc.fields.Status.desc()
+            ).skip(page_size * page_index).limit(page_size).project(
+                cy_docs.fields.UploadId >> doc.fields.id,
+                doc.fields.FileName,
+                doc.fields.Status,
+                doc.fields.SizeInHumanReadable,
+                doc.fields.ServerFileName,
+                doc.fields.IsPublic,
+                doc.fields.FullFileName,
+                doc.fields.MimeType,
+                cy_docs.fields.FileSize >> doc.fields.SizeInBytes,
+                cy_docs.fields.UploadID >> doc.fields.Id,
+                cy_docs.fields.CreatedOn >> doc.fields.RegisterOn,
+                doc.fields.FileNameOnly,
+                cy_docs.fields.UrlOfServerPath >> cy_docs.concat(root_url, f"/api/{app_name}/file/",
+                                                                 doc.fields.FullFileName),
+                cy_docs.fields.RelUrlOfServerPath >> cy_docs.concat(f"api/{app_name}/file/", doc.fields.FullFileName),
+                cy_docs.fields.ThumbUrl >> cy_docs.concat(root_url, f"/api/{app_name}/thumb/", doc.fields.FullFileName,
+                                                          ".webp"),
+                doc.fields.AvailableThumbs,
+                doc.fields.HasThumb,
+                doc.fields.OCRFileId,
+                cy_docs.fields.Media >> (
+                    cy_docs.fields.Width >> doc.fields.VideoResolutionWidth,
+                    cy_docs.fields.Height >> doc.fields.VideoResolutionHeight,
+                    cy_docs.fields.Duration >> doc.fields.VideoDuration,
+                    cy_docs.fields.FPS >> doc.fields.VideoFPS
+                ),
+                doc.fields.SearchEngineErrorLog,
+                doc.fields.SearchEngineMetaIsUpdate,
+                doc.fields.BrokerMsgUploadIsOk,
+                doc.fields.BrokerErrorLog
 
-        )
-        for x in items:
-            _a_thumbs = []
-            if x.AvailableThumbs is not None:
-                for url in x.AvailableThumbs:
-                    _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
-                x["AvailableThumbs"] = _a_thumbs
-            if x.OCRFileId:
-                x["OcrContentUrl"] = f"{root_url}/api/{app_name}/file-ocr/{x.UploadID}/{x.FileNameOnly.lower()}.pdf"
-            yield x
+            )
+            self.logger.info("Get list of files is OK")
+        except Exception as e:
+            self.logger.info("Get list of files is error")
+            self.logger.error(e)
+        try:
+            for x in items:
+                _a_thumbs = []
+                if x.AvailableThumbs is not None:
+                    for url in x.AvailableThumbs:
+                        _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
+                    x["AvailableThumbs"] = _a_thumbs
+                if x.OCRFileId:
+                    x["OcrContentUrl"] = f"{root_url}/api/{app_name}/file-ocr/{x.UploadID}/{x.FileNameOnly.lower()}.pdf"
+        except Exception as e:
+            self.logger.error(e)
+        return items
 
     def get_main_file_of_upload(self, app_name, upload_id):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id

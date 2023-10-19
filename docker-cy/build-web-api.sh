@@ -138,17 +138,17 @@ RUN python3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmen
 COPY ./../docker-cy/templates/web-api.req.txt /app/web-api.req.txt
 RUN python3 -m pip install -r  /app/web-api.req.txt
 ">>web-api-core
-web_api_core_tag=1
+web_api_core_tag=2
 web_api_core_tag_build=$(tag $web_api_core_tag)
 web_api_core_image=web-api-core:$web_api_core_tag_build
 buildFunc web-api-core $web_api_core_tag_build $top_image $os
 
 #----- web api build-----------
 echo "build web api into C++"
-buildSourceFunc
+#buildSourceFunc
 echo "build web api into C++ is complete"
 rm -f web-api && cp -f ./templates/web-api ./web-api
-web_api_tag=$web_api_core_tag.2
+web_api_tag=$web_api_core_tag.5
 web_api_tag_build=$(tag $web_api_tag)
 web_api_image=web-api:$web_api_tag_build
 buildFunc web-api $web_api_tag_build $repositiory/$user/$web_api_core_image $os

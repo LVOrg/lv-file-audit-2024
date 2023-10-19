@@ -29,6 +29,11 @@ spec:
       labels:
         app: tika
     spec:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
       containers:
         - image: apache/tika:latest
           name: tika

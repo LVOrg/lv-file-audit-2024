@@ -1,60 +1,65 @@
-#---
-#{{ $info := $.Values.name -}}
-#    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
-#    {{ $data := .Files.Get $dataFile | fromYaml -}}
-#      {{ $fileJob := $data.fileJob -}}
-#      {{ $db := $data.config.db -}}
-#      {{ $es := $data.config.elastic_search -}}
-#      {{ $rb := $data.config.rabbitmq -}}
-#      {{ $api := $data.webApi -}}
-#      {{ $storage := $data.storage}}
-#    {{ $dataJson := toPrettyJson $api -}}
-#---
-#{{ if $api}}
-#---
-#apiVersion: v1
-#kind: Namespace
-#metadata:
-#  name: file-cache
-#---
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: memcache-service
-#  namespace: file-cache
-#spec:
-#  type: NodePort
-#  selector:
-#    app: memcached
-#  ports:
-#    - name: "11211"
-#      protocol: TCP
-#      port: 11211
-#      targetPort: 11211
-#      nodePort: 30999
-###        servers = ["172.16.7.91:30998"]
-###        servers = ["memcache-service.lv-cache:11211"]
-#---
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  name: memcached
-#  namespace: file-cache
-#spec:
-#  replicas: 1
-#  selector:
-#    matchLabels:
-#      app: memcached
-#  template:
-#    metadata:
-#      labels:
-#        app: memcached
-#    spec:
-#      containers:
-#      - name: memcached
-#        image: memcached:latest
-#        ports:
-#        - containerPort: 11211
-#---
-#{{end}}
-#---
+---
+{{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $storage := $data.storage}}
+    {{ $dataJson := toPrettyJson $api -}}
+---
+{{ if $api}}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: file-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memcache-service
+  namespace: file-cache
+spec:
+  type: NodePort
+  selector:
+    app: memcached
+  ports:
+    - name: "11211"
+      protocol: TCP
+      port: 11211
+      targetPort: 11211
+      nodePort: 30999
+##        servers = ["172.16.7.91:30998"]
+##        servers = ["memcache-service.lv-cache:11211"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memcached
+  namespace: file-cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memcached
+  template:
+    metadata:
+      labels:
+        app: memcached
+    spec:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
+      containers:
+      - name: memcached
+        image: memcached:latest
+        ports:
+        - containerPort: 11211
+---
+{{end}}
+---

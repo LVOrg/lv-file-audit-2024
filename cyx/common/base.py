@@ -90,7 +90,8 @@ class DbConnect:
                     "LatestAccess":datetime.datetime.utcnow()
                 }
             )
-        threading.Thread(target=run,args=()).start()
+        # threading.Thread(target=run,args=()).start()
+        pass
 
 
 
