@@ -259,8 +259,12 @@ class RabitmqMsg:
         try:
             print(f"msg to {self.__server__}:{self.__port__}\nmsg={message_type} in app={app_name}")
             if not self.__is_declare__:
-                self.__channel__.queue_declare(queue=self.get_real_msg(message_type))
-                self.__is_declare__ = True
+                if self.__channel__:
+                    self.__channel__.queue_declare(queue=self.get_real_msg(message_type))
+                    self.__is_declare__ = True
+                else:
+                    self.__try_connect__()
+
             self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
         except pika.exceptions.StreamLostError as e:
             print("Error:")

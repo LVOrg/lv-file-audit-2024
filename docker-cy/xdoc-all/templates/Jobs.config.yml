@@ -7,6 +7,8 @@
       {{ $es := $data.config.elastic_search -}}
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
+      {{ $cache := $data.cache -}}
+      {{ $msg := $data.msg -}}
     {{ $dataJson := toPrettyJson $api -}}
 
 
@@ -24,7 +26,11 @@ data:
   elastic_search.prefix_index: '{{$es.prefix_index}}'
   elastic_search.server: '{{ $es.server }}'
   rabbitmq.port: '{{ $rb.port }}'
+  {{ if $msg }}
+  rabbitmq.server: '{{ $msg.name}}-service.{{$msg.namespace}}'
+  {{else}}
   rabbitmq.server: '{{ $rb.server }}'
+  {{end}}
   rabbitmq.msg: '{{ $rb.msg }}'
   temp_directory: /app/share-storage
   cache_server: memcache-service.file-cache:11211

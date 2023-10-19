@@ -1,3 +1,13 @@
+pyyaml
+pydantic
+pika
+opencv-python
+pdfplumber
+PyMuPDF
+ocrmypdf
+PyPDF2
+moviepy
+matplotlib
 fastapi==0.95.0
 PyYAML
 uvicorn
@@ -17,3 +27,4 @@ fastapi-controller
 fastapi-router-controller
 gunicorn
 hypercorn[trio]
+git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git

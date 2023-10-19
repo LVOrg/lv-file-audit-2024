@@ -91,8 +91,8 @@ spec:
             httpGet:
               path: /lvfile/api/healthz
               port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: 1800
+            periodSeconds: 3600
             failureThreshold: 3
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:

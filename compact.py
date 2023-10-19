@@ -135,11 +135,12 @@ python_files = [x for x in list_of_files if os.path.splitext(x)[1] =='.py']
 c_so_files = [x for x in list_of_files if os.path.splitext(x)[1] in ['.c','.so']]
 c_files_only = [x for x in list_of_files if os.path.splitext(x)[1] == '.c']
 # if not is_dev:
-#     for x in c_so_files:
-#         os.remove(x)
-#         print(f"{x} was delete")
+
 # os.chdir(working_dir)
 if is_clear:
+    for x in c_so_files:
+        os.remove(x)
+        print(f"{x} was delete")
     print("all temp files was clear ")
     exit(0)
 

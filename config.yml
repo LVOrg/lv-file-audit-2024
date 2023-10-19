@@ -42,7 +42,7 @@ db_25:
 #  password: '123456'
 #  replicaSet: lv-doc
 db_: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
-db__: mongodb://192.168.18.36:27017
+db___: mongodb://192.168.18.36:27017
 db: 'mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0'
 #db:
 #db.authSource: admin
@@ -159,11 +159,11 @@ rabbitmq__:
   msg: lacviet
 rabbitmq:
   port: 31674
-  server: 172.16.7.91
-  msg: v2
+  server: 172.16.7.99
+  msg: v99
 broker:
   is_use: true
-  servers: 172.16.7.91:30992
+  servers: 172.16.7.99:30992
   msg: xdoc
 #  temp_directory: ./brokers/tmp-files
-cache_server: 172.16.7.91:30999
+cache_server: 172.16.7.99:30999

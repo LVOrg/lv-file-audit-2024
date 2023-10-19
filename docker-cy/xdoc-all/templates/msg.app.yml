@@ -13,6 +13,8 @@
 ---
 {{ if $msg}}
 ---
+{{ if $api}}
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -52,9 +54,11 @@ spec:
       targetPort: 5672
       nodePort: 31674
   selector:
-    app: rabitmq
+    app: {{$msg.name}}
   type: NodePort
 ---
 {{end}}
 ---
-
+---
+{{end}}
+---

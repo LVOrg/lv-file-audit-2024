@@ -22,8 +22,6 @@ kind: Namespace
 metadata:
   name: {{$api.namespace}}
 ---
-{{end}}
----
 {{ if $cache }}
 ---
 apiVersion: v1
@@ -42,3 +40,6 @@ metadata:
   name: {{$msg.namespace}}
 ---
 {{end}}
+---
+{{end}}
+---
