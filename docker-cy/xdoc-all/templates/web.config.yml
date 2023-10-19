@@ -7,6 +7,8 @@
       {{ $es := $data.config.elastic_search -}}
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
+      {{ $cache := $data.cache -}}
+      {{ $msg := $data.msg -}}
     {{ $dataJson := toPrettyJson $api -}}
 
 
@@ -24,10 +26,18 @@ data:
   elastic_search.prefix_index: '{{$es.prefix_index}}'
   elastic_search.server: '{{ $es.server }}'
   rabbitmq.port: '{{ $rb.port }}'
+  {{ if $msg }}
+  rabbitmq.server: '{{ $msg.name}}.{{$msg.namespace}}'
+  {{else}}
   rabbitmq.server: '{{ $rb.server }}'
+  {{end}}
   rabbitmq.msg: '{{ $rb.msg }}'
   temp_directory_: /app/share-storage
+  {{ if $cache }}
+  cache_server: {{$cache.name}}.{{$cache.namespace}}:11211
+  {{else}}
   cache_server: memcache-service.file-cache:11211
+  {{end}}
   workers: '1'
   worker_class.uvicorn: 'UvicornWorker' #UvicornH11Worker
   worker_class.h11: 'UvicornH11Worker' #UvicornH11Worker

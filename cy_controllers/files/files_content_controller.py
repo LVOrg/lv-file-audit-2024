@@ -287,3 +287,7 @@ class FilesContentController(BaseController):
             return dict(
                 content=doc.source.content
             )
+
+    @controller.router.get("/api/healthz")
+    async def healthcheck(self):
+        return {"status": "ok"}

@@ -163,6 +163,4 @@ class FilesController(BaseController):
         )
         return obsever_id
 
-    @controller.router.get("/api/healthz")
-    async def healthcheck(self):
-        return {"status": "ok"}
+

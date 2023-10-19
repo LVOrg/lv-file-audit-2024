@@ -28,8 +28,8 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
-    cnn_: mongodb://192.168.18.36:27017,192.168.18.38:27017/?replicaSet%3Drs0%26readPreference%3Dsecondary
-    cnn: mongodb://192.168.18.36:27017
+    cnn: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
+    cnn_: mongodb://192.168.18.36:27017
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'
     # File-Service need one database in a certain Mongodb to manage all Tenants.
@@ -76,7 +76,7 @@ config:
     server: 'rabitmq-service.lv-broker'
     #Broker server
 #    temp_directory: /app/share-storage
-    msg: v2
+    msg: v99
   workers: auto
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
@@ -118,7 +118,7 @@ webApi:
   replicas: 8
   # number of replicate, depend on numof K8S workers
   repository: nttlong/web-api
-  tag: amd.1.1
+  tag: amd.3.6
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image
@@ -136,3 +136,9 @@ ingress:
   path: /lvfile/(.*)
   servicename: xdoc
   host_ip: 172.16.7.99
+msg:
+  name: rabbit-dev
+  namespace: file-msg
+cache:
+  name: file-cache
+  namespace: file-cache

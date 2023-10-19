@@ -8,6 +8,8 @@
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
       {{ $storage := $data.storage}}
+      {{ $cache := $data.cache -}}
+      {{ $msg := $data.msg -}}
     {{ $dataJson := toPrettyJson $api -}}
 ---
 {{ if $api}}
@@ -80,18 +82,18 @@ spec:
             - tika_server=$(tika_server)
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /lvfile/api/healthz
               port: 80
             initialDelaySeconds: 15
             periodSeconds: 10
             failureThreshold: 3
-            readinessProbe:
-              httpGet:
-                path: /api/healthz
-                port: 80
-              initialDelaySeconds: 5
-              periodSeconds: 10
-              failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /lvfile/api/healthz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
           image: {{$api.repository}}:{{$api.tag}}
           envFrom:
             - configMapRef:

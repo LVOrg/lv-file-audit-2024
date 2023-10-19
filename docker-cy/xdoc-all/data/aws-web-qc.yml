@@ -91,10 +91,10 @@ webApi:
   hostUrl: https://qc.codx.vn/lvfile
   # inquire about Web Host server from thee's DEV-OP
   configMapName: xdoc-config
-  replicas: 2
+  replicas: 8
   # number of replicate, depend on numof K8S workers
   repository: nttlong/web-api
-  tag: amd.2.5
+  tag: amd.3.6
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image
