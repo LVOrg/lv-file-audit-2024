@@ -2,7 +2,7 @@ import os
 import pathlib
 import sys
 from moviepy.editor import *
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 from PIL import Image
 import io
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfMerger

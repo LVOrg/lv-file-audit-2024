@@ -104,174 +104,180 @@ class Process:
         self.output_dir = shared_storage_service.get_temp_dir(self.__class__)
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        full_file_path = temp_file.get_path(
-            app_name=msg_info.AppName,
-            file_ext=msg_info.Data["FileExt"],
-            upload_id=msg_info.Data["_id"]
-        )
-        self.logger.info(f"msg={self.message_type}, upload_file={full_file_path}")
-        """
-        Get file from message
-        """
-        if full_file_path is None:
-            """
-            Some reason full_file_path could not get . Perhaps the end users remove it from the collection 
-            Một số lý do full_file_path không thể nhận được. Có lẽ người dùng cuối xóa nó khỏi bộ sưu tập
-            """
-            msg.delete(msg_info)
-            """
-            Eliminate message never occur again
-            Loại bỏ tin nhắn không bao giờ xảy ra nữa
-            """
-            self.logger.info(f"msg={self.message_type}, upload_file={full_file_path},file was not found")
-            return
-
-        print(f"{full_file_path} was receive")
-
-        if not os.path.isfile(full_file_path):
-            """
-                    Some reason file is not exist. Perhaps the end users remove it from the collection 
-                    Một số lý do tập tin không tồn tại. Có lẽ người dùng cuối xóa nó khỏi bộ sưu tập
-           """
-
-            msg.delete(msg_info)
-            print(f"{full_file_path} was not found")
-            self.logger.info(f"{full_file_path} was not found")
-            return
-
-        print(f"Receive file {full_file_path}")
-        self.logger.info(f"Receive file {full_file_path}")
         try:
+            full_file_path = temp_file.get_path(
+                app_name=msg_info.AppName,
+                file_ext=msg_info.Data["FileExt"],
+                upload_id=msg_info.Data["_id"]
+            )
+            self.logger.info(f"msg={self.message_type}, upload_file={full_file_path}")
+            """
+            Get file from message
+            """
+            if full_file_path is None:
+                """
+                Some reason full_file_path could not get . Perhaps the end users remove it from the collection 
+                Một số lý do full_file_path không thể nhận được. Có lẽ người dùng cuối xóa nó khỏi bộ sưu tập
+                """
+                msg.delete(msg_info)
+                """
+                Eliminate message never occur again
+                Loại bỏ tin nhắn không bao giờ xảy ra nữa
+                """
+                self.logger.info(f"msg={self.message_type}, upload_file={full_file_path},file was not found")
+                return
 
-            if not isinstance(msg_info, MessageInfo):
+            print(f"{full_file_path} was receive")
+
+            if not os.path.isfile(full_file_path):
                 """
-                Someone who try to interfere directly to  Broker System create invalid  message, skip in this case 
-                Ai đó cố gắng can thiệp trực tiếp vào Hệ thống Broker tạo thông báo không hợp lệ, bỏ qua trong trường hợp này
-                """
-                raise Exception(f"msg param must be MessageInfo")
-            file_ext = msg_info.Data.get("FileExt")
-            import mimetypes
-            mime_type, _ = mimetypes.guess_type(msg_info.Data['FullFileName'])
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_DOC_LAYOUT_ANALYSIS,
-                data=msg_info.Data
-            )
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_PAGES_CONTENT,
-                data=msg_info.Data
-            )
-            print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
-            self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
-            if file_ext.lower() == "pdf":
+                        Some reason file is not exist. Perhaps the end users remove it from the collection 
+                        Một số lý do tập tin không tồn tại. Có lẽ người dùng cuối xóa nó khỏi bộ sưu tập
+               """
+
+                msg.delete(msg_info)
+                print(f"{full_file_path} was not found")
+                self.logger.info(f"{full_file_path} was not found")
+                return
+
+
+            self.logger.info(f"Receive file {full_file_path}")
+            try:
+
+                if not isinstance(msg_info, MessageInfo):
+                    """
+                    Someone who try to interfere directly to  Broker System create invalid  message, skip in this case 
+                    Ai đó cố gắng can thiệp trực tiếp vào Hệ thống Broker tạo thông báo không hợp lệ, bỏ qua trong trường hợp này
+                    """
+                    raise Exception(f"msg param must be MessageInfo")
+                file_ext = msg_info.Data.get("FileExt")
+                import mimetypes
+                mime_type, _ = mimetypes.guess_type(msg_info.Data['FullFileName'])
                 msg.emit(
                     app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF,
+                    message_type=cyx.common.msg.MSG_FILE_DOC_LAYOUT_ANALYSIS,
                     data=msg_info.Data
                 )
-                """
-                Tell Consumer generate an image file from PDF file 
-                    Nói  Consumer tạo một file hình ảnh từ tệp PDF
-                """
-                print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF}\n{full_file_path}")
-                msg_info.Data["processing_file"] = full_file_path
                 msg.emit(
                     app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT,
-                    data=msg_info.Data
-                )
-                """
-                Tell Consumer make OCR file from PDF 
-                Nói Consumer tạo tệp OCR từ tệp PDF
-                """
-                print(f"{cyx.common.msg.MSG_FILE_OCR_CONTENT}\n{full_file_path}")
-            if file_ext.lower() in config.ext_office_file and file_ext.lower() != "pdf":
-                """
-                If file is Office file readable or Office file compatibility format
-                Nếu tệp là tệp Office có thể đọc được hoặc định dạng tương thích với tệp Office
-                """
-                msg.emit(
-                    app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE,
+                    message_type=cyx.common.msg.MSG_FILE_PAGES_CONTENT,
                     data=msg_info.Data
                 )
                 print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
                 self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
+                if file_ext.lower() == "pdf":
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF,
+                        data=msg_info.Data
+                    )
+                    """
+                    Tell Consumer generate an image file from PDF file 
+                        Nói  Consumer tạo một file hình ảnh từ tệp PDF
+                    """
+                    print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF}\n{full_file_path}")
+                    msg_info.Data["processing_file"] = full_file_path
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT,
+                        data=msg_info.Data
+                    )
+                    """
+                    Tell Consumer make OCR file from PDF 
+                    Nói Consumer tạo tệp OCR từ tệp PDF
+                    """
+                    print(f"{cyx.common.msg.MSG_FILE_OCR_CONTENT}\n{full_file_path}")
+                if file_ext.lower() in config.ext_office_file and file_ext.lower() != "pdf":
+                    """
+                    If file is Office file readable or Office file compatibility format
+                    Nếu tệp là tệp Office có thể đọc được hoặc định dạng tương thích với tệp Office
+                    """
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE,
+                        data=msg_info.Data
+                    )
+                    print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
+                    self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
 
-                msg_info.Data["processing_file"] = full_file_path
-                msg.emit(
-                    app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,
-                    data=msg_info.Data
-                )
-                """
-                Human-readable-content file could be used for Search Content Engine
-                """
-                self.logger.info(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n{full_file_path}")
-                print(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n{full_file_path}")
-            if mime_type.startswith('video/'):
-                """
-                Video content
-                """
-                msg_info.Data["processing_file"] = full_file_path
-                msg.emit(
-                    app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO,
-                    data=msg_info.Data
-                )
-                """
-                Get one frame in video file then create new image from that frame 
-                Nhận một khung hình trong tệp video, sau đó tạo hình ảnh mới từ khung hình đó
-                """
-                print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO}\n{full_file_path}")
-                msg_info.Data["processing_file"] = full_file_path
-                msg.emit(
-                    app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_VIDEO,
-                    data=msg_info.Data
-                )
-                """
-                Detect frame in video file if that frame contains readable text.
-                Use readable text for Content Search 
-                Phát hiện khung trong tệp video nếu khung đó chứa văn bản có thể đọc được.
-                Sử dụng văn bản có thể đọc được cho Tìm kiếm Nội dung
-                """
-                print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO}\n{full_file_path}")
-            if mime_type.startswith('image/'):
-                """
-                """
-                msg_info.Data["processing_file"] = full_file_path
-                msg.emit(
-                    app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-                    data=msg_info.Data
-                )
-                """
-                Generate some thumbnail according to file  with thumbnail-size-infor in message's body
-                Tạo một số hình thu nhỏ theo tệp với thông tin kích thước hình thu nhỏ trong nội dung thư
-                """
-                print(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n{full_file_path}")
-                msg.emit(
-                    app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_PDF_FROM_IMAGE,
-                    data=msg_info.Data
-                )
-                """
-                File-Service will collect any readable-content from any material 
-                Include image file. This message will tel a certain Consumer convert image file int PDF file with readable-content \n
-                    File-Service sẽ thu thập mọi nội dung có thể đọc được từ mọi tài liệu 
-                    Bao gồm tập tin hình ảnh. Message sẽ gọi cho một Consumer nhất định chuyển đổi tệp hình ảnh thành tệp PDF có nội dung có thể đọc được
-                """
-                msg.emit(
-                    app_name=msg_info.AppName,
-                    message_type=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
-                    data=msg_info.Data
-                )
-                print(f"{cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE}\n{full_file_path}")
+                    msg_info.Data["processing_file"] = full_file_path
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,
+                        data=msg_info.Data
+                    )
+                    """
+                    Human-readable-content file could be used for Search Content Engine
+                    """
+                    self.logger.info(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n{full_file_path}")
+                    print(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n{full_file_path}")
+                if mime_type.startswith('video/'):
+                    """
+                    Video content
+                    """
+                    msg_info.Data["processing_file"] = full_file_path
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO,
+                        data=msg_info.Data
+                    )
+                    """
+                    Get one frame in video file then create new image from that frame 
+                    Nhận một khung hình trong tệp video, sau đó tạo hình ảnh mới từ khung hình đó
+                    """
+                    print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO}\n{full_file_path}")
+                    msg_info.Data["processing_file"] = full_file_path
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_VIDEO,
+                        data=msg_info.Data
+                    )
+                    """
+                    Detect frame in video file if that frame contains readable text.
+                    Use readable text for Content Search 
+                    Phát hiện khung trong tệp video nếu khung đó chứa văn bản có thể đọc được.
+                    Sử dụng văn bản có thể đọc được cho Tìm kiếm Nội dung
+                    """
+                    print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO}\n{full_file_path}")
+                if mime_type.startswith('image/'):
+                    """
+                    """
+                    msg_info.Data["processing_file"] = full_file_path
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+                        data=msg_info.Data
+                    )
+                    """
+                    Generate some thumbnail according to file  with thumbnail-size-infor in message's body
+                    Tạo một số hình thu nhỏ theo tệp với thông tin kích thước hình thu nhỏ trong nội dung thư
+                    """
+                    print(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n{full_file_path}")
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_GENERATE_PDF_FROM_IMAGE,
+                        data=msg_info.Data
+                    )
+                    """
+                    File-Service will collect any readable-content from any material 
+                    Include image file. This message will tel a certain Consumer convert image file int PDF file with readable-content \n
+                        File-Service sẽ thu thập mọi nội dung có thể đọc được từ mọi tài liệu 
+                        Bao gồm tập tin hình ảnh. Message sẽ gọi cho một Consumer nhất định chuyển đổi tệp hình ảnh thành tệp PDF có nội dung có thể đọc được
+                    """
+                    msg.emit(
+                        app_name=msg_info.AppName,
+                        message_type=cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
+                        data=msg_info.Data
+                    )
+                    print(f"{cyx.common.msg.MSG_FILE_EXTRACT_TEXT_FROM_IMAGE}\n{full_file_path}")
 
-            msg.delete(msg_info)
-            print(f"{full_file_path}\n is ok")
+                msg.delete(msg_info)
+                print(f"{full_file_path}\n is ok")
+            except Exception as e:
+
+                self.logger.exception(e)
+                raise e
         except Exception as e:
-            msg.delete(msg_info)
+
             self.logger.exception(e)
+            raise e

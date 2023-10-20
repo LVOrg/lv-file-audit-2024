@@ -27,9 +27,6 @@ fastapi-controller
 fastapi-router-controller
 gunicorn
 hypercorn[trio]
-
 git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git
-torch --extra-index-url https://download.pytorch.org/whl/cpu
-torchvision --extra-index-url https://download.pytorch.org/whl/cpu
-torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
-easyocr==1.6.2
+torch
+easyocr

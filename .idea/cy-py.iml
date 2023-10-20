@@ -37,6 +37,18 @@
       <excludeFolder url="file://$MODULE_DIR$/env_webapi" />
       <excludeFolder url="file://$MODULE_DIR$/env_job" />
       <excludeFolder url="file://$MODULE_DIR$/env_jobs" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v1" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v10" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v11" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v12" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v2" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v3" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v4" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v5" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v6" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v7" />
+      <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v8" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (6)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

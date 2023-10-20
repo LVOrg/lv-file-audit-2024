@@ -38,8 +38,10 @@ import gridfs.errors
 
 import cy_kit
 import cyx.common
-
-
+from cyx.loggers import LoggerService
+from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
+from cy_xdoc.services.files import FileServices
+from cyx.common.share_storage import ShareStorageService
 class TempFiles:
     """
         Để xử lý tệp, hãy sử dụng Disk Driver thay cho RAM.
@@ -72,10 +74,8 @@ class TempFiles:
         根“temp_directory”
     """
 
-    def __init__(self):
-        from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
-        from cy_xdoc.services.files import FileServices
-        from cyx.common.share_storage import ShareStorageService
+    def __init__(self,logger = cy_kit.singleton(LoggerService)):
+        self.logger = logger
         self.share_storage_service = cy_kit.singleton(ShareStorageService)
         self.__tem_path__  = self.share_storage_service.get_share_location_file_processing()
         self.file_storage = cy_kit.singleton(MongoDbFileService)
@@ -167,8 +167,8 @@ class TempFiles:
             if file is not exist in temp folder
             get it from Mongodb
             """
-            print(f"{ret} was not found")
-            print(f"try sync {ret} from server")
+            self.logger.info(f"{ret} was not found")
+            self.logger.info(f"try sync {ret} from server")
             try:
                 fs = self.files_services.get_main_file_of_upload(
                     app_name=app_name,
@@ -179,9 +179,10 @@ class TempFiles:
                         data = fs.read(fs.get_size())
                         f.write(data)
             except gridfs.errors.CorruptGridFile as e:
-                print(f"fail sync {ret} from server")
+                self.logger.info(f"try sync {ret} from server was fail")
+                self.logger.error(e)
                 return None
-        print(f"Finish sync {ret} from server")
+        self.logger.info(f"Finish sync {ret} from server")
         return ret
 
     def move_file(self, from_file: str, app_name: str, sub_dir: str):

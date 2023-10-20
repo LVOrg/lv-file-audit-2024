@@ -1,7 +1,11 @@
 ARG BASE
-FROM ${BASE}
+FROM jbarlow83/ocrmypdf
 ARG TARGETARCH
 ARG OS
+RUN apt-get update && apt-get install tesseract-ocr-vie
+COPY ./../env_jobs/lib/python3.10/site-packages /hack
+RUN cp -r  /hack/* /usr/local/lib/python3.10/dist-packages
+RUN rm -fr /hack
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
 COPY ./../cy_kit /app/cy_kit
@@ -23,3 +27,4 @@ COPY ./../cylibs /app/cylibs
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 RUN pip cache purge
+ENTRYPOINT ["/usr/bin/env"]

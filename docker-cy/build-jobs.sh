@@ -33,13 +33,13 @@ to_docker_hub(){
     fi
 }
 reset_build() {
-#    docker stop $(docker ps -aq)
-#    docker rm $(docker ps -aq)
-#    docker rmi $(docker images -q)
-#    docker volume rm $(docker volume ls)
-#    docker builder prune -f
-#    docker system prune -a -f
-#    docker buildx create --use --config /etc/containerd/config.toml
+    docker stop $(docker ps -aq)
+    docker rm $(docker ps -aq)
+    docker rmi $(docker images -q)
+    docker volume rm $(docker volume ls)
+    docker builder prune -f
+    docker system prune -a -f
+    docker buildx create --use --config /etc/containerd/config.toml
     echo "No reset ..."
 
 }
@@ -142,14 +142,14 @@ RUN python3 -m pip install -r  /app/job-services.txt
 job_core_tag=1
 job_core_tag_build=$(tag $job_core_tag)
 job_core_image=jobs-core:$job_core_tag_build
-buildFunc jobs-core $job_core_tag_build $top_image $os
+#buildFunc jobs-core $job_core_tag_build $top_image $os
 
 #----- web api build-----------
 echo "build web api into C++"
 #buildSourceFunc
 echo "build web api into C++ is complete"
 rm -f job && cp -f ./templates/job ./job
-job_tag=$job_core_tag.2
+job_tag=3
 job_tag_build=$(tag $job_tag)
 job_tag_image=job:$job_tag_build
 buildFunc job $job_tag_build $repositiory/$user/$job_core_image $os
