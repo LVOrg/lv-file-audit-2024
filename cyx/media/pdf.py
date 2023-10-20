@@ -15,14 +15,18 @@ from pdfminer.pdfpage import PDFPage
 import cy_kit
 
 from cyx.common.share_storage import ShareStorageService
-
+from cyx.loggers import LoggerService
 
 class PDFService:
-    def __init__(self, share_storage_service: ShareStorageService = cy_kit.singleton(ShareStorageService)):
+    def __init__(self,
+                 share_storage_service: ShareStorageService = cy_kit.singleton(ShareStorageService),
+                 logger= cy_kit.singleton(LoggerService)):
         self.share_storage_service = share_storage_service
         self.processing_folder = self.share_storage_service.get_temp_dir(PDFService)
+        self.logger = logger
         if not os.path.isdir(self.processing_folder):
             os.makedirs(self.processing_folder, exist_ok=True)
+        os.environ["PATH"] += ":/home/vmadmin/python/cy-py/docker-cy-hack/gs/bin:/home/vmadmin/python/cy-py/docker-cy-hack/gs/bin/gs"
 
     def get_image(self, file_path: str):
         pdf_file = file_path
@@ -36,8 +40,10 @@ class PDFService:
         zoom_x = 2.0  # horizontal zoom
         zoom_y = 2.0  # vertical zoom
         mat = fitz.Matrix(zoom_x, zoom_y)  # zoom factor 2 in each dimension
-
+        self.logger.info(f"split file {pdf_file}")
         all_files = glob.glob(pdf_file)
+        self.logger.info(f"split file {pdf_file} is ok")
+
 
         for filename in all_files:
             doc = fitz.open(filename)  # open document
@@ -197,8 +203,11 @@ class PDFService:
             inputpdf = PdfFileReader(open(pdf_file, "rb"))
             pdfs = []
             pdfs_files = []
+            self.logger.info(f"detect searchable_pages{pdf_file}...")
             searchable, non_searchable = self.get_pdf_searchable_pages(pdf_file)
+            self.logger.info(f"detect searchable_pages{pdf_file} was complete")
             if non_searchable.__len__() == 0:
+                self.logger.info(f"all page in {pdf_file} was searchable")
                 return pdf_file
 
             for i in range(inputpdf.numPages):
@@ -210,7 +219,7 @@ class PDFService:
                 start = datetime.datetime.utcnow()
                 with open(output_page, "wb") as outputStream:
                     output.write(outputStream)
-                print(f"orc start  {output_page} {start}")
+                self.logger.info(f"orc start  {output_page} {start}")
 
                 if i in non_searchable:
                     ocrmypdf.ocr(
@@ -223,7 +232,7 @@ class PDFService:
                         force_ocr=True,
                         deskew=deskew,
 
-                        jobs=50,
+                        # jobs=50,
                         # optimize=3,
                         keep_temporary_files=False
                     )
@@ -238,17 +247,18 @@ class PDFService:
                     pdfs += [output_page]
                     pdfs_files += [output_page]
                 n = (datetime.datetime.utcnow() - start).total_seconds() * 1000
-                print(f"orc time of  {output_page} {(n)} millisecond")
+
+                self.logger.info(f"orc time of  {output_page} {(n)} millisecond")
                 del output
                 cy_kit.clean_up()
 
             merger = PdfMerger()
-
+            self.logger.info(f"OCR Merger file")
             for pdf in pdfs:
-                print(f"Merger run  {pdf}")
+                self.logger.info(f"Merger run  {pdf}")
                 merger.append(pdf)
                 cy_kit.clean_up()
-            print(f"Merger write  {out_put_file_path}")
+            self.logger.info(f"Merger write  {out_put_file_path}")
             merger.write(out_put_file_path)
             merger.close()
             del merger
@@ -261,6 +271,7 @@ class PDFService:
             cy_kit.clean_up()
             return out_put_file_path
         except PyPDF2.errors.PdfReadError as e:
+            self.logger.error(e)
             ocrmypdf.ocr(
                 input_file=pdf_file,
                 output_file=out_put_file_path,
@@ -271,13 +282,14 @@ class PDFService:
                 force_ocr=True,
                 deskew=True,
 
-                jobs=50,
+                # jobs=50,
                 # optimize=3,
                 keep_temporary_files=False
             )
             cy_kit.clean_up()
             return out_put_file_path
-
+        except Exception as e:
+            self.logger.error(e)
     def ocr_depriciate(self, pdf_file):
         """
                         Thuc hien ocr pdf file trong tien tring rieng biet

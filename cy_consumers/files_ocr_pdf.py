@@ -2,6 +2,7 @@
 import pathlib
 import sys
 import threading
+import time
 
 import ocrmypdf
 
@@ -40,16 +41,28 @@ class Process:
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         if msg_info.Data.get("processing_file"):
             full_file = msg_info.Data["processing_file"]
-        else:
-            full_file = self.temp_file.get_path(
-                app_name=msg_info.AppName,
-                file_ext=msg_info.Data["FileExt"],
-                upload_id=msg_info.Data["_id"]
-            )
-        if full_file is None or not os.path.isfile(full_file):
+        try_count=5
+        while try_count>0:
+                self.logger.info(f'Try pull file {msg_info.Data["_id"]},{msg_info.Data["FileExt"]} in {msg_info.AppName}')
+                full_file = self.temp_file.get_path(
+                    app_name=msg_info.AppName,
+                    file_ext=msg_info.Data["FileExt"],
+                    upload_id=msg_info.Data["_id"]
+                )
+                if not os.path.isfile(full_file):
+                    time.sleep(10)
+                    try_count -=1
+                else:
+                    try_count =0
+
+
+
+        if not os.path.isfile(full_file):
             self.logger.info(f"{full_file} was not found")
             msg.delete(msg_info)
             return
+        else:
+            self.logger.info(f"{full_file} is ok")
 
         def th_run(full_file, msg, msg_info):
             ocr_file = None
@@ -61,7 +74,7 @@ class Process:
                 )
                 self.logger.info(f"Do OCR file {full_file} is ok:\n{ocr_file}")
             except ocrmypdf.exceptions.InputFileError as e:
-                self.logger.error(d,msg_info=msg_info.Data)
+                self.logger.error(e,msg_info=msg_info.Data)
                 msg.delete(msg_info)
             ret = self.temp_file.move_file(
                 from_file=ocr_file,
@@ -69,6 +82,7 @@ class Process:
                 sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
             )
             msg_info.Data["processing_file"] = ret
+            self.logger.info(f"output file is {ret}")
 
             msg.emit(
                 app_name=msg_info.AppName,

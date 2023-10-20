@@ -209,10 +209,10 @@ img.mirror {
                             <label>
                                 {{p.CreatedOn|date:'dd-MM-yyyy hh:mm:ss'}}
                             </label>
-                            <label ng-if="p.UrlDfOCRSource && p.UrlDfOCRSource!=null">
+                            <label ng-if="p.OCRFileId && p.OCRFileId!=null">
                                 {{$res("OCR content")}}
                             </label>
-                            <a ng-if="p.UrlDfOCRSource && p.UrlDfOCRSource!=null" ng-href="{{p.UrlDfOCRSource}}" target="_blank">
+                            <a ng-if="p.OCRFileId && p.OCRFileId!=null" ng-href="{{p.UrlDfOCRSource}}" target="_blank">
                                 {{$res("View")}}
                             </a>
                             <span ng-if="p.MimeType.indexOf('application/vnd.openxmlformats-')==0">

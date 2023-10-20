@@ -79,7 +79,7 @@ api_url__: http://172.16.13.72:8012/lvfile/api
 api_url_: http://172.16.1.210:801/api
 
 bind: 0.0.0.0:8012
-workers: auto
+workers: 1
 worker_class_: UvicornWorker #UvicornH11Worker
 worker_class__: UvicornH11Worker #UvicornH11Worker
 worker_class: uvloop

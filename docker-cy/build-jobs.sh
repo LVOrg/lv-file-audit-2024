@@ -33,13 +33,14 @@ to_docker_hub(){
     fi
 }
 reset_build() {
-    docker stop $(docker ps -aq)
-    docker rm $(docker ps -aq)
-    docker rmi $(docker images -q)
-    docker volume rm $(docker volume ls)
-    docker builder prune -f
-    docker system prune -a -f
-    docker buildx create --use --config /etc/containerd/config.toml
+#    docker stop $(docker ps -aq)
+#    docker rm $(docker ps -aq)
+#    docker rmi $(docker images -q)
+#    docker volume rm $(docker volume ls)
+#    docker builder prune -f
+#    docker system prune -a -f
+#    docker buildx create --use --config /etc/containerd/config.toml
+    echo "No reset ..."
 
 }
 python_dir(){
@@ -132,13 +133,15 @@ buildSourceFunc(){
 rm -f web-api-core
 echo "
 FROM $top_image
-RUN apt update & apt install git & pip install --upgrade pip
+RUN apt update -y
+RUN pip install --upgrade pip
+RUN apt install git -y
 COPY ./../docker-cy/requirements/job-services.txt /app/job-services.txt
 RUN python3 -m pip install -r  /app/job-services.txt
 ">>jobs-core
 job_core_tag=1
-job_core_tag_build=$(tag $wjob_core_tag)
-job_core_image=jobs-core:$jjob_core_tag_build
+job_core_tag_build=$(tag $job_core_tag)
+job_core_image=jobs-core:$job_core_tag_build
 buildFunc jobs-core $job_core_tag_build $top_image $os
 
 #----- web api build-----------
@@ -146,8 +149,8 @@ echo "build web api into C++"
 #buildSourceFunc
 echo "build web api into C++ is complete"
 rm -f job && cp -f ./templates/job ./job
-web_api_tag=$web_api_core_tag.6
-web_api_tag_build=$(tag $web_api_tag)
-web_api_image=web-api:$web_api_tag_build
-buildFunc web-api $web_api_tag_build $repositiory/$user/$web_api_core_image $os
+job_tag=$job_core_tag.2
+job_tag_build=$(tag $job_tag)
+job_tag_image=job:$job_tag_build
+buildFunc job $job_tag_build $repositiory/$user/$job_core_image $os
 #eyJhbGciOiJSUzI1NiIsImtpZCI6IlU3RWRfUWNIZXJ4ejVHZGh6LVFOWWFTeWFadTlvbDRrOUtwcjk2WG10aW8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzI3NDkzODU4LCJpYXQiOjE2OTU5NTc4NTgsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJhZG1pbi11c2VyIiwidWlkIjoiNzE3MWMwYjEtZTc2Yi00NDMzLTg5M2EtYmMwODI5MWJlMWJkIn19LCJuYmYiOjE2OTU5NTc4NTgsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbi11c2VyIn0.vW64Vj5BMBnba0XOkcQ3XucEcRN1qncoDf1fE5HZbn1yHbgRG2YcRdVt2HoUNLn9-KhBuQx-fcHzsCw70A_YkqD4ig6g6MwjaIZyCWNaxKfxlIrhYVGYbOpsJYOCcGeUKmOvMYU4mVnobcaClYjxpmCD_OUiR-AOpcLyJAeyEb21XbwAVrAty8TiP2O6tD1plUqQz8ngZk5iNLtvLr5_2NicjxhLl2YSzol_CaMWjuebMUvzBdqRhE_wZf7AcmLudWbCCTl8m_3JU7J7HqqXMLppKTrDBbvaiLb6PqIwmT0TKH_PoxtPy46WpwNG6jX_bS83r3E4RyV8ipku84cgiQ

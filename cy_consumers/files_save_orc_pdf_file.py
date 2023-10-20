@@ -32,10 +32,8 @@ class Process:
             from cy_xdoc.services.search_engine import SearchEngine
             search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
             full_file_path = msg_info.Data['processing_file']
-            print(full_file_path)
             file_storage_services = cy_kit.singleton(MongoDbFileService)
             file_services = cy_kit.singleton(FileServices)
-            full_file_path = msg_info.Data['processing_file']
             if not os.path.isfile(full_file_path):
                 self.logger.info(
                     f"app={msg_info.AppName} save thumb file {full_file_path} was not found msg will be deleted")

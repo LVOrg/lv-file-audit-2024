@@ -117,9 +117,10 @@ class FileServices:
                     x["AvailableThumbs"] = _a_thumbs
                 if x.OCRFileId:
                     x["OcrContentUrl"] = f"{root_url}/api/{app_name}/file-ocr/{x.UploadID}/{x.FileNameOnly.lower()}.pdf"
+                yield x
         except Exception as e:
             self.logger.error(e)
-        return items
+
 
     def get_main_file_of_upload(self, app_name, upload_id):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id

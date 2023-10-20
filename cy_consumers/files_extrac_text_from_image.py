@@ -46,19 +46,40 @@ class Process:
                  easy_service=cy_kit.singleton(EasyOCRService),
                  file_services = cy_kit.singleton(FileServices),
                  search_engine = cy_kit.singleton(SearchEngine),
-                 logger = cy_kit.singleton(LoggerService)
+                 logger = cy_kit.singleton(LoggerService),
+                 temp_file=cy_kit.singleton(TempFiles)
     ):
         self.easy_service = easy_service
         self.file_services = file_services
         self.search_engine = search_engine
         self.logger = logger
+        self.temp_file= temp_file
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         try:
             full_file = msg_info.Data.get("processing_file")
+            full_file =  f"/home/vmadmin/python/cy-py{full_file[4:]}"
+            try_count = 5
+            if not os.path.isfile(full_file):
+                while try_count > 0:
+                    self.logger.info(
+                        f'Try pull file {msg_info.Data["_id"]},{msg_info.Data["FileExt"]} in {msg_info.AppName}')
+                    full_file = self.temp_file.get_path(
+                        app_name=msg_info.AppName,
+                        file_ext=msg_info.Data["FileExt"],
+                        upload_id=msg_info.Data["_id"]
+                    )
+                    if not os.path.isfile(full_file):
+                        time.sleep(10)
+                        try_count -= 1
+                    else:
+                        try_count = 0
             if full_file is None:
+
                 msg.delete(msg_info)
                 return
+
+
             if not os.path.isfile(full_file):
                 # full_file = temp_file.get_path(
                 #     app_name=msg_info.AppName,
