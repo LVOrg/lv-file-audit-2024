@@ -1,16 +1,15 @@
+import json
 import typing
 import numpy
-import easyocr
-from PIL.ImageFont import ImageFont
-from PIL import Image, ImageFont, ImageDraw
-from matplotlib import cm
+
 import cy_kit
 import matplotlib.pyplot as plt
 from cy_services.datasets.manager import DatasetManagerService
 from cy_services.spelling_corrector.english import SpellCorrectorService
 from cy_services.base_services.base import BaseService
 import cv2
-from cy_vn_suggestion import suggest, correct_word
+from cyx.loggers import LoggerService
+from cy_vn_suggestion.suggestions import suggest, correct_word
 class BlockText:
     top_left:typing.Tuple[int,int]
     bottom_right: typing.Tuple[int, int]
@@ -21,9 +20,12 @@ class BlockText:
 class ReadTextService(BaseService):
     def __init__(
             self,
-            dataset_manager= cy_kit.singleton(DatasetManagerService)
+            dataset_manager= cy_kit.singleton(DatasetManagerService),
+            logger= cy_kit.singleton(LoggerService)
     ):
-        print(self.config)
+        import easyocr
+        self.logger = logger
+        self.logger.info(json.dumps(self.config))
         self.dataset_manager = dataset_manager
 
         self.reader = easyocr.Reader(
