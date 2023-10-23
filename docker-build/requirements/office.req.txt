@@ -1,0 +1,14 @@
+pyyaml
+pika
+fastapi
+moviepy
+python-memcached
+passlib
+humanize
+uvicorn
+python-jose
+git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git
+tika
+pdfplumber
+PyPDF2
+img2pdf

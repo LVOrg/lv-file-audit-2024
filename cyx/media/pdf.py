@@ -4,11 +4,11 @@ import pathlib
 import time
 import typing
 import uuid
-import cv2
+
 import pdfplumber
-import fitz
+
 import glob
-import ocrmypdf
+
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfMerger
 import PyPDF2.errors
 from pdfminer.pdfpage import PDFPage
@@ -29,6 +29,7 @@ class PDFService:
         os.environ["PATH"] += ":/home/vmadmin/python/cy-py/docker-cy-hack/gs/bin:/home/vmadmin/python/cy-py/docker-cy-hack/gs/bin/gs"
 
     def get_image(self, file_path: str):
+        import fitz
         pdf_file = file_path
         filename_only = pathlib.Path(pdf_file).stem
         image_file_path = os.path.join(self.processing_folder, f"{filename_only}.png")
@@ -55,7 +56,7 @@ class PDFService:
         return image_file_path
 
     def convert_to_image(self, file_path: str, out_put_dir=None, page_number=None) -> str:
-
+        import cv2
         pdf_file = file_path
         filename_only = pathlib.Path(pdf_file).stem
         __out_put_dir__ = out_put_dir or self.processing_folder
@@ -89,6 +90,7 @@ class PDFService:
         return image_file_path
 
     def convert_to_images(self, file_path: str, out_put_dir=None) -> typing.List[str]:
+        import fitz
         pdf_file = file_path
         filename_only = pathlib.Path(pdf_file).stem
         __out_put_dir__ = out_put_dir or self.processing_folder
@@ -220,7 +222,7 @@ class PDFService:
                 with open(output_page, "wb") as outputStream:
                     output.write(outputStream)
                 self.logger.info(f"orc start  {output_page} {start}")
-
+                import ocrmypdf
                 if i in non_searchable:
                     ocrmypdf.ocr(
                         input_file=output_page,

@@ -7,21 +7,17 @@ import img2pdf
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
+sys.path.append("/app")
 import os.path
-import pathlib
+
 
 import cy_kit
 import cyx.common.msg
 from cyx.common.msg import MessageService, MessageInfo
 from cyx.common.rabitmq_message import RabitmqMsg
-from cyx.common.brokers import Broker
-from cyx.common import config
 from cyx.common.temp_file import TempFiles
 from cyx.media.pdf import PDFService
 from cyx.media.image_extractor import ImageExtractorService
-import easyocr
-import json
-
 temp_file = cy_kit.singleton(TempFiles)
 pdf_file_service = cy_kit.singleton(PDFService)
 

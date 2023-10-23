@@ -42,8 +42,8 @@ db_25:
 #  password: '123456'
 #  replicaSet: lv-doc
 db_: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
-db___: mongodb://192.168.18.36:27017
-db: 'mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0'
+db: mongodb://192.168.18.36:27017
+db__: 'mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0'
 #db:
 #db.authSource: admin
 #  db.host: 172.16.0.83

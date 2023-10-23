@@ -91,6 +91,8 @@ class FilesUploadController(BaseController):
                 app_name=app_name,
                 upload_id=upload_id
             )
+            if upload_item is None:
+                return None
             self.file_service.cache_upload_register_set(
                 UploadId = upload_id,
                 doc_data = upload_item

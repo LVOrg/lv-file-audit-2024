@@ -41,6 +41,22 @@ spec:
         ports:
         - containerPort: 11211
 ---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $cache.name }}-service
+  namespace: {{ $cache.namespace }}
+spec:
+  ports:
+    - name: '11211'
+      protocol: TCP
+      port: 11211
+      targetPort: 11211
+      nodePort: 30911
+  selector:
+    app: {{ $cache.name }}
+  type: NodePort
+---
 {{end}}
 ---
 {{end}}
