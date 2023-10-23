@@ -1,0 +1,40 @@
+---
+    {{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $cache := $data.cache -}}
+      {{ $msg := $data.msg -}}
+    {{ $dataJson := toPrettyJson $api -}}
+
+
+---
+{{ if $fileJob }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{$fileJob.configMapName}}
+  namespace: {{$fileJob.namespace}}
+data:
+  admin_db_name: {{ $db.admin_db_name }}
+  db: {{$db.cnn}}
+  elastic_search.prefix_index: '{{$es.prefix_index}}'
+  elastic_search.server: '{{ $es.server }}'
+  rabbitmq.port: '{{ $rb.port }}'
+  {{ if $msg }}
+  rabbitmq.server: '{{ $msg.name}}-service.{{$msg.namespace}}'
+  {{else}}
+  rabbitmq.server: '{{ $rb.server }}'
+  {{end}}
+  rabbitmq.msg: '{{ $rb.msg }}'
+  temp_directory: /app/share-storage
+  cache_server: memcache-service.file-cache:11211
+  tika_server: {{$fileJob.tika_server}}
+  vn_suggest_url: {{$fileJob.vn_suggest_url}}
+---
+{{end}}

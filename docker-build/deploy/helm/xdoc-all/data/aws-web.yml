@@ -28,33 +28,11 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
-    cnn: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
-    cnn_: mongodb://192.168.18.36:27017
+    cnn: mongodb%3A%2F%2F10.0.2.140%3A27017%2C10.0.2.224%3A27017%2C10.0.2.65%3A27017%2F%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
+    cnn_: mongodb://10.0.2.234:27017
+    admin_db_name: 'hps-file-test'
   # The clarefication of MongoDB or Mongos Routers
-    admin_db_name: 'lv-docs'
-    # File-Service need one database in a certain Mongodb to manage all Tenants.
-    # 'admin_db_name' is a crucial database.
-    # Wrong 'admin_db_value' will cause chain of crash.
-    # When File-Service or File-API start,
-    # it will detect if 'admin-db-name' in a certain Mongodb is existing.
-    # if 'admin_db_name' was not found File-Service or File-API will automatically create new database
-    # name by value of 'admin_db_name' in a certain MongoDB. So,
-    #wrong value of admin_db_name that mean new system was created.
-    #This is required value even if File-Server or File-API just serve for only one Tenant.
-    authSource: 'hps-file-test'
-    # As usual, when File-API or File-Service work with MongodDB.
-    # MongoDB will accquire valid authentication.
-    # Validation MongoDB authentication need a tuple of authSource, host, username and password
-    host: '192.168.18.36'
-    # host to MongoDB or Mongos Routes.
-    # For Mongos Router the host is a list of server name or IP separated by coma
-    password: ''
-    # If thee's MongoDb or Mongos Routers does not require authenticate,
-    # set this value is blank in double quote (empty text is '')
-    port: '27018'
-    # Port of MongoDB. In mode Mongos Routers this value is not require
-    username: ''
-    # The rule of password
+
   elastic_search:
   # clarification of ElasticSearch
     prefix_index: 'lv-codx'
@@ -66,25 +44,24 @@ config:
     # When API-File and File-Service create new Tenant they also create new ElasticSearch
     # Index by concat 'prefix_index' and Tenant-Name.
     # Example Tenant-Name is qc, ElasticSearch Index Name is lv-codx_qc
-    server: 'http://192.168.18.36:9200'
+    server: 'http://10.0.2.140:9200'
     # In poor conditional, we have only one ElasticServer Node
     # if thee's system need more than one node this value will be a list of url separated by comma
   rabbitmq:
   # Broker message. All PODs will use Broker-Message to communicating togethers
     port: '5672'
     #Port
-    server: 'rabitmq-service.lv-broker'
+    server: 'rabbitmq.rabbitmq-dev.svc.cluster.local'
     #Broker server
-#    temp_directory: /app/share-storage
-    msg: v99
-  workers: auto
+#    temp_directory: 'app/share-storage'
+    msg:
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
-  server: 172.16.7.99
+  server: 10.0.2.224
   # Server where share directory locate
-  directory: /k8s-share
+  directory: /share-data/xdoc-web
   # The full path to share-directory at storage server
   # Read below carefully before use share directory for K8S
   # 1- The share directory is belonged no-one use chown comand to do that.
@@ -110,17 +87,17 @@ webApi:
   # If wrong value no-one can access Web Api. As usual,
   # this is unchangeable value. But, when thou deploy in a certain K8S with ingress-controller.
   # Thou must inquire thee's DEV-OP about ingress-controller and get correct name
-  namespace: xdoc-web
+  namespace: xdoc
   # namespace: The same rule of name
-  hostUrl: http://172.16.7.99/lvfile
+  hostUrl: https://apps.codx.vn/lvfile
   # inquire about Web Host server from thee's DEV-OP
   configMapName: xdoc-config
-  replicas: 2
+  replicas: 4
   # number of replicate, depend on numof K8S workers
-  #nttlong/web-api:amd.1.1
-  #docker.io/nttlong/fs:api.apps.amd.1.3 is checking
-  repository: nttlong/fs
-  tag: api.apps.amd.1.3
+  repository_:  docker.lacviet.vn/xdoc/py310-xdoc
+  tag_: amd.cpu.9.31.17
+  repository: nttlong/web-api
+  tag: amd.2.3
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image
@@ -132,15 +109,3 @@ webApi:
   # 4 - The final number is embodied of End-Point Pod start .
   #     All End-Point Pod were write and compile at Lac Viet.
   mountPath: /app/share-storage
-ingress:
-  name: xdoc-web-ingress
-  namespace: xdoc-web
-  path: /lvfile/(.*)
-  servicename: xdoc
-  host_ip: 172.16.7.99
-msg:
-  name: rabbit-dev
-  namespace: file-msg
-cache:
-  name: file-cache
-  namespace: file-cache

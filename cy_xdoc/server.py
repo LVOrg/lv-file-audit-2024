@@ -70,7 +70,9 @@ async def estimate_time(request: fastapi.Request, next):
         start_time = datetime.datetime.utcnow()
         res = await next(request)
         n = datetime.datetime.utcnow()-start_time
-        logger.info(f"{request.url}  in {n}")
+
+        if not request.url.path.endswith("/api/healthz"):
+            logger.info(f"{request.url}  in {n}")
         if request.url._url == cy_web.get_host_url() + "/api/accounts/token":
             response_body = [chunk async for chunk in res.body_iterator]
             res.body_iterator = iterate_in_threadpool(iter(response_body))

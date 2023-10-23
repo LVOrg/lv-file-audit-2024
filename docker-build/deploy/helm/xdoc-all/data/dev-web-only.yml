@@ -28,8 +28,8 @@
 #    └── long.horn.yml                       # Longhorn claim
 config:
   db:
-    cnn: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
-    cnn_: mongodb://192.168.18.36:27017
+    cnn_: mongodb://192.168.18.36:27017,192.168.18.38:27017/?replicaSet%3Drs0%26readPreference%3Dsecondary
+    cnn: mongodb://192.168.18.36:27017
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'
     # File-Service need one database in a certain Mongodb to manage all Tenants.
@@ -76,15 +76,15 @@ config:
     server: 'rabitmq-service.lv-broker'
     #Broker server
 #    temp_directory: /app/share-storage
-    msg: v99
+    msg: v2
   workers: auto
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
-  server: 172.16.7.99
+  server: 172.16.7.91
   # Server where share directory locate
-  directory: /k8s-share
+  directory: /var/nfs_share_dir_for_k8s
   # The full path to share-directory at storage server
   # Read below carefully before use share directory for K8S
   # 1- The share directory is belonged no-one use chown comand to do that.
@@ -112,15 +112,13 @@ webApi:
   # Thou must inquire thee's DEV-OP about ingress-controller and get correct name
   namespace: xdoc-web
   # namespace: The same rule of name
-  hostUrl: http://172.16.7.99/lvfile
+  hostUrl: http://172.16.7.91/lvfile
   # inquire about Web Host server from thee's DEV-OP
   configMapName: xdoc-config
-  replicas: 2
+  replicas: 8
   # number of replicate, depend on numof K8S workers
-  #nttlong/web-api:amd.1.1
-  #docker.io/nttlong/fs:api.apps.amd.1.3 is checking
-  repository: nttlong/fs
-  tag: api.apps.amd.1.3
+  repository:  nttlong/py310-xdoc
+  tag: amd.cpu.9.40.56
   #The tag name is describe how many stage in image:
   # rc: release candidate
   # 1 - The first number is embodied of the generation of image, it is also a first stage of image
@@ -132,15 +130,3 @@ webApi:
   # 4 - The final number is embodied of End-Point Pod start .
   #     All End-Point Pod were write and compile at Lac Viet.
   mountPath: /app/share-storage
-ingress:
-  name: xdoc-web-ingress
-  namespace: xdoc-web
-  path: /lvfile/(.*)
-  servicename: xdoc
-  host_ip: 172.16.7.99
-msg:
-  name: rabbit-dev
-  namespace: file-msg
-cache:
-  name: file-cache
-  namespace: file-cache

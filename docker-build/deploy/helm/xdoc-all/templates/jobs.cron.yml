@@ -1,0 +1,56 @@
+---
+{{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+  {{ $jobsData := .Files.Get "data/jobs.cron.yml" | fromYaml -}}
+  {{ $jobs := $jobsData.data -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $storage := $data.storage}}
+    {{ $dataJson := toPrettyJson $jobs -}}
+---
+{{ if $fileJob }}
+---
+{{if $jobsData.data}}
+---
+{{- range $key, $value := $jobs}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{$value.name}}
+  namespace: {{$fileJob.namespace}}
+  annotations:
+    description: {{$value.description | default "..." }}
+spec:
+  template:
+    spec:
+      volumes:
+        - name: {{$storage.name}}
+          {{if hasKey  $storage "className"}}
+          persistentVolumeClaim:
+            claimName: {{$storage.name}}
+          {{else}}
+          nfs:
+            server: {{$storage.server}}
+            path: {{$storage.directory}}
+          {{end}}
+      containers:
+      - image: {{ $value.image  }}
+        name: {{$value.name}}
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - mountPath: {{$fileJob.mountPath}}
+            name:  {{$storage.name}}
+      restartPolicy: Never
+  backoffLimit: 4
+---
+{{- end }}
+---
+{{end}}
+{{end}}

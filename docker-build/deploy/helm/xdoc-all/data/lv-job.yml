@@ -26,10 +26,13 @@
 #    ├── jobs.namespace.yml                  # Namespace for Job and cron job deploy
 #    ├── long.horn.namespace.yml             # Longhorn namespace.Till now, Longhorn is unofficially volume (pilot test)
 #    └── long.horn.yml                       # Longhorn claim
+#
+#apiVersion: v1
+
+
 config:
   db:
-    cnn: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
-    cnn_: mongodb://192.168.18.36:27017
+    cnn: mongodb://admin:Lacviet#123@172.16.0.83:27017/admin
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'
     # File-Service need one database in a certain Mongodb to manage all Tenants.
@@ -41,23 +44,11 @@ config:
     # name by value of 'admin_db_name' in a certain MongoDB. So,
     #wrong value of admin_db_name that mean new system was created.
     #This is required value even if File-Server or File-API just serve for only one Tenant.
-    authSource: 'hps-file-test'
-    # As usual, when File-API or File-Service work with MongodDB.
-    # MongoDB will accquire valid authentication.
-    # Validation MongoDB authentication need a tuple of authSource, host, username and password
-    host: '192.168.18.36'
-    # host to MongoDB or Mongos Routes.
-    # For Mongos Router the host is a list of server name or IP separated by coma
-    password: ''
-    # If thee's MongoDb or Mongos Routers does not require authenticate,
-    # set this value is blank in double quote (empty text is '')
-    port: '27018'
-    # Port of MongoDB. In mode Mongos Routers this value is not require
-    username: ''
+
     # The rule of password
   elastic_search:
   # clarification of ElasticSearch
-    prefix_index: 'lv-codx'
+    prefix_index: 'qtsc-codx'
     # File-Service and File-API need a certain ElasticSearch
     # where readable content of File Upload was index in.
     # Index-ElasticSearch and MongoDB Tenant Database is corresponding to Managed-Tenants.
@@ -66,25 +57,51 @@ config:
     # When API-File and File-Service create new Tenant they also create new ElasticSearch
     # Index by concat 'prefix_index' and Tenant-Name.
     # Example Tenant-Name is qc, ElasticSearch Index Name is lv-codx_qc
-    server: 'http://192.168.18.36:9200'
+    server: 'http://172.16.0.83:9200'
     # In poor conditional, we have only one ElasticServer Node
     # if thee's system need more than one node this value will be a list of url separated by comma
+
   rabbitmq:
+    port: 31674
+    server: 172.16.7.91
+    msg: codx-lv
+  rabbitmq__:
   # Broker message. All PODs will use Broker-Message to communicating togethers
     port: '5672'
     #Port
-    server: 'rabitmq-service.lv-broker'
+    server: 'rabbitmq.rabbitmq-dev.svc.cluster.local'
     #Broker server
-#    temp_directory: /app/share-storage
-    msg: v99
-  workers: auto
+
+    msg: lv_files
+#storage:
+#  # This configuration  describes how and where all Pods in all deployments use shared-files
+#  # when Pods need to process of file or,
+#  # when the PODs need create, update or delete file, the PODs will use this location to do that
+#  server: 10.0.2.217
+#  # Server where share directory locate
+#  directory: /var/nfs_share_dir_for_k8s/xdoc-web
+#  # The full path to share-directory at storage server
+#  # Read below carefully before use share directory for K8S
+#  # 1- The share directory is belonged no-one use chown comand to do that.
+#  # Example: chown nodbody:nobody  /var/nfs_share_dir_for_k8s so all PODs in other worker can access.
+#  # Thou may check by "stat /var/nfs_share_dir_for_k8s"
+#  #
+#  name: xdoc-storage
+
+
+
+#volumes:
+#        - name: xdoc-temp-storage
+#          nfs:
+#            path: /data/share/xdoc-web
+#            server: 172.16.0.84
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
-  server: 172.16.7.99
+  server: 172.16.0.84
   # Server where share directory locate
-  directory: /k8s-share
+  directory: /data/share/xdoc-web
   # The full path to share-directory at storage server
   # Read below carefully before use share directory for K8S
   # 1- The share directory is belonged no-one use chown comand to do that.
@@ -93,54 +110,13 @@ storage:
   #
   name: xdoc-storage
 
-
-storage_longhorn:
-  # If thou would like to use longhorn-storage change storage_longhorn into storage.
-  size: 30Gi
-  # storage request size is at least 30 GB (why? some Pods in deployment need AI-dataset.
-  # The volume for AI-dataset, sometime reach 30GB. So, 30GB is OK )
-  name: xdoc-storage
-  className: longhorn-storage-delete
-  namespace: xdoc-storage
-webApi:
-# This is the value of web api configuration
-  name: xdoc
-  #name of web api service in K8S
-  # This value really extremely important.
-  # If wrong value no-one can access Web Api. As usual,
-  # this is unchangeable value. But, when thou deploy in a certain K8S with ingress-controller.
-  # Thou must inquire thee's DEV-OP about ingress-controller and get correct name
-  namespace: xdoc-web
-  # namespace: The same rule of name
-  hostUrl: http://172.16.7.99/lvfile
-  # inquire about Web Host server from thee's DEV-OP
-  configMapName: xdoc-config
-  replicas: 2
-  # number of replicate, depend on numof K8S workers
-  #nttlong/web-api:amd.1.1
-  #docker.io/nttlong/fs:api.apps.amd.1.3 is checking
-  repository: nttlong/fs
-  tag: api.apps.amd.1.3
-  #The tag name is describe how many stage in image:
-  # rc: release candidate
-  # 1 - The first number is embodied of the generation of image, it is also a first stage of image
-  # where all necessary components at OS level support for all PODs run  (till now is the first generation)
-  # 2 - The second number is embodied of the Open-Core-Stage where Open-Core-Stage were installed.
-  # Those libraries did not write at Lac Viet. Such as MongoDb driver, pytorch,...
-  # 3 - The third number is embodied of the Core-Stage .
-  #     All core-library were write and compile at Lac Viet.
-  # 4 - The final number is embodied of End-Point Pod start .
-  #     All End-Point Pod were write and compile at Lac Viet.
+fileJob:
+  namespace: xdoc-job-v1
+  configMapName: xdoc-job-config
+  replicas: 1
+  repository: nttlong/py310-xdoc
+  pullPolicy: IfNotPresent
+  tag: amd.cpu.9.39.44
   mountPath: /app/share-storage
-ingress:
-  name: xdoc-web-ingress
-  namespace: xdoc-web
-  path: /lvfile/(.*)
-  servicename: xdoc
-  host_ip: 172.16.7.99
-msg:
-  name: rabbit-dev
-  namespace: file-msg
-cache:
-  name: file-cache
-  namespace: file-cache
+  vn_suggest_url: vn-suggestion.xdoc-web:8000
+  tika_server: tika.xdoc-web:9998

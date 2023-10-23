@@ -1,0 +1,7 @@
+data1:
+  - name: install-xdoc-torch-dataset-huggingface
+    image: nttlong/xdoc-torch-dataset-huggingface:rc.0.0.4
+  - name: xdoc-install-torch-dataset-layout-microsoft
+    image: nttlong/xdoc-torch-dataset-layout-microsoft:rc.0.0.4
+  - name: install-xdoc-torch-dataset-layouts
+    image: nttlong/xdoc-torch-dataset-layouts:rc.0.0.4

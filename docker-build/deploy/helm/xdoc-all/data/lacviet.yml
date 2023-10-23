@@ -1,0 +1,78 @@
+# Thou! please carefully reading to avoid mistake !!!!!
+# This Helm values declare all you need to deploy LV-File-Service to Developer environment, On Premise infrastructure or AWS
+# Ngươi! xin vui lòng đọc kỹ để tránh sai lầm !!!!!
+# Các giá trị Helm này khai báo tất cả những gì bạn cần để triển khai LV-File-Servce cho môi trường Nhà phát triển, Cơ sở hạ tầng tại chỗ hoặc AWS
+#
+# All pods in this deployment require below info (regardless where they would be installed):
+#  Tất cả các Pod trong quá trình triển khai này đều yêu cầu thông tin bên dưới (bất kể chúng sẽ được cài đặt ở đâu):
+
+# 1 - MongodDb database, embody by tuples of :  host, authSource, username, password. My Lambkin! do not worry about each infor that. The explaination will be show each line in this Helm Values.
+#    (- Cơ sở dữ liệu MongodDb, thể hiện bằng các bộ: máy chủ, authSource, tên người dùng, mật khẩu. My Lambkin! đừng lo lắng về từng thông tin cho điều đó. Giải thích sẽ được hiển thị mỗi dòng trong Giá trị Helm này.)
+# 2- Need one database in MongoDb to manage all Tenants even if File-Service just sevrve for only one Tenant. (Cần một cơ sở dữ liệu trong MongoDb để quản lý tất cả các Đối tượng thuê ngay cả khi Dịch vụ tệp chỉ phục vụ cho một Đối tượng thuê.)
+# 3- At Least one ElasticSearch in which embody in tuples of: server and prefix_index ('prefix_index will be explained when it was declare')
+# 4- One broker message. When Pod wanna to inform to others. The Pod could not directly  inform. It just informs to broker message and broker message will inform to another.
+# 5- One temporary storage
+
+config:
+  db:
+    # At the mention at a top of file. All Pods will run if all below config are correct
+    #
+    admin_db_name: 'hps-file-test'
+    # Tenant-manage-database even if thee's system just serve for only one Tenant
+    authSource: 'hps-file-test'
+    # When a Pod connects to MongoDb Database they will verify Auth at this database. As usually, authSource used to be 'admin'
+    host: '10.0.2.140'
+    # Server MongodDb or Mondgos router address
+    password: ""
+    # Password: if thee's MongoDb did not set Auth-Require, set this value is ''
+    port: '27017'
+    #Port: remmeber that this value should be in "'"
+    username: ""
+    elastic_search:
+      # At the mention at a top of file. All Pods will run if all below config are correct
+      prefix_index: 'lv-codx'
+      # Each Tenant require a ElasticSearch index with prefix is this value
+      # Exmaple Tenant name default ElasticSearch Index is 'lv-doc_default'
+      server: 'http://10.0.2.140:9200'
+    # Full url to ElasticSearch
+    rabbitmq:
+      # Broker clarification
+      port: '5672'
+      # Port: Thou! please quote this value
+      server: 'rabbitmq.rabbitmq-dev.svc.cluster.local'
+    # Server of Broker message
+    temp_directory: ./brokers/tmp
+
+storage:
+  # If thou would like to use longhorn-storage turn this value into false.
+  size: 30Gi
+  # storage request size is at least 30 GB (why? some Pods in deployment need AI-dataset. The volume for AI-dataset, sometime reach 30GB. So, 30GB is OK )
+  name: xdoc-storage
+  className: longhorn-storage-delete
+  namespace: xdoc-storage
+webApi:
+  name: xdoc-web
+  namespace: xdoc-web
+  hostUrl: https://codx.lacviet.vn
+  configMapName: xdoc-config
+  replicas: 2
+  repository: nttlong/files-service-final
+  pullPolicy: IfNotPresent
+  tag: "rc.0.5.3.0"
+  #The tag name is describe how many stage in image:
+  # rc: release candidate
+  # 1 - The first number is embodied of the generation of image, it is also a first stage of image
+  # where all necessary components at OS level support for all PODs run  (till now is the first generation)
+  # 2 - The second number is embodied of the Open-Core-Stage where Open-Core-Stage were installed.
+  # Those libraries did not write at Lac Viet. Such as MongoDb driver, pytorch,...
+  # 3 - The third number is embodied of the Core-Stage . All core-library were write and compile at Lac Viet.
+  # 4 - The final number is embodied of End-Point Pod start . All End-Point Pod were write and compile at Lac Viet.
+  mountPath: /app/share-storage
+fileJob:
+  namespace: xdoc-job-v7
+  configMapName: xdoc-job-config
+  replicas: 2
+  repository: nttlong/files-service-final
+  pullPolicy: IfNotPresent
+  tag: "rc.0.5.3.0"
+  mountPath: /app/share-storage

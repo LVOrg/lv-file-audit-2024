@@ -1,0 +1,99 @@
+---
+{{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+  {{ $jobsData := .Files.Get "data/jobs.apps.yml" | fromYaml -}}
+  {{ $jobs := $jobsData.data -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $storage := $data.storage}}
+    {{ $dataJson := toPrettyJson $jobs -}}
+  {{if $fileJob}}
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==
+kind: Secret
+metadata:
+  name: harbor-secret-registry
+  namespace: {{$fileJob.namespace}}
+type: kubernetes.io/dockerconfigjson
+---
+{{if $jobsData.data}}
+
+---
+{{- range $key, $value := $jobs }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$value.name}}
+  namespace: {{$fileJob.namespace}}
+  annotations:
+    description: {{$value.description | default "..." }}
+spec:
+  selector:
+    matchLabels:
+      app: files-{{$value.name}}
+  replicas: {{$value.replicas | default $fileJob.replicas}}
+  template:
+    metadata:
+      labels:
+        app: files-{{$value.name}}
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret-registry
+      volumes:
+        - name: {{$storage.name}}
+        {{if hasKey  $storage "className"}}
+          persistentVolumeClaim:
+            claimName: {{$storage.name}}
+        {{else}}
+          nfs:
+            server: {{$storage.server}}
+            path: {{$storage.directory}}
+        {{end}}
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
+      containers:
+        - args:
+            - python3
+            - /app/cy_consumers/{{$value.endpoint}}
+            - elastic_search.server=$(elastic_search.server)
+            - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            - db=$(db)
+            - admin_db_name=$(admin_db_name)
+            - temp_directory=./brokers/tmp-files
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.port=$(rabbitmq.port)
+            - rabbitmq.msg=$(rabbitmq.msg)
+            - tika_server=$(tika_server)
+          {{ if $value.image }}
+          image: {{$value.image}}
+          {{else}}
+          image: {{ $fileJob.repository  }}:{{$fileJob.tag}}
+          {{end}}
+          envFrom:
+            - configMapRef:
+                name: {{$fileJob.configMapName}}
+
+          name: files-{{$value.name}}
+          imagePullPolicy: IfNotPresent
+
+          volumeMounts:
+            - mountPath: {{$fileJob.mountPath}}
+              name:  {{$storage.name}}
+
+---
+{{- end }}
+---
+{{end}}
+  {{end}}

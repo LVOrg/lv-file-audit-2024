@@ -1,0 +1,29 @@
+---
+{{ $info := $.Values.name -}}
+    {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $data := .Files.Get $dataFile | fromYaml -}}
+      {{ $fileJob := $data.fileJob -}}
+      {{ $db := $data.config.db -}}
+      {{ $es := $data.config.elastic_search -}}
+      {{ $rb := $data.config.rabbitmq -}}
+      {{ $api := $data.webApi -}}
+      {{ $storage := $data.storage}}
+    {{ $dataJson := toPrettyJson $api -}}
+---
+{{if hasKey $storage "className"}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{$storage.name}}
+  namespace: {{$storage.namespace}}
+spec:
+  accessModes:
+    #- ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: {{$storage.className}}
+  resources:
+    requests:
+      storage: {{$storage.size}}
+---
+{{end}}
