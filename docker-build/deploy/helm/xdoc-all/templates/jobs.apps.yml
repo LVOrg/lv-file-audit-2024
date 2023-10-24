@@ -3,30 +3,33 @@
     {{ $dataFile := join "" (list "data/" $info ".yml") -}}
 
     {{ $data := .Files.Get $dataFile | fromYaml -}}
-  {{ $jobsData := .Files.Get "data/jobs.apps.yml" | fromYaml -}}
-  {{ $jobs := $jobsData.data -}}
+
+
       {{ $fileJob := $data.fileJob -}}
       {{ $db := $data.config.db -}}
       {{ $es := $data.config.elastic_search -}}
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
       {{ $storage := $data.storage}}
-    {{ $dataJson := toPrettyJson $jobs -}}
-  {{if $fileJob}}
+
+
+  {{ $jobsList:= fromYaml ((include "jobs-apps-data" . ))  -}}
 ---
 apiVersion: v1
 data:
+  test-12345: {{ $jobsList }}
   .dockerconfigjson: eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==
 kind: Secret
 metadata:
   name: harbor-secret-registry
   namespace: {{$fileJob.namespace}}
+
 type: kubernetes.io/dockerconfigjson
 ---
-{{if $jobsData.data}}
+{{if $jobsList.data }}
 
 ---
-{{- range $key, $value := $jobs }}
+{{- range $key, $value := $jobsList.data }}
 
 ---
 apiVersion: apps/v1
@@ -36,6 +39,7 @@ metadata:
   namespace: {{$fileJob.namespace}}
   annotations:
     description: {{$value.description | default "..." }}
+    test-var: {{$value.image}}
 spec:
   selector:
     matchLabels:
@@ -76,11 +80,17 @@ spec:
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
             - tika_server=$(tika_server)
-          {{ if $value.image }}
+---
+{{if $value.job_image_slim }}
+---
+          image: {{$value.job_image_slim}}
+---
+{{else}}
+---
           image: {{$value.image}}
-          {{else}}
-          image: {{ $fileJob.repository  }}:{{$fileJob.tag}}
-          {{end}}
+---
+{{end}}
+---
           envFrom:
             - configMapRef:
                 name: {{$fileJob.configMapName}}
@@ -96,4 +106,3 @@ spec:
 {{- end }}
 ---
 {{end}}
-  {{end}}

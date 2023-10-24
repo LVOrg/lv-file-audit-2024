@@ -1,6 +1,8 @@
 ---
 {{ $info := $.Values.name -}}
     {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+    {{ $globalVar := .Files.Get "global/data.yml" | fromYaml -}}
+
     {{ $data := .Files.Get $dataFile | fromYaml -}}
       {{ $fileJob := $data.fileJob -}}
       {{ $db := $data.config.db -}}
@@ -21,6 +23,7 @@ kind: Secret
 metadata:
   name: harbor-secret-registry
   namespace: {{$api.namespace}}
+
 type: kubernetes.io/dockerconfigjson
 ---
 # The first we need deploy an application where Pod of web will run inside
@@ -80,13 +83,7 @@ spec:
             - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
             - vn_suggest_url=$(vn_suggest_url)
             - tika_server=$(tika_server)
-          livenessProbe:
-            httpGet:
-              path: /lvfile/api/healthz
-              port: 80
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            failureThreshold: 3
+
           readinessProbe:
             httpGet:
               path: /lvfile/api/healthz
@@ -94,7 +91,7 @@ spec:
             initialDelaySeconds: 1800
             periodSeconds: 3600
             failureThreshold: 3
-          image: {{$api.repository}}:{{$api.tag}}
+          image: {{ $globalVar.images.web}}
           envFrom:
             - configMapRef:
                name: {{$api.configMapName}}

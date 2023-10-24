@@ -1,3 +1,5 @@
+{{define "jobs-apps-data"}}
+---
 data:
   - name: files-upload
     endpoint: files_upload.py
@@ -55,11 +57,5 @@ data:
   - name: app-reindex-all-data
     endpoint: app_re_index_all_data.py
     image_type: "slim"
-
-#  - name: files-layout-analizer
-#    endpoint: files_layout_analizer.py
-
-#---
-#{{ $globalVar:= fromYaml (((tpl (.Files.Get "global/jobs.apps.yml") .))) -}}
-#---
-#data2: {{$globalVar}}
+---
+{{end}}

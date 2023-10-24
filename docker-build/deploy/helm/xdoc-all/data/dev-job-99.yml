@@ -26,6 +26,7 @@
 #    ├── jobs.namespace.yml                  # Namespace for Job and cron job deploy
 #    ├── long.horn.namespace.yml             # Longhorn namespace.Till now, Longhorn is unofficially volume (pilot test)
 #    └── long.horn.yml                       # Longhorn claim
+
 config:
   db:
     cnn_: mongodb://192.168.18.36:27017,192.168.18.38:27017/?replicaSet%3Drs0%26readPreference%3Dsecondary

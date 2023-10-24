@@ -28,7 +28,7 @@ job_core_office_tag=1
 job_core_office_build="job.office.libs."$(tag $job_core_office_tag)
 job_core_office_image=$repository/$image_name:$job_core_office_build
 buildFunc $job_core_office_file $repository $image_name $job_core_office_build "docker.io/python:3.10.12-slim-bookworm" "debian"
-
+#mount -t nfs 172.16.13.72:/home/vmadmin/python/cy-py //from-172-16-13-72-cy-py
 echo "in order to check image run:"
 echo "docker run -it -v \$(pwd)/..:/app nttlong/fs:$job_core_office_build  /bin/bash"
 echo "python3 /app/cy_consumers/files_upload.py"
