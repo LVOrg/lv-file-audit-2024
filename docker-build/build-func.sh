@@ -22,7 +22,7 @@ buildFunc(){
 
     exit_status=$?
     if [ "-$exit_status-" = "-0-" ]; then
-      reset_build
+      echo "waring: you mus reset all build kit by running ./clear"
     fi
     if [ ${exit_status} -ne 0 ]; then
       echo "build image $1 from base version $2 to $3 error"

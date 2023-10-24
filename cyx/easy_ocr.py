@@ -5,8 +5,6 @@ EasyOCRService is Class
 import os.path
 import pathlib
 import typing
-
-import easyocr
 import cy_kit
 from cyx.vn_predictor import VnPredictor
 from cyx.common.temp_file import TempFiles
@@ -28,7 +26,7 @@ class DouTextInfo:
 
     suggest_content: str
 
-from cyx.utils import easyocr_get_langs_suport
+
 class EasyOCRService:
     """
     This is a service use: \n
@@ -47,6 +45,7 @@ class EasyOCRService:
             tmp_file=cy_kit.singleton(TempFiles),
             share_storage=cy_kit.singleton(ShareStorageService)
     ):
+        import easyocr
         self.share_storage=share_storage
         self.__data_set_path__ = os.path.abspath(
             os.path.join(self.share_storage.get_root(),"dataset","easyocr")

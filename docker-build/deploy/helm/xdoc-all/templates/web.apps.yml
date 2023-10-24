@@ -83,14 +83,6 @@ spec:
             - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
             - vn_suggest_url=$(vn_suggest_url)
             - tika_server=$(tika_server)
-
-          readinessProbe:
-            httpGet:
-              path: /lvfile/api/healthz
-              port: 80
-            initialDelaySeconds: 1800
-            periodSeconds: 3600
-            failureThreshold: 3
           image: {{ $globalVar.images.web}}
           envFrom:
             - configMapRef:

@@ -30,7 +30,6 @@ metadata:
 type: kubernetes.io/dockerconfigjson
 ---
 {{- range $key, $value := $jobsList.data }}
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -39,7 +38,7 @@ metadata:
   namespace: {{$fileJob.namespace}}
   annotations:
     description: {{$value.description | default "..." }}
-    test-var: {{$value.image}}
+
 spec:
   selector:
     matchLabels:

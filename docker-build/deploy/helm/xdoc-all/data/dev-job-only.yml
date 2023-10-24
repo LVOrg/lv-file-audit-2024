@@ -64,6 +64,7 @@ config:
     #Broker server
 #    temp_directory: /app/share-storage
     msg: v2
+
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
@@ -98,3 +99,4 @@ fileJob:
   tag: amd.cpu.9.40.56
   mountPath: /app/share-storage
   vn_suggest_url: vn-suggestion.xdoc-web:8000
+  tika_server: http://tika.xdoc-web:9998
