@@ -40,10 +40,13 @@ ssh -o StrictHostKeyChecking=no -i "lv_keyPair.pem" ec2-user@13.212.181.67
 helm --set name=lv-job upgrade --install ???? xdoc/xdoc-all
 helm --set name=lv-web upgrade --install ??? xdoc/xdoc-all
 helm --set name=dev-job-only upgrade --install xdoc-job-18 xdoc/xdoc-all
+helm --set name=dev-web-only upgrade --install xdoc-web-1 xdoc/xdoc-all
 helm --set name=dev-web-only template xdoc-all
 helm --set name=aws-web-qc template xdoc-all
 helm --set name=dev-web-99 template xdoc-all
-helm --set name=dev-web-99 upgrade --install xdoc-job-18 xdoc/xdoc-all
+helm --set name=dev-web-99 upgrade --install xdoc xdoc-all
+helm --set name=dev-job-99 upgrade --install xdoc-job xdoc-all
+
 helm --set name=lv-job template xdoc-all>>lv-job-test.yml
 
 helm --set name=aws-web template xdoc-all>>test.yml

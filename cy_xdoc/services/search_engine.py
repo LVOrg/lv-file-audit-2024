@@ -25,7 +25,7 @@ import cyx.common
 from cy_xdoc.services.text_procesors import TextProcessService
 from cy_xdoc.services.file_content_extractors import FileContentExtractorService
 from cyx.rdr_segmenter.segmenter_services import VnSegmenterService
-import cyx.vn_predictor
+#import cyx.vn_predictor
 from  cyx.loggers import LoggerService
 
 class SearchEngine:

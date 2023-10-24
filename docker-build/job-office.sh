@@ -53,7 +53,7 @@ COPY ./../elasticsearch /app/elasticsearch
 COPY ./../pymongo /app/pymongo
 COPY ./../bson /app/bson
 COPY ./../config.yml /app/config.yml
-COPY ./../cy_controllers /app/cy_controllers
+COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_services /app/cy_services
 COPY ./../cy_ui /app/cy_ui
 COPY ./../cy_utils /app/cy_utils
@@ -63,7 +63,7 @@ COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
 COPY ./../cyx /app/cyx">>$job_office_file
-job_office_tag=1
+job_office_tag=2
 job_office_tag_build="job.office."$(tag $job_core_office_tag).$job_office_tag
 job_office_image=$repository/$image_name.$job_office_tag_build
 buildFunc $job_office_file $repository $image_name $job_office_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
