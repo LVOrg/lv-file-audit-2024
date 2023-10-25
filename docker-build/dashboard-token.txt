@@ -5,3 +5,5 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6IlU3RWRfUWNIZXJ4ejVHZGh6LVFOWWFTeWFadTlvbDRrOUtwcjk2
 helm install prometheus-v1 prometheus-community/prometheus
 sudo mount -t nfs 172.16.7.99:/helm $(pwd)/docker-cy
 kubectl exec --namespace default -it $(kubectl get pods --namespace default -l "app=grafana,release=g-2" -o jsonpath="{.items[0].metadata.name}") grafana-cli admin reset-admin-password admin
+helm install heapster stable/heapster
+$ helm install --name my-heapster stable/heapster

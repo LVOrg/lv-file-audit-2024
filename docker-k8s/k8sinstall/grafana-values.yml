@@ -1,0 +1,26 @@
+defaultRules:
+  create: true
+alertmanager:
+  enabled: true
+grafana:
+  enabled: false
+kubeApiServer:
+  enabled: true
+kubelet:
+  enabled: true
+kubeControllerManager:
+  enabled: true
+coreDns:
+  enabled: true
+kubeEtcd:
+  enabled: true
+kubeScheduler:
+  enabled: true
+kubeStateMetrics:
+  enabled: true
+  #helm install g-3 grafana/grafana-agent-operator -f v.yaml -n lv-grafana
+#helm install my-release grafana/grafana-agent-operator -f values.yaml
+#helm install g-1 grafana/grafana-agent-operator -n lv-grafana
+#helm install g-1 grafana/grafana-agent-operator -f v.yml -n lv-grafana
+#kubectl create namespace lv-grafana
+#helm install prometheus prometheus-community/kube-prometheus-stack -n lv-grafana

@@ -1,0 +1,9 @@
+Add the Prometheus Helm Chart repository to Helm:
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+Update the Helm repository cache:
+helm repo update
+Install Prometheus using the following command:
+helm install prometheus prometheus-community/kube-prometheus-stack
+Prometheus will be installed in default namespace, so url for datasource is:
+
+prometheus-kube-prometheus-prometheus:9090

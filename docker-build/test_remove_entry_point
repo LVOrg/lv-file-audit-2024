@@ -1,0 +1,4 @@
+FROM jbarlow83/ocrmypdf
+WORKDIR /
+ENTRYPOINT []
+#docker buildx build --build-arg  -t docker.io/nttlong/fs:job.test --platform=linux/amd64 ./.. -f test_remove_entry_point --push=true --output type=registry

@@ -34,10 +34,10 @@ COPY ./../env_jobs/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-p
 #COPY ./../cyx /app/cyx
 #COPY ./../cy_consumers /app/cy_consumers
 #RUN pip cache purge
-ENTRYPOINT \[\"/usr/bin/env\"\]
+ENTRYPOINT \[\"/usr/bin\"\]
 ">>$ai_lib_file
 ai_lib_tag=1
-ai_lib_tag_build="job.apps.ai."$(tag $ai_lib_tag)
+ai_lib_tag_build="job.apps.ai.libs."$(tag $ai_lib_tag)
 ai_lib_image=$repository/$image_name.$ai_lib_tag_build
 buildFunc $ai_lib_file $repository $image_name $ai_lib_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
 echo "in order to check image run:"
@@ -72,9 +72,13 @@ COPY ./../cylibs /app/cylibs
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 #RUN pip cache purge
-#ENTRYPOINT \[\"/usr/bin/env\"\]
+ENTRYPOINT []
 ">>$ai_file
-ai_tag=1
+ai_tag=3
 ai_tag_build="job.apps.ai."$(tag $ai_lib_tag).$ai_tag
-ai_image=$repository/$image_name.$ai_tag_build
+ai_image=$repository/$image_name:$ai_tag_build
 buildFunc $ai_file $repository $image_name $ai_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
+echo "in order to check image run:"
+echo "docker run -it -v \$(pwd)/..:/app  $ai_image  /bin/bash"
+echo "python3 /app/cy_consumers/files_ocr_pdf.py"
+echo "python3 /app/cy_consumers/files_extrac_text_from_image.py"

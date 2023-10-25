@@ -36,6 +36,7 @@ scp -r root@172.16.13.72:/home/vmadmin/python/v6/file-service-02/docker-cy/xdoc-
 helm repo add --username xdoc --password Lacviet#123 xdoc https://docker.lacviet.vn/chartrepo/xdoc
 helm registry login -u codx docker.lacviet.vn
 helm cm-push ./xdoc-all xdoc
+helm cm-push ./deploy/helm/xdoc-all xdoc
 ssh -o StrictHostKeyChecking=no -i "lv_keyPair.pem" ec2-user@13.212.181.67
 helm --set name=lv-job upgrade --install ???? xdoc/xdoc-all
 helm --set name=lv-web upgrade --install ??? xdoc/xdoc-all

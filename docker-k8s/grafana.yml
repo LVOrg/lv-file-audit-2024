@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grafana
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-storage-class
+spec:
+  capacity:
+    storage: 50Gi
+  nfs:
+    server: 171.16.7.99
+    path: /k8s-storage/grafana
+  accessModes:
+    - ReadWriteMany
+  claimRef:
+    kind: PersistentVolumeClaim
+    namespace: grafana
+    name: grafana-pvc
+    apiVersion: v1
+#  persistentVolumeReclaimPolicy: Retain
+  storageClassName: grafana-storage-class
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: grafana
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: grafana-storage-class
+  volumeName: grafana-storage-class
+  volumeMode: Filesystem
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+#      securityContext:
+#        fsGroup: 472
+#        supplementalGroups:
+#          - 0
+      containers:
+        - name: grafana
+          image: grafana/grafana:latest
+#          image: nttlong/fs:job.test
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http-grafana
+              protocol: TCP
+#          readinessProbe:
+#            failureThreshold: 3
+#            httpGet:
+#              path: /robots.txt
+#              port: 3000
+#              scheme: HTTP
+#            initialDelaySeconds: 10
+#            periodSeconds: 30
+#            successThreshold: 1
+#            timeoutSeconds: 2
+#          livenessProbe:
+#            failureThreshold: 3
+#            initialDelaySeconds: 30
+#            periodSeconds: 10
+#            successThreshold: 1
+#            tcpSocket:
+#              port: 3000
+#            timeoutSeconds: 1
+#          resources:
+#            requests:
+#              cpu: 250m
+#              memory: 750Mi
+#          volumeMounts:
+#            - mountPath: /var/lib/grafana
+#              name: grafana-pv
+      volumes:
+        - name: grafana-pv
+          persistentVolumeClaim:
+            claimName: grafana-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: http-grafana
+      nodePort: 30660
+
+  selector:
+    app: grafana
+  sessionAffinity: None
+  type: LoadBalancer
