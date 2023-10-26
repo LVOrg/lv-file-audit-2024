@@ -12,3 +12,5 @@ tika
 pdfplumber
 PyPDF2
 img2pdf
+grpcio
+grpcio-tools

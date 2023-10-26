@@ -7,3 +7,7 @@ sudo mount -t nfs 172.16.7.99:/helm $(pwd)/docker-cy
 kubectl exec --namespace default -it $(kubectl get pods --namespace default -l "app=grafana,release=g-2" -o jsonpath="{.items[0].metadata.name}") grafana-cli admin reset-admin-password admin
 helm install heapster stable/heapster
 $ helm install --name my-heapster stable/heapster
+helm install prometheus-operator prometheus-community/prometheus-operator
+helm install [RELEASE_NAME] prometheus-community/kube-state-metrics [flags]
+helm install dev-metric prometheus-community/kube-state-metrics --namesapce=dev-metric
+

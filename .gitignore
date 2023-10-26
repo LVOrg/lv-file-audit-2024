@@ -7,3 +7,4 @@ secret*
 /ansible/mongodb-one-node/
 /ansible/elasticsearch-one-nod/
 /docker-build/test/
+/tmp/

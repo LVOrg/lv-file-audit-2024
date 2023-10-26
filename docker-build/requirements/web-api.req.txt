@@ -17,3 +17,5 @@ fastapi-controller
 fastapi-router-controller
 gunicorn
 hypercorn[trio]
+grpcio
+grpcio-tools

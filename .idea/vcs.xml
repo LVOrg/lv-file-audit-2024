@@ -10,6 +10,7 @@
     <mapping directory="$PROJECT_DIR$/ansible/mongodb-one-node" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/data-dict/vietnamese-wordlist" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/detectron2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/tmp/grpc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/uniconvertor" vcs="Git" />
   </component>
 </project>
