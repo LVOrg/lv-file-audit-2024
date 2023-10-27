@@ -24,7 +24,7 @@ COPY ./../docker-build/requirements/office.req.txt /app/office.req.txt
 RUN python3 -m pip install -r /app/office.req.txt --no-cache-dir
 ENTRYPOINT [\"/usr/bin/env\"]
 ">>$job_core_office_file
-job_core_office_tag=1
+job_core_office_tag=2
 job_core_office_build="job.office.libs."$(tag $job_core_office_tag)
 job_core_office_image=$repository/$image_name:$job_core_office_build
 buildFunc $job_core_office_file $repository $image_name $job_core_office_build "docker.io/python:3.10.12-slim-bookworm" "debian"
@@ -63,7 +63,7 @@ COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
 COPY ./../cyx /app/cyx">>$job_office_file
-job_office_tag=2
+job_office_tag=1
 job_office_tag_build="job.office."$(tag $job_core_office_tag).$job_office_tag
 job_office_image=$repository/$image_name.$job_office_tag_build
 buildFunc $job_office_file $repository $image_name $job_office_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
