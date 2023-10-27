@@ -10,6 +10,7 @@
       {{ $cache := $data.cache -}}
       {{ $msg := $data.msg -}}
     {{ $dataJson := toPrettyJson $api -}}
+{{ $globalVar := .Files.Get "global/data.yml" | fromYaml -}}
 
 
 ---
@@ -51,5 +52,6 @@ data:
   h2_max_concurrent_streams: '100'
   vn_suggest_url: vn-suggestion.{{$api.namespace}}:8000 #vn-suggestion.xdoc-web:8000 TCP
   tika_server: tika.{{$api.namespace}}:9998
+  log_url: {{$globalVar.config.logs_url}}
 ---
 {{end}}

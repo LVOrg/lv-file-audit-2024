@@ -167,3 +167,4 @@ broker:
   msg: xdoc
 #  temp_directory: ./brokers/tmp-files
 cache_server: 172.16.7.99:30999
+logs_url: https://hooks.slack.com/services/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

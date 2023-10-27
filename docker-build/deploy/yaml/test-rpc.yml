@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-rpc
+  namespace: test-rpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-rpc
+  template:
+    metadata:
+      labels:
+        app: test-rpc
+    spec:
+      containers:
+      - name: test-rpc
+        image: nttlong/fs:test.rpc.amd.7
+        args:
+          - python3
+          - /app/cy_grpc/che_server.py
+        ports:
+          - containerPort: 50011
+            protocol: TCP
+      - name: test-client
+        image: nttlong/fs:test.rpc.amd.7
+        args:
+          - python3
+          - /app/cy_grpc/caller.py
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-rpc
+  namespace: test-rpc
+  labels:
+    app: test-rpc
+spec:
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 50011
+      targetPort: 50011
+      nodePort: 31051
+  selector:
+    app: xdoc
+  type: NodePort
+
+

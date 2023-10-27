@@ -20,6 +20,7 @@ Several APIs used in this example are in an experimental state.
 """
 import json
 import pathlib
+import time
 
 working_dir = pathlib.Path(__file__).parent.__str__()
 import sys
@@ -48,9 +49,13 @@ def rpc_call(server:str,port:int, data:dict)->dict:
     return  json.dumps(response.JSONText)
 
 
+while True:
+    i = 0
+    fx = rpc_call("localhost", 50011, data=dict(
+        name=f"code{i}",
+        code="dasdas"
+    ))
+    print(fx)
+    time.sleep(5)
+    i += 1
 
-fx = rpc_call("localhost",50011,data=dict(
-    name="code",
-    code="name"
-))
-print(fx)

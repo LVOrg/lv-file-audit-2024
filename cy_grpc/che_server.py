@@ -1,6 +1,7 @@
 import pathlib
 import sys
 
+
 working_dir = pathlib.Path(__file__).parent.__str__()
 sys.path.append(working_dir)
 sys.path.append("/app")
@@ -16,4 +17,4 @@ def handler(data:dict,context)->dict:
         return  dict(
             error=str(e)
         )
-start_serverles(8090,handler)
+start_serverles(50011,handler)

@@ -46,5 +46,6 @@ def start_serverles(port:int,handler:typing.Callable):
     services.add_CommanderServicer_to_server(Commander(handler), server)
     # server.add_insecure_port("[::]:50051")
     server.add_insecure_port(f"0.0.0.0:{port}")
+
     server.start()
     server.wait_for_termination()
