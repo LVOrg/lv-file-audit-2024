@@ -19,3 +19,4 @@ gunicorn
 hypercorn[trio]
 grpcio
 grpcio-tools
+slackclient

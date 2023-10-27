@@ -79,6 +79,7 @@ spec:
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
             - tika_server=$(tika_server)
+            - host_url=$(eb_api_url)
           image: {{$value.image}}
           envFrom:
             - configMapRef:

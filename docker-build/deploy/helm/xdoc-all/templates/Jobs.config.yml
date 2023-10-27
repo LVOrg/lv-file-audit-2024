@@ -10,7 +10,7 @@
       {{ $cache := $data.cache -}}
       {{ $msg := $data.msg -}}
     {{ $dataJson := toPrettyJson $api -}}
-
+{{ $globalVar := .Files.Get "global/data.yml" | fromYaml -}}
 
 ---
 {{ if $fileJob }}
@@ -36,5 +36,7 @@ data:
   cache_server: memcache-service.file-cache:11211
   tika_server: {{$fileJob.tika_server}}
   vn_suggest_url: {{$fileJob.vn_suggest_url}}
+  log_url: {{$globalVar.config.logs_url}}
+  web_api_url:  {{$fileJob.web_api_url}}
 ---
 {{end}}

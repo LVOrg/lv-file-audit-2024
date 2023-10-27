@@ -14,3 +14,4 @@ PyPDF2
 img2pdf
 grpcio
 grpcio-tools
+slackclient

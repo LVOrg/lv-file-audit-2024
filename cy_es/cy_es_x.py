@@ -585,6 +585,72 @@ class DocumentFields:
             ret = t + datetime.timedelta(tz.hour)
             return ret, True
         except Exception as e:
+            import re
+            pattern_full = re.compile("^([0-9]{4})-([0-9]{2})-([0-9]{2}):([0-9]{2}):([0-9]{2}):([0-9]{2})$")
+            pattern_full_2 = re.compile("^([0-9]{4})\/([0-9]{2})\/([0-9]{2}):([0-9]{2}):([0-9]{2}):([0-9]{2})$")
+            pattern_full_3 = re.compile("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})$")
+            pattern_full_4 = re.compile("^([0-9]{4})\/([0-9]{2})\/([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})$")
+            pattern= re.compile("^([0-9]{4})-([0-9]{2})-([0-9]{2})$")
+            pattern_1 = re.compile("^([0-9]{4})\/([0-9]{2})\/([0-9]{2})$")
+
+            years = -1
+            months =-1
+            days=-1
+            hours =0
+            minutes = 0
+            seconds = 0
+
+            if pattern_full.match(str_date):
+                str_date_only = str_date[:str_date.index(":")]
+                str_time_only = str_date[str_date.index(":")+1:]
+                years = int(str_date_only.split('-')[0])
+                months = int(str_date_only.split('-')[1])
+                days = int(str_date_only.split('-')[2])
+                hours =int(str_date_time.split(':')[0])
+                minutes = int(str_date_time.split(':')[1])
+                seconds = int(str_date_time.split(':')[2])
+            elif pattern_full_2.match(str_date):
+                str_date_only = str_date[:str_date.index(":")]
+                str_time_only = str_date[str_date.index(":") + 1:]
+                years = int(str_date_only.split('/')[0])
+                months = int(str_date_only.split('/')[1])
+                days = int(str_date_only.split('/')[2])
+                hours = int(str_date_time.split(':')[0])
+                minutes = int(str_date_time.split(':')[1])
+                seconds = int(str_date_time.split(':')[2])
+            elif pattern_full_3.match(str_date):
+                str_date_only = str_date[:str_date.index("T")]
+                str_time_only = str_date[str_date.index("T") + 1:]
+                years = int(str_date_only.split('-')[0])
+                months = int(str_date_only.split('-')[1])
+                days = int(str_date_only.split('-')[2])
+                hours = int(str_date_time.split(':')[0])
+                minutes = int(str_date_time.split(':')[1])
+                seconds = int(str_date_time.split(':')[2])
+            elif pattern_full_4.match(str_date):
+                str_date_only = str_date[:str_date.index("T")]
+                str_time_only = str_date[str_date.index("T") + 1:]
+                years = int(str_date_only.split('/')[0])
+                months = int(str_date_only.split('/')[1])
+                days = int(str_date_only.split('/')[2])
+                hours = int(str_date_time.split(':')[0])
+                minutes = int(str_date_time.split(':')[1])
+                seconds = int(str_date_time.split(':')[2])
+            elif pattern.match(str_date):
+                str_date_only = str_date
+                years = int(str_date_only.split('-')[0])
+                months = int(str_date_only.split('-')[1])
+                days = int(str_date_only.split('-')[2])
+            elif pattern_1.match(str_date):
+                str_date_only = str_date
+                years = int(str_date_only.split('/')[0])
+                months = int(str_date_only.split('/')[1])
+                days = int(str_date_only.split('/')[2])
+
+
+            if years>-1:
+                return datetime.datetime(year=years,month=months,day=days,hour=hours,minute=minutes,second=seconds),True
+
             return None, False
 
     def __eq__(self, other):
@@ -2322,7 +2388,7 @@ def __apply_function__(function_name, field_name, owner_caller=None, args=None, 
             fields = field_name['$fields']
             content = field_name['$value']
 
-        return __build_search__(fields, content, suggest_handler)
+        return __build_search__(fields, content or "", suggest_handler)
     else:
         raise Exception("Error syntax")
 

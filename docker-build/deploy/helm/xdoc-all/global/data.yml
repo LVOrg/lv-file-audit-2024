@@ -1,7 +1,7 @@
 images:
-  web: nttlong/fs:api.apps.amd.1.4
+  web: nttlong/fs:api.apps.amd.2.5
   jobs:
-    slim: nttlong/fs:job.apps.slim.amd.1.5
+    slim: nttlong/fs:job.apps.slim.amd.2.1
     office: nttlong/fs:job.office.amd.1.2
     ocr: nttlong/fs:job.apps.ai.amd.1.3
     easy_ocr: nttlong/fs:job.apps.ai.amd.1.3

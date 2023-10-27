@@ -120,3 +120,4 @@ fileJob:
   mountPath: /app/share-storage
   vn_suggest_url: vn-suggestion.xdoc-web:8000
   tika_server: tika.xdoc-web:9998
+  web_api_url: https://codx.lacviet.vn/lvfile

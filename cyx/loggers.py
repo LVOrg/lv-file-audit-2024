@@ -132,7 +132,7 @@ class LoggerService:
             else:
                 slack_data= self.get_info_for_slack(traceback.format_exc(),more_info=more_info)
 
-                self.slack_client.send(text=content,attachments=[slack_data])
+                self.slack_client.send(text=slack_data)
         except Exception as ex:
             self.__logger__.error(ex)
 
@@ -158,7 +158,8 @@ class LoggerService:
             pod=self.get_fullname_of_pod(),
             name=self.get_name_of_pod(),
             time=datetime.datetime.utcnow().strftime("%d/%m/%Y:%H:%M:%S"),
-            content = content
+            content = content,
+            host_url=config.host_url
         )
         if isinstance(more_info,dict):
             ret["more_info"]=more_info
