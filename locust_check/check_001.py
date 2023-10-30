@@ -28,17 +28,39 @@ class CongTyCSCUser(HttpUser):
     @task
     def login(self):
         self.client.verify = False
-        print("/api/Auth/exec52")
+        print("/api/WP/exec30")
 
-        self.client.post("/api/Auth/exec36", json= {
+        self.client.post("/api/WP/exec30", json= {
     "isJson": True,
-    "service": "SYS",
-    "assemblyName": "Core",
-    "className": "CMBusiness",
-    "methodName": "GetCacheAsync",
+    "service": "WP",
+    "assemblyName": "ERM.Business.WP",
+    "className": "CommentsBusiness",
+    "methodName": "GetListPostAsync",
     "msgBodyData": [
-        "TranslateLabel",
-        "Notes"
+        {
+            "pageLoading": True,
+            "page": 3,
+            "pageSize": 10,
+            "formName": "Comments",
+            "gridViewName": "grvComments",
+            "entityName": "WP_Comments",
+            "predicate": "Category = @0 || Category = @1 || Category = @2",
+            "dataValue": "1;3;4",
+            "funcID": "WP",
+            "entityPermission": "WP_Comments",
+            "treeField": "",
+            "treeIDValue": "",
+            "sort": [
+                {
+                    "field": "CreatedOn",
+                    "dir": "desc"
+                }
+            ],
+            "predicates": None,
+            "dataValues": None,
+            "entryMode": "",
+            "selector": ""
+        }
     ],
     "saas": 1,
     "userID": "2303110001",

@@ -1,0 +1,32 @@
+https://huggingface.co/spaces/to-be/invoice_document_headers_extraction_with_donut/blob/main/app.py
+https://huggingface.co/spaces/nazianafis/Extract-Tables-From-PDF
+https://github.com/kaylode/vietnamese-ocr-toolbox
+
+
+convert longfile.pdf[0-1,3] output.pdf //libre office convert
+https://huggingface.co/nguyenvulebinh/wav2vec2-base-vietnamese-250h
+https://github.com/VietHoang1512/vietnamese-spell-correct-and-text-classify/blob/master/functions/text_classifier.py
+
+https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/online/
+
+
+
+Samples:
+
+https://learn.microsoft.com/en-us/samples/officedev/pnp-wopi/pnp-wopi/
+
+https://github.com/officedev/pnp-wopi/tree/master/
+
+
+
+Devs:
+
+https://github.com/OfficeDev
+
+1.       https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/online/overview
+
+2.       https://github.com/petrsvihlik/WopiHost
+
+3.       https://github.com/orgs/OfficeDev/repositories?type=all
+
+4.       https://developer.microsoft.com/en-us/office/cloud-storage-partner-program
