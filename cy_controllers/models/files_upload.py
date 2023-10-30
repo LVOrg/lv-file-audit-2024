@@ -12,9 +12,9 @@ class ErrorResult(BaseModel):
     """
     Thông tin chi tiết của lỗi
     """
-    Code: str
-    Message: str
-    Fields: typing.List[str]
+    Code: typing.Optional[str]
+    Message: typing.Optional[str]
+    Fields: typing.Optional[typing.List[str]]
 
 
 

@@ -158,7 +158,7 @@ class LoggerService:
             pod=self.get_fullname_of_pod(),
             name=self.get_name_of_pod(),
             time=datetime.datetime.utcnow().strftime("%d/%m/%Y:%H:%M:%S"),
-            content = content,
+            contents = content.split('\n'),
             host_url=config.host_url
         )
         if isinstance(more_info,dict):

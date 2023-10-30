@@ -245,128 +245,140 @@ class FilesUploadController(BaseController):
                            UploadId: Annotated[str, Form()],
                            Index: Annotated[int, Form()],
                            FilePart: Annotated[UploadFile, File()]) -> UploadFilesChunkInfoResult:
-        start_time = datetime.datetime.utcnow()
+        try:
 
-        content_part = await self.get_upload_binary_async(FilePart)
-        upload_item = await self.get_upload_register_async(
-            app_name=app_name,
-            upload_id=UploadId
-        )
-
-        if upload_item is None:
-            del FilePart
-            del content_part
-            return cy_docs.DocumentObject(
-                Error=dict(
-                    Message="Upload was not found or has been remove",
-                    Code="ItemWasNotFound"
-
-                )
-            ).to_pydantic()
-        upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
-        file_size = upload_item.SizeInBytes
-        # path_to_broker_share = os.path.join(path_to_broker_share,f"{UploadId}.{upload_item.get(docs.Files.FileExt.__name__)}")
-        size_uploaded = upload_item.SizeUploaded or 0
-        num_of_chunks_complete = upload_item.NumOfChunksCompleted or 0
-        nun_of_chunks = upload_item.NumOfChunks or 0
-        # main_file_id = upload_item.MainFileId
-        chunk_size_in_bytes = upload_item.ChunkSizeInBytes or 0
-        server_file_name = upload_item.FullFileNameLower
-        content_type, _ = mimetypes.guess_type(server_file_name)
-
-        if num_of_chunks_complete == 0:
-            fs = await self.create_storage_file_async(
-                app_name=app_name,
-                rel_file_path=server_file_name,
-                chunk_size=chunk_size_in_bytes,
-                content_type=content_type,
-                size=file_size
-            )
-
-            await self.push_file_async(
-                app_name = app_name,
-                upload_id= UploadId,
-                fs = fs,
-                content_part = content_part,
-                Index =Index
-            )
-
-            upload_item.MainFileId = await self.get_main_file_id_async(fs)
-
-            await self.push_file_to_temp_folder_async(
-                app_name=app_name,
-                content=content_part,
-                upload_id=UploadId,
-                file_ext=upload_item[upload_register_doc.fields.FileExt]
-            )
-
-
-
-        else:
-            fs = await self.file_storage_service.get_file_by_name_async(
-                app_name=app_name,
-                rel_file_path=server_file_name
-            )
-
-            await self.push_file_async(
-                app_name = app_name,
-                upload_id=UploadId,
-                fs = fs,
-                content_part = content_part,
-                Index =Index
-            )
-            await self.push_temp_file_async(
-                app_name=app_name,
-                content=content_part,
-                upload_id=UploadId,
-                file_ext=upload_item[upload_register_doc.fields.FileExt]
-            )
-
-        if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
-            upload_item["Status"] = 1
-            await self.update_search_engine_async(
-                app_name=app_name,
-                id=UploadId,
-                content="",
-                data_item=upload_item,
-                update_meta=False
-            )
-            await self.post_msg_upload_file_async(
-                app_name=app_name,
-                upload_id=UploadId,
-                data=upload_item
-            )
-
-        size_uploaded += len(content_part)
-        ret = cy_docs.DocumentObject()
-        ret.Data = cy_docs.DocumentObject()
-        ret.Data.Percent = round((size_uploaded * 100) / file_size, 2)
-        ret.Data.SizeUploadedInHumanReadable = humanize.filesize.naturalsize(size_uploaded)
-        num_of_chunks_complete += 1
-        ret.Data.NumOfChunksCompleted = num_of_chunks_complete
-        ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
-        status = 0
-        if num_of_chunks_complete == nun_of_chunks:
-            status = 1
-
-        await self.update_upload_status_async(
-            app_name=app_name,
-            upload_id=UploadId,
-            size_uploaded=size_uploaded,
-            num_of_chunks_complete=num_of_chunks_complete,
-            status=status,
-            main_file_id=fs.get_id()
-        )
-
-        ret_data = ret.to_pydantic()
-
-        if status == 1:
-            self.delete_cache_upload_register(
+            content_part = await self.get_upload_binary_async(FilePart)
+            upload_item = await self.get_upload_register_async(
                 app_name=app_name,
                 upload_id=UploadId
             )
 
-        return ret_data
+            if upload_item is None:
+                del FilePart
+                del content_part
+                return cy_docs.DocumentObject(
+                    Error=dict(
+                        Message="Upload was not found or has been remove",
+                        Code="ItemWasNotFound"
+
+                    )
+                ).to_pydantic()
+            upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
+            file_size = upload_item.SizeInBytes
+            # path_to_broker_share = os.path.join(path_to_broker_share,f"{UploadId}.{upload_item.get(docs.Files.FileExt.__name__)}")
+            size_uploaded = upload_item.SizeUploaded or 0
+            num_of_chunks_complete = upload_item.NumOfChunksCompleted or 0
+            nun_of_chunks = upload_item.NumOfChunks or 0
+            # main_file_id = upload_item.MainFileId
+            chunk_size_in_bytes = upload_item.ChunkSizeInBytes or 0
+            server_file_name = upload_item.FullFileNameLower
+            content_type, _ = mimetypes.guess_type(server_file_name)
+
+            if num_of_chunks_complete == 0:
+                fs = await self.create_storage_file_async(
+                    app_name=app_name,
+                    rel_file_path=server_file_name,
+                    chunk_size=chunk_size_in_bytes,
+                    content_type=content_type,
+                    size=file_size
+                )
+
+                await self.push_file_async(
+                    app_name = app_name,
+                    upload_id= UploadId,
+                    fs = fs,
+                    content_part = content_part,
+                    Index =Index
+                )
+
+                upload_item.MainFileId = await self.get_main_file_id_async(fs)
+
+                await self.push_file_to_temp_folder_async(
+                    app_name=app_name,
+                    content=content_part,
+                    upload_id=UploadId,
+                    file_ext=upload_item[upload_register_doc.fields.FileExt]
+                )
+
+
+
+            else:
+                fs = await self.file_storage_service.get_file_by_name_async(
+                    app_name=app_name,
+                    rel_file_path=server_file_name
+                )
+
+                await self.push_file_async(
+                    app_name = app_name,
+                    upload_id=UploadId,
+                    fs = fs,
+                    content_part = content_part,
+                    Index =Index
+                )
+                await self.push_temp_file_async(
+                    app_name=app_name,
+                    content=content_part,
+                    upload_id=UploadId,
+                    file_ext=upload_item[upload_register_doc.fields.FileExt]
+                )
+
+            if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
+                upload_item["Status"] = 1
+                await self.update_search_engine_async(
+                    app_name=app_name,
+                    id=UploadId,
+                    content="",
+                    data_item=upload_item,
+                    update_meta=False
+                )
+                await self.post_msg_upload_file_async(
+                    app_name=app_name,
+                    upload_id=UploadId,
+                    data=upload_item
+                )
+
+            size_uploaded += len(content_part)
+            ret = cy_docs.DocumentObject()
+            ret.Data = cy_docs.DocumentObject()
+            ret.Data.Percent = round((size_uploaded * 100) / file_size, 2)
+            ret.Data.SizeUploadedInHumanReadable = humanize.filesize.naturalsize(size_uploaded)
+            num_of_chunks_complete += 1
+            ret.Data.NumOfChunksCompleted = num_of_chunks_complete
+            ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
+            status = 0
+            if num_of_chunks_complete == nun_of_chunks:
+                status = 1
+
+            await self.update_upload_status_async(
+                app_name=app_name,
+                upload_id=UploadId,
+                size_uploaded=size_uploaded,
+                num_of_chunks_complete=num_of_chunks_complete,
+                status=status,
+                main_file_id=fs.get_id()
+            )
+
+            ret_data = ret.to_pydantic()
+
+            if status == 1:
+                self.delete_cache_upload_register(
+                    app_name=app_name,
+                    upload_id=UploadId
+                )
+
+            return ret_data
+        except Exception as ex:
+            self.logger_service.error(ex,more_info= dict(
+                app_name=app_name,
+                UploadId = UploadId,
+                Index = Index
+            ))
+            ret =  UploadFilesChunkInfoResult()
+            ret.Error = ErrorResult()
+            ret.Error.Code="System"
+            ret.Error.Message = type(ex)
+            return ret
+
 
     async def push_temp_file_async(self, app_name, content, upload_id, file_ext):
         st= datetime.datetime.utcnow()

@@ -1,10 +1,10 @@
 images:
-  web: nttlong/fs:api.apps.amd.2.9
+  web: nttlong/fs:api.apps.amd.2.10
   jobs:
     slim: nttlong/fs:job.apps.slim.amd.3.1
     office: nttlong/fs:job.office.amd.2.1
-    ocr: nttlong/fs:job.apps.ai.amd.2.1
-    easy_ocr: nttlong/fs:job.apps.ai.amd.2.1
+    ocr: nttlong/fs:job.apps.ai.amd.2.2
+    easy_ocr: nttlong/fs:job.apps.ai.amd.2.2
 config:
   logs_url: https://hooks.slack.com/services/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
 
