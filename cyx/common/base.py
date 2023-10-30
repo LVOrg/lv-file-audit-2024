@@ -11,16 +11,19 @@ from cy_docs import get_doc
 from pymongo.mongo_client import MongoClient
 from typing import TypeVar, Generic
 import urllib
+
 T = TypeVar("T")
 
 __client__ = {}
-def __create_client__(db)->MongoClient:
+
+
+def __create_client__(db) -> MongoClient:
     if isinstance(db, str):
         if __client__.get(db) is None:
-            url_connection=urllib.parse.unquote(config.db)
+            url_connection = urllib.parse.unquote(config.db)
             if "connectTimeoutMS=" not in url_connection:
                 if "/?" in url_connection:
-                    url_connection+="&connectTimeoutMS=15000&socketTimeoutMS=15000"
+                    url_connection += "&connectTimeoutMS=15000&socketTimeoutMS=15000"
                 else:
                     url_connection += "/?connectTimeoutMS=15000&socketTimeoutMS=15000"
             __client__[db] = MongoClient(url_connection)
@@ -30,6 +33,8 @@ def __create_client__(db)->MongoClient:
         if __client__.get(db.host) is None:
             __client__[db.host] = MongoClient(**db.to_dict())
         return __client__[db.host]
+
+
 class DbCollection(Generic[T]):
     def __init__(self, cls, client: MongoClient, db_name: str):
         self.__cls__ = cls
@@ -78,7 +83,6 @@ class DbConnect:
             self.do_tracking(app_name)
         return DB(client=self.client, db_name=db_name)
 
-
     def set_tracking(self, is_tracking):
         self.__tracking__ = is_tracking
 
@@ -89,17 +93,17 @@ class DbConnect:
             db_context = db.doc(App)
 
             db_context.context.update(
-                db_context.fields.Name==app_name,
+                db_context.fields.Name == app_name,
                 {
                     "$inc": {
                         "AccessCount": 1
                     },
-                    "LatestAccess":datetime.datetime.utcnow()
+                    "LatestAccess": datetime.datetime.utcnow()
                 }
             )
+
         # threading.Thread(target=run,args=()).start()
         pass
-
 
 
 class __DbContext__:
@@ -120,8 +124,6 @@ class DbClient:
         global __client__
         self.config = config
         self.client = __create_client__(config.db)
-
-
 
         print("Create connection")
 
@@ -146,4 +148,3 @@ class Base:
 
     async def get_file_async(self, app_name: str, file_id):
         return await cy_docs.get_file_async(self.client, self.db_name(app_name), file_id)
-
