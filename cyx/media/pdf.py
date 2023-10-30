@@ -202,7 +202,7 @@ class PDFService:
             if not os.path.isdir(split_dir):
                 os.makedirs(split_dir, exist_ok=True)
 
-            inputpdf = PdfFileReader(open(pdf_file, "rb"))
+            inputpdf = PdfFileReader(stream=open(pdf_file, "rb"),strict=False)
             pdfs = []
             pdfs_files = []
             self.logger.info(f"detect searchable_pages{pdf_file}...")
