@@ -11,7 +11,7 @@ import typing
 @cy_docs.define(
     name="SYS_AdminLoggers",
     indexes=[
-        "CreatedOn", "LogType","PodName","PodFullName"
+        "CreatedOn", "LogType", "PodName", "PodFullName"
     ]
 )
 class sys_app_logs:
@@ -20,6 +20,7 @@ class sys_app_logs:
     LogType: str
     PodFullName: typing.Optional[str]
     PodName: typing.Optional[str]
+
 
 
 """
@@ -36,12 +37,14 @@ import cyx.common.cacher
 import traceback
 import slack.webhook
 from cyx.common import config
+import socket
+
 
 class LoggerService:
     def __init__(self, db_connect=cy_kit.inject(cyx.common.base.DbConnect)):
 
-
-
+        self.hostname = None
+        self.ip_address = None
         self.full_pod_name = None
         self.pod_name = None
         self.db_connect = db_connect
@@ -68,7 +71,7 @@ class LoggerService:
 
         # Add the file handler to the logger
         self.__logger__.addHandler(file_handler)
-        if hasattr(config,"logs_url"):
+        if hasattr(config, "logs_url"):
             self.slack_client = slack.webhook.WebhookClient(config.logs_url)
             __fulll_pod_name = self.get_fullname_of_pod()
             try:
@@ -81,8 +84,10 @@ class LoggerService:
                     self.slack_client.send(text=content)
                 except Exception as e:
                     print(content)
-                    self.slack_client=None
+                    self.slack_client = None
         # Log a message
+
+
 
     def get_mongo_db(self) -> cyx.common.base.DbCollection[sys_app_logs]:
         doc = self.db_connect.db("admin").doc(sys_app_logs)
@@ -90,8 +95,8 @@ class LoggerService:
 
     def info(self, txt):
         try:
-            if isinstance(txt,dict):
-                txt = json.dumps(txt,indent=1)
+            if isinstance(txt, dict):
+                txt = json.dumps(txt, indent=1)
             now = datetime.datetime.utcnow()
             print(f'[INFO][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {txt}')
             self.__logger__.info(txt)
@@ -111,26 +116,26 @@ class LoggerService:
         if self.pod_name is None:
             full_name = self.get_fullname_of_pod()
             items = full_name.split('-')
-            if len(items)>2:
+            if len(items) > 2:
                 self.pod_name = "-".join(items[:-2])
             else:
                 self.pod_name = full_name
         return self.pod_name
 
-    def error(self, ex,more_info=None):
+    def error(self, ex, more_info=None):
         try:
-            if isinstance(more_info,dict):
-                more_info = json.dumps(more_info,indent=1)
+            if isinstance(more_info, dict):
+                more_info = json.dumps(more_info, indent=1)
             now = datetime.datetime.utcnow()
             content = traceback.format_exc()
-            content =f"{more_info}/n/n-----------------{content}"
+            content = f"{more_info}/n/n-----------------{content}"
             print(f'[ERROR][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {content}')
 
             self.__logger__.exception("An exception occurred: %s", ex, exc_info=True)
             if self.slack_client is None:
                 self.write_to_mongodb(created_on=now, log_type="error", content=content)
             else:
-                slack_data= self.get_info_for_slack(traceback.format_exc(),more_info=more_info)
+                slack_data = self.get_info_for_slack(traceback.format_exc(), more_info=more_info)
 
                 self.slack_client.send(text=slack_data)
         except Exception as ex:
@@ -153,15 +158,15 @@ class LoggerService:
 
         threading.Thread(target=running, args=()).start()
 
-    def get_info_for_slack(self,content:str,more_info:dict=None)->str:
+    def get_info_for_slack(self, content: str, more_info: dict = None) -> str:
         ret = dict(
             pod=self.get_fullname_of_pod(),
             name=self.get_name_of_pod(),
             time=datetime.datetime.utcnow().strftime("%d/%m/%Y:%H:%M:%S"),
-            contents = content.split('\n'),
-            host_url=config.host_url
+            host_url=config.host_url,
+            contents=content.split('\n')
         )
-        if isinstance(more_info,dict):
-            ret["more_info"]=more_info
+        if isinstance(more_info, dict):
+            ret["more_info"] = more_info
         json_string = json.dumps(ret, indent=4)
         return json_string
