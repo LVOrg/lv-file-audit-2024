@@ -50,3 +50,42 @@ class DataMoveTanent(BaseModel):
     UploadIds: typing.List[str]
 class DataMoveTanentParam(BaseModel):
     Data: DataMoveTanent
+
+class FileContentSaveResult(BaseModel):
+    Data: dict|None
+    Error: dict|None
+
+class PrivilegesType(BaseModel):
+    Type: str|None
+    Values: str|None
+    """
+    Separated by comma
+    """
+class FileContentSaveData(BaseModel):
+    DocId: str|None
+    MetaData: dict|None
+    Privileges: typing.List[PrivilegesType]|None
+    Content: str|None
+class FileContentSaveArgs(BaseModel):
+    data: FileContentSaveData
+class ErrorInfo(BaseModel):
+    Code: typing.Optional[str]
+    Message: typing.Optional[str]
+
+
+class DataPrivileges(BaseModel):
+    UploadId: str
+    Privileges: typing.List[PrivilegesType]
+
+
+class Err(BaseModel):
+    message: str
+
+
+class AddPrivilegesResult(BaseModel):
+    is_ok: bool
+    error: typing.Optional[Err]
+
+class CloneFileResult(BaseModel):
+    Info: typing.Optional[dict]
+    Error: typing.Optional[ErrorInfo]

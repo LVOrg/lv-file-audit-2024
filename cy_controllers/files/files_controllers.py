@@ -3,6 +3,7 @@ import gc
 import typing
 import uuid
 
+import pydantic
 from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
@@ -48,8 +49,18 @@ from cyx.common.file_storage_mongodb import (
 from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
 from cy_controllers.models.files import (
-    FileUploadRegisterInfo,DataMoveTanent,DataMoveTanentParam
+    FileUploadRegisterInfo,
+    DataMoveTanent,
+    DataMoveTanentParam,
+    FileContentSaveData,
+    FileContentSaveResult,
+    CloneFileResult,
+    FileContentSaveArgs,
+    ErrorInfo,
+    AddPrivilegesResult,
+    PrivilegesType
 )
+
 import cy_web
 @controller.resource()
 class FilesController(BaseController):
@@ -162,5 +173,144 @@ class FilesController(BaseController):
             )
         )
         return obsever_id
+
+    @controller.router.post("/api/{app_name}/files/clone")
+    def clone_to_new(self,
+                     app_name: str,
+                     UploadId: typing.Annotated[str,Body(embed=True)]) -> CloneFileResult:
+
+
+
+        item = self.file_service.do_copy(app_name=app_name, upload_id=UploadId)
+
+        if item is None:
+            return CloneFileResult(
+                Error=pydantic.BaseModel(
+                    Code="fileNotFound",
+                    Message="File not found"
+
+                )
+            )
+        else:
+
+            return CloneFileResult(
+                Info=item.to_json_convertable()
+            )
+
+    @controller.router.post("/api/{app_name}/files/delete")
+    def files_delete(self,app_name: str, UploadId: typing.Annotated[str,Body(embed=True)]):
+        self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
+        return {}
+
+    @controller.router.post("/api/{app_name}/content/save")
+    def file_content_save(
+            self,
+            app_name: str,
+            args: FileContentSaveArgs):
+        """
+        Insert or update more data to UploadRegister<br/>
+        Chèn hoặc cập nhật thêm dữ liệu vào UploadRegister
+        :param app_name:
+        :param doc_id:
+        :param data:
+        :param token:
+        :return:
+        """
+        # from cy_xdoc.controllers.apps import check_app
+        # check_app(app_name)
+        data = args.data
+        if not data.DocId or data.DocId == "":
+            data.DocId = str(uuid.uuid4())
+
+        data_item =self.file_service.get_upload_register(
+            app_name=app_name,
+            upload_id=data.DocId,
+
+        )
+        if data_item and data.Privileges:
+            json_privilege = {}
+            for x in data.Privileges or []:
+                if json_privilege.get(x.Type.lower()):
+                    json_privilege[x.Type.lower()] += x.Values.split(',')
+                else:
+                    json_privilege[x.Type.lower()] = x.Values.split(',')
+            data_item["Privileges"] = json_privilege
+        else:
+            _source = self.search_engine.get_doc(
+                app_name=app_name,
+                id=data.DocId
+            )
+            _source_data_item = None
+            if _source:
+                _source_data_item = _source.source.data_item
+            fx = DocUploadRegister()
+
+            json_privilege = {}
+            for x in data.Privileges or []:
+                if json_privilege.get(x.Type.lower()):
+                    json_privilege[x.Type.lower()] += x.Values.split(',')
+                else:
+                    json_privilege[x.Type.lower()] = x.Values.split(',')
+
+            data_item = _source_data_item or {
+                "FileName": "Unknown",
+                "Status": 1,
+                "MarkDelete": False,
+                "RegisterOn": datetime.utcnow(),
+                "_id": data.DocId,
+                "SizeInBytes": 0,
+                "Privileges": json_privilege
+            }
+            if data.Privileges is not None:
+                data_item["Privileges"] = json_privilege
+
+        self.search_engine.update_content(
+            app_name=app_name,
+            content=data.Content,
+            data_item=data_item,
+            meta_info=data.MetaData,
+            id=data.DocId,
+            replace_content=True
+        )
+        data_item["Id"] = data.DocId
+        import cy_docs
+        return data_item.to_json_convertable() if isinstance(data_item, cy_docs.DocumentObject) else data_item
+
+    @controller.router.post("/api/{app_name}/files/content-re-process")
+    def file_content_re_process(
+            self,
+            app_name: str,
+            UploadIds: typing.List[str]= Body(embed=True)):
+        # from cy_xdoc.controllers.apps import check_app
+        # check_app(app_name)
+        ret = []
+        for UploadId in UploadIds:
+            upload_item = self.file_service.get_upload_register(app_name, upload_id=UploadId)
+            if upload_item:
+                try:
+                    self.msg_service.emit(
+                        app_name=app_name,
+                        message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                        data=upload_item
+                    )
+                    ret += [{
+                        "UploadId": UploadId,
+                        "Message": "Is in processing"
+                    }]
+                    self.logger_service.info(f"rais msg {cyx.common.msg.MSG_FILE_UPLOAD}")
+                except Exception as e:
+                    ret += [{
+                        "UploadId": UploadId,
+                        "Message": "Error broker"
+                    }]
+
+            else:
+                ret += [{
+                    "UploadId": UploadId,
+                    "Message": "Content was not found"
+                }]
+
+        return ret
+
 
 
