@@ -218,7 +218,7 @@ def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc")
 
 get_docs = cy_es_objective.get_docs
 create_mapping = cy_es_objective.create_mapping
-set_norms = cy_es_objective.set_norm
+set_norms = cy_es_objective.set_norms
 
 
 def create_mapping_meta(client: Elasticsearch, index: str, body):
@@ -266,12 +266,6 @@ def parse_expr(expr: str, suggest_handler=None) -> DocumentFields:
 
     )
     return ret
-
-
 delete_index = cy_es_objective.delete_index
-get_info = cy_es_objective.get_info
-get_version = cy_es_objective.get_version
-
-
 async def get_doc_async(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc"):
     return get_doc(client, index, id, doc_type)

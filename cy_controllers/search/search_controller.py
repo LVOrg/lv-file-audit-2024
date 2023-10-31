@@ -217,7 +217,7 @@ class SearchController(BaseController):
             logic_filter=logic_filter
         )
 
-        ret_items = self.files_content_search_utils.pack_list(
+        ret_items = self.pack_list(
             url=cy_web.get_host_url() + "/api",
             app_name=app_name,
             items=search_result.items
