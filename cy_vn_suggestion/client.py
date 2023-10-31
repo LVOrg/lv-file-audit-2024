@@ -14,7 +14,7 @@ def call_suggestion(txt: str) -> str:
     if __url__ is None:
         raise Exception(f"Please call {config_server}")
     import requests
-    response = requests.post(f"{__url__}/suggest", json.dumps(txt))
+    response = requests.post(f"{__url__}/suggest", json.dumps(txt),timeout=5)
     if response.status_code == 200:
         return json.loads(response.text)
     else:

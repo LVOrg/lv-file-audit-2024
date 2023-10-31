@@ -27,3 +27,5 @@ Vao file (neu khong co tao luon)
 
 sudo mount 172.16.13.72:/home/vmadmin/python/cy-py /from-172-16-13-72-cy-py
 sudo mount 172.16.7.99:/k8s-share $(pwd)/v-99
+systemctl status nfs-kernel-server (ubuntu)
+systemctl restart nfs-server (centos)
