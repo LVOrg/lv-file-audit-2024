@@ -63,7 +63,7 @@ from cy_controllers.models.files import (
 
 import cy_web
 @controller.resource()
-class FilesController(BaseController):
+class FilesPrivilegesController(BaseController):
     dependencies = [
         Depends(Authenticate)
     ]

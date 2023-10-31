@@ -62,73 +62,16 @@ sys.path.append(
 )
 from elasticsearch import Elasticsearch
 import typing
-import cy_es_x
 
-DocumentFields = cy_es_x.DocumentFields
-buiders = cy_es_x.docs
+import cy_es_json, cy_es_docs, cy_es_utils, cy_es_objective
 
+DocumentFields = cy_es_docs.DocumentFields
+buiders = cy_es_objective.docs
 
-def create_index(client: Elasticsearch, index: str, body=None):
-    """
-    Create new index if not exist
-    :param client:
-    :param index:
-    :param body:
-    :return:
-    """
-    return cy_es_x.create_index(
-        index=index,
-        body=body,
-        client=client
-    )
-
-
-def get_map_struct(client: Elasticsearch, index: str) -> dict:
-    """
-    get mapping of Elasticsearch index
-    :param client:
-    :param index:
-    :return:
-    """
-    return cy_es_x.get_map_struct(client, index)
-
-
-def select(
-        client: Elasticsearch,
-        index: str,
-        doc_type: str = "_doc",
-        fields=[],
-        filter: typing.Union[dict,DocumentFields] = None ,
-        sort=None,
-        skip=0,
-        limit=1000,
-        highlight_fields=None
-):
-    """
-    Select some field in Elasticsearch index \n
-    Chọn một số trường trong chỉ mục Elaticsearch
-    :param client:
-    :param index:
-    :param doc_type:
-    :param fields: List of fields Example ["a","b.c"]
-    :param filter:
-    :param sort:
-    :param skip:
-    :param limit:
-    :return:
-    """
-    return cy_es_x.select(
-        client=client,
-        index=index,
-        doc_type=doc_type,
-        filter=filter,
-        fields=fields,
-        sort=sort,
-        skip=skip,
-        limit=limit,
-        highlight_fields= highlight_fields
-    )
-
+create_index = cy_es_objective.create_index
+get_map_struct = cy_es_objective.get_map_struct
+get_map_struct = cy_es_objective.get_map_struct
+select = cy_es_objective.select
 
 __cache__settings_max_result_window___ = {}
 """
@@ -171,7 +114,7 @@ def search(client: Elasticsearch,
                                         "max_result_window": 50000000
                                     }})
         __cache__settings_max_result_window___[index] = True
-    return cy_es_x.search(
+    return cy_es_objective.search(
         client=client,
         index=index,
         excludes=excludes,
@@ -183,33 +126,31 @@ def search(client: Elasticsearch,
         logic_filter=logic_filter
     )
 
+
 async def search_async(client: Elasticsearch,
-           index: str,
-           filter,
-           excludes: typing.List[DocumentFields] = [],
-           skip: int = 0,
-           limit: int = 50,
-           highlight: DocumentFields = None,
-           sort=None,
-           doc_type="_doc",
-           logic_filter=None):
-    ret = asyncio.run(search(
+                       index: str,
+                       filter,
+                       excludes: typing.List[DocumentFields] = [],
+                       skip: int = 0,
+                       limit: int = 50,
+                       highlight: DocumentFields = None,
+                       sort=None,
+                       doc_type="_doc",
+                       logic_filter=None):
+    ret = search(
         client,
         index,
         filter,
         excludes,
         skip,
-        limit,highlight,sort,doc_type,logic_filter
-    ))
+        limit, highlight, sort, doc_type, logic_filter
+    )
     return ret
 
-def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> cy_es_x.ESDocumentObjectInfo:
-    return cy_es_x.get_doc(client, index, id, doc_type=doc_type)
 
-
-def delete_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc"):
-    return cy_es_x.delete_doc(client=client, index=index, id=id, doc_type=doc_type)
-
+get_doc = cy_es_objective.get_doc
+delete_doc = cy_es_objective.delete_doc
+create_doc = cy_es_objective.create_doc
 
 __check_mapping__ = {}
 
@@ -253,102 +194,21 @@ def __create_mapping_from_dict__(body):
     }
 
 
-ESDocumentObjectInfo = cy_es_x.ESDocumentObjectInfo
-def create_doc(client: Elasticsearch, index: str, id: str, body :typing.Optional[typing.Union[dict,ESDocumentObjectInfo]],
-               doc_type: str = "_doc") -> cy_es_x.ESDocumentObjectInfo:
+ESDocumentObjectInfo = cy_es_objective.ESDocumentObjectInfo
 
-
-    return cy_es_x.create_doc(
-        client=client,
-        index=index,
-        doc_type=doc_type,
-        body=body,
-        id=id
-    )
-
-
-match_phrase = cy_es_x.match_phrase
-match = cy_es_x.match
-query_string = cy_es_x.query_string
-
-
-def wildcard(field: DocumentFields, content: str):
-    """
-    :return:
-    """
-    """
-    "query": {
-          "bool": {
-              "should": [
-                {
-                  "wildcard": { "Field1": "*" + term + "*" }
-                },
-                {
-                  "wildcard": { "Field2": "*" + term + "*" }
-                }
-              ],
-              "minimum_should_match": 1
-          }
-      }
-    """
-    ret = DocumentFields()
-    __match_phrase__ = {
-        "wildcard": {
-            field.__name__: "*" + content + "*"
-        }
-    }
-
-    ret.__es_expr__ = {
-        "match_phrase": __match_phrase__
-    }
-
-    # ret.__es_expr__["boost"] = boost
-    return ret
-
-
-def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type: str = "_doc"):
-    """
-    Update document \n
-    Example: \n
-        cy_es.update_doc_by_id(
-                client=self.client,
-                index=self.get_index(app_name),
-                id=upload_id,
-                data=(
-                    cy_es.buiders.privileges << privileges,
-                    cy_es.buiders.meta_info << meta_info
-                )
-        )
-    :param client:
-    :param index:
-    :param id:
-    :param data:
-    :param doc_type:
-    :return:
-    """
-    return cy_es_x.update_doc_by_id(
-        client=client,
-        index=index,
-        id=id,
-        data=data,
-        doc_type=doc_type
-    )
-
-
-def nested(field_name: str, filter: dict):
-    return cy_es_x.nested(prefix=field_name, filter=filter)
-
-
-def create_filter_from_dict(filter: dict, suggest_handler=None):
-    if filter == {}:
-        return None
-    return cy_es_x.create_filter_from_dict(filter, suggest_handler=suggest_handler)
+match_phrase = cy_es_objective.match_phrase
+match = cy_es_objective.match
+query_string = cy_es_objective.query_string
+wildcard = cy_es_objective.wildcard
+update_doc_by_id = cy_es_objective.update_doc_by_id
+nested = cy_es_objective.nested
+create_filter_from_dict = cy_es_objective.create_filter_from_dict
 
 
 def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> bool:
-    if index=="True" or index==True:
+    if index == "True" or index == True:
         raise Exception("error index type")
-    return cy_es_x.is_exist(
+    return cy_es_objective.is_exist(
         client=client,
         index=index,
         id=id,
@@ -356,28 +216,13 @@ def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc")
     )
 
 
-def get_docs(client: Elasticsearch, index: str, doc_type: str = "_doc"):
-    return cy_es_x.get_docs(
-        client=client,
-        index=index,
-        doc_type=doc_type
-    )
-
-
-def create_mapping(fields: typing.List[cy_es_x.DocumentFields]):
-    return cy_es_x.create_mapping(fields)
-
-
-def set_norms(field: cy_es.buiders, field_type: str, enable: bool):
-    return cy_es_x.set_norms(
-        field=field,
-        enable=enable,
-        field_type=field_type
-    )
+get_docs = cy_es_objective.get_docs
+create_mapping = cy_es_objective.create_mapping
+set_norms = cy_es_objective.set_norm
 
 
 def create_mapping_meta(client: Elasticsearch, index: str, body):
-    ret = cy_es_x.put_mapping(
+    ret = cy_es_objective.put_mapping(
         client=client,
         index=index,
         body=body
@@ -386,109 +231,47 @@ def create_mapping_meta(client: Elasticsearch, index: str, body):
 
 
 def put_mapping(client: Elasticsearch, index: str, body):
-    ret = cy_es_x.put_mapping(
+    ret = cy_es_objective.put_mapping(
         client=client,
         index=index,
         body=body
     )
     client.indices.refresh(index=index)
 
+get_mapping = cy_es_objective.get_mapping
 
-def get_mapping(client, index):
-    return cy_es_x.get_mapping(
-        client, index
-    )
-
-
-def text_lower(filter):
-    return cy_es_x.text_lower(
-        filter
-    )
-
-
-def create_dict_from_key_path_value(field_path: str, value):
-    """
-    Ex: field_path="a.b.c" value:1 =>{a:{b:{c:1}}
-    :param field_path:
-    :param value:
-    :return:
-    """
-    return cy_es_x.create_dict_from_key_path_value(field_path, value)
+text_lower = cy_es_objective.text_lower
+create_dict_from_key_path_value = cy_es_objective.create_dict_from_key_path_value
+update_data_fields = cy_es_objective.update_data_fields
+update_by_conditional = cy_es_objective.update_by_conditional
+delete_by_conditional = cy_es_objective.delete_by_conditional
+is_content_text = cy_es_objective.is_content_text
+convert_to_vn_predict_seg = cy_es_objective.convert_to_vn_predict_seg
+natural_logic_parse = cy_es_objective.natural_logic_parse
 
 
-def update_data_fields(client: Elasticsearch, index: str, id: str, field_path=None, field_value=None, keys_values=None):
-    return cy_es_x.update_data_fields(
-        client=client,
-        index=index,
-        id=id,
-        field_path=field_path,
-        field_value=field_value,
-        keys_values=keys_values
-    )
-
-
-def update_by_conditional(
-        client: Elasticsearch, index: str,
-        data_update,
-        conditional,
-        doc_type="_doc"
-):
-    return cy_es_x.update_by_conditional(
-        client=client,
-        data_update=data_update,
-        conditional=conditional,
-        doc_type=doc_type,
-        index=index
-    )
-
-
-def delete_by_conditional(client, index, conditional, doc_type="_doc"):
-    return cy_es_x.delete_by_conditional(
-        client=client,
-        conditional=conditional,
-        index=index,
-        doc_type=doc_type
-    )
-
-
-import uuid
-
-
-def is_content_text(text):
-    return cy_es_x.is_content_text(text)
-
-
-def convert_to_vn_predict_seg(data, handler, segment_handler, clear_accent_mark_handler):
-    ret = cy_es_x.convert_to_vn_predict_seg(data, handler, segment_handler, clear_accent_mark_handler)
-    return ret
-
-
-def natural_logic_parse(expr):
-    ret = cy_es_x.natural_logic_parse(expr)
-    if not isinstance(ret, dict):
-        raise Exception(f"'{expr}' is incorrect syntax")
-    return ret
 
 async def natural_logic_parse_async(expr):
-    ret = await cy_es_x.natural_logic_parse_async(expr)
+    ret = await cy_es_objective.natural_logic_parse_async(expr)
     if not isinstance(ret, dict):
         raise Exception(f"'{expr}' is incorrect syntax")
     return ret
 
 
 def parse_expr(expr: str, suggest_handler=None) -> DocumentFields:
-    ret_dict = cy_es_x.natural_logic_parse(expr)
-    ret = cy_es_x.create_filter_from_dict(
+    ret_dict = cy_es_objective.natural_logic_parse(expr)
+    ret = cy_es_objective.create_filter_from_dict(
         expr=ret_dict,
         suggest_handler=suggest_handler,
 
     )
     return ret
 
-delete_index = cy_es_x.delete_index
-get_info  = cy_es_x.get_info
-get_version = cy_es_x.get_version
+
+delete_index = cy_es_objective.delete_index
+get_info = cy_es_objective.get_info
+get_version = cy_es_objective.get_version
 
 
 async def get_doc_async(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc"):
-    return await asyncio.run(get_doc(client,index,id,doc_type))
+    return get_doc(client, index, id, doc_type)

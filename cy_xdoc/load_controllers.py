@@ -17,6 +17,7 @@ from cy_controllers.files.files_content_controller import FilesContentController
 from cy_controllers.files.files_register_controller import FilesRegisterController
 from cy_controllers.search.search_controller import SearchController
 from cy_controllers.files.files_controllers import FilesController
+from cy_controllers.files.file_privileges_controller import FilesPrivilegesController
 from cyx.loggers import LoggerService
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
@@ -27,6 +28,7 @@ controllers_list=[
         FilesUploadController,
         FilesRegisterController,
         FilesController,
+        FilesPrivilegesController,
         SearchController,
         PagesController
 

@@ -50,6 +50,7 @@
       <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v7" />
       <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v8" />
       <excludeFolder url="file://$MODULE_DIR$/env_jobs_slim" />
+      <excludeFolder url="file://$MODULE_DIR$/test_code" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

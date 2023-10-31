@@ -1,0 +1,1016 @@
+from cy_es.cy_es_utils import (
+    get_info,
+    get_all_index,
+    get_version,
+    version,
+    __check_is_painless_expr__,
+    __make_up_es1__,
+    __make_up_es_syntax__,
+    __make_up_es_syntax_depriciate__,
+    __well_form__
+)
+from cy_es_data_parser import try_parse_date
+
+from cy_es_json import (
+    to_json_convertable,
+)
+import datetime, json
+class DocumentFields:
+    """
+    ElasticcSearch document gearing \n
+    Help Developer build ElasticSearch filter with real Python code
+    Example:
+        filter = (DocumentFields("my_doc")!=None) & (DocumentFields("my_doc").Code=="XYZ")
+        will generate
+        {
+                 "query": {
+                  "bool": {
+                   "must": [
+                    {
+                     "bool": {
+                      "must": {
+                       "exists": {
+                        "field": "MyDoc"
+                       }
+                      }
+                     }
+                    },
+                    {
+                     "term": {
+                      "MyDoc.Code": "xyz"
+                     }
+                    }
+                   ]
+                  }
+                 }
+    """
+
+    def __init__(self, name: str = None, is_bool=False):
+        self.__name__ = name
+        self.__es_expr__ = None
+        self.__is_bool__ = is_bool
+        self.__value__ = None
+        self.__has_set_value__ = None
+        self.__minimum_number_should_match__ = None
+        self.__norm__ = None
+        self.__type__ = None
+        self.__wrap_func__ = None
+        self.__highlight_fields__ = []
+        # self.is_equal = False
+
+    def get_highlight_fields(self):
+        ret = []
+        for x in self.__highlight_fields__:
+            ret += [DocumentFields(x)]
+        return ret
+
+    def set_type(self, str_type: str):
+        self.__type__ = str_type
+        return self
+
+    def set_norms(self, enable: bool):
+        """
+
+        :param enable:
+        :return:
+        """
+        """
+        "properties": {
+    "title": {
+      "type": "text",
+      "norms": false
+    }
+  }
+        """
+        self.__norm__ = enable
+        return self
+
+    def get_mapping(self):
+        return {
+            self.__name__:
+                dict(
+
+                    type=self.__type__,
+                    norms=self.__norm__
+                )
+        }
+
+    def set_minimum_should_match(self, value):
+        self.__minimum_number_should_match__ = value
+        self.__es_expr__["minimum_should_match"] = value
+
+        return self
+
+    def __neg__(self):
+        ret = DocumentFields()
+        ret.__es_expr__ = {"must_not": {"bool": {"filter": self.__es_expr__.get("filter") or self.__es_expr__}}}
+        ret.__is_bool__ = True
+        return ret
+
+    def startswith(self, item):
+        ret = DocumentFields()
+        if isinstance(item, str):
+            """
+            {
+                  "query": {
+                    "match_phrase": {
+                      "message": "this is a test"
+                    }
+                  }
+                }
+            """
+
+            ret.__es_expr__ = {
+                "regexp": {
+                    self.__name__: {
+                        "value": r"^" + item + ".*",
+                        "flags": "ALL"
+                    }
+                }
+            }
+            return ret
+        else:
+            raise Exception("Not support")
+
+    def endswith(self, item):
+        ret = DocumentFields()
+        if isinstance(item, str):
+            """
+            {
+                  "query": {
+                    "match_phrase": {
+                      "message": "this is a test"
+                    }
+                  }
+                }
+            """
+            item = __well_form__(item)
+            ret.__es_expr__ = {
+                "regexp": {
+                    self.__name__: f".*{item}$"
+                }
+            }
+            return ret
+        else:
+            raise Exception("Not support")
+
+    def __contains__(self, item):
+        special_characters = [
+            "+", "-", "=", "&&", "||", ">", "<",
+            "!" "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"
+        ]
+
+        ret = DocumentFields()
+        # self.__is_bool__ = True
+        if isinstance(item, str):
+            """
+            {
+                  "query": {
+                    "match_phrase": {
+                      "message": "this is a test"
+                    }
+                  }
+                }
+            """
+
+            field_name = self.__name__
+            boost_score = 0.0
+            query_value = ""
+            first=""
+            last=""
+            if "^" in field_name:
+                field_name = self.__name__.split("^")[0]
+                boost_score = float(self.__name__.split("^")[1])
+            src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().contains(params.item)"
+            if item[0] != '*' and item[-1] == '*':
+                query_value = item[:-1]
+                last="*"
+                src = f"(doc['{field_name}.keyword'].size()>0) && (doc['{field_name}.keyword'].value.toLowerCase().indexOf(params.item)==0)"
+            elif item[0] == '*' and item[-1] != '*':
+                query_value = item[1:-1]
+                first="*"
+                src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().endsWith(params.item)"
+            elif item[0] == '*' and item[-1] == '*':
+                first="*"
+                last="*"
+                query_value = item[1:-1]
+            else:
+                query_value = item
+            search_value=""
+            for x in query_value:
+                if x in special_characters:
+                    search_value += f"\\{x}"
+                else:
+                    search_value += x
+            # value
+            """
+            {
+                "bool": {
+                  "must": [
+                    {
+                      "query_string": {
+                        "query": "*dove*",
+                        "fields": [
+                          "field1",
+                          "Name"
+                        ]
+                      }
+                    },
+                    {
+                      "query_string": {
+                        "query": "*3.75oz*",
+                        "fields": [
+                          "field1",
+                          "Name"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            """
+
+            ret.__es_expr__ = {
+                "must": [
+                    {
+                        "constant_score": {
+                            "filter": {
+                                "script": {
+
+                                    "script": {
+
+                                        "source": f"return  {src};",
+                                        "lang": "painless",
+                                        "params": {
+                                            "item": item.lstrip('*').rstrip('*').lower()
+                                        }
+
+                                    }
+
+                                }
+                            },
+                            "boost": boost_score
+                        }
+                    }
+                ]
+            }
+            if first =="" and last=="":
+                first="*"
+                last="*"
+            ret.__es_expr__ = {
+                "must": {
+                    "query_string": {
+                        "query": f"{first}{search_value}{last}",
+                        "fields": [field_name],
+                        # "allow_leading_wildcard": True,
+                        # "boost": boost_score,
+                        # "analyze_wildcard": True
+
+                    },
+
+                },
+                # "score_mode": "max"
+            }
+            if boost_score > 0:
+                ret.__es_expr__["must"]["query_string"]["boost"] = boost_score
+            ret.__is_bool__ = True
+            fx_check_field = DocumentFields(field_name) != None
+            ret = fx_check_field & ret
+            ret.__highlight_fields__ += [field_name]
+
+            return ret
+        elif isinstance(item, list):
+            """
+            {
+              "filtered": {
+                "query": {
+                  "match": { "title": "hello world" }
+                },
+                "filter": {
+                  "terms": {
+                    "tags": ["c", "d"]
+                  }
+                }
+              }
+            }
+            """
+            # key_words = '+ - && || ! ( ) { } [ ] ^ " ~ * ? : \\'.split(' ')
+            # _item_ = []
+            # for x in item:
+            #     if isinstance(x,str):
+            #         t =''
+            #         for k in x:
+            #             if k in key_words:
+            #                 t+=f'\{k}'
+            #             else:
+            #                 t+=k
+            #
+            #         _item_+=[t]
+            #     else:
+            #         _item_ += [x]
+
+            # ret.__es_expr__ = {
+            #     "filter":{
+            #         "terms": {
+            #             self.__name__: _item_
+            #         },
+            #
+            #     }
+            # }
+            src = ""
+
+            for i in range(0, len(item)):
+                src += f"doc['{self.__name__}.keyword'].contains(params.items[{i}])\n && "
+            src = src.rstrip(' && ')
+            ret.__es_expr__ = {
+                "filter": {
+                    "script": {
+
+                        "script": {
+
+                            "source": f"return  {src};",
+                            "lang": "painless",
+                            "params": {
+                                "items": item
+                            }
+                        }
+                    }
+                }
+            }
+
+            ret.__is_bool__ = True
+            fx_check_field = DocumentFields(self.__name__) != None
+            return fx_check_field & ret
+        else:
+            raise Exception("Not support")
+
+    def contains(self, *args):
+        ret = DocumentFields()
+        values = args
+        if isinstance(values, tuple):
+            values = list(values)
+
+        self.__is_bool__ = True
+        ret.__es_expr__ = {
+            "terms": {
+                self.__name__: values
+            }
+        }
+        return ret
+
+    def __getattr__(self, item):
+        if item.lower() == "id":
+            item = "_id"
+        if self.__name__ is not None:
+            return DocumentFields(f"{self.__name__}.{item}")
+        return DocumentFields(item)
+
+    def __or__(self, other):
+        ret = DocumentFields()
+        if isinstance(other, DocumentFields):
+            if self.__wrap_func__:
+                left = {"bool": {"filter": self.__es_expr__}}
+            elif self.__is_bool__:
+
+                left = {"bool": self.__es_expr__}
+            else:
+                left = self.__es_expr__
+            if other.__wrap_func__:
+                right = {"bool": {"filter": other.__es_expr__}}
+            elif other.__is_bool__:
+
+                right = {"bool": other.__es_expr__}
+            else:
+                right = other.__es_expr__
+
+            ret.__es_expr__ = {
+                "should": [
+                    left, right
+                ]
+            }
+            ret.__is_bool__ = True
+            ret.__highlight_fields__ = list(set(self.__highlight_fields__ + other.__highlight_fields__))
+            return ret
+        elif isinstance(other, dict):
+            if not self.__is_bool__:
+
+                left = self.__es_expr__
+                right = other
+
+                ret.__es_expr__ = {
+                    "should": [
+                        left, right
+                    ]
+                }
+                ret.__is_bool__ = True
+                return ret
+            else:
+                left = {"bool": self.__es_expr__}
+                right = other
+                ret.__es_expr__ = {
+                    "must": [
+                        left, right
+                    ]
+                }
+                ret.__is_bool__ = True
+                return ret
+        else:
+            raise Exception("invalid expr")
+
+    def __and__(self, other):
+
+        ret = DocumentFields()
+        if isinstance(other, DocumentFields):
+            if self.__wrap_func__:
+                left = {"bool": {"filter": self.__es_expr__}}
+            elif self.__is_bool__:
+
+                left = {"bool": self.__es_expr__}
+            else:
+                left = self.__es_expr__
+            if other.__wrap_func__:
+                right = {"bool": {"filter": other.__es_expr__}}
+            elif other.__is_bool__:
+                right = {"bool": other.__es_expr__}
+            else:
+                right = other.__es_expr__
+
+            ret.__es_expr__ = {
+                "must": [
+                    left, right
+                ]
+            }
+            ret.__is_bool__ = True
+            ret.__highlight_fields__ = list(set(self.__highlight_fields__ + other.__highlight_fields__))
+            return ret
+        elif isinstance(other, dict):
+            if not self.__is_bool__:
+                left = self.__es_expr__
+                right = other
+                ret.__es_expr__ = {
+                    "must": [
+                        left, right
+                    ]
+                }
+                ret.__is_bool__ = True
+                return ret
+            else:
+                left = {"bool": self.__es_expr__}
+                right = other
+                ret.__es_expr__ = {
+                    "must": [
+                        left, right
+                    ]
+                }
+                ret.__is_bool__ = True
+                return ret
+        else:
+            raise Exception("invalid expr")
+
+
+
+    def __eq__(self, other):
+
+        date_val, is_ok = try_parse_date(other)
+        if is_ok:
+            other = date_val
+
+        if other is None:
+            ret = DocumentFields()
+            self.__is_bool__ = True
+
+            ret.__es_expr__ = {
+                "bool": {
+                    "must_not": {
+                        "exists": {
+                            "field": self.__name__
+                        }
+                    }
+                }
+            }
+            return ret
+        elif isinstance(other, str):
+            ret = DocumentFields()
+            src = f"doc['{self.__name__}.keyword'].value==params.item"
+
+            # value
+            ret.__es_expr__ = {
+                "filter": {
+                    "script": {
+
+                        "script": {
+
+                            "source": f"return  {src};",
+                            "lang": "painless",
+                            "params": {
+                                "item": other
+                            }
+                        }
+                    }
+                }
+            }
+            ret.__is_bool__ = True
+            fx_check_field = DocumentFields(self.__name__) != None
+            ret = fx_check_field & ret
+
+            return ret
+
+        elif type(other) in [int, float, datetime.datetime, bool]:
+
+            if __check_is_painless_expr__(self.__es_expr__):
+                key_name = self.__es_expr__["script"]["script"]['source']
+                self.__es_expr__["script"]["script"]['source'] = f"{key_name}==params.p"
+                self.__es_expr__["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            elif isinstance(self.__es_expr__,dict) and isinstance(self.__es_expr__.get("must"),list) and \
+                len(self.__es_expr__["must"])>1 and \
+                isinstance(self.__es_expr__["must"][1].get("bool"),dict) and \
+                 __check_is_painless_expr__(self.__es_expr__["must"][1]["bool"]["filter"]):
+                key_name = self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['source']
+                self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['source'] = f"{key_name}==params.p"
+                self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            else:
+                ret = DocumentFields()
+                ret.__es_expr__ = {
+                    "term": {
+                        self.__name__: other
+                    }
+                }
+                return ret
+        elif isinstance(other, list):
+            ret = DocumentFields()
+            ret.__es_expr__ = {
+                "terms": {
+                    self.__name__: other
+                }
+            }
+            return ret
+        else:
+
+            raise Exception(f"{other} is not int,float or datetime")
+
+    def __ne__(self, other):
+        """
+
+        :param other:
+        :return:
+        """
+        """
+        {
+            "query" : {
+                "constant_score" : {
+                    "filter" : {
+                        "bool": {
+                            "must": {"exists": {"field": "<your_field_name_here>"}},
+                            "must_not": {"term": {"<your_field_name_here>": ""}}
+                        }
+                    }
+                }
+            }
+        }
+        """
+        date_val, is_ok = try_parse_date(other)
+        if is_ok:
+            other = date_val
+        if other is None:
+            """
+            {
+              "query": {
+                "bool": {
+                  "must": {
+                    "exists": {
+                      "field": "myfield"
+                    }
+                  },
+                  "must_not": {
+                    "term": {
+                      "myfield.keyword": ""
+                    }
+                  }
+                }
+              }
+            }
+            """
+            ret = DocumentFields()
+            self.__is_bool__ = True
+
+            ret.__es_expr__ = {
+                "bool": {
+                    "must": {
+                        "exists": {
+                            "field": self.__name__
+                        }
+                    }
+                }
+            }
+            return ret
+        if isinstance(other, str):
+            ret = DocumentFields()
+            src = f"doc['{self.__name__}.keyword'].value!=params.item"
+
+            # value
+            ret.__es_expr__ = {
+                "filter": {
+                    "script": {
+
+                        "script": {
+
+                            "source": f"return  {src};",
+                            "lang": "painless",
+                            "params": {
+                                "item": other
+                            }
+                        }
+                    }
+                }
+            }
+            ret.__is_bool__ = True
+            fx_check_field = DocumentFields(self.__name__) != None
+            ret = fx_check_field & ret
+
+            return ret
+        else:
+            ret = DocumentFields()
+            if __check_is_painless_expr__(self.__es_expr__):
+                key_name = self.__es_expr__["script"]["script"]['source']
+                self.__es_expr__["script"]["script"]['source'] = f"{key_name}!=params.p"
+                self.__es_expr__["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            ret.__es_expr__ = {
+                "bool": dict(must_not=[{
+                    "term": {
+                        self.__name__: other
+
+                    }
+                }])
+            }
+            return ret
+
+    def __matmul__(self, other):
+        date_val, is_ok = try_parse_date(other)
+        if is_ok:
+            other = date_val
+        if other is None:
+            ret = DocumentFields()
+            self.__is_bool__ = True
+            # es_object = __make_up_es__(self.__name__, other)
+            ret.__es_expr__ = {
+                "bool": {
+                    "must_not": {
+                        "exists": {
+                            "field": self.__name__
+                        }
+                    }
+                }
+            }
+            return ret
+        elif isinstance(other, str):
+            ret = DocumentFields()
+            src = f"doc['{self.__name__}.keyword'].value==params.item"
+
+            # value
+            ret.__es_expr__ = {
+                "filter": {
+                    "script": {
+
+                        "script": {
+
+                            "source": f"return  {src};",
+                            "lang": "painless",
+                            "params": {
+                                "item": other
+                            }
+                        }
+                    }
+                }
+            }
+            ret.__is_bool__ = True
+            fx_check_field = DocumentFields(self.__name__) != None
+            ret = fx_check_field & ret
+
+            return ret
+        else:
+            ret = DocumentFields()
+            ret.__es_expr__ = {
+                "term": {
+                    self.__name__: other
+                }
+            }
+            return ret
+
+    def __lt__(self, other):
+        date_val, is_ok = try_parse_date(other)
+        if is_ok:
+            other = date_val
+        if type(other) in [int, float, datetime.datetime]:
+            ret = DocumentFields()
+            if __check_is_painless_expr__(self.__es_expr__):
+                key_name = self.__es_expr__["script"]["script"]['source']
+                self.__es_expr__["script"]["script"]['source'] = f"{key_name}<params.p"
+                self.__es_expr__["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            ret.__es_expr__ = {
+                "range": {
+                    self.__name__: {
+                        "lt": other
+                    }
+                }
+            }
+            return ret
+        else:
+            raise Exception(f"{other} is not int,float or datetime")
+
+    def __le__(self, other):
+        date_val, is_ok = try_parse_date(other)
+        if is_ok:
+            other = date_val
+        if type(other) in [int, float, datetime.datetime]:
+            ret = DocumentFields()
+            ret = DocumentFields()
+            if __check_is_painless_expr__(self.__es_expr__):
+                key_name = self.__es_expr__["script"]["script"]['source']
+                self.__es_expr__["script"]["script"]['source'] = f"{key_name}<=params.p"
+                self.__es_expr__["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            ret.__es_expr__ = {
+                "range": {
+                    self.__name__: {
+                        "lte": other
+                    }
+                }
+            }
+            return ret
+        else:
+            raise Exception(f"{other} is not int,float or datetime")
+
+    def __gt__(self, other):
+        date_val, is_ok = self.__try_parse_date__(other)
+        if is_ok:
+            other = date_val
+        if type(other) in [int, float, datetime.datetime]:
+            ret = DocumentFields()
+            if __check_is_painless_expr__(self.__es_expr__):
+                key_name = self.__es_expr__["script"]["script"]['source']
+                self.__es_expr__["script"]["script"]['source'] = f"{key_name}>params.p"
+                self.__es_expr__["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            ret.__es_expr__ = {
+                "range": {
+                    self.__name__: {
+                        "gt": other
+                    }
+                }
+            }
+            return ret
+        else:
+            raise Exception(f"{other} is not int,float or datetime")
+
+    def __ge__(self, other):
+        date_val, is_ok = self.__try_parse_date__(other)
+        if is_ok:
+            other = date_val
+        if type(other) in [int, float, datetime.datetime]:
+            ret = DocumentFields()
+            ret = DocumentFields()
+            if __check_is_painless_expr__(self.__es_expr__):
+                key_name = self.__es_expr__["script"]["script"]['source']
+                self.__es_expr__["script"]["script"]['source'] = f"{key_name}>=params.p"
+                self.__es_expr__["script"]["script"]['params'] = {
+                    "p": other
+                }
+                self.__is_bool__ = True
+                return self
+            ret.__es_expr__ = {
+                "range": {
+                    self.__name__: {
+                        "gte": other
+                    }
+                }
+            }
+            return ret
+        else:
+            raise Exception(f"{other} is not int,float or datetime")
+
+    def boost(self, value: float):
+        if isinstance(self.__es_expr__, dict):
+            self.__es_expr__["boost"] = value
+        return self
+
+    def __rshift__(self, other):
+        ret = DocumentFields()
+        ret.__es_expr__ = {
+            "filter": {
+                "simple_query_string": {
+                    "fields": [self.__name__],
+                    "query": other
+                }}
+        }
+        ret.__is_bool__ = True
+        return ret
+
+    def __lshift__(self, other):
+        if self.__name__ is None:
+            raise Exception("Thous can not update expression")
+        if other is not None:
+            if type(other) not in [str, int, float, bool, datetime.datetime, dict, list]:
+                raise Exception(
+                    f"Thous can not update by non primitive type. {type(other)} is not in [str,str,int,float,bool,datetime.datetime,dict,list]")
+        ret = DocumentFields(self.__name__)
+        ret.__value__ = other
+        ret.__has_set_value__ = True
+        return ret
+
+    def __repr__(self):
+        if isinstance(self.__es_expr__, dict):
+            jsonable = to_json_convertable(self.__get_expr__())
+            return json.dumps(jsonable, indent=1)
+        return self.__name__
+
+    def __get_expr__(self):
+        if isinstance(self.__es_expr__, dict):
+            if self.__es_expr__.get('script') and isinstance(self.__es_expr__['script'].get('script'), dict) and \
+                    self.__es_expr__['script']['script'].get('source'):
+                ret = {
+                    "bool": {
+                        "filter": self.__es_expr__
+                    }
+                }
+                return dict(query=ret)
+
+            ret = self.__es_expr__
+            if self.__name__ is not None:
+                return {
+                    "term": {
+                        self.__name__: {
+                            "value": self.__es_expr__
+                        }
+                    }
+                }
+            if self.__is_bool__:
+                ret = {
+                    "bool": ret
+                }
+
+            return dict(query=ret)
+        return self.__name__
+
+    def get_month(self):
+        self.__wrap_func__ = "get_day_of_month"
+
+        self.__es_expr__ = {
+            "script": {
+                "script": {
+                    "source": f"doc['{self.__name__}'].value.getMonthValue()",
+                    "lang": "painless"
+                }
+            }
+        }
+
+        return self
+
+    def sub_string(self, start, end):
+        self.__wrap_func__ = "sub_string"
+
+        self.__es_expr__ = {
+            "script": {
+                "script": {
+                    "source": f"doc['{self.__name__}'].value.substring({start},{end})",
+                    "lang": "painless"
+                }
+            }
+        }
+        return self
+
+    def starts_with(self, words: str):
+
+        """
+
+        :param words:
+        :return:
+        """
+        """
+            {
+              "query": {
+                "match_phrase_prefix": {
+                  "message": {
+                    "query": "quick brown f"
+                  }
+                }
+              }
+            }
+        """
+        item = __well_form__(words)
+        ret = DocumentFields()
+        # ret.__wrap_func__ = "index_of"
+        # ret.__is_bool__ = True
+        ret.__es_expr__ = {
+            "prefix": {
+                self.__name__: words
+            }
+
+        }
+
+        return ret
+
+    def get_day_of_month(self):
+        self.__wrap_func__ = "get_day_of_month"
+        self.__es_expr__ = {
+            "script": {
+                "script": {
+                    "source": f"doc['{self.__name__}'].value.getDayOfMonth()",
+                    "lang": "painless"
+                }
+            }
+        }
+
+        return self
+
+    def get_year(self):
+        self.__wrap_func__ = "getYear"
+        """
+         {
+              "query": {
+                "bool" : {
+                  "filter" : {
+                   "script" : {
+                      "script" : {
+                        "source": "doc['timestampstring'].value.getHour() == 5",
+                        "lang": "painless"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+        """
+        k = "['" + self.__name__.replace('.', "']['") + "']"
+        self.__es_expr__ = {
+            "script": {
+                "script": {
+                    "source": f"doc['{self.__name__}'].value.getYear()",
+                    "lang": "painless"
+                }
+            }
+        }
+
+        return self
+
+    def to_nested(self):
+
+        # ret = DocumentFields()
+        # """
+        # {
+        #   "query": {
+        #     "nested": {
+        #       "path": "items",
+        #       "query": {
+        #         "bool": {
+        #           "must": [
+        #             { "match": { "items.text": "car" }},
+        #             { "match": { "items.rank": 1 }}
+        #           ]
+        #         }
+        #       }
+        #     }
+        #   }
+        # }
+        #
+        # """
+        # ret.__es_expr__ = {
+        #     "filter":{
+        #     "nested":{
+        #         "path": self.__es_expr__['must']['query_string']['fields'][0],
+        #         "query":{
+        #             "bool":{
+        #                 "must":[
+        #                     { "match":                            self.__es_expr__['must']['query_string']['query'] }
+        #                 ]
+        #             }
+        #         }
+        #     }
+        #     }
+        # }
+        # ret.__is_bool__ = True
+        # ret.__highlight_fields__  =self.get_highlight_fields()
+        self.__es_expr__['must']['query_string']['fields'] = [
+            self.__es_expr__['must']['query_string']['fields'][0] + ".*"]
+        return self
