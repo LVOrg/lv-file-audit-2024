@@ -32,7 +32,7 @@ from typing import Annotated
 from fastapi.requests import Request
 import traceback
 import humanize
-
+from  cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 router = APIRouter()
 controller = Controller(router)
 import threading
@@ -44,6 +44,15 @@ from cyx.common.file_storage_mongodb import (
 
 from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
+
+
+async def get_main_file_id_async(fs):
+    st = datetime.datetime.utcnow()
+    ret = await fs.get_id_async()
+    n = (datetime.datetime.utcnow() - st).total_seconds()
+    print(f"get_main_file_id_async={n}")
+    return ret
+
 
 @controller.resource()
 class FilesUploadController(BaseController):
@@ -119,13 +128,6 @@ class FilesUploadController(BaseController):
         pushing_file_th.join()
         n= (datetime.datetime.utcnow()-st).total_seconds()
         print(f"push_file_to_temp_folder_async={n}")
-
-    async def get_main_file_id_async(self, fs):
-        st = datetime.datetime.utcnow()
-        ret = await fs.get_id_async()
-        n = (datetime.datetime.utcnow() - st).total_seconds()
-        print(f"get_main_file_id_async={n}")
-        return ret
 
     async def update_upload_status_async(self,
                                          app_name,
@@ -291,7 +293,7 @@ class FilesUploadController(BaseController):
                     Index =Index
                 )
 
-                upload_item.MainFileId = await self.get_main_file_id_async(fs)
+                upload_item.MainFileId = await get_main_file_id_async(fs)
 
                 await self.push_file_to_temp_folder_async(
                     app_name=app_name,
@@ -324,18 +326,25 @@ class FilesUploadController(BaseController):
 
             if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
                 upload_item["Status"] = 1
-                await self.update_search_engine_async(
-                    app_name=app_name,
-                    id=UploadId,
-                    content="",
-                    data_item=upload_item,
-                    update_meta=False
-                )
-                await self.post_msg_upload_file_async(
-                    app_name=app_name,
-                    upload_id=UploadId,
-                    data=upload_item
-                )
+                if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"),dict) and (
+                    upload_item["SkipActions"].get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,False) == False and
+                    upload_item["SkipActions"].get("All", False) == False
+                )):
+                    await self.update_search_engine_async(
+                        app_name=app_name,
+                        id=UploadId,
+                        content="",
+                        data_item=upload_item,
+                        update_meta=False
+                    )
+                if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"), dict) and (
+                        upload_item["SkipActions"].get("All", False) == False
+                )):
+                    await self.post_msg_upload_file_async(
+                        app_name=app_name,
+                        upload_id=UploadId,
+                        data=upload_item
+                    )
 
             size_uploaded += len(content_part)
             ret = cy_docs.DocumentObject()

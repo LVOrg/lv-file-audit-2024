@@ -11,6 +11,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
         IsPublic:true
     }
     meta_text = JSON.stringify({})
+    Options = {}
     async init(){
 
     }
@@ -61,6 +62,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
             return;
         }
         try {
+            debugger;
             var reg = await api.post(`${this.appName}/files/register`, {
                 Data: {
                     FileName: fileUpload.name,
@@ -70,7 +72,8 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
                     ThumbConstraints:"700,350,200,120",
                     Privileges: this.data.tags,
                     meta_data: meta_data
-                }
+                },
+                SkipOptions: this.Options
             });
             if (reg.Error) {
                 msgError(reg.Error.Message)

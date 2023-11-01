@@ -26,6 +26,7 @@ from cyx.loggers import LoggerService
 from cyx.cache_service.memcache_service import MemcacheServices
 
 from cyx.common.file_storage_mongodb import MongoDbFileService
+from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
@@ -177,7 +178,8 @@ class FileServices:
                             thumbs_support: str,
                             web_host_root_url: str,
                             privileges_type,
-                            meta_data: dict = None):
+                            meta_data: dict = None,
+                            skip_option: dict = None):
         return self.add_new_upload_info(
             app_name=app_name,
             client_file_name=client_file_name,
@@ -187,7 +189,8 @@ class FileServices:
             thumbs_support=thumbs_support,
             web_host_root_url=web_host_root_url,
             privileges_type=privileges_type,
-            meta_data=meta_data
+            meta_data=meta_data,
+            skip_option =skip_option
         )
 
     def add_new_upload_info(self,
@@ -199,7 +202,8 @@ class FileServices:
                             thumbs_support: str,
                             web_host_root_url: str,
                             privileges_type,
-                            meta_data: dict = None):
+                            meta_data: dict = None,
+                            skip_option: dict =None):
 
         server_file_name_only = ""
         for x in client_file_name:
@@ -255,6 +259,7 @@ class FileServices:
             cache_doc[doc.fields.Privileges ] =  privileges_server
             cache_doc[doc.fields.ClientPrivileges ] =  privileges_client
             cache_doc[doc.fields.meta_data ] =  meta_data
+            cache_doc[doc.fields.SkipActions] = skip_option
             self.cache_upload_register_set(
                 UploadId=id,
                 doc_data=cache_doc
@@ -299,7 +304,8 @@ class FileServices:
                         doc.fields.SizeInBytes << file_size,
                         doc.fields.Privileges << privileges_server,
                         doc.fields.ClientPrivileges << privileges_client,
-                        doc.fields.meta_data << meta_data
+                        doc.fields.meta_data << meta_data,
+                        doc.fields.SkipActions << skip_option
                     )
                 except Exception as e:
                     time.sleep(0.1)
@@ -339,13 +345,19 @@ class FileServices:
                     print(f"{str_date}: Insert data to Elastic Search Error {e}, ret-try {re_try_count + 1}")
                     re_try_count += 1
                     time.sleep(0.5)
-
-        th = threading.Thread(
-            target=search_engine_create_or_update_privileges,
-            args=()
-        )
-        st = datetime.datetime.utcnow()
-        th.start()
+        if (skip_option is None or
+                (isinstance(skip_option,dict) and (
+                        skip_option.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,False)==False and
+                        skip_option.get("All",False) ==False)
+        )):
+            th = threading.Thread(
+                target=search_engine_create_or_update_privileges,
+                args=()
+            )
+            st = datetime.datetime.utcnow()
+            th.start()
+        else:
+            st = datetime.datetime.utcnow()
 
 
         return cy_docs.DocumentObject(

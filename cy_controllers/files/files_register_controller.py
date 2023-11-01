@@ -79,9 +79,9 @@ class Error(BaseModel):
     """
     Thông tin chi tiết của lỗi
     """
-    Code: str
-    Message: str
-    Fields: typing.List[str]
+    Code: str|None
+    Message: str|None
+    Fields: typing.List[str]|None
 
 
 
@@ -152,6 +152,9 @@ class FilesRegisterController(BaseController):
             """
 
         privileges = Data.Privileges
+        skip_option={}
+        if SkipOptions:
+            skip_option = SkipOptions.dict()
         try:
             ret = await self.file_service.add_new_upload_info_async(
                 app_name=app_name,
@@ -162,7 +165,8 @@ class FilesRegisterController(BaseController):
                 thumbs_support=Data.ThumbConstraints,
                 web_host_root_url=cy_web.get_host_url(),
                 privileges_type=privileges,
-                meta_data=Data.meta_data
+                meta_data=Data.meta_data,
+                skip_option= skip_option
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
