@@ -31,7 +31,7 @@ class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
     """
-
+    
     def __init__(self,
                  file_storage_service: MongoDbFileService = cy_kit.singleton(
                      MongoDbFileService),
