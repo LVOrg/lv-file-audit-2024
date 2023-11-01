@@ -760,7 +760,7 @@ class DocumentFields:
             raise Exception(f"{other} is not int,float or datetime")
 
     def __gt__(self, other):
-        date_val, is_ok = self.__try_parse_date__(other)
+        date_val, is_ok = try_parse_date(other)
         if is_ok:
             other = date_val
         if type(other) in [int, float, datetime.datetime]:
@@ -785,7 +785,7 @@ class DocumentFields:
             raise Exception(f"{other} is not int,float or datetime")
 
     def __ge__(self, other):
-        date_val, is_ok = self.__try_parse_date__(other)
+        date_val, is_ok = try_parse_date(other)
         if is_ok:
             other = date_val
         if type(other) in [int, float, datetime.datetime]:

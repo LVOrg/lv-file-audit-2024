@@ -51,6 +51,8 @@
       <excludeFolder url="file://$MODULE_DIR$/env_jobs_mini_v8" />
       <excludeFolder url="file://$MODULE_DIR$/env_jobs_slim" />
       <excludeFolder url="file://$MODULE_DIR$/test_code" />
+      <excludeFolder url="file://$MODULE_DIR$/a_checking/resources" />
+      <excludeFolder url="file://$MODULE_DIR$/env_test" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

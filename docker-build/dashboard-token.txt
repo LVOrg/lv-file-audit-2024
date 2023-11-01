@@ -11,3 +11,4 @@ helm install prometheus-operator prometheus-community/prometheus-operator
 helm install [RELEASE_NAME] prometheus-community/kube-state-metrics [flags]
 helm install dev-metric prometheus-community/kube-state-metrics --namesapce=dev-metric
 
+#docker run -it --entrypoint=bash -v $(pwd):/a-working -v /usr/share/tesseract-ocr/5/tessdata:/usr/share/tesseract-ocr/5/tessdata clearlinux/tesseract-ocr

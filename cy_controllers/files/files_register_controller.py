@@ -93,7 +93,7 @@ class RegisterUploadInfoResult(BaseModel):
     Error: typing.Optional[Error]
 class RequestRegisterUploadInfo(BaseModel):
     Data:RegisterUploadInfo
-
+from cy_controllers.models.files import SkipFileProcessingOptions
 @controller.resource()
 class FilesRegisterController(BaseController):
     dependencies = [
@@ -103,7 +103,10 @@ class FilesRegisterController(BaseController):
     @controller.route.post(
         "/api/{app_name}/files/register", summary="register Upload file"
     )
-    async def register_async(self, app_name: str, Register: RequestRegisterUploadInfo) ->typing.Optional[RegisterUploadInfoResult]:
+    async def register_async(self,
+                             app_name: str,
+                             Data: RegisterUploadInfo,
+                             SkipOptions: typing.Optional[SkipFileProcessingOptions]=None) ->typing.Optional[RegisterUploadInfoResult]:
         """
             <p>
             <b>
@@ -147,7 +150,7 @@ class FilesRegisterController(BaseController):
             :param token:
             :return:
             """
-        Data = Register.Data
+
         privileges = Data.Privileges
         try:
             ret = await self.file_service.add_new_upload_info_async(

@@ -89,3 +89,33 @@ class AddPrivilegesResult(BaseModel):
 class CloneFileResult(BaseModel):
     Info: typing.Optional[dict]
     Error: typing.Optional[ErrorInfo]
+class SkipFileProcessingOptionVirtual(BaseModel):
+    All: bool|None = False
+    pass
+from  cyx.common.msg import (
+    MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
+    MSG_FILE_EXTRACT_TEXT_FROM_VIDEO,
+    MSG_FILE_GENERATE_THUMBS,
+    MSG_FILE_OCR_CONTENT,
+    MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
+)
+list_of_attrs=[
+    MSG_FILE_OCR_CONTENT,
+    MSG_FILE_GENERATE_THUMBS,
+    MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
+    MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
+]
+from pydantic.fields import ModelField
+SkipFileProcessingOptions = SkipFileProcessingOptionVirtual
+skip_all_field = SkipFileProcessingOptionVirtual.__dict__["__fields__"]["All"]
+for x in list_of_attrs:
+    x_name = x.replace(".","_")
+    x_field = ModelField(
+        name=x_name,
+        type_=bool,
+        required=False,
+        class_validators={},
+        model_config=skip_all_field.model_config,
+        default=False
+    )
+    SkipFileProcessingOptions.__dict__["__fields__"][x_name]=x_field

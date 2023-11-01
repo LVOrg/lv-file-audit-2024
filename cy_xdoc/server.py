@@ -33,11 +33,6 @@ from cyx.loggers import LoggerService
 logger = cy_kit.singleton(LoggerService)
 print(config)
 
-# if config.debug == False:
-# from  cyx.vn_predictor import VnPredictor
-# vn_predictor= cy_kit.singleton(VnPredictor)
-# fx=vn_predictor.get_text("Kiem tra tieng viet khong dau hello")
-# print(fx)
 from cyx.common.base import DbConnect
 
 cnn = cy_kit.singleton(DbConnect)
@@ -105,7 +100,7 @@ Server-Timing: miss, db;dur=53, app;dur=47.2"""
     return res
 
 
-cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
+# cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
 from cy_xdoc.load_controllers import load_controller
 load_controller(

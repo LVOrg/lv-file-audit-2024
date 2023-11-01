@@ -21,3 +21,4 @@ opencv-python==4.5.5.64
 grpcio-tools
 grpcio
 slackclient
+imageio[pyav]

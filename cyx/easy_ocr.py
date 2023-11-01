@@ -82,10 +82,10 @@ class EasyOCRService:
             results = self.reader.readtext(image_file, detail=0)
             ret_1 = "\n".join(results)
             _r = []
-            for x in results:
-                _r += [self.vn_predict.get_text(x)]
-
-            ret = " ".join(_r)
-            return ret + "\n" + ret_1
+            # for x in results:
+            #     _r += [self.vn_predict.get_text(x)]
+            #
+            # ret = " ".join(_r)
+            return ret_1
         else:
             return  ""

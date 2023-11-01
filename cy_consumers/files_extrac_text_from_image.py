@@ -58,7 +58,6 @@ class Process:
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         try:
             full_file = msg_info.Data.get("processing_file")
-            full_file =  f"/home/vmadmin/python/cy-py{full_file[4:]}"
             try_count = 5
             if not os.path.isfile(full_file):
                 while try_count > 0:
@@ -81,14 +80,10 @@ class Process:
 
 
             if not os.path.isfile(full_file):
-                # full_file = temp_file.get_path(
-                #     app_name=msg_info.AppName,
-                #     file_ext=msg_info.Data["FileExt"],
-                #     upload_id=msg_info.Data["_id"]
-                # )
+
                 if full_file is None:
                     msg.delete(msg_info)
-                    print(f"Generate pdf from {full_file}:\nfile was not found")
+                    self.logger.info(f"Generate pdf from {full_file}:\nfile was not found")
                     return
             print(f"Generate image form {full_file}")
             pdf_file = None

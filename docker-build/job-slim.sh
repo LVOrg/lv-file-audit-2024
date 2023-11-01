@@ -15,7 +15,7 @@ FROM docker.io/python:3.10.12-slim-bookworm
 COPY  ./../env_jobs_slim/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 RUN   apt update && apt install python3-opencv -y
 ">>$job_core_file
-job_core_tag=3
+job_core_tag=4
 job_core_tag_build="job.slim.libs."$(tag $job_core_tag)
 job_core_image=$repository/$image_name:$job_core_tag_build
 buildFunc $job_core_file $repository $image_name $job_core_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
