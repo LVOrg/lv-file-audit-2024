@@ -467,8 +467,23 @@ def must_implement(interface: type):
 __config_provider_cache__ = {}
 __config_provider_cache_lock__ = threading.Lock()
 
+import typing
 
-def config_provider(from_class: type, implement_class: type):
+import importlib
+
+
+def load_class_from_module_with_class_name(class_in_module: str) -> type:
+    items = class_in_module.split('.')
+    class_name = items[len(items) - 1]
+    module_name = class_in_module[:-len(class_name) - 1]
+    _module_ = importlib.import_module(module_name)
+    ret = getattr(_module_, class_name)
+    if not isinstance(ret, type):
+        raise Exception(f"{class_in_module} is not class")
+    return ret
+
+
+def config_provider(from_class: typing.Union[type, str], implement_class: typing.Union[type, str]):
     """
     config_provider will change any cy_instance with from_class to cy_instance with implement_class \n
     config_provider sẽ thay đổi bất kỳ cy_instance nào với from_class thành cy_instance với implement_class
@@ -490,16 +505,22 @@ def config_provider(from_class: type, implement_class: type):
     :param implement_class:
     :return:
     """
+    _from_class = from_class
+    _implement_class = implement_class
+    if isinstance(from_class, str):
+        _from_class = load_class_from_module_with_class_name(from_class)
+    if isinstance(_implement_class, str):
+        _implement_class = load_class_from_module_with_class_name(implement_class)
     global __config_provider_cache__
     global __config_provider_cache_lock__
-    if from_class == implement_class:
+    if _from_class == _implement_class:
         raise Exception(f"invalid config provider")
-    key = f"{from_class.__module__}/{from_class.__name__}"
+    key = f"{_from_class.__module__}/{_from_class.__name__}"
     if __config_provider_cache__.get(key) is not None:
         return
     with __config_provider_cache_lock__:
-        check_implement(from_class, implement_class)
-        __config_provider_cache__[key] = implement_class
+        check_implement(_from_class, _implement_class)
+        __config_provider_cache__[key] = _implement_class
 
 
 __lazy_cache__ = {}
@@ -786,8 +807,6 @@ import typing
 
 
 def loop_process(loop_data: typing.Union[range, list, set, tuple]):
-
-
     import multiprocessing as mp
     from threading import Thread
     def __wrapper__(func: typing.Callable):
@@ -796,7 +815,7 @@ def loop_process(loop_data: typing.Union[range, list, set, tuple]):
             ret = func(x)
             q.append(ret)
 
-        def __run__(use_thread = True):
+        def __run__(use_thread=True):
             if not use_thread:
                 ret = []
                 for row in loop_data:
@@ -880,9 +899,9 @@ def watch_forever(sleep_time=0.0001):
             data, check, running = func(*args, **kwargs)
             while (True):
                 if check(data):
-                    th = threading.Thread(target=running,args=(data,))
+                    th = threading.Thread(target=running, args=(data,))
                     th.start()
-                if sleep_time>0:
+                if sleep_time > 0:
                     time.sleep(sleep_time)
                 clean_up()
 

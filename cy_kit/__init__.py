@@ -131,7 +131,7 @@ def instance(cls: T) -> T:
     return cy_kit_x.resolve_scope(cls)
 
 
-def config_provider(from_class: type, implement_class: type):
+def config_provider(from_class: typing.Union[type,str], implement_class: typing.Union[type,str]):
     """
     config_provider will change any cy_instance with from_class to cy_instance with implement_class \n
     config_provider sẽ thay đổi bất kỳ cy_instance nào với from_class thành cy_instance với implement_class

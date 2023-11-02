@@ -31,7 +31,7 @@ class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
     """
-    
+
     def __init__(self,
                  file_storage_service: MongoDbFileService = cy_kit.singleton(
                      MongoDbFileService),
@@ -39,9 +39,9 @@ class FileServices:
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
                  logger=cy_kit.singleton(LoggerService),
-                 memcache_service = cy_kit.singleton(MemcacheServices)):
+                 memcache_service=cy_kit.singleton(MemcacheServices)):
 
-        self.file_storage_service =  file_storage_service
+        self.file_storage_service = file_storage_service
         self.search_engine = search_engine
         self.db_connect = db_connect
         self.cacher = cacher
@@ -122,7 +122,6 @@ class FileServices:
         except Exception as e:
             self.logger.error(e)
 
-
     def get_main_file_of_upload(self, app_name, upload_id):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
         if not upload:
@@ -169,17 +168,17 @@ class FileServices:
         # self.get_file(app_name, upload.ThumbFileId)
         return ret
 
-    async  def add_new_upload_info_async(self,
-                            app_name: str,
-                            client_file_name: str,
-                            is_public: bool,
-                            file_size: int,
-                            chunk_size: int,
-                            thumbs_support: str,
-                            web_host_root_url: str,
-                            privileges_type,
-                            meta_data: dict = None,
-                            skip_option: dict = None):
+    async def add_new_upload_info_async(self,
+                                        app_name: str,
+                                        client_file_name: str,
+                                        is_public: bool,
+                                        file_size: int,
+                                        chunk_size: int,
+                                        thumbs_support: str,
+                                        web_host_root_url: str,
+                                        privileges_type,
+                                        meta_data: dict = None,
+                                        skip_option: dict = None):
         return self.add_new_upload_info(
             app_name=app_name,
             client_file_name=client_file_name,
@@ -190,7 +189,7 @@ class FileServices:
             web_host_root_url=web_host_root_url,
             privileges_type=privileges_type,
             meta_data=meta_data,
-            skip_option =skip_option
+            skip_option=skip_option
         )
 
     def add_new_upload_info(self,
@@ -203,7 +202,7 @@ class FileServices:
                             web_host_root_url: str,
                             privileges_type,
                             meta_data: dict = None,
-                            skip_option: dict =None):
+                            skip_option: dict = None):
 
         server_file_name_only = ""
         for x in client_file_name:
@@ -221,6 +220,7 @@ class FileServices:
             app_name=app_name,
             privileges_type_from_client=privileges_type
         )
+
         def cahe_register():
             cache_doc = cy_docs.DocumentObject()
             cache_doc[doc.fields.id] = id
@@ -228,43 +228,46 @@ class FileServices:
             cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
             cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
             cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
-            cache_doc[doc.fields.FileExt ] =  os.path.splitext(client_file_name)[1].split('.')[1]
-            cache_doc[doc.fields.FullFileName ] =  f"{id}/{server_file_name_only}"
-            cache_doc[doc.fields.FullFileNameLower ] =  f"{id}/{server_file_name_only}".lower()
-            cache_doc[doc.fields.FullFileNameWithoutExtenstion ] =  f"{id}/{pathlib.Path(server_file_name_only).stem}"
-            cache_doc[doc.fields.FullFileNameWithoutExtenstionLower ] =  f"{id}/{pathlib.Path(server_file_name_only).stem}".lower()
-            cache_doc[doc.fields.ServerFileName ] =  f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
-            cache_doc[doc.fields.AvailableThumbSize ] =  thumbs_support
-            cache_doc[doc.fields.ChunkSizeInKB ] =  chunk_size / 1024
-            cache_doc[doc.fields.ChunkSizeInBytes ] =  chunk_size
-            cache_doc[doc.fields.NumOfChunks ] =  num_of_chunks
-            cache_doc[doc.fields.NumOfChunksCompleted ] =  0
-            cache_doc[doc.fields.SizeInHumanReadable ] =  humanize.filesize.naturalsize(file_size)
-            cache_doc[doc.fields.SizeUploaded ] =  0
-            cache_doc[doc.fields.ProcessHistories ] =  []
-            cache_doc[doc.fields.MimeType ] =  mime_type
-            cache_doc[doc.fields.IsPublic ] =  is_public
-            cache_doc[doc.fields.Status ] =  0
-            cache_doc[doc.fields.RegisterOn ] =  datetime.datetime.utcnow()
-            cache_doc[doc.fields.RegisterOnDays ] =  datetime.datetime.utcnow().day
-            cache_doc[doc.fields.RegisterOnMonths ] =  datetime.datetime.utcnow().month
-            cache_doc[doc.fields.RegisterOnYears ] =  datetime.datetime.utcnow().year
-            cache_doc[doc.fields.RegisterOnHours ] =  datetime.datetime.utcnow().hour
-            cache_doc[doc.fields.RegisterOnMinutes ] =  datetime.datetime.utcnow().minute
-            cache_doc[doc.fields.RegisterOnSeconds ] =  datetime.datetime.utcnow().second
-            cache_doc[doc.fields.RegisteredBy ] =  app_name
-            cache_doc[doc.fields.HasThumb ] =  False
-            cache_doc[doc.fields.LastModifiedOn ] =  datetime.datetime.utcnow()
-            cache_doc[doc.fields.SizeInBytes ] =  file_size
-            cache_doc[doc.fields.Privileges ] =  privileges_server
-            cache_doc[doc.fields.ClientPrivileges ] =  privileges_client
-            cache_doc[doc.fields.meta_data ] =  meta_data
+            cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
+            cache_doc[doc.fields.FullFileName] = f"{id}/{server_file_name_only}"
+            cache_doc[doc.fields.FullFileNameLower] = f"{id}/{server_file_name_only}".lower()
+            cache_doc[doc.fields.FullFileNameWithoutExtenstion] = f"{id}/{pathlib.Path(server_file_name_only).stem}"
+            cache_doc[
+                doc.fields.FullFileNameWithoutExtenstionLower] = f"{id}/{pathlib.Path(server_file_name_only).stem}".lower()
+            cache_doc[doc.fields.ServerFileName] = f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
+            cache_doc[doc.fields.AvailableThumbSize] = thumbs_support
+            cache_doc[doc.fields.ChunkSizeInKB] = chunk_size / 1024
+            cache_doc[doc.fields.ChunkSizeInBytes] = chunk_size
+            cache_doc[doc.fields.NumOfChunks] = num_of_chunks
+            cache_doc[doc.fields.NumOfChunksCompleted] = 0
+            cache_doc[doc.fields.SizeInHumanReadable] = humanize.filesize.naturalsize(file_size)
+            cache_doc[doc.fields.SizeUploaded] = 0
+            cache_doc[doc.fields.ProcessHistories] = []
+            cache_doc[doc.fields.MimeType] = mime_type
+            cache_doc[doc.fields.IsPublic] = is_public
+            cache_doc[doc.fields.Status] = 0
+            cache_doc[doc.fields.RegisterOn] = datetime.datetime.utcnow()
+            cache_doc[doc.fields.RegisterOnDays] = datetime.datetime.utcnow().day
+            cache_doc[doc.fields.RegisterOnMonths] = datetime.datetime.utcnow().month
+            cache_doc[doc.fields.RegisterOnYears] = datetime.datetime.utcnow().year
+            cache_doc[doc.fields.RegisterOnHours] = datetime.datetime.utcnow().hour
+            cache_doc[doc.fields.RegisterOnMinutes] = datetime.datetime.utcnow().minute
+            cache_doc[doc.fields.RegisterOnSeconds] = datetime.datetime.utcnow().second
+            cache_doc[doc.fields.RegisteredBy] = app_name
+            cache_doc[doc.fields.HasThumb] = False
+            cache_doc[doc.fields.LastModifiedOn] = datetime.datetime.utcnow()
+            cache_doc[doc.fields.SizeInBytes] = file_size
+            cache_doc[doc.fields.Privileges] = privileges_server
+            cache_doc[doc.fields.ClientPrivileges] = privileges_client
+            cache_doc[doc.fields.meta_data] = meta_data
             cache_doc[doc.fields.SkipActions] = skip_option
             self.cache_upload_register_set(
                 UploadId=id,
                 doc_data=cache_doc
             )
+
         cahe_register()
+
         def insert_register():
             retry_count = 0
             while retry_count < 10:
@@ -345,11 +348,12 @@ class FileServices:
                     print(f"{str_date}: Insert data to Elastic Search Error {e}, ret-try {re_try_count + 1}")
                     re_try_count += 1
                     time.sleep(0.5)
+
         if (skip_option is None or
-                (isinstance(skip_option,dict) and (
-                        skip_option.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,False)==False and
-                        skip_option.get("All",False) ==False)
-        )):
+                (isinstance(skip_option, dict) and (
+                        skip_option.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
+                        skip_option.get("All", False) == False)
+                )):
             th = threading.Thread(
                 target=search_engine_create_or_update_privileges,
                 args=()
@@ -358,7 +362,6 @@ class FileServices:
             th.start()
         else:
             st = datetime.datetime.utcnow()
-
 
         return cy_docs.DocumentObject(
             NumOfChunks=num_of_chunks,
@@ -677,19 +680,18 @@ class FileServices:
         )
 
     def cache_upload_register_set(self,
-                             UploadId:str,
-                             doc_data: cy_docs.DocumentObject):
+                                  UploadId: str,
+                                  doc_data: cy_docs.DocumentObject):
         ret = self.memcache_service.set_dict(
             key=UploadId,
-            data = doc_data.to_json_convertable(),
-            expiration = 30*60
+            data=doc_data.to_json_convertable(),
+            expiration=30 * 60
         )
         return ret
 
-    def cache_upload_register_get(self, upload_id:str)->typing.Optional[cy_docs.DocumentObject]:
+    def cache_upload_register_get(self, upload_id: str) -> typing.Optional[cy_docs.DocumentObject]:
         ret = self.memcache_service.get_dict(key=upload_id)
         if ret is None:
             return None
         ret_doc = cy_docs.DocumentObject(ret)
         return ret_doc
-

@@ -42,7 +42,7 @@ import socket
 
 class LoggerService:
     def __init__(self, db_connect=cy_kit.inject(cyx.common.base.DbConnect)):
-
+        self.is_debug = config.debug
         self.hostname = None
         self.ip_address = None
         self.full_pod_name = None
@@ -123,6 +123,8 @@ class LoggerService:
         return self.pod_name
 
     def error(self, ex, more_info=None):
+        if self.is_debug:
+            raise ex
         try:
             if isinstance(more_info, dict):
                 more_info = json.dumps(more_info, indent=1)

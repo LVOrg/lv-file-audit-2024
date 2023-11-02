@@ -168,3 +168,10 @@ broker:
 #  temp_directory: ./brokers/tmp-files
 cache_server: 172.16.7.99:30999
 logs_url: https://hooks.slack.com/services/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
+
+services:
+  - "cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService"
+  - "cyx.common.file_storage_mongodb.MongoDbFileStorage->cy_plugins.file_storage_hybrid.HybridFileStorage"
+  - "cyx.common.file_storage_mongodb.MongoDbFileReader->cy_plugins.files_storage_hybrid_reader.HybridReader"
+
+#services=cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService',
