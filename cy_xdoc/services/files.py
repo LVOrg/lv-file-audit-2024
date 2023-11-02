@@ -27,6 +27,8 @@ from cyx.cache_service.memcache_service import MemcacheServices
 
 from cyx.common.file_storage_mongodb import MongoDbFileService
 from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
+
+
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
@@ -206,7 +208,7 @@ class FileServices:
 
         server_file_name_only = ""
         for x in client_file_name:
-            if x in "!@#$%^&*()+<>?[]'\"~=+":
+            if x in "!@#$%^&*()+<>?[]:'\"~=+":
                 server_file_name_only += "_"
             else:
                 server_file_name_only += x
@@ -382,6 +384,15 @@ class FileServices:
     def get_upload_register(self, app_name: str, upload_id: str):
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
 
+    def get_find_upload_register_by_link_file_id(self, app_name: str, file_id: str):
+        context = self.db_connect.db(app_name).doc(DocUploadRegister).context
+        fields = self.db_connect.db(app_name).doc(DocUploadRegister).fields
+        id=bson.ObjectId(file_id)
+        ret = context.find_one(
+            (fields.MainFileId == id) | (fields.ThumbFileId == id) | (fields.OCRFileId==id)
+        )
+
+        return ret
     async def get_upload_register_async(self, app_name: str, upload_id: str):
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
 

@@ -166,7 +166,7 @@ broker:
   servers: 172.16.7.99:30992
   msg: xdoc
 #  temp_directory: ./brokers/tmp-files
-cache_server: 172.16.7.99:30999
+cache_server: 172.16.7.99:30211
 logs_url: https://hooks.slack.com/services/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
 
 services:
@@ -175,3 +175,4 @@ services:
   - "cyx.common.file_storage_mongodb.MongoDbFileReader->cy_plugins.files_storage_hybrid_reader.HybridReader"
 
 #services=cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService',
+file_storage_path: "./files"

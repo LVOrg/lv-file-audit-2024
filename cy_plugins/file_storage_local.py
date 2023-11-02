@@ -1,28 +1,69 @@
 import os.path
+import pathlib
+import typing
 
+import cy_kit
 from cyx.common.base import T
 from typing import List
 from cy_plugins.file_storage_hybrid import HybridFileStorage
 from cy_plugins.files_storage_hybrid_reader import HybridReader
 from cyx.common import config
+from cyx.common.base import DbConnect
+from cyx.cache_service.memcache_service import MemcacheServices
+from cyx.common.file_storage_mongodb import MongoDbFileService, MongoDbFileStorage
+from cy_xdoc.services.files import FileServices
+from cy_xdoc.models.files import DocUploadRegister
+from enum import Enum
+
+class StorageTypeEnum(Enum):
+  MONGO_DB = "MONGO_DB"
+  LOCAL = "LOCAL"
+
+class StorageTypeInfo:
+    storage_type: StorageTypeEnum
+    local_path: str
+
+
 class FileStorageService:
-    def __init__(self):
-        if not hasattr(config,"file_storage_path"):
+    def __init__(self,
+                 cacher=cy_kit.singleton(MemcacheServices),
+                 db_connect=cy_kit.singleton(DbConnect),
+                 file_services= cy_kit.singleton(FileServices)
+                 ):
+        self.cacher = cacher
+        self.db_connect = db_connect
+        self.mongo_file_service = MongoDbFileService()
+        self.file_services = file_services
+        if not hasattr(config, "file_storage_path"):
             raise Exception(f"file_storage_path was not found in config")
         self.file_storage_path = config.file_storage_path
-
+        self.working_dir = pathlib.Path(__file__).parent.parent.__str__()
+        if not isinstance(self.file_storage_path, str):
+            raise Exception(f"file_storage_path in config must be string")
+        if self.file_storage_path.startswith("./"):
+            self.file_storage_path = os.path.abspath(
+                os.path.join(
+                    self.working_dir,
+                    self.file_storage_path[2:]
+                )
+            )
         if not os.path.isdir(self.file_storage_path):
-            os.makedirs(self.file_storage_path,exist_ok=True)
+            os.makedirs(self.file_storage_path, exist_ok=True)
         if not os.path.isdir(self.file_storage_path):
             raise Exception(f"{self.file_storage_path} was not found")
 
-
-    def create_async(self, app_name: str, rel_file_path: str, content_type: str, chunk_size: int,
+    async def create_async(self, app_name: str, rel_file_path: str, content_type: str, chunk_size: int,
                      size) -> HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
-        raise NotImplemented
+        return  self.create(
+            app_name=app_name,
+            rel_file_path=rel_file_path,
+            content_type=content_type,
+            chunk_size=chunk_size,
+            size=size
+        )
 
     def delete_files_by_id(self, app_name: str, ids: List, run_in_thread: bool):
         """
@@ -47,7 +88,18 @@ class FileStorageService:
         """
         somehow to implement thy source here ...
         """
-        raise NotImplemented
+        return HybridFileStorage(
+            file_storage_path=self.file_storage_path,
+            app_name = app_name,
+            rel_file_path = rel_file_path,
+            content_type=content_type,
+            chunk_size=chunk_size,
+            size=size,
+            cacher= self.cacher,
+            file_services = self.file_services
+
+
+        )
 
     def store_file(self, app_name: str, source_file: str, rel_file_store_path: str) -> HybridFileStorage:
         """
@@ -95,17 +147,19 @@ class FileStorageService:
         """
         raise NotImplemented
 
-    def get_file_by_name_async(self, app_name, rel_file_path: str) -> HybridFileStorage:
+    async def get_file_by_name_async(self, app_name, rel_file_path: str) -> HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
-        raise NotImplemented
+        return self.get_file_by_name(app_name=app_name,rel_file_path=rel_file_path)
 
-    def get_file_by_id(self, app_name: str, id: str) -> HybridFileStorage:
-        """
-        somehow to implement thy source here ...
-        """
-        raise NotImplemented
+
+    def get_file_by_id(self, app_name: str, id: str) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
+        storage_info = self.__get_storage_type_by_app_and_id__(app_name,id)
+        if storage_info.storage_type == StorageTypeEnum.MONGO_DB:
+            return self.mongo_file_service.get_file_by_id(app_name, id)
+        else:
+            raise NotImplemented
 
     def expr(self, cls: T) -> T:
         """
@@ -113,11 +167,8 @@ class FileStorageService:
         """
         raise NotImplemented
 
-    def get_file_by_id_async(self, app_name: str, id: str) -> HybridFileStorage:
-        """
-        somehow to implement thy source here ...
-        """
-        raise NotImplemented
+    async def get_file_by_id_async(self, app_name: str, id: str) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
+        return self.get_file_by_id(app_name,id)
 
     def get_reader_of_file(self, app_name: str, from_chunk, id) -> HybridReader:
         """
@@ -125,8 +176,60 @@ class FileStorageService:
         """
         raise NotImplemented
 
-    def get_file_by_name(self, app_name, rel_file_path: str) -> HybridFileStorage:
-        """
-        somehow to implement thy source here ...
-        """
-        raise NotImplemented
+    def get_file_by_name(self, app_name, rel_file_path: str) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
+        storage_info = self.__get_storage_type_by_app_and_rel_path__(app_name,rel_file_path)
+        if storage_info.storage_type == StorageTypeEnum.MONGO_DB:
+            return self.mongo_file_service.get_file_by_name(app_name, rel_file_path)
+        else:
+            return HybridFileStorage(
+                app_name=app_name,
+                rel_file_path = rel_file_path,
+                content_type = None,
+                chunk_size =0,
+                size =0,
+                file_services = self.file_services,
+                cacher =self.cacher,
+                file_storage_path=self.file_storage_path
+
+
+            )
+
+    def __is_uuid__(self,str_value):
+        import re
+        regex = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+        return regex.match(str_value) is not None
+    def __get_storage_type_by_app_and_rel_path__(self, app_name, rel_file_path)->StorageTypeInfo:
+        key = f"{app_name}/{rel_file_path}".replace(" ","___")
+        ret = self.cacher.get_object(key,StorageTypeInfo)
+        if ret is None:
+            id = rel_file_path.split('/')[0]
+            if not self.__is_uuid__(id):
+                id = rel_file_path.split('/')[1]
+            upload = self.file_services.get_upload_register(app_name, id)
+            if upload is not None:
+                if upload.StoragePath is None:
+                    ret = StorageTypeInfo()
+                    ret.storage_type= StorageTypeEnum.MONGO_DB
+                    self.cacher.set_object(key,ret)
+                elif isinstance(upload.StoragePath,str) and upload.StoragePath.startswith("local://"):
+                    ret = StorageTypeInfo()
+                    ret.storage_type = StorageTypeEnum.LOCAL
+                    ret.local_path = upload.StoragePath[len("local://"):]
+                    self.cacher.set_object(key, ret)
+        return ret
+
+    def __get_storage_type_by_app_and_id__(self, app_name, main_id_file):
+        key = f"{app_name}/{id}".replace(" ", "___")
+        ret = self.cacher.get_object(key, StorageTypeInfo)
+        if ret is None:
+
+            upload = self.file_services.get_find_upload_register_by_link_file_id(app_name, main_id_file)
+            if upload is not None:
+                if upload.StoragePath is None:
+                    ret = StorageTypeInfo()
+                    ret.storage_type = StorageTypeEnum.MONGO_DB
+                    self.cacher.set_object(key, ret)
+        return ret
+
+
+

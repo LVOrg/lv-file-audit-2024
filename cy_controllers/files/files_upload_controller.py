@@ -140,14 +140,19 @@ class FilesUploadController(BaseController):
         upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
         n=(datetime.datetime.utcnow()-st).total_seconds()
         print(f"self.file_service.db_connect.db(app_name).doc(DocUploadRegister)={n}")
-
+        import bson
+        storage_path = f"local://{main_file_id}"
+        if not bson.is_valid(main_file_id.encode('utf8')):
+            main_file_id = None
         def update_process():
+
             upload_register_doc.context.update(
                 upload_register_doc.fields.Id == upload_id,
                 upload_register_doc.fields.SizeUploaded << size_uploaded,
                 upload_register_doc.fields.NumOfChunksCompleted << num_of_chunks_complete,
                 upload_register_doc.fields.Status << status,
                 upload_register_doc.fields.MainFileId << main_file_id,
+                upload_register_doc.fields.StoragePath << storage_path
                 # upload_register_doc.fields.FileModuleController << file_controller
 
             )
@@ -167,6 +172,7 @@ class FilesUploadController(BaseController):
         data["NumOfChunksCompleted"] = num_of_chunks_complete
         data["status"] = status
         data["MainFileId"] = main_file_id
+        data["MainFileId"] = storage_path
         self.file_service.cache_upload_register_set(
             UploadId = upload_id,
             doc_data = data

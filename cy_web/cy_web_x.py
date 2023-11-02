@@ -1662,6 +1662,8 @@ async def streaming_async(fsg, request, content_type, streaming_buffering=1024 *
     else:
         if hasattr(fsg, "delegate"):
             content = __send_bytes_range_requests_async__(fsg, start, end, streaming_buffering)
+        elif hasattr(fsg, "__delegate__"):
+            content = __send_bytes_range_requests_async__(fsg, start, end, streaming_buffering)
         elif hasattr(fsg, "get_cursor") and callable(fsg.get_cursor):
             content = __read_chunks_iter__(fsg, start, end)
         else:

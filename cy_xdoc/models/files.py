@@ -337,3 +337,10 @@ class DocUploadRegister:
     BrokerMsgUploadIsOk: typing.Optional[bool]
     ReRunMessage: typing.Optional[bool]
     SkipActions: typing.Optional[typing.List[str]]
+    StoragePath: typing.Optional[str]
+    """
+    if Null : in mongbdb
+    else base on format
+    s3://<url path> 
+    local://<relative local path 
+    """
