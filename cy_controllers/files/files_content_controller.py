@@ -63,7 +63,11 @@ class FilesContentController(BaseController):
             return Response(
                 status_code=404
             )
-        content = fs.read(fs.get_size())
+        import inspect
+        if inspect.iscoroutinefunction(fs.read):
+            content = await fs.read(fs.get_size())
+        else:
+            content = fs.read(fs.get_size())
         fs.seek(0)
         cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
         del content
@@ -78,7 +82,7 @@ class FilesContentController(BaseController):
         cache_dir = self.file_cacher_service.get_path(os.path.join(app_name, "images"))
 
         upload_id = directory.split('/')[0]
-        upload = self.file_service.get_upload_register(app_name, upload_id)
+        upload = self.file_service.get_upload_register_with_cache(app_name, upload_id)
         if upload is None:
             from fastapi import Response
             response = Response(content="Resource not found", status_code=404)
@@ -117,7 +121,14 @@ class FilesContentController(BaseController):
             from fastapi.responses import Response
             return Response(status_code=401)
         if mime_type.startswith('image/'):
-            content = fs.read(fs.get_size())
+
+            import  inspect
+            if inspect.iscoroutinefunction(fs.read):
+                content = await fs.read(fs.get_size())
+            else:
+                content =  fs.read(fs.get_size())
+
+
             fs.seek(0)
             cy_web.cache_content(cache_dir, directory.replace('/', '_'), content)
             del content
@@ -220,7 +231,7 @@ class FilesContentController(BaseController):
         """
         UploadId = data.UploadId
         doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
-        upload_info = doc_context.context @ UploadId
+        upload_info = self.file_service. doc_context.context @ UploadId
         if upload_info is None:
             return None
         upload_info.UploadId = upload_info._id

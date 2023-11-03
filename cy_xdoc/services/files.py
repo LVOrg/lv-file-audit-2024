@@ -422,6 +422,7 @@ class FileServices:
         if upload.MainFileId is not None: delete_file_list_by_id = [str(upload.MainFileId)]
         if upload.OCRFileId is not None: delete_file_list_by_id += [str(upload.OCRFileId)]
         if upload.ThumbFileId is not None: delete_file_list_by_id += [str(upload.ThumbFileId)]
+        delete_file_list += [upload.StoragePath]
         self.file_storage_service.delete_files(app_name=app_name, files=delete_file_list, run_in_thread=True)
         self.file_storage_service.delete_files_by_id(app_name=app_name, ids=delete_file_list_by_id, run_in_thread=True)
         self.search_engine.delete_doc(app_name, upload_id)

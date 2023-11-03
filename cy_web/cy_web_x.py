@@ -1363,23 +1363,24 @@ def cache_content(relative_folder: str, file_name, content: bytes) -> str:
     global web_application
     global __cache_content_dict__
     if isinstance(web_application, WebApp):
-        cache_file_name = os.path.splitext(file_name)[1]
-        file_name_id = file_name.split('_')[0]
-        file_name = f"{file_name_id}.{cache_file_name}"
-
         key = f"{relative_folder}/{file_name}".lower()
+        # cache_file_name = os.path.splitext(file_name)[1]
+        # file_name_id = file_name.split('_')[0]
+        # file_name = f"{file_name_id}.{cache_file_name}"
+
+
 
         if not __cache_content_dict__.get(key):
-            with __cache_content_dict_lock__:
-                file_cache = os.path.join(web_application.cache_folder, relative_folder.replace('/', os.sep))
-                if not os.path.isdir(file_cache):
-                    os.makedirs(file_cache, exist_ok=True)
-                file_cache = os.path.join(file_cache, file_name)
-                if not os.path.isfile(file_cache):
-                    with open(file_cache, "wb") as f:
-                        f.write(content)
 
-                __cache_content_dict__[key] = file_cache
+            file_cache = os.path.join(web_application.cache_folder, relative_folder.replace('/', os.sep))
+            if not os.path.isdir(file_cache):
+                os.makedirs(file_cache, exist_ok=True)
+            file_cache = os.path.join(file_cache, file_name)
+            if not os.path.isfile(file_cache):
+                with open(file_cache, "wb") as f:
+                    f.write(content)
+
+            __cache_content_dict__[key] = file_cache
 
     return __cache_content_dict__[key]
 

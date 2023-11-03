@@ -141,11 +141,22 @@ class FileStorageService:
         """
         raise NotImplemented
 
-    def delete_files(self, app_name, files: List, run_in_thread: bool):
+    def delete_files(self, app_name, files: List[str], run_in_thread: bool):
+        for x in files or []:
+            if x is None:
+                continue
+            if self.__is_uuid__(x) or not x.startswith("local://"):
+                self.mongo_file_service.delete_files_by_id(app_name=app_name,ids=[x],run_in_thread=True)
+            elif x.startswith("local://"):
+                rel_path = x[len("local://"):]
+                delete_file_path = os.path.join(self.file_storage_path,rel_path)
+                if os.path.isfile(delete_file_path):
+                    os.remove(delete_file_path)
+
         """
         somehow to implement thy source here ...
         """
-        raise NotImplemented
+
 
     async def get_file_by_name_async(self, app_name, rel_file_path: str) -> HybridFileStorage:
         """
