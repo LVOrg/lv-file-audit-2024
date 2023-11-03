@@ -1,5 +1,6 @@
 import os.path
 import pathlib
+import threading
 import typing
 
 import cy_kit
@@ -65,11 +66,7 @@ class FileStorageService:
             size=size
         )
 
-    def delete_files_by_id(self, app_name: str, ids: List, run_in_thread: bool):
-        """
-        somehow to implement thy source here ...
-        """
-        raise NotImplemented
+
 
     def get_file_async(self, app_name: str, file_id):
         """
@@ -146,17 +143,39 @@ class FileStorageService:
             if x is None:
                 continue
             if self.__is_uuid__(x) or not x.startswith("local://"):
-                self.mongo_file_service.delete_files_by_id(app_name=app_name,ids=[x],run_in_thread=True)
+                self.mongo_file_service.delete_files_by_id(app_name=app_name,ids=[x],run_in_thread=run_in_thread)
             elif x.startswith("local://"):
                 rel_path = x[len("local://"):]
                 delete_file_path = os.path.join(self.file_storage_path,rel_path)
                 if os.path.isfile(delete_file_path):
-                    os.remove(delete_file_path)
+                    th_os_delete = threading.Thread(target= os.remove,args=(delete_file_path,))
+                    if run_in_thread:
+                        th_os_delete.start()
+                    else:
+                        th_os_delete.run()
+
 
         """
         somehow to implement thy source here ...
         """
-
+    def delete_files_by_id(self, app_name: str, ids: List, run_in_thread: bool):
+        """
+        somehow to implement thy source here ...
+        """
+        for x in ids or []:
+            if x is None:
+                continue
+            if self.__is_uuid__(x) or not x.startswith("local://"):
+                self.mongo_file_service.delete_files_by_id(app_name=app_name, ids=[x], run_in_thread=run_in_thread)
+            elif x.startswith("local://"):
+                rel_path = x[len("local://"):]
+                delete_file_path = os.path.join(self.file_storage_path, rel_path)
+                if os.path.isfile(delete_file_path):
+                    th_os_delete = threading.Thread(target= os.remove, args=(delete_file_path,))
+                    if run_in_thread:
+                        th_os_delete.start()
+                    else:
+                        th_os_delete.run()
 
     async def get_file_by_name_async(self, app_name, rel_file_path: str) -> HybridFileStorage:
         """

@@ -1450,7 +1450,7 @@ def __send_bytes_range_requests__(
 
             yield data
 
-
+import inspect
 async def __send_bytes_range_requests_async__(
         file_obj, start: int, end: int, chunk_size: int = 10_000
 ):
@@ -1463,8 +1463,10 @@ async def __send_bytes_range_requests_async__(
     pos = file_obj.tell()
     while len(data) > 0:
         read_size = min(chunk_size, end + 1 - pos)
-        data = await file_obj.read(read_size)
-
+        if inspect.iscoroutinefunction(file_obj.read):
+            data = await file_obj.read(read_size)
+        else:
+            data = file_obj.read(read_size)
         yield data
 
 
@@ -1662,7 +1664,11 @@ async def streaming_async(fsg, request, content_type, streaming_buffering=1024 *
 
     else:
         if hasattr(fsg, "delegate"):
-            content = __send_bytes_range_requests_async__(fsg, start, end, streaming_buffering)
+            if hasattr(fsg,"__init_delegate__") and callable(fsg.__init_delegate__):
+                fsg.__init_delegate__()
+                content = __send_bytes_range_requests_async__(fsg.delegate, start, end, streaming_buffering)
+            else:
+                content = __send_bytes_range_requests_async__(fsg, start, end, streaming_buffering)
         elif hasattr(fsg, "__delegate__"):
             content = __send_bytes_range_requests_async__(fsg, start, end, streaming_buffering)
         elif hasattr(fsg, "get_cursor") and callable(fsg.get_cursor):

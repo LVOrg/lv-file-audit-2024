@@ -175,4 +175,4 @@ services:
   - "cyx.common.file_storage_mongodb.MongoDbFileReader->cy_plugins.files_storage_hybrid_reader.HybridReader"
 
 #services=cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService',
-file_storage_path: "./files"
+file_storage_path: "/mnt/from-192-168-18-36"
