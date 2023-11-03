@@ -20,21 +20,26 @@ class HybridFileStorage:
         self.file_services: FileServices = file_services
         self.cacher: MemcacheServices = cacher
         self.file_storage_path = file_storage_path
-        self.id= self.__get_full_path_by_app_and_rel_path__(app_name, rel_file_path)
-        self.full_dir = os.path.join(
-                self.file_storage_path,self.id
-        )
-        self.filename = os.path.split(rel_file_path)[1]
-        self.full_path = os.path.join(self.full_dir,self.filename)
-        if not os.path.isdir(self.full_dir):
-            os.makedirs(self.full_dir,exist_ok=True)
-        self.full_id =  os.path.join(self.id,self.filename)
-        if hasattr(config,"stream_buffering_size_in_KB") and isinstance(config.stream_buffering_size_in_KB,int):
-            self.chunk_size = config.stream_buffering_size_in_KB
-        else:
-            print("Warning: stream_buffering_size_in_KB not found in config.yml, run default with 64KB")
-            self.chunk_size = 1024*64
+        if not rel_file_path.startswith("local://"):
+            self.id= self.__get_full_path_by_app_and_rel_path__(app_name, rel_file_path)
 
+            self.full_dir = os.path.join(
+                    self.file_storage_path,self.id
+            )
+            self.filename = os.path.split(rel_file_path)[1]
+            self.full_path = os.path.join(self.full_dir,self.filename)
+            if not os.path.isdir(self.full_dir):
+                os.makedirs(self.full_dir,exist_ok=True)
+            self.full_id =  os.path.join(self.id,self.filename)
+            if hasattr(config,"stream_buffering_size_in_KB") and isinstance(config.stream_buffering_size_in_KB,int):
+                self.chunk_size = config.stream_buffering_size_in_KB
+            else:
+                print("Warning: stream_buffering_size_in_KB not found in config.yml, run default with 64KB")
+                self.chunk_size = 1024*64
+        else:
+            self.id= rel_file_path[len("local://"):]
+            self.full_id = self.id
+            self.full_path = os.path.join(self.file_storage_path,self.full_id)
         self.delegate = None
 
 

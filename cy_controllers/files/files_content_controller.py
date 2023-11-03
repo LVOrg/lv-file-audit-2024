@@ -231,7 +231,7 @@ class FilesContentController(BaseController):
         """
         UploadId = data.UploadId
         doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
-        upload_info = self.file_service. doc_context.context @ UploadId
+        upload_info = doc_context.context @ UploadId
         if upload_info is None:
             return None
         upload_info.UploadId = upload_info._id

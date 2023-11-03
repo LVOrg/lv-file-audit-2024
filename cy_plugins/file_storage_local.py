@@ -3,8 +3,7 @@ import pathlib
 import shutil
 import threading
 import typing
-
-
+from asynchat import simple_producer
 
 import cy_kit
 from cyx.common.base import T
@@ -235,11 +234,22 @@ class FileStorageService:
 
 
     def get_file_by_id(self, app_name: str, id: str) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
-        storage_info = self.__get_storage_type_by_app_and_id__(app_name,id)
-        if storage_info.storage_type == StorageTypeEnum.MONGO_DB:
-            return self.mongo_file_service.get_file_by_id(app_name, id)
+        # storage_info = self.__get_storage_type_by_app_and_id__(app_name,id)
+        if isinstance(id,str) and id.startswith("local://"):
+            ret = HybridFileStorage(
+                file_storage_path=self.file_storage_path,
+                app_name=app_name,
+                rel_file_path=id,
+                content_type=None,
+                chunk_size=0,
+                size=0,
+                file_services=self.file_services,
+                cacher= self.cacher,
+
+            )
+            return ret
         else:
-            raise NotImplemented
+            return self.mongo_file_service.get_file_by_id(app_name, id)
 
     def expr(self, cls: T) -> T:
         """
