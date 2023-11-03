@@ -8,3 +8,4 @@ secret*
 /ansible/elasticsearch-one-nod/
 /docker-build/test/
 /tmp/
+/files/

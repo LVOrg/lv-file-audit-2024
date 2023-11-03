@@ -49,6 +49,8 @@ cy_app_web = cy_web.create_web_app(
 
 )
 
+from fastapi import HTTPException
+
 
 cy_web.add_cors(["*"])
 from starlette.concurrency import iterate_in_threadpool
@@ -59,7 +61,7 @@ async def codx_integrate(request: fastapi.Request, next):
     res = await next(request)
     return res
 
-
+from  fastapi.responses import JSONResponse
 @cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     try:
@@ -90,6 +92,12 @@ async def estimate_time(request: fastapi.Request, next):
             res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
             return res
         res = await apply_time(res)
+    except FileNotFoundError as e:
+        logger.error(e, more_info= dict(
+            url= request.url.path
+        ))
+        return JSONResponse(status_code=404, content={"detail": "Resource not found"})
+
     except Exception as e:
         logger.error(e)
         raise e
