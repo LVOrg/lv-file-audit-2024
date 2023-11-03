@@ -48,8 +48,9 @@ RUN rm -fr /app/cy_vn_suggestion/data
 COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
+COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cyx /app/cyx">>$web_api_file
-web_api_tag=15
+web_api_tag=18
 web_api_tag_build="api.apps."$(tag $web_api_core_tag).$web_api_tag
 web_api_image=web:"apps".$web_api_core_tag_build
 buildFunc $web_api_file $repository $image_name $web_api_tag_build "python:3.10-alpine" "alpine"

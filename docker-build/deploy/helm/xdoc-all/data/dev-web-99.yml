@@ -77,7 +77,7 @@ config:
     server: 'rabitmq-service.lv-broker'
     #Broker server
 #    temp_directory: /app/share-storage
-    msg: v99
+    msg: v99-dev
   workers: auto
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
@@ -93,6 +93,10 @@ storage:
   # Thou may check by "stat /var/nfs_share_dir_for_k8s"
   #
   name: xdoc-storage
+storage_files:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files
 
 
 storage_longhorn:

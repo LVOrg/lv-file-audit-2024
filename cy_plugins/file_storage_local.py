@@ -1,7 +1,10 @@
 import os.path
 import pathlib
+import shutil
 import threading
 import typing
+
+
 
 import cy_kit
 from cyx.common.base import T
@@ -98,11 +101,58 @@ class FileStorageService:
 
         )
 
-    def store_file(self, app_name: str, source_file: str, rel_file_store_path: str) -> HybridFileStorage:
+    def store_file(self, app_name: str, source_file: str, rel_file_store_path: str) -> typing.Union[HybridFileStorage,MongoDbFileStorage]:
         """
         somehow to implement thy source here ...
         """
-        raise NotImplemented
+        id = rel_file_store_path.split('/')[1]
+        if not self.__is_uuid__(id):
+            return self.mongo_file_service.store_file(
+                app_name,
+                source_file=source_file,
+                rel_file_store_path=rel_file_store_path
+            )
+        else:
+            upload = self.file_services.get_upload_register_with_cache(
+                app_name = app_name,
+                upload_id= id
+            )
+            doc_type="unknown"
+            if upload.get("FileExt"):
+                doc_type=upload["FileExt"][0:3]
+            register_on = upload.RegisterOn
+            filename = os.path.split(source_file)[1]
+            locate_path = os.path.join(
+                app_name,
+                f"{register_on.year}",
+                f"{register_on.month:02}",
+                f"{register_on.day:02}",
+                doc_type,
+                id,
+                filename
+            )
+            full_path = os.path.join(self.file_storage_path, locate_path)
+
+            full_dir = pathlib.Path(full_path).parent.__str__()
+
+            if not os.path.isdir(full_dir):
+                os.makedirs(full_dir,exist_ok=True)
+            shutil.move(source_file, full_dir)
+        hybrid_rel_file_store_path = os.path.join(pathlib.Path(rel_file_store_path).parent.__str__(),pathlib.Path(rel_file_store_path).stem)
+        ret = HybridFileStorage(
+            file_storage_path=self.file_storage_path,
+            app_name=app_name,
+            rel_file_path=rel_file_store_path,
+            content_type=None,
+            chunk_size=0,
+            size=0,
+            cacher=self.cacher,
+            file_services=self.file_services
+
+        )
+        ret.id = locate_path
+        ret.full_id = locate_path
+        return ret
 
     def db_name(self, app_name: str):
         """

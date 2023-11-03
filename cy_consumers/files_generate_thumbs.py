@@ -4,6 +4,8 @@ import sys
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
+sys.path.append("/app")
+import cyx.framewwork_configs
 import os.path
 import pathlib
 
@@ -44,7 +46,8 @@ class Process:
             full_file = msg_info.Data.get("processing_file", temp_file.get_path(
                 app_name=msg_info.AppName,
                 upload_id=msg_info.Data["_id"],
-                file_ext=msg_info.Data["FileExt"]
+                file_ext=msg_info.Data["FileExt"],
+                file_id=msg_info.Data.get("MainFileId")
 
             ))
             if not os.path.isfile(full_file):

@@ -665,8 +665,8 @@ class FileServices:
         )
 
     def update_main_thumb_id(self, app_name, upload_id, main_thumb_id):
-        if isinstance(main_thumb_id, str):
-            main_thumb_id = bson.ObjectId(main_thumb_id)
+        if isinstance(main_thumb_id, str) and not main_thumb_id.startswith("local://"):
+            main_thumb_id = bson.ObjectId(main_thumb_id.encode())
         doc_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         doc_context.context.update(
             doc_context.fields.id == upload_id,

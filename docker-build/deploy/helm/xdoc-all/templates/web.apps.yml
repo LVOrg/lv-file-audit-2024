@@ -10,6 +10,7 @@
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
       {{ $storage := $data.storage}}
+      {{ $storage_files := $data.storage_files -}}
       {{ $cache := $data.cache -}}
       {{ $msg := $data.msg -}}
     {{ $dataJson := toPrettyJson $api -}}
@@ -60,6 +61,12 @@ spec:
             server: {{$storage.server}}
             path: {{$storage.directory}}
           {{end}}
+        {{ if $storage_files }}
+        - name: {{$storage_files.name}}
+          nfs:
+            server: {{$storage_files.server}}
+            path: {{$storage_files.directory}}
+        {{end}}
       containers:
         - args:
             - python3
@@ -83,6 +90,10 @@ spec:
             - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
             - vn_suggest_url=$(vn_suggest_url)
             - tika_server=$(tika_server)
+            - file_storage_path=/mnt/files
+            {{if not $storage_files}}
+            - services=""
+            {{end}}
           image: {{ $globalVar.images.web}}
           envFrom:
             - configMapRef:
@@ -92,6 +103,10 @@ spec:
           volumeMounts:
             - mountPath:  {{$api.mountPath}}
               name: {{$storage.name}}
+            {{ if $storage_files }}
+            - mountPath: /mnt/files
+              name: {{$storage_files.name}}
+            {{end}}
           ports:
             - containerPort: 80
 ---

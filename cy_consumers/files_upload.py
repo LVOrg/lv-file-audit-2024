@@ -41,6 +41,7 @@ import time
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
+import cyx.framewwork_configs
 import cy_kit
 import cyx.common.msg
 from cyx.common.msg import MessageService, MessageInfo
@@ -105,10 +106,12 @@ class Process:
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         try:
+
             full_file_path = temp_file.get_path(
                 app_name=msg_info.AppName,
                 file_ext=msg_info.Data["FileExt"],
-                upload_id=msg_info.Data["_id"]
+                upload_id=msg_info.Data["_id"],
+                file_id = msg_info.Data.get("MainFileId")
             )
             self.logger.info(f"msg={self.message_type}, upload_file={full_file_path}")
             """

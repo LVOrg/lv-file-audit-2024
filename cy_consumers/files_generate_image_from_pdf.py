@@ -35,7 +35,8 @@ class Process:
             full_file = temp_file.get_path(
                 app_name=msg_info.AppName,
                 file_ext=msg_info.Data["FileExt"],
-                upload_id=msg_info.Data["_id"]
+                upload_id=msg_info.Data["_id"],
+                file_id = msg_info.Data.get("MainFileId")
 
             )
             self.logger.info(f"Generate image form {full_file}")

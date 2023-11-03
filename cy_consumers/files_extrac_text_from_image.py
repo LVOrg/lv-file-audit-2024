@@ -66,7 +66,8 @@ class Process:
                     full_file = self.temp_file.get_path(
                         app_name=msg_info.AppName,
                         file_ext=msg_info.Data["FileExt"],
-                        upload_id=msg_info.Data["_id"]
+                        upload_id=msg_info.Data["_id"],
+                        file_id = msg_info.Data.get("MainFileId")
                     )
                     if not os.path.isfile(full_file):
                         time.sleep(10)

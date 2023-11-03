@@ -50,7 +50,7 @@ class HybridFileStorage:
             id = rel_file_path.split('/')[0]
             if not self.__is_uuid__(id):
                 id = rel_file_path.split('/')[1]
-            upload = self.file_services.get_upload_register(app_name, id)
+            upload = self.file_services.get_upload_register_with_cache(app_name, id)
             if upload is not None:
                 register_on = upload.RegisterOn
                 if isinstance(register_on, datetime.datetime):
@@ -110,7 +110,7 @@ class HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
-        return self.full_id
+        return f"local://{self.full_id}"
 
     def push_async(self, content: bytes, chunk_index):
         """

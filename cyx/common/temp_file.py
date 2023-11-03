@@ -38,6 +38,7 @@ import gridfs.errors
 
 import cy_kit
 import cyx.common
+from cyx.common import config
 from cyx.loggers import LoggerService
 from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
 from cy_xdoc.services.files import FileServices
@@ -142,7 +143,7 @@ class TempFiles:
         """
         return self.__tem_path__
 
-    def get_path(self, app_name, upload_id, file_ext,sync_file_if_not_exit=True) -> str:
+    def get_path(self, app_name, upload_id, file_ext,file_id: str,sync_file_if_not_exit=True) -> str:
         """
         Get Full path file in tenant with root temporary directory in get_root_dir()
         Example: get_path( app_name ='my-app',upload_id='123',file_ext='txt')
@@ -156,6 +157,14 @@ class TempFiles:
         :param file_ext:
         :return:
         """
+        if isinstance(file_id, str) and file_id.startswith("local://"):
+            full_file_path = file_id[len("local://"):]
+            if not hasattr(config, "file_storage_path"):
+                self.logger.error(Exception("It look like you forget set config.file_storage_path"))
+            full_file_path = os.path.join(config.file_storage_path, full_file_path)
+            return full_file_path
+
+
         import gridfs.errors
         app_dir = os.path.join(self.__tem_path__, app_name)
         if not os.path.isdir(app_dir):

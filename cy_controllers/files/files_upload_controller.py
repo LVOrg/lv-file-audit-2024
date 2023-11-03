@@ -13,6 +13,8 @@ from fastapi import (
     UploadFile,
     Form, File
 )
+
+import bson
 from cy_xdoc.auths import Authenticate
 import cy_kit
 from cy_xdoc.services.files import FileServices
@@ -301,12 +303,14 @@ class FilesUploadController(BaseController):
 
                 upload_item.MainFileId = await get_main_file_id_async(fs)
 
-                await self.push_file_to_temp_folder_async(
-                    app_name=app_name,
-                    content=content_part,
-                    upload_id=UploadId,
-                    file_ext=upload_item[upload_register_doc.fields.FileExt]
-                )
+                main_file_id = upload_item.MainFileId
+                if not upload_item.MainFileId.startswith("local://"):
+                    await self.push_file_to_temp_folder_async(
+                        app_name=app_name,
+                        content=content_part,
+                        upload_id=UploadId,
+                        file_ext=upload_item[upload_register_doc.fields.FileExt]
+                    )
 
 
 
@@ -315,20 +319,20 @@ class FilesUploadController(BaseController):
                     app_name=app_name,
                     rel_file_path=server_file_name
                 )
-
-                await self.push_file_async(
-                    app_name = app_name,
-                    upload_id=UploadId,
-                    fs = fs,
-                    content_part = content_part,
-                    Index =Index
-                )
-                await self.push_temp_file_async(
-                    app_name=app_name,
-                    content=content_part,
-                    upload_id=UploadId,
-                    file_ext=upload_item[upload_register_doc.fields.FileExt]
-                )
+                if not upload_item.MainFileId.startswith("local://"):
+                    await self.push_file_async(
+                        app_name = app_name,
+                        upload_id=UploadId,
+                        fs = fs,
+                        content_part = content_part,
+                        Index =Index
+                    )
+                    await self.push_temp_file_async(
+                        app_name=app_name,
+                        content=content_part,
+                        upload_id=UploadId,
+                        file_ext=upload_item[upload_register_doc.fields.FileExt]
+                    )
 
             if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
                 upload_item["Status"] = 1
@@ -388,10 +392,11 @@ class FilesUploadController(BaseController):
                 UploadId = UploadId,
                 Index = Index
             ))
+            import traceback
             ret =  UploadFilesChunkInfoResult()
             ret.Error = ErrorResult()
             ret.Error.Code="System"
-            ret.Error.Message = type(ex)
+            ret.Error.Message = str(type(ex))
             return ret
 
 
