@@ -466,35 +466,34 @@ class FileServices:
             item[document_context.fields.MainFileId] = new_fsg.get_id()
         else:
             item[document_context.fields.MainFileId] = bson.ObjectId(new_fsg.get_id())
+            if item.HasThumb:
+                thumb_file_id = item.ThumbFileId
+                if thumb_file_id is not None:
+                    thumb_fsg = self.file_storage_service.copy_by_id(
+                        app_name=app_name,
+                        rel_file_path_to=f"/thumb/{item.id}/{item[document_context.fields.FileName]}.webp".lower(),
+                        file_id_to_copy=thumb_file_id,
+                        run_in_thread=True
+                    )
+                    item.ThumbFileId = bson.ObjectId(thumb_fsg.get_id())
+                    item.RelUrlThumb = f"api/{app_name}/thumb/{item.UploadId}/{item.FileName.lower()}.webp"
+                    item.UrlThumb = f"{cy_web.get_host_url()}/{item.RelUrlThumb}"
+            if item.HasOCR:
+                ocr_file_id = item.OCRFileId
+                if ocr_file_id:
+                    item.RelUrlOCR = f"api/{app_name}/file-ocr/{item.UploadId}/{item.FileName.lower()}.pdf"
+                    item.UrlOCR = f"{cy_web.get_host_url()}/api/{item.RelUrlOCR}"
+                    rel_path_to_ocr = f"file-ocr/{item.UploadId}/{item.FileName.lower()}.pdf"
+                    ocr_fsg = self.file_storage_service.copy_by_id(
+                        app_name=app_name,
+                        file_id_to_copy=ocr_file_id,
+                        rel_file_path_to=rel_path_to_ocr,
+                        run_in_thread=True
+
+                    )
+                    item.OCRFileId = bson.ObjectId(ocr_fsg.get_id())
         item.RelUrl = f"api/{app_name}/{item.id}/{item.FileName.lower()}"
         item.FullUrl = f"{cy_web.get_host_url()}/api/{app_name}/{item.UploadId}/{item.FileName.lower()}"
-        if item.HasThumb:
-            thumb_file_id = item.ThumbFileId
-            if thumb_file_id is not None:
-                thumb_fsg = self.file_storage_service.copy_by_id(
-                    app_name=app_name,
-                    rel_file_path_to=f"/thumb/{item.id}/{item[document_context.fields.FileName]}.webp".lower(),
-                    file_id_to_copy=thumb_file_id,
-                    run_in_thread=True
-                )
-                item.ThumbFileId = bson.ObjectId(thumb_fsg.get_id())
-                item.RelUrlThumb = f"api/{app_name}/thumb/{item.UploadId}/{item.FileName.lower()}.webp"
-                item.UrlThumb = f"{cy_web.get_host_url()}/{item.RelUrlThumb}"
-        if item.HasOCR:
-            ocr_file_id = item.OCRFileId
-            if ocr_file_id:
-                item.RelUrlOCR = f"api/{app_name}/file-ocr/{item.UploadId}/{item.FileName.lower()}.pdf"
-                item.UrlOCR = f"{cy_web.get_host_url()}/api/{item.RelUrlOCR}"
-                rel_path_to_ocr = f"file-ocr/{item.UploadId}/{item.FileName.lower()}.pdf"
-                ocr_fsg = self.file_storage_service.copy_by_id(
-                    app_name=app_name,
-                    file_id_to_copy=ocr_file_id,
-                    rel_file_path_to=rel_path_to_ocr,
-                    run_in_thread=True
-
-                )
-                item.OCRFileId = bson.ObjectId(ocr_fsg.get_id())
-
         @cy_kit.thread_makeup()
         def copy_thumbs(app_name: str, to_id: str, thumbs_list: typing.List[str]):
             for x in thumbs_list:
@@ -511,11 +510,23 @@ class FileServices:
         item.Status = 1
 
         item.ThumbHeight = 700
-        item.ThumbId = None
         data_insert = document_context.fields.reduce(item, skip_require=False)
         data_insert.MainFileId = item.MainFileId
+
+        if not new_fsg.get_id().startswith("local://"):
+            item.ThumbId = None
+            copy_thumbs(app_name=app_name, to_id=data_insert._id, thumbs_list=item.AvailableThumbs or []).start()
+        else:
+            if isinstance(item.OCRFileId,str):
+                data_insert.OCRFileId = item.OCRFileId.replace(f"/{upload_id}/", f"/{item.id}/")
+            if isinstance(item.ThumbFileId,str):
+                data_insert.ThumbFileId = item.ThumbFileId.replace(f"/{upload_id}/", f"/{item.id}/")
+            if isinstance(item.AvailableThumbs,list):
+                data_insert.AvailableThumbs=[
+                    x.replace(f"/{upload_id}/", f"/{item.id}/") for x in item.AvailableThumbs
+                ]
+
         ret = document_context.context.insert_one(data_insert)
-        copy_thumbs(app_name=app_name, to_id=data_insert._id, thumbs_list=item.AvailableThumbs or []).start()
         return data_insert
 
     def update_privileges(self, app_name: str, upload_id: str, privileges: typing.List[cy_docs.DocumentObject]):

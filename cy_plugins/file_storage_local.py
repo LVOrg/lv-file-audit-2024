@@ -169,7 +169,7 @@ class FileStorageService:
                 :return:
                         """
         if not file_id_to_copy.startswith("local://"):
-            self.mongo_file_service.copy_by_id(
+            return self.mongo_file_service.copy_by_id(
                 app_name=app_name,
                 file_id_to_copy=file_id_to_copy,
                 rel_file_path_to=rel_file_path_to,
@@ -192,10 +192,12 @@ class FileStorageService:
 
             @cy_kit.thread_makeup()
             def process(s: HybridFileStorage, d: HybridFileStorage):
-                if os.path.isfile(s.full_path):
-                    full_des_dir = pathlib.Path(d.full_path).parent.__str__()
-                    os.makedirs(full_des_dir,exist_ok=True)
-                shutil.copy(s.full_path,full_des_dir)
+                # if os.path.isfile(s.full_path):
+                #     full_des_dir = pathlib.Path(d.full_path).parent.__str__()
+                #     os.makedirs(full_des_dir,exist_ok=True)
+                source_dir = pathlib.Path(s.full_path).parent.__str__()
+                dest_dir = pathlib.Path(d.full_path).parent.__str__()
+                shutil.copytree(source_dir,dest_dir, dirs_exist_ok=True)
 
 
             if run_in_thread:
@@ -204,7 +206,7 @@ class FileStorageService:
                 process(source, dest).join()
             return dest
 
-    def copy(self, app_name: str, rel_file_path_from: str, rel_file_path_to, run_in_thread: bool) -> HybridFileStorage:
+    def copy(self, app_name: str, rel_file_path_from: str, rel_file_path_to, run_in_thread: bool) -> typing.Union[None,MongoDbFileStorage]:
         """
                 Copy file
                 :param rel_file_path_to:
@@ -213,7 +215,13 @@ class FileStorageService:
                 :param run_in_thread:True copy process will run in thread
                 :return:
                         """
-        raise NotImplemented
+        if not rel_file_path_from.startswith("local://"):
+            return  self.mongo_file_service.copy(
+                app_name=app_name,
+                rel_file_path_to=rel_file_path_to,
+                rel_file_path_from=rel_file_path_from,
+                run_in_thread=run_in_thread
+            )
 
     def db(self, app_name: str):
         """
