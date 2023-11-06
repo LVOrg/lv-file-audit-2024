@@ -439,6 +439,7 @@ class FileServices:
 
         document_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         item = document_context.context @ upload_id
+        main_file_id = item.MainFileId
         if item is None:
             return None
         rel_file_location = item[document_context.fields.FullFileName]
@@ -461,7 +462,10 @@ class FileServices:
             rel_file_path_to=to_location,
             run_in_thread=True
         )
-        item[document_context.fields.MainFileId] = bson.ObjectId(new_fsg.get_id())
+        if new_fsg.get_id().startswith("local://"):
+            item[document_context.fields.MainFileId] = new_fsg.get_id()
+        else:
+            item[document_context.fields.MainFileId] = bson.ObjectId(new_fsg.get_id())
         item.RelUrl = f"api/{app_name}/{item.id}/{item.FileName.lower()}"
         item.FullUrl = f"{cy_web.get_host_url()}/api/{app_name}/{item.UploadId}/{item.FileName.lower()}"
         if item.HasThumb:
@@ -509,6 +513,7 @@ class FileServices:
         item.ThumbHeight = 700
         item.ThumbId = None
         data_insert = document_context.fields.reduce(item, skip_require=False)
+        data_insert.MainFileId = item.MainFileId
         ret = document_context.context.insert_one(data_insert)
         copy_thumbs(app_name=app_name, to_id=data_insert._id, thumbs_list=item.AvailableThumbs or []).start()
         return data_insert

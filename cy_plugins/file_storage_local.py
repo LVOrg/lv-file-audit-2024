@@ -168,7 +168,41 @@ class FileStorageService:
                 :param run_in_thread:
                 :return:
                         """
-        raise NotImplemented
+        if not file_id_to_copy.startswith("local://"):
+            self.mongo_file_service.copy_by_id(
+                app_name=app_name,
+                file_id_to_copy=file_id_to_copy,
+                rel_file_path_to=rel_file_path_to,
+                run_in_thread=run_in_thread
+            )
+        else:
+            source = self.get_file_by_id(
+                app_name=app_name,
+                id=file_id_to_copy
+            )
+            if not source:
+                return None
+            dest = self.create(
+                app_name=app_name,
+                rel_file_path=rel_file_path_to,
+                chunk_size=0,
+                size=0,
+                content_type=None
+            )
+
+            @cy_kit.thread_makeup()
+            def process(s: HybridFileStorage, d: HybridFileStorage):
+                if os.path.isfile(s.full_path):
+                    full_des_dir = pathlib.Path(d.full_path).parent.__str__()
+                    os.makedirs(full_des_dir,exist_ok=True)
+                shutil.copy(s.full_path,full_des_dir)
+
+
+            if run_in_thread:
+                process(source, dest).start()
+            else:
+                process(source, dest).join()
+            return dest
 
     def copy(self, app_name: str, rel_file_path_from: str, rel_file_path_to, run_in_thread: bool) -> HybridFileStorage:
         """
@@ -195,13 +229,17 @@ class FileStorageService:
                 self.mongo_file_service.delete_files_by_id(app_name=app_name,ids=[x],run_in_thread=run_in_thread)
             elif x.startswith("local://"):
                 rel_path = x[len("local://"):]
-                delete_file_path = os.path.join(self.file_storage_path,rel_path)
-                if os.path.isfile(delete_file_path):
-                    th_os_delete = threading.Thread(target= os.remove,args=(delete_file_path,))
-                    if run_in_thread:
-                        th_os_delete.start()
-                    else:
-                        th_os_delete.run()
+                delete_dir_path =pathlib.Path(os.path.join(self.file_storage_path,rel_path)).parent.__str__()
+                if os.path.isdir(delete_dir_path):
+                    th_os_delete = threading.Thread(target= shutil.rmtree,args=(delete_dir_path,))
+                    try:
+                        if run_in_thread:
+                            th_os_delete.start()
+                        else:
+                            th_os_delete.run()
+                    except:
+                        pass
+
 
 
         """
@@ -218,13 +256,16 @@ class FileStorageService:
                 self.mongo_file_service.delete_files_by_id(app_name=app_name, ids=[x], run_in_thread=run_in_thread)
             elif x.startswith("local://"):
                 rel_path = x[len("local://"):]
-                delete_file_path = os.path.join(self.file_storage_path, rel_path)
-                if os.path.isfile(delete_file_path):
-                    th_os_delete = threading.Thread(target= os.remove, args=(delete_file_path,))
-                    if run_in_thread:
-                        th_os_delete.start()
-                    else:
-                        th_os_delete.run()
+                delete_dir_path = pathlib.Path(os.path.join(self.file_storage_path, rel_path)).parent.__str__()
+                if os.path.isdir(delete_dir_path):
+                    th_os_delete = threading.Thread(target= shutil.rmtree, args=(delete_dir_path,))
+                    try:
+                        if run_in_thread:
+                            th_os_delete.start()
+                        else:
+                            th_os_delete.run()
+                    except:
+                        pass
 
     async def get_file_by_name_async(self, app_name, rel_file_path: str) -> HybridFileStorage:
         """

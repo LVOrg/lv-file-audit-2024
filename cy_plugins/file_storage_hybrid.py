@@ -7,12 +7,13 @@ from cy_xdoc.services.files import FileServices
 from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.common import config
 
+
 class HybridFileStorage:
     def __init__(self,
                  file_storage_path: str,
                  app_name: str,
                  rel_file_path: str,
-                 content_type: str ,
+                 content_type: str,
                  chunk_size: int,
                  size: int,
                  file_services,
@@ -21,27 +22,27 @@ class HybridFileStorage:
         self.cacher: MemcacheServices = cacher
         self.file_storage_path = file_storage_path
         if not rel_file_path.startswith("local://"):
-            self.id= self.__get_full_path_by_app_and_rel_path__(app_name, rel_file_path)
-
+            self.id = self.__get_full_path_by_app_and_rel_path__(app_name, rel_file_path)
+            if self.id is None:
+                self.id = "@new_id"
             self.full_dir = os.path.join(
-                    self.file_storage_path,self.id
+                self.file_storage_path, self.id
             )
             self.filename = os.path.split(rel_file_path)[1]
-            self.full_path = os.path.join(self.full_dir,self.filename)
+            self.full_path = os.path.join(self.full_dir, self.filename)
             if not os.path.isdir(self.full_dir):
-                os.makedirs(self.full_dir,exist_ok=True)
-            self.full_id =  os.path.join(self.id,self.filename)
-            if hasattr(config,"stream_buffering_size_in_KB") and isinstance(config.stream_buffering_size_in_KB,int):
+                os.makedirs(self.full_dir, exist_ok=True)
+            self.full_id = os.path.join(self.id, self.filename)
+            if hasattr(config, "stream_buffering_size_in_KB") and isinstance(config.stream_buffering_size_in_KB, int):
                 self.chunk_size = config.stream_buffering_size_in_KB
             else:
                 print("Warning: stream_buffering_size_in_KB not found in config.yml, run default with 64KB")
-                self.chunk_size = 1024*64
+                self.chunk_size = 1024 * 64
         else:
-            self.id= rel_file_path[len("local://"):]
+            self.id = rel_file_path[len("local://"):]
             self.full_id = self.id
-            self.full_path = os.path.join(self.file_storage_path,self.full_id)
+            self.full_path = os.path.join(self.file_storage_path, self.full_id)
         self.delegate = None
-
 
     def __is_uuid__(self, str_value):
         import re
@@ -64,15 +65,30 @@ class HybridFileStorage:
                     if hasattr(upload, "FileExt"):
                         doc_type = upload.FileExt[0:3]
                     ret = os.path.join(
-                            app_name,
-                            str(register_on.year),
-                            f"{register_on.month:02}",
-                            f"{register_on.day:02}",
-                            doc_type,
-                            id
-                        )
+                        app_name,
+                        str(register_on.year),
+                        f"{register_on.month:02}",
+                        f"{register_on.day:02}",
+                        doc_type,
+                        id
+                    )
 
                     self.cacher.set_str(key, ret)
+            else:
+                register_on = datetime.datetime.utcnow()
+                doc_type = "unknown"
+
+                if len(os.path.splitext(rel_file_path)) > 1:
+                    doc_type = os.path.splitext(rel_file_path)[1][1:][0:3]
+                ret = os.path.join(
+                    app_name,
+                    str(register_on.year),
+                    f"{register_on.month:02}",
+                    f"{register_on.day:02}",
+                    doc_type,
+                    id
+                )
+
         return ret
 
     def seek(self, position):
@@ -103,15 +119,13 @@ class HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
-        file_path =os.path.join(self.full_dir,self.filename)
+        file_path = os.path.join(self.full_dir, self.filename)
         if not os.path.exists(file_path):
             with open(file_path, "wb") as f:
                 f.write(content)
         else:
             with open(file_path, "ab") as f:
                 f.write(content)
-
-
 
     def get_id(self) -> str:
         """
@@ -123,7 +137,7 @@ class HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
-        return self.push(content,chunk_index)
+        return self.push(content, chunk_index)
 
     def tell(self):
         """
@@ -137,9 +151,8 @@ class HybridFileStorage:
         """
             some how to implement thy source here ...
                 """
-        if self.delegate is not None and hasattr(self.delegate,"close") and callable(self.delegate.close):
+        if self.delegate is not None and hasattr(self.delegate, "close") and callable(self.delegate.close):
             self.delegate.close()
-
 
     def get_size(self):
         """
@@ -152,6 +165,7 @@ class HybridFileStorage:
         somehow to implement thy source here ...
         """
         return self.get_id()
+
     def cursor_len(self):
         raise NotImplemented()
 
