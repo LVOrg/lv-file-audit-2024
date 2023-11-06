@@ -123,7 +123,7 @@ class HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
-        raise NotImplemented
+        return self.push(content,chunk_index)
 
     def tell(self):
         """
@@ -137,7 +137,9 @@ class HybridFileStorage:
         """
             some how to implement thy source here ...
                 """
-        raise NotImplemented
+        if self.delegate is not None and hasattr(self.delegate,"close") and callable(self.delegate.close):
+            self.delegate.close()
+
 
     def get_size(self):
         """
@@ -161,5 +163,3 @@ class HybridFileStorage:
         )
 
         self.delegate = f
-    def close(self):
-        self.delegate.close()

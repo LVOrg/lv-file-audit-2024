@@ -1468,6 +1468,7 @@ async def __send_bytes_range_requests_async__(
         else:
             data = file_obj.read(read_size)
         yield data
+    file_obj.close()
 
 
 from functools import partial
@@ -1664,6 +1665,10 @@ async def streaming_async(fsg, request, content_type, streaming_buffering=1024 *
 
     else:
         if hasattr(fsg, "delegate"):
+            # if hasattr(fsg,"__init_delegate__") and callable(fsg.__init_delegate__):
+            #     fsg.__init_delegate__()
+            #     content = __send_bytes_range_requests_async__(fsg.delegate, start, end, streaming_buffering)
+            # else:
             content = __send_bytes_range_requests_async__(fsg, start, end, streaming_buffering)
         elif hasattr(fsg, "__delegate__"):
             content = __send_bytes_range_requests_async__(fsg, start, end, streaming_buffering)

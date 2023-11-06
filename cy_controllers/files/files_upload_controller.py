@@ -92,27 +92,11 @@ class FilesUploadController(BaseController):
         :param upload_id:
         :return:
         """
-        st = datetime.datetime.utcnow()
-        cache_value = self.file_service.cache_upload_register_get(
-            upload_id=upload_id
-        )
-        upload_item = None
-        if cache_value is None:
-            upload_item = self.file_service.get_upload_register(
+
+        return  self.file_service.get_upload_register(
                 app_name=app_name,
                 upload_id=upload_id
             )
-            if upload_item is None:
-                return None
-            self.file_service.cache_upload_register_set(
-                UploadId = upload_id,
-                doc_data = upload_item
-            )
-        else:
-            upload_item = cache_value
-        n=(datetime.datetime.utcnow()-st)
-        print(f"get_upload_register_async={n}")
-        return upload_item
 
     async def push_file_to_temp_folder_async(self, app_name, content, upload_id, file_ext):
         st = datetime.datetime.utcnow()
@@ -143,9 +127,8 @@ class FilesUploadController(BaseController):
         n=(datetime.datetime.utcnow()-st).total_seconds()
         print(f"self.file_service.db_connect.db(app_name).doc(DocUploadRegister)={n}")
         import bson
-        storage_path = f"local://{main_file_id}"
-        if not bson.is_valid(main_file_id.encode('utf8')):
-            main_file_id = None
+
+
         def update_process():
 
             upload_register_doc.context.update(
@@ -154,7 +137,7 @@ class FilesUploadController(BaseController):
                 upload_register_doc.fields.NumOfChunksCompleted << num_of_chunks_complete,
                 upload_register_doc.fields.Status << status,
                 upload_register_doc.fields.MainFileId << main_file_id,
-                upload_register_doc.fields.StoragePath << storage_path
+                upload_register_doc.fields.StoragePath << main_file_id
                 # upload_register_doc.fields.FileModuleController << file_controller
 
             )
@@ -172,13 +155,16 @@ class FilesUploadController(BaseController):
         print(f"await self.get_upload_register_async={n}")
         data["SizeUploaded"] = size_uploaded
         data["NumOfChunksCompleted"] = num_of_chunks_complete
-        data["status"] = status
+        data["Status"] = status
         data["MainFileId"] = main_file_id
-        data["MainFileId"] = storage_path
-        self.file_service.cache_upload_register_set(
-            UploadId = upload_id,
-            doc_data = data
-        )
+
+        data_from_cache = self.file_service.get_upload_register_with_cache(app_name=app_name,upload_id=upload_id)
+        data_from_cache.SizeUploaded=size_uploaded
+        data_from_cache.NumOfChunksCompleted = status
+        data_from_cache.Status = num_of_chunks_complete
+        data_from_cache.MainFileId = main_file_id
+        data_from_cache.StoragePath = main_file_id
+
 
     async def push_file_async(self,app_name:str,upload_id:str, fs:MongoDbFileStorage, content_part, Index):
 
@@ -370,6 +356,7 @@ class FilesUploadController(BaseController):
             num_of_chunks_complete += 1
             ret.Data.NumOfChunksCompleted = num_of_chunks_complete
             ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
+
             status = 0
             if num_of_chunks_complete == nun_of_chunks:
                 status = 1

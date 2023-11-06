@@ -89,8 +89,13 @@ class FilesContentController(BaseController):
             return response
         if not upload.IsPublic:
             await self.auth_service.check_request(app_name, self.request)
+
         mime_type, _ = mimetypes.guess_type(directory)
         if mime_type.startswith('image/'):
+            if upload.MainFileId.startswith("local://"):
+                if hasattr(self.config, "file_storage_path"):
+                    full_path = os.path.join(self.config.file_storage_path, upload.MainFileId[len("local://"):])
+                    return FileResponse(path=full_path)
 
             file_cache = cy_web.cache_content_check(cache_dir, directory.replace('/', '_'))
             if file_cache:
@@ -299,6 +304,3 @@ class FilesContentController(BaseController):
                 content=doc.source.content
             )
 
-    @controller.router.get("/api/healthz")
-    async def healthcheck(self):
-        return {"status": "ok"}

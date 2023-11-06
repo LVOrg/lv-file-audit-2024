@@ -698,12 +698,7 @@ class FileServices:
     def cache_upload_register_set(self,
                                   UploadId: str,
                                   doc_data: cy_docs.DocumentObject):
-        ret = self.memcache_service.set_dict(
-            key=UploadId,
-            data=doc_data.to_json_convertable(),
-            expiration=30 * 60
-        )
-        return ret
+        pass
 
     def cache_upload_register_get(self, upload_id: str) -> typing.Optional[cy_docs.DocumentObject]:
         ret = self.memcache_service.get_dict(key=upload_id)
