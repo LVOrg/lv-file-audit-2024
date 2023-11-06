@@ -7,6 +7,8 @@ import threading
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
+sys.path.append("/app")
+import cyx.framewwork_configs
 import cy_kit
 import cyx.common.msg
 from cyx.common.msg import MessageService, MessageInfo

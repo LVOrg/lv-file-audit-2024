@@ -90,6 +90,7 @@ class HybridFileStorage:
 
         if self.delegate is None:
             self.__init_delegate__()
+
         return self.delegate.read(size)
 
     def get_cursor(self, from_index, num_of_element, cursor):
@@ -104,11 +105,12 @@ class HybridFileStorage:
         """
         file_path =os.path.join(self.full_dir,self.filename)
         if not os.path.exists(file_path):
-            mode = "wb"
+            with open(file_path, "wb") as f:
+                f.write(content)
         else:
-            mode = "ab"
-        with open(file_path, mode) as f:
-            f.write(content)
+            with open(file_path, "ab") as f:
+                f.write(content)
+
 
 
     def get_id(self) -> str:
@@ -152,7 +154,12 @@ class HybridFileStorage:
         raise NotImplemented()
 
     def __init_delegate__(self):
-        self.delegate = open(
+        import asyncio
+        f = open(
             file=self.full_path,
             mode="rb"
         )
+
+        self.delegate = f
+    def close(self):
+        self.delegate.close()

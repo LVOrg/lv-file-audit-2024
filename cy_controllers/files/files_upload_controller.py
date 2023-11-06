@@ -333,7 +333,13 @@ class FilesUploadController(BaseController):
                         upload_id=UploadId,
                         file_ext=upload_item[upload_register_doc.fields.FileExt]
                     )
-
+                await self.push_file_async(
+                    app_name=app_name,
+                    upload_id=UploadId,
+                    fs=fs,
+                    content_part=content_part,
+                    Index=Index
+                )
             if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
                 upload_item["Status"] = 1
                 if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"),dict) and (

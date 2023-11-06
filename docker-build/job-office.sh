@@ -62,8 +62,9 @@ COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
 COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
+COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cyx /app/cyx">>$job_office_file
-job_office_tag=1
+job_office_tag=2
 job_office_tag_build="job.office."$(tag $job_core_office_tag).$job_office_tag
 job_office_image=$repository/$image_name.$job_office_tag_build
 buildFunc $job_office_file $repository $image_name $job_office_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"

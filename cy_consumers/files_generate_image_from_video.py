@@ -5,6 +5,8 @@ from datetime import time
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
+sys.path.append("/app")
+import cyx.framewwork_configs
 import os.path
 import pathlib
 
