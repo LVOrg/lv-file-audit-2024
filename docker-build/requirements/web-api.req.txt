@@ -20,3 +20,4 @@ hypercorn[trio]
 grpcio
 grpcio-tools
 slackclient
+celery

@@ -185,16 +185,18 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
-
+        fs = self.file_storage_service.get_file_by_name(
+            app_name=app_name,
+            rel_file_path=f"thumbs/{directory}"
+        )
+        if os.path.isfile(fs.full_path):
+            return FileResponse(fs.full_path)
         thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "custom_thumbs"))
         cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
         if cache_thumb_path:
             return FileResponse(cache_thumb_path)
 
-        fs = self.file_storage_service.get_file_by_name(
-            app_name=app_name,
-            rel_file_path=f"thumbs/{directory}"
-        )
+
         if fs is None:
             """
             Allow original thumb if custom size thumb not avalaable

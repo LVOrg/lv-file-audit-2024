@@ -92,7 +92,10 @@ storage:
   # Thou may check by "stat /var/nfs_share_dir_for_k8s"
   #
   name: xdoc-storage
-
+storage_files:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files
 
 storage_longhorn:
   # If thou would like to use longhorn-storage change storage_longhorn into storage.

@@ -42,6 +42,17 @@ class HybridFileStorage:
             self.id = rel_file_path[len("local://"):]
             self.full_id = self.id
             self.full_path = os.path.join(self.file_storage_path, self.full_id)
+        if rel_file_path.startswith("thumbs/"):
+            if not os.path.isfile(self.full_path):
+                folder_path =pathlib.Path(self.full_path).parent.__str__()
+                lst_files = list(os.listdir(folder_path))
+                for filename in lst_files:
+                    filepath = os.path.join(folder_path, filename)
+                    if os.path.isfile(filepath) and filename.lower().endswith(f'_{self.filename}'):
+                        self.full_path = filepath
+                        break
+
+            print("thumbnail_pyc dieu xe _2__60.webp")
         self.delegate = None
 
     def __is_uuid__(self, str_value):

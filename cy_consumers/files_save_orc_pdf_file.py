@@ -26,6 +26,7 @@ class Process:
         self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+
         try:
             from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
             from cy_xdoc.services.files import FileServices

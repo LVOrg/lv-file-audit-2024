@@ -256,7 +256,7 @@ class FilesController(BaseController):
                 "FileName": "Unknown",
                 "Status": 1,
                 "MarkDelete": False,
-                "RegisterOn": datetime.utcnow(),
+                "RegisterOn": datetime.datetime.utcnow(),
                 "_id": data.DocId,
                 "SizeInBytes": 0,
                 "Privileges": json_privilege

@@ -77,20 +77,23 @@ class Process:
             except ocrmypdf.exceptions.InputFileError as e:
                 self.logger.error(e,msg_info=msg_info.Data)
                 msg.delete(msg_info)
-            ret = self.temp_file.move_file(
-                from_file=ocr_file,
-                app_name=msg_info.AppName,
-                sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
-            )
-            msg_info.Data["processing_file"] = ret
-            self.logger.info(f"output file is {ret}")
+            if not isinstance(msg_info.Data.get("MainFileId"),str) or not msg_info.Data["MainFileId"].startswith("local://"):
+                ret = self.temp_file.move_file(
+                    from_file=ocr_file,
+                    app_name=msg_info.AppName,
+                    sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
+                )
+                msg_info.Data["processing_file"] = ret
+                self.logger.info(f"output file is {ret}")
+            else:
+                msg_info.Data["processing_file"]=ocr_file
 
             msg.emit(
                 app_name=msg_info.AppName,
                 message_type=cyx.common.msg.MSG_FILE_SAVE_OCR_PDF,
                 data=msg_info.Data
             )
-            self.logger.info(f"{cyx.common.msg.MSG_FILE_SAVE_OCR_PDF}\n {ret}\n Original File {full_file}")
+            self.logger.info(f"{cyx.common.msg.MSG_FILE_SAVE_OCR_PDF}\n {ocr_file or full_file}\n Original File {full_file}")
             msg.emit(
                 app_name=msg_info.AppName,
                 message_type=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,
