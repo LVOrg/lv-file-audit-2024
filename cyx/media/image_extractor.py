@@ -61,6 +61,12 @@ class ImageExtractorService:
 
     def create_thumb(self, image_file_path, size: int):
         try:
+            if os.path.splitext(image_file_path)[1] == ".avif":
+                new_file_path = os.path.splitext(image_file_path)[0] + ".jpg"
+                if not os.path.isfile(new_file_path):
+                    img = Image.open(image_file_path)
+                    img.save(new_file_path)
+                    image_file_path = new_file_path
             filename_only = pathlib.Path(image_file_path).stem
             thumb_file_path = os.path.join(self.processing_folder, f"thumbnail_{filename_only}_{size}.webp")
             if os.path.isfile(thumb_file_path):
@@ -87,6 +93,13 @@ class ImageExtractorService:
             )
         if os.path.isfile(pdf_file):
             return pdf_file
+
+        if os.path.splitext(file_path)[1]==".avif":
+            new_file_path = os.path.splitext(file_path)[0] + ".jpg"
+            if not os.path.isfile(new_file_path):
+                img = Image.open(file_path)
+                img.save(new_file_path)
+                file_path = new_file_path
         image = Image.open(file_path)
         pdf_bytes = img2pdf.convert(image.filename, rotation=img2pdf.Rotation.ifvalid)
         file = open(pdf_file, "wb")
