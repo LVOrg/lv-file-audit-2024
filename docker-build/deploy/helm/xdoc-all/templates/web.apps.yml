@@ -95,6 +95,17 @@ spec:
             - services=""
             {{end}}
           image: {{ $globalVar.images.web}}
+#          livenessProbe:
+#            httpGet:
+#              path: /healthz
+#              port: 8080
+#            initialDelaySeconds: 3
+#            periodSeconds: 10
+#            failureThreshold: 3
+#            readinessProbe:
+#              httpGet:
+#                path: /readyz
+#                port: 8080
           envFrom:
             - configMapRef:
                name: {{$api.configMapName}}

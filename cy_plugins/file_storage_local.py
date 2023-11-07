@@ -136,7 +136,13 @@ class FileStorageService:
 
             if not os.path.isdir(full_dir):
                 os.makedirs(full_dir,exist_ok=True)
-            shutil.move(source_file, full_dir)
+            try:
+                shutil.move(source_file, full_dir)
+            except shutil.Error  as e:
+                if e.args[0].endswith(" already exists"):
+                    pass
+                else:
+                    raise e
         hybrid_rel_file_store_path = os.path.join(pathlib.Path(rel_file_store_path).parent.__str__(),pathlib.Path(rel_file_store_path).stem)
         ret = HybridFileStorage(
             file_storage_path=self.file_storage_path,
