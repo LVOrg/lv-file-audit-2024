@@ -53,7 +53,7 @@ class FilesContentController(BaseController):
 
         thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
         cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
-        if cache_thumb_path:
+        if cache_thumb_path and os.path.isfile(cache_thumb_path):
             return FileResponse(cache_thumb_path)
 
         upload_id = directory.split('/')[0]
@@ -189,7 +189,7 @@ class FilesContentController(BaseController):
             app_name=app_name,
             rel_file_path=f"thumbs/{directory}"
         )
-        if os.path.isfile(fs.full_path):
+        if hasattr(fs,"full_path") and os.path.isfile(fs.full_path):
             return FileResponse(fs.full_path)
         thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "custom_thumbs"))
         cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))

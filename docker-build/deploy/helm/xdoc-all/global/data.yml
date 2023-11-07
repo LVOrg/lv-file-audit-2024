@@ -1,5 +1,5 @@
 images:
-  web: nttlong/fs:api.apps.amd.3.2
+  web: nttlong/fs:api.apps.amd.3.4
   jobs:
     slim: nttlong/fs:job.apps.slim.amd.5.2
     office: nttlong/fs:job.office.amd.2.3

@@ -1,6 +1,7 @@
 import datetime
 import os.path
 import pathlib
+import typing
 
 import cy_kit
 from cy_xdoc.services.files import FileServices
@@ -13,9 +14,9 @@ class HybridFileStorage:
                  file_storage_path: str,
                  app_name: str,
                  rel_file_path: str,
-                 content_type: str,
-                 chunk_size: int,
-                 size: int,
+                 content_type: typing.Optional[str],
+                 chunk_size: typing.Optional[int],
+                 size: typing.Optional[int],
                  file_services,
                  cacher):
         self.file_services: FileServices = file_services
@@ -60,7 +61,7 @@ class HybridFileStorage:
         regex = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
         return regex.match(str_value) is not None
 
-    def __get_full_path_by_app_and_rel_path__(self, app_name, rel_file_path) -> dict:
+    def __get_full_path_by_app_and_rel_path__(self, app_name, rel_file_path) ->typing.Optional[str]:
         key = f"HybridFileStorage/{app_name}/{rel_file_path}".replace(" ", "___")
         ret = self.cacher.get_str(key)
         if ret is None:
