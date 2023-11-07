@@ -216,7 +216,7 @@ class FileStorageService:
                 :return:
                         """
         if not rel_file_path_from.startswith("local://"):
-            return  self.mongo_file_service.copy(
+            return self.mongo_file_service.copy(
                 app_name=app_name,
                 rel_file_path_to=rel_file_path_to,
                 rel_file_path_from=rel_file_path_from,

@@ -66,14 +66,14 @@ config:
     server: 'rabitmq-service.lv-broker'
     #Broker server
 #    temp_directory: /app/share-storage
-    msg: v99
+    msg: v99-dev
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
-  server: 172.16.7.99
+  server: 192.168.18.36
   # Server where share directory locate
-  directory: /k8s-share
+  directory: /codx-file-storage/tmp
   # The full path to share-directory at storage server
   # Read below carefully before use share directory for K8S
   # 1- The share directory is belonged no-one use chown comand to do that.
@@ -82,7 +82,10 @@ storage:
   #
   name: xdoc-storage
 
-
+storage_files:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files
 storage_longhorn:
   # If thou would like to use longhorn-storage change storage_longhorn into storage.
   size: 30Gi

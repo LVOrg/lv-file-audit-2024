@@ -4,7 +4,7 @@
 
     {{ $data := .Files.Get $dataFile | fromYaml -}}
 
-
+    {{ $storage_files := $data.storage_files -}}
       {{ $fileJob := $data.fileJob -}}
       {{ $db := $data.config.db -}}
       {{ $es := $data.config.elastic_search -}}
@@ -61,6 +61,12 @@ spec:
             server: {{$storage.server}}
             path: {{$storage.directory}}
         {{end}}
+        {{ if $storage_files }}
+        - name: {{$storage_files.name}}
+          nfs:
+            server: {{$storage_files.server}}
+            path: {{$storage_files.directory}}
+        {{end}}
       tolerations:
         - key: "app"
           operator: "Equal"
@@ -80,6 +86,10 @@ spec:
             - rabbitmq.msg=$(rabbitmq.msg)
             - tika_server=$(tika_server)
             - host_url=$(web_api_url)
+            - file_storage_path=/mnt/files
+            {{if not $storage_files}}
+            - services=""
+            {{end}}
           image: {{$value.image}}
           envFrom:
             - configMapRef:
@@ -91,7 +101,10 @@ spec:
           volumeMounts:
             - mountPath: {{$fileJob.mountPath}}
               name:  {{$storage.name}}
-
+            {{ if $storage_files }}
+            - mountPath: /mnt/files
+              name: {{$storage_files.name}}
+            {{end}}
 ---
 {{- end }}
 ---

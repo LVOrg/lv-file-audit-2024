@@ -101,7 +101,10 @@ class Process:
                 data=msg_info.Data
             )
             self.logger.info(f"{cyx.common.msg.MSG_FILE_OCR_CONTENT}\n{ret}\nOriginal file:\n{full_file}")
-            os.remove(full_file)
+            if isinstance(msg_info.Data.get("MainFileId"),str) and msg_info.Data["MainFileId"].startswith("local://"):
+                pass
+            else:
+                os.remove(full_file)
         except Exception as e:
             self.logger.error(e)
 
