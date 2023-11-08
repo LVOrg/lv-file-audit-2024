@@ -323,6 +323,8 @@ class FileStorageService:
 
     def get_file_by_name(self, app_name, rel_file_path: str) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
         storage_info = self.__get_storage_type_by_app_and_rel_path__(app_name,rel_file_path)
+        if storage_info is None:
+            raise FileNotFoundError(f"{app_name}/{rel_file_path} is no longer")
         if storage_info.storage_type == StorageTypeEnum.MONGO_DB:
             return self.mongo_file_service.get_file_by_name(app_name, rel_file_path)
         else:

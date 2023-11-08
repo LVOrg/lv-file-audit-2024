@@ -215,7 +215,7 @@ class FilesContentController(BaseController):
                     status_code=401
                 )
             import  inspect
-            if inspect.iscoroutine(fs.read):
+            if inspect.iscoroutinefunction(fs.read):
                 content = await fs.read(fs.get_size())
             else:
                 content = fs.read(fs.get_size())
