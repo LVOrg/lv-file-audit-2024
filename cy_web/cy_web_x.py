@@ -1359,7 +1359,7 @@ __cache_content_dict__ = {}
 __cache_content_dict_lock__ = threading.Lock()
 
 
-def cache_content(relative_folder: str, file_name, content: bytes) -> str:
+def cache_content(relative_folder: str, file_name, content: bytes) ->typing.Optional[str]:
     global web_application
     global __cache_content_dict__
     if isinstance(web_application, WebApp):
@@ -1377,8 +1377,11 @@ def cache_content(relative_folder: str, file_name, content: bytes) -> str:
                 os.makedirs(file_cache, exist_ok=True)
             file_cache = os.path.join(file_cache, file_name)
             if not os.path.isfile(file_cache):
-                with open(file_cache, "wb") as f:
-                    f.write(content)
+                if isinstance(content,bytes):
+                    with open(file_cache, "wb") as f:
+                        f.write(content)
+                else:
+                    return  None
 
             __cache_content_dict__[key] = file_cache
 
