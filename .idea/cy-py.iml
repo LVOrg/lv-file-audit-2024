@@ -56,7 +56,7 @@
       <excludeFolder url="file://$MODULE_DIR$/files" />
       <excludeFolder url="file://$MODULE_DIR$/share-storage-delete" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (3)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (6)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

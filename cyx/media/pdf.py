@@ -8,7 +8,7 @@ import uuid
 import pdfplumber
 
 import glob
-
+import PyPDF2.errors
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfMerger
 import PyPDF2.errors
 from pdfminer.pdfpage import PDFPage
@@ -185,7 +185,7 @@ class PDFService:
                     return True
             return False
 
-    def ocr(self, pdf_file, scale=1, deskew=True):
+    def ocr(self, pdf_file, scale=1, deskew=True)->typing.Optional[str]:
         """
                         Thuc hien ocr pdf file trong tien tring rieng biet skip if all pages are searchable
                         :param file_path:
@@ -198,8 +198,10 @@ class PDFService:
         try:
             if not os.path.isdir(split_dir):
                 os.makedirs(split_dir, exist_ok=True)
-
-            inputpdf = PdfFileReader(stream=open(pdf_file, "rb"),strict=False)
+            try:
+                inputpdf = PdfFileReader(stream=open(pdf_file, "rb"),strict=False)
+            except PyPDF2.errors.PdfStreamError:
+                return pdf_file
             pdfs = []
             pdfs_files = []
             self.logger.info(f"detect searchable_pages{pdf_file}...")

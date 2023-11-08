@@ -185,10 +185,15 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
-        fs = self.file_storage_service.get_file_by_name(
-            app_name=app_name,
-            rel_file_path=f"thumbs/{directory}"
-        )
+        fs = None
+        try:
+            fs = self.file_storage_service.get_file_by_name(
+                app_name=app_name,
+                rel_file_path=f"thumbs/{directory}"
+            )
+        except FileNotFoundError:
+            return Response(status_code=404,content="Resource was not found")
+
         if hasattr(fs,"full_path") and os.path.isfile(fs.full_path):
             return FileResponse(fs.full_path)
         thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "custom_thumbs"))
