@@ -336,7 +336,7 @@ class FileServices:
                     if retry_count > 10:
                         self.logger.error(e)
 
-        threading.Thread(target=insert_register).start()
+        insert_register()
 
         def search_engine_create_or_update_privileges():
             re_try_count = 0
