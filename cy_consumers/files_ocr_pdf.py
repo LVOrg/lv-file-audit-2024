@@ -87,7 +87,7 @@ class Process:
                 self.logger.info(f"output file is {ret}")
             else:
                 msg_info.Data["processing_file"]=ocr_file
-
+            msg.delete(msg_info)
             msg.emit(
                 app_name=msg_info.AppName,
                 message_type=cyx.common.msg.MSG_FILE_SAVE_OCR_PDF,
@@ -100,7 +100,7 @@ class Process:
                 data=msg_info.Data
             )
             self.logger.info(f"{cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE}\n {ret}\n Original File {full_file}")
-            msg.delete(msg_info)
+
             del msg_info
             cy_kit.clean_up()
         th_run(full_file, msg, msg_info)

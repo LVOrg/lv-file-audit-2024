@@ -8,6 +8,7 @@ import img2pdf
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
+import cyx.framewwork_configs
 import os.path
 import pathlib
 

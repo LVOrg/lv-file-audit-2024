@@ -127,8 +127,10 @@ class PDFService:
 
                 page_num += 1
                 if 'Font' in page.resources.keys():
-                    if page.contents[0].data.decode('utf8').__len__()>256:
+                    if len(page.contents)>0 and hasattr(page.contents[0],"data") and  isinstance(page.contents[0].data,bytes) and  page.contents[0].data.decode('utf8').__len__()>256:
                         searchable_pages.append(page_num - 1)
+                    else:
+                        non_searchable_pages.append(page_num - 1)
                 else:
                     non_searchable_pages.append(page_num - 1)
 

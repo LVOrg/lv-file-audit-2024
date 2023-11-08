@@ -6,6 +6,8 @@ import sys
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
+sys.path.append("/app")
+import cyx.framewwork_configs
 import cy_kit
 import cyx.common.msg
 from cyx.common.msg import MessageService, MessageInfo
@@ -48,18 +50,25 @@ class Process:
                     source_file=full_file_path,
                     rel_file_store_path=server_orc_file_path
                 )
+                fs.full_path = full_file_path
 
                 self.logger.info(f"app={msg_info.AppName} save thumb file {server_orc_file_path} is OK")
             except pymongo.errors.DuplicateKeyError as e:
                 self.logger(e,msg_info= msg_info.Data)
                 msg.delete(msg_info)
                 return
-
-            file_services.update_ocr_info(
-                app_name=msg_info.AppName,
-                upload_id=msg_info.Data["_id"],
-                ocr_file_id=fs.get_id()
-            )
+            if hasattr(fs,"full_path") and isinstance(fs.full_path,str):
+                file_services.update_ocr_info(
+                    app_name=msg_info.AppName,
+                    upload_id=msg_info.Data["_id"],
+                    ocr_file_id=fs.full_path
+                )
+            else:
+                file_services.update_ocr_info(
+                    app_name=msg_info.AppName,
+                    upload_id=msg_info.Data["_id"],
+                    ocr_file_id=fs.get_id() or fs.full_path
+                )
             search_engine.update_data_field(
                 app_name=msg_info.AppName,
                 id=msg_info.Data["_id"],

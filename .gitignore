@@ -9,3 +9,4 @@ secret*
 /docker-build/test/
 /tmp/
 /files/
+/share-storage-delete/

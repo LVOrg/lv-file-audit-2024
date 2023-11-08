@@ -5,6 +5,7 @@ import datetime
 import mimetypes
 import os.path
 import pathlib
+import shutil
 import threading
 import time
 import typing
@@ -27,7 +28,7 @@ from cyx.cache_service.memcache_service import MemcacheServices
 
 from cyx.common.file_storage_mongodb import MongoDbFileService
 from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
-
+from cyx.common import config
 
 class FileServices:
     """
@@ -50,6 +51,7 @@ class FileServices:
         self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
         self.logger = logger
         self.memcache_service = memcache_service
+        self.config = config
 
     def get_queryable_doc(self, app_name: str) -> cyx.common.base.DbCollection[DocUploadRegister]:
         """
@@ -703,7 +705,38 @@ class FileServices:
 
     def update_ocr_info(self, app_name: str, upload_id: str, ocr_file_id: typing.Union[str, bson.ObjectId]):
         if isinstance(ocr_file_id, str):
-            ocr_file_id = bson.ObjectId(ocr_file_id)
+            try:
+                ocr_file_id = bson.ObjectId(ocr_file_id)
+            except:
+                upload_info = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+                if upload_info is None:
+                    raise Exception(f"Upload with ID {upload_id}  was not found or deleted")
+                register_on= upload_info.RegisterOn
+                file_ext = upload_info.FileExt
+
+
+                if isinstance(register_on,datetime.datetime) \
+                        and isinstance(file_ext, str) \
+                        and hasattr(self.config,"file_storage_path") and \
+                        isinstance(self.config.file_storage_path,str):
+                    file_ext = file_ext[0:3]
+                    dir_path = os.path.join(
+                        app_name,f"{register_on.year}",
+                        f"{register_on.month:02}",
+                        f"{register_on.day:02}",
+                        file_ext,
+                        upload_id,
+                        "ocr"
+
+                    )
+                    full_dir_path = os.path.join(self.config.file_storage_path,dir_path)
+
+                    if not os.path.isdir(full_dir_path):
+                        os.makedirs(full_dir_path,exist_ok=True)
+                        shutil.move(ocr_file_id,full_dir_path)
+                        ocr_file_id = "local://"+os.path.join(dir_path,pathlib.Path(ocr_file_id).stem)+".pdf"
+
+
         doc_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         doc_context.context.update(
             doc_context.fields.id == upload_id,

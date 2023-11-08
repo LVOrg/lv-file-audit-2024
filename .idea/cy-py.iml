@@ -30,7 +30,6 @@
       <excludeFolder url="file://$MODULE_DIR$/pre_test_build" />
       <excludeFolder url="file://$MODULE_DIR$/test_samples" />
       <excludeFolder url="file://$MODULE_DIR$/web" />
-      <excludeFolder url="file://$MODULE_DIR$/share-storage" />
       <excludeFolder url="file://$MODULE_DIR$/long-test" />
       <excludeFolder url="file://$MODULE_DIR$/env_libre_office" />
       <excludeFolder url="file://$MODULE_DIR$/env_vn_sugesstion" />
@@ -55,6 +54,7 @@
       <excludeFolder url="file://$MODULE_DIR$/env_test" />
       <excludeFolder url="file://$MODULE_DIR$/env_full" />
       <excludeFolder url="file://$MODULE_DIR$/files" />
+      <excludeFolder url="file://$MODULE_DIR$/share-storage-delete" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
