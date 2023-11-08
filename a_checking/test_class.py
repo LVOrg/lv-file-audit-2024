@@ -1,0 +1,2 @@
+class EMP:
+    code:str

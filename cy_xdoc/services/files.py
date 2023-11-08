@@ -47,7 +47,7 @@ class FileServices:
         self.file_storage_service = file_storage_service
         self.search_engine = search_engine
         self.db_connect = db_connect
-        self.cacher = cacher
+        # self.cacher = cacher
         self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
         self.logger = logger
         self.memcache_service = memcache_service
@@ -235,14 +235,19 @@ class FileServices:
             cache_doc[doc.fields.FileName] = client_file_name
             cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
             cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
-            cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
-            cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
+            if len(os.path.splitext(client_file_name)[1].split('.'))>1:
+                cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
+
             cache_doc[doc.fields.FullFileName] = f"{id}/{server_file_name_only}"
             cache_doc[doc.fields.FullFileNameLower] = f"{id}/{server_file_name_only}".lower()
             cache_doc[doc.fields.FullFileNameWithoutExtenstion] = f"{id}/{pathlib.Path(server_file_name_only).stem}"
             cache_doc[
                 doc.fields.FullFileNameWithoutExtenstionLower] = f"{id}/{pathlib.Path(server_file_name_only).stem}".lower()
-            cache_doc[doc.fields.ServerFileName] = f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
+            if len(os.path.splitext(server_file_name_only)[1].split('.'))>1:
+                cache_doc[doc.fields.ServerFileName] = f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
+            else:
+                cache_doc[
+                    doc.fields.ServerFileName] = f"{id}"
             cache_doc[doc.fields.AvailableThumbSize] = thumbs_support
             cache_doc[doc.fields.ChunkSizeInKB] = chunk_size / 1024
             cache_doc[doc.fields.ChunkSizeInBytes] = chunk_size
@@ -269,14 +274,21 @@ class FileServices:
             cache_doc[doc.fields.ClientPrivileges] = privileges_client
             cache_doc[doc.fields.meta_data] = meta_data
             cache_doc[doc.fields.SkipActions] = skip_option
-            self.cache_upload_register_set(
+            self.set_upload_register_to_cache(
+                app_name=app_name,
                 UploadId=id,
-                doc_data=cache_doc
+                data= cache_doc
             )
 
         cahe_register()
 
         def insert_register():
+            server_file_name = id
+            file_ext = None
+            if len(os.path.splitext(server_file_name_only)[1].split('.'))>1:
+
+                file_ext = os.path.splitext(client_file_name)[1].split('.')[1]
+                server_file_name = f"{id}.{file_ext}"
             retry_count = 0
             while retry_count < 10:
                 try:
@@ -285,12 +297,12 @@ class FileServices:
                         doc.fields.FileName << client_file_name,
                         doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
                         doc.fields.FileNameLower << client_file_name.lower(),
-                        doc.fields.FileExt << os.path.splitext(client_file_name)[1].split('.')[1],
+                        doc.fields.FileExt << file_ext,
                         doc.fields.FullFileName << f"{id}/{server_file_name_only}",
                         doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
                         doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
                         doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
-                        doc.fields.ServerFileName << f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}",
+                        doc.fields.ServerFileName << server_file_name,
                         doc.fields.AvailableThumbSize << thumbs_support,
                         doc.fields.ChunkSizeInKB << chunk_size / 1024,
                         doc.fields.ChunkSizeInBytes << chunk_size,
@@ -387,7 +399,7 @@ class FileServices:
             SearchEngineInsertTimeInSecond=(datetime.datetime.utcnow() - st).total_seconds()
         )
 
-    def get_upload_register(self, app_name: str, upload_id: str):
+    def get_upload_register(self, app_name: str, upload_id: str)->typing.Union[DocUploadRegister,cy_docs.DocumentObject]:
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
 
     def get_find_upload_register_by_link_file_id(self, app_name: str, file_id: str):
@@ -403,11 +415,15 @@ class FileServices:
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
 
     def get_upload_register_with_cache(self, app_name, upload_id):
-        ret = self.cacher.get_by_key(self.cache_type, f"{app_name}/{upload_id}")
+        key = f"{self.cache_type}/{app_name}/{upload_id}"
+        ret = self.memcache_service.get_object(key,cy_docs.DocumentObject)
         if not ret:
             ret = self.get_upload_register(app_name, upload_id)
-            self.cacher.add_to_cache(self.cache_type, f"{app_name}/{upload_id}", ret)
+            self.memcache_service.set_object(key, ret)
         return ret
+    def set_upload_register_to_cache(self, app_name, upload_id,data):
+        key = f"{self.cache_type}/{app_name}/{upload_id}"
+        self.memcache_service.set_object(key,data)
 
     def remove_upload(self, app_name, upload_id):
         """

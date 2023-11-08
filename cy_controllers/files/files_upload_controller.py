@@ -244,7 +244,7 @@ class FilesUploadController(BaseController):
         try:
 
             content_part = await self.get_upload_binary_async(FilePart)
-            upload_item = await self.get_upload_register_async(
+            upload_item = self.file_service.get_upload_register_with_cache(
                 app_name=app_name,
                 upload_id=UploadId
             )
@@ -369,7 +369,15 @@ class FilesUploadController(BaseController):
                 status=status,
                 main_file_id=fs.get_id()
             )
-
+            upload_item.SizeUploaded = size_uploaded
+            upload_item.NumOfChunksCompleted = num_of_chunks_complete
+            upload_item.Status = status
+            upload_item.MainFileId = fs.get_id()
+            self.file_service.set_upload_register_to_cache(
+                app_name=app_name,
+                upload_id=UploadId,
+                data=upload_item
+            )
             ret_data = ret.to_pydantic()
 
             if status == 1:

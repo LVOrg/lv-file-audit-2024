@@ -95,11 +95,17 @@ class FilesContentController(BaseController):
             if upload.MainFileId.startswith("local://"):
                 if hasattr(self.config, "file_storage_path"):
                     full_path = os.path.join(self.config.file_storage_path, upload.MainFileId[len("local://"):])
-                    return FileResponse(path=full_path)
+                    if isinstance(mime_type,str):
+                        return FileResponse(path=full_path,media_type=mime_type)
+                    else:
+                        return FileResponse(path=full_path)
 
             file_cache = cy_web.cache_content_check(cache_dir, directory.replace('/', '_'))
             if file_cache:
-                return FileResponse(path=file_cache)
+                if isinstance(mime_type, str):
+                    return FileResponse(path=file_cache,media_type=mime_type)
+                else:
+                    return FileResponse(path=file_cache)
 
         runtime_file_reader = None
         # upload.IsPublic= False

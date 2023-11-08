@@ -95,7 +95,7 @@ class HybridFileStorage:
                 if isinstance(register_on, datetime.datetime):
 
                     doc_type = "unknown"
-                    if hasattr(upload, "FileExt"):
+                    if hasattr(upload, "FileExt") and isinstance(upload.FileExt,str):
                         doc_type = upload.FileExt[0:3]
                     ret = os.path.join(
                         app_name,

@@ -12,7 +12,7 @@ from cyx.media.core.graphics import GraphicsService
 from cyx.base import config
 
 from cyx.common.share_storage import ShareStorageService
-
+import pillow_avif
 
 class ImageExtractorService:
     def __init__(
