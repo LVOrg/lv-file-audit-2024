@@ -214,7 +214,11 @@ class FilesContentController(BaseController):
                 return Response(
                     status_code=401
                 )
-            content = fs.read(fs.get_size())
+            import  inspect
+            if inspect.iscoroutine(fs.read):
+                content = await fs.read(fs.get_size())
+            else:
+                content = fs.read(fs.get_size())
             fs.seek(0)
             cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
             del content

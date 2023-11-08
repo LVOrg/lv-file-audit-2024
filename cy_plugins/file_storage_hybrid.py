@@ -8,7 +8,7 @@ from cy_xdoc.services.files import FileServices
 from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.common import config
 
-
+__cache_thumbs_finders__ = {}
 class HybridFileStorage:
     def __init__(self,
                  file_storage_path: str,
@@ -44,6 +44,12 @@ class HybridFileStorage:
             self.full_id = self.id
             self.full_path = os.path.join(self.file_storage_path, self.full_id)
         if rel_file_path.startswith("thumbs/"):
+            cache_key=f"local:@{__file__}//thumbs/{rel_file_path}"
+            cache_value = self.cacher.get_str(cache_key)
+            if isinstance(cache_value,str) and os.path.isfile(cache_value):
+                self.full_path = cache_value
+                self.delegate = None
+                return
             if not os.path.isfile(self.full_path):
                 folder_path =pathlib.Path(self.full_path).parent.__str__()
                 lst_files = list(os.listdir(folder_path))
@@ -52,8 +58,23 @@ class HybridFileStorage:
                     if os.path.isfile(filepath) and filename.lower().endswith(f'_{self.filename}'):
                         self.full_path = filepath
                         break
+                if not os.path.isfile(self.full_path):
+                    data_search = [ dict(images_size= int(x.split('_')[-1].split('.')[0]),image_path=x) for x in lst_files if x.endswith(".webp") and x.split('_')[-1].split('.')[0].isdigit()]
+                    data_search += [dict(images_size= int(pathlib.Path(self.full_path).stem),image_path=self.full_path)]
+                    sorted_data = sorted(data_search, key=lambda x: x['images_size'], reverse=True)
+                    index_of_return_image = 0
+                    for item in sorted_data:
+                        if item['image_path'] == self.full_path:
+                            index_of_return_image = sorted_data.index(item)
+                            break
+                    if index_of_return_image==len(sorted_data)-1:
+                        index_of_return_image=len(sorted_data)-2
+                    else:
+                        index_of_return_image +=1
 
-            print("thumbnail_pyc dieu xe _2__60.webp")
+                    self.full_path = os.path.join(folder_path,sorted_data[index_of_return_image]["image_path"])
+            self.cacher.set_str(cache_key, self.full_path)
+
         self.delegate = None
 
     def __is_uuid__(self, str_value):
