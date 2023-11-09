@@ -25,7 +25,7 @@ class MemcacheServices:
     def set_object(self, key: str, data, expiration=60 * 60 * 4) -> bool:
         import cy_docs
         if isinstance(data,cy_docs.DocumentObject):
-            ret = self.client.set(key, data.to_json_convertable(), time=expiration)
+            ret = self.client.set(key, list(data.items()), time=expiration)
             return ret
 
         ret = self.client.set(key, data, time=expiration)
@@ -39,7 +39,7 @@ class MemcacheServices:
                 return  None
             if isinstance(ret_data,dict) and len(ret_data.keys())==0:
                 return None
-            ret= cy_docs.DocumentObject(**ret_data)
+            ret= cy_docs.DocumentObject(**dict(ret_data))
             return ret
 
 

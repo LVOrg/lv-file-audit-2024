@@ -9,9 +9,6 @@ data:
     endpoint: files_generate_image_from_office.py
     description: Generate image from any office file, replicate number should be number of worker
     image: {{.images.jobs.office}}
-  - name: files-generate-image-from-pdf
-    endpoint: files_generate_image_from_pdf.py
-    image: {{.images.jobs.slim}}
   - name: files-generate-image-from-video
     endpoint: files_generate_image_from_video.py
     image: {{.images.jobs.slim}}

@@ -158,10 +158,17 @@ class TempFiles:
         :return:
         """
         if isinstance(file_id, str) and file_id.startswith("local://"):
+
             full_file_path = file_id[len("local://"):]
             if not hasattr(config, "file_storage_path"):
                 self.logger.error(Exception("It look like you forget set config.file_storage_path"))
             full_file_path = os.path.join(config.file_storage_path, full_file_path)
+            if not os.path.isfile(full_file_path):
+                data_item = self.files_services.get_upload_register_with_cache(
+                     app_name=app_name,
+                        upload_id=upload_id
+                )
+                return data_item.MainFileId
             return full_file_path
 
 
