@@ -69,7 +69,7 @@ async def estimate_time(request: fastapi.Request, next):
         res = await next(request)
         n = datetime.datetime.utcnow()-start_time
 
-        if not request.url.path.endswith("/api/healthz"):
+        if not request.url.path.endswith("/api/healthz") and not request.url.path.endswith("/api/readyz"):
             logger.info(f"{request.url}  in {n}")
         if request.url._url == cy_web.get_host_url() + "/api/accounts/token":
             response_body = [chunk async for chunk in res.body_iterator]
@@ -93,14 +93,16 @@ async def estimate_time(request: fastapi.Request, next):
             return res
         res = await apply_time(res)
     except FileNotFoundError as e:
-        logger.error(e, more_info= dict(
-            url= request.url.path
-        ))
+        # logger.error(e, more_info= dict(
+        #     url= request.url.path
+        # ))
         return JSONResponse(status_code=404, content={"detail": "Resource not found"})
 
     except Exception as e:
-        logger.error(e)
-        raise e
+        logger.error(e, more_info= dict(
+            url= request.url.path
+        ))
+
 
     """HTTP/1.1 200 OK
 
