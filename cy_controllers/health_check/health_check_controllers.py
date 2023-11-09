@@ -25,7 +25,7 @@ controller = Controller(router)
 from fastapi.responses import FileResponse
 import mimetypes
 import cy_docs
-
+import elasticsearch
 
 @controller.resource()
 class HealthCheckController(BaseController):
@@ -47,5 +47,18 @@ class HealthCheckController(BaseController):
                 content="cache server fail",
                 status_code=500
             )
-        else:
-            return "OK"
+        es: elasticsearch.Elasticsearch = self.search_engine.client
+        try:
+            ret = es.ping()
+            if ret==False:
+                return Response(
+                    content="elasticsearch fail",
+                    status_code=500
+                )
+        except elasticsearch.exceptions.ConnectionError:
+            return Response(
+                content="elasticsearch fail",
+                status_code=500
+            )
+
+        return "OK"
