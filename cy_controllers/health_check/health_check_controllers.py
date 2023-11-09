@@ -1,5 +1,6 @@
 import typing
 
+import pika
 from fastapi_router_controller import Controller
 import cy_xdoc.models.files
 from fastapi import (
@@ -10,6 +11,8 @@ from fastapi import (
     Body
 
 )
+
+import pymongo
 from cy_controllers.models.file_contents import (
     UploadInfoResult, ParamFileGetInfo,ReadableParam
 )
@@ -43,6 +46,11 @@ class HealthCheckController(BaseController):
 
         ret = self.memcache_service.set_str(self.request.url.path,"readyz")
         if ret == 0:
+            self.logger_service.error(Exception(
+                "cache server fail"
+            ),more_info=dict(
+                url = self.request.url.path
+            ))
             return Response(
                 content="cache server fail",
                 status_code=500
@@ -51,14 +59,66 @@ class HealthCheckController(BaseController):
         try:
             ret = es.ping()
             if ret==False:
+                self.logger_service.error(Exception(
+                    "elasticsearch fail"
+                ), more_info=dict(
+                    url=self.request.url.path
+                ))
                 return Response(
                     content="elasticsearch fail",
                     status_code=500
                 )
         except elasticsearch.exceptions.ConnectionError:
+            self.logger_service.error(Exception(
+                "elasticsearch fail"
+            ), more_info=dict(
+                url=self.request.url.path
+            ))
             return Response(
                 content="elasticsearch fail",
                 status_code=500
             )
+        try:
+            client = self.file_service.db_connect.db("admin").__client__
+            client.server_info()
+        except pymongo.errors.ServerSelectionTimeoutError:
+            self.logger_service.error(Exception(
+                "No SQL database fail"
+            ), more_info=dict(
+                url=self.request.url.path,
+                mongodb= self.config.db
+            ))
+            return Response(
+                content="No SQL database fail",
+                status_code=500
+            )
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(
+                host=self.config.rabbitmq.server,
+                port=self.config.rabbitmq.port
 
+            ))
+            connection.channel().close()
+        except pika.exceptions.ConnectionClosedError:
+            self.logger_service.error(Exception(
+                "message fail"
+            ), more_info=dict(
+                url=self.request.url.path,
+                rabbitmq_server=f"{self.config.rabbitmq.server}:{self.config.rabbitmq.port}"
+            ))
+            return Response(
+                content="message fail",
+                status_code=500
+            )
+        except Exception as e:
+            self.logger_service.error(Exception(
+                "message fail"
+            ), more_info=dict(
+                url=self.request.url.path,
+                rabbitmq_server=f"{self.config.rabbitmq.server}:{self.config.rabbitmq.port}"
+            ))
+            return Response(
+                content="message fail",
+                status_code=500
+            )
         return "OK"

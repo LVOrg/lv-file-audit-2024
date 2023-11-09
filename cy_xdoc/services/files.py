@@ -276,7 +276,7 @@ class FileServices:
             cache_doc[doc.fields.SkipActions] = skip_option
             self.set_upload_register_to_cache(
                 app_name=app_name,
-                UploadId=id,
+                upload_id=id,
                 data= cache_doc
             )
 
@@ -335,8 +335,8 @@ class FileServices:
                     retry_count += 1
                     if retry_count > 10:
                         self.logger.error(e)
-
         insert_register()
+
 
         def search_engine_create_or_update_privileges():
             re_try_count = 0

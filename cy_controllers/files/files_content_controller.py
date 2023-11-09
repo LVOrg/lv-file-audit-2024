@@ -95,6 +95,9 @@ class FilesContentController(BaseController):
             if upload.MainFileId.startswith("local://"):
                 if hasattr(self.config, "file_storage_path"):
                     full_path = os.path.join(self.config.file_storage_path, upload.MainFileId[len("local://"):])
+                    if not os.path.isfile(full_path):
+                        from fastapi import Response
+                        return Response(content="Resource not found", status_code=404)
                     if isinstance(mime_type,str):
                         return FileResponse(path=full_path,media_type=mime_type)
                     else:
