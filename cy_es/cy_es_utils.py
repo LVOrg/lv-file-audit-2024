@@ -19,19 +19,17 @@ def get_all_index(client: Elasticsearch) -> List[str]:
     return list(client.indices.get_alias("*").keys())
 
 
-def __well_form__(item):
-    r = ["'", '"', ";", ":", ".", ",", ">", "<", "?", "+", "-", "/", "%", "$", "#", "@", "\\", "!", "~",
-         "`", "^", "]", "[", "(", ")"]
-    ret = ""
-    for x in item:
-        if x in r:
-            ret += f"\\{x}"
+def __well_form__(content: str) -> str:
+    ch = ["+", "-", "*", "?", "|", "[", "]", "^", "$", "(", ")", "\\", "/", ".", ",", "!", "~", "<", ">", "%", "#",
+          "@", ":"]
+    ret =""
+    for x in content:
+        if x in ch:
+            ret+=f"\\{x}"
         else:
-            ret += f"{x}"
+            ret+=x
 
     return ret
-
-
 def __make_up_es_syntax_depriciate__(field_name: str, value):
     if '.' not in field_name:
         return {"term": {field_name: value}}

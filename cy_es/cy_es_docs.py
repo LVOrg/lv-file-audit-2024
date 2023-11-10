@@ -155,10 +155,11 @@ class DocumentFields:
             raise Exception("Not support")
 
     def __contains__(self, item):
-        special_characters = [
-            "+", "-", "=", "&&", "||", ">", "<",
-            "!" "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"
-        ]
+        from cy_es.cy_es_utils import __well_form__
+        # special_characters = [
+        #     "+", "-", "=", "&&", "||", ">", "<",
+        #     "!" "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"
+        # ]
 
         ret = DocumentFields()
         # self.__is_bool__ = True
@@ -196,12 +197,12 @@ class DocumentFields:
                 query_value = item[1:-1]
             else:
                 query_value = item
-            search_value=""
-            for x in query_value:
-                if x in special_characters:
-                    search_value += f"\\{x}"
-                else:
-                    search_value += x
+            search_value= __well_form__(query_value)
+            # for x in query_value:
+            #     if x in special_characters:
+            #         search_value += f"\\{x}"
+            #     else:
+            #         search_value += x
             # value
             """
             {
@@ -257,12 +258,36 @@ class DocumentFields:
             if first =="" and last=="":
                 first="*"
                 last="*"
-            ret.__es_expr__ = {
+            """
+            {
+                  "query": {
+                    "bool": {
+                      "must": [
+                        {
+                          "wildcard": {
+                            "name": "*hello*"
+                          }
+                        },
+                        {
+                          "wildcard": {
+                            "name": "*world*"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+            """
+            import urllib.parse
+            ret2 = DocumentFields()
+            ret2.__es_expr__ = {
                 "must": {
                     "query_string": {
-                        "query": f"{first}{search_value}{last}",
-                        "fields": [field_name],
-                        # "allow_leading_wildcard": True,
+                        "query": search_value,
+                        "fields": [f"{field_name}"],
+                        # "minimum_should_match":len(search_value.lstrip(' ').rstrip(' ').replace('  ',' ').split(' ')),
+                        "allow_leading_wildcard": True,
+                        # "default_operator": "AND"
                         # "boost": boost_score,
                         # "analyze_wildcard": True
 
@@ -271,14 +296,81 @@ class DocumentFields:
                 },
                 # "score_mode": "max"
             }
+            ret.__es_expr__ = {
+                "must": {
+                    "wildcard": {
+                        f"{field_name}.keyword": {
+                        "value": f"{first}{query_value}{last}"
+                      }
+                    }
+
+                },
+                # "score_mode": "max"
+            }
+
+            # ret2.__es_expr__ = {
+            #     "must": {
+            #         "wildcard": {
+            #             f"{field_name}": {
+            #                 "value": f"{first}{query_value}{last}"
+            #             }
+            #         }
+            #
+            #     },
+            #     # "score_mode": "max"
+            # }
+            # """
+            #     {
+            #       "query": {
+            #         "regexp": {
+            #           "user.id": {
+            #             "value": "k.*y",
+            #             "flags": "ALL",
+            #             "case_insensitive": true,
+            #             "max_determinized_states": 10000,
+            #             "rewrite": "constant_score_blended"
+            #           }
+            #         }
+            #       }
+            #     }
+            # """
+            import re
+            # if first=="*":
+            #     first ="."+first
+            # if last =="*":
+            #     last = "." + last
+            # fx=re.compile(
+            #     f"{first}{search_value.lower()}{last}",
+            #     re.RegexFlag.IGNORECASE|re.RegexFlag.DOTALL
+            # )
+            search_value=search_value.replace(" ","\\s*")
+            # ret.__es_expr__ = {
+            #     "must": {
+            #         "regexp": {
+            #             f"{field_name}":{
+            #                  "value": f"{first}{search_value.lower()}{last}",
+            #                     "flags": "ALL",
+            #                     "case_insensitive": False,
+            #                     # "max_determinized_states": 10000,
+            #                     # "rewrite": "constant_score_blended"
+            #             }
+            #
+            #         },
+            #     }
+            #     # "score_mode": "max"
+            # }
+
             if boost_score > 0:
                 ret.__es_expr__["must"]["query_string"]["boost"] = boost_score
             ret.__is_bool__ = True
-            fx_check_field = DocumentFields(field_name) != None
-            ret = fx_check_field & ret
-            ret.__highlight_fields__ += [field_name]
+            ret2.__is_bool__ = True
+            # fx_check_field = DocumentFields(field_name) != None
+            # ret = fx_check_field & ret
+            ret.__highlight_fields__ += [field_name,f"{field_name}.keyword"]
+            ret_return = ret | ret2
+            ret_return.__highlight_fields__ += [field_name, f"{field_name}.keyword"]
 
-            return ret
+            return ret_return
         elif isinstance(item, list):
             """
             {

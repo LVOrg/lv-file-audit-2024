@@ -1072,12 +1072,7 @@ def __build_search__(fields, content: str, suggest_handler=None):
         ret = ret.rstrip(" OR ")
         return ret
 
-    def escape_special(content: str) -> str:
-        ch = ["+", "-", "*", "?", "|", "[", "]", "^", "$", "(", ")", "\\", "/", ".", ",", "!", "~", "<", ">", "%", "#",
-              "@", ":"]
-        for x in ch:
-            content = content.replace(x, f"\\{x}")
-        return content
+
 
     from vws import RDRSegmenter, Tokenizer
     rdrsegment = RDRSegmenter.RDRSegmenter()
@@ -1085,7 +1080,7 @@ def __build_search__(fields, content: str, suggest_handler=None):
 
     def make_expr(content: str, start_score: float) -> str:
         seg_words = rdrsegment.segmentRawSentences(tokenizer, content)
-        seg_words = [x for x in seg_words if ' ' in x]
+        seg_words = [x for x in seg_words if ' ' in x and len(x.rstrip(' ').lstrip(' ').strip(' '))>0]
         and_content_seg, or_content_seg = make_search(seg_words)
         ret = jon_expr([
 
@@ -1094,9 +1089,9 @@ def __build_search__(fields, content: str, suggest_handler=None):
             content
         ], start_score)
         return ret
-
+    from cy_es.cy_es_utils import __well_form__
     content = content.replace('  ', ' ').lstrip(' ').rstrip(' ')
-    content = escape_special(content)
+    content = __well_form__(content)
     suggest_content = None
     suggest_search_content = None
     _, boosts = extract_fields(fields)
