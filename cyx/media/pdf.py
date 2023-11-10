@@ -203,6 +203,7 @@ class PDFService:
             return self.get_text(pdf_file)
 
         split_dir = os.path.join(self.processing_folder, "spliter")
+        os.makedirs(split_dir,exist_ok=True)
         file_name_only = pathlib.Path(pdf_file).stem
         text = ""
         for i in range(inputpdf.numPages):

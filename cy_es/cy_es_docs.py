@@ -156,6 +156,7 @@ class DocumentFields:
 
     def __contains__(self, item):
         from cy_es.cy_es_utils import __well_form__
+        import cy_es.cy_es_utils
         # special_characters = [
         #     "+", "-", "=", "&&", "||", ">", "<",
         #     "!" "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"
@@ -179,24 +180,29 @@ class DocumentFields:
             query_value = ""
             first=""
             last=""
+            code_field_name = f"{field_name}"
+            doc_field_key_word = f"doc['{code_field_name}.keyword']"
+            doc_field = f"doc['{field_name}']"
             if "^" in field_name:
                 field_name = self.__name__.split("^")[0]
                 boost_score = float(self.__name__.split("^")[1])
-            src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().contains(params.item)"
+
+            src= cy_es.cy_es_utils.__create_painless_source__(field_name=field_name,function_name="contains")
             if item[0] != '*' and item[-1] == '*':
                 query_value = item[:-1]
                 last="*"
-                src = f"(doc['{field_name}.keyword'].size()>0) && (doc['{field_name}.keyword'].value.toLowerCase().indexOf(params.item)==0)"
+                src = f"({doc_field_key_word}.size()>0) && ({doc_field_key_word}.value.toLowerCase().indexOf(params.item)==0)"
             elif item[0] == '*' and item[-1] != '*':
                 query_value = item[1:-1]
                 first="*"
-                src = f"(doc['{field_name}.keyword'].size()>0) && doc['{field_name}.keyword'].value.toLowerCase().endsWith(params.item)"
+                src = f"({doc_field_key_word}.size()>0) && {doc_field_key_word}.value.toLowerCase().endsWith(params.item)"
             elif item[0] == '*' and item[-1] == '*':
                 first="*"
                 last="*"
                 query_value = item[1:-1]
             else:
                 query_value = item
+
             search_value= __well_form__(query_value)
             # for x in query_value:
             #     if x in special_characters:
@@ -230,31 +236,31 @@ class DocumentFields:
                 }
               }
             """
-
-            ret.__es_expr__ = {
-                "must": [
-                    {
-                        "constant_score": {
-                            "filter": {
-                                "script": {
-
-                                    "script": {
-
-                                        "source": f"return  {src};",
-                                        "lang": "painless",
-                                        "params": {
-                                            "item": item.lstrip('*').rstrip('*').lower()
-                                        }
-
-                                    }
-
-                                }
-                            },
-                            "boost": boost_score
-                        }
-                    }
-                ]
-            }
+            # ret_filter = DocumentFields()
+            # ret_filter.__es_expr__ = {
+            #     "must": [
+            #         {
+            #             "constant_score": {
+            #                 "filter": {
+            #                     "script": {
+            #
+            #                         "script": {
+            #
+            #                             "source": f"return  {src};",
+            #                             "lang": "painless",
+            #                             "params": {
+            #                                 "item": item.lstrip('*').rstrip('*').lower()
+            #                             }
+            #
+            #                         }
+            #
+            #                     }
+            #                 }
+            #             }
+            #         }
+            #     ]
+            # }
+            # ret_filter.__is_bool__ = True
             if first =="" and last=="":
                 first="*"
                 last="*"
@@ -367,7 +373,7 @@ class DocumentFields:
             # fx_check_field = DocumentFields(field_name) != None
             # ret = fx_check_field & ret
             ret.__highlight_fields__ += [field_name,f"{field_name}.keyword"]
-            ret_return = ret | ret2
+            ret_return = ret2 | ret
             ret_return.__highlight_fields__ += [field_name, f"{field_name}.keyword"]
 
             return ret_return

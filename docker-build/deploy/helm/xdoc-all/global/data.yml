@@ -3,7 +3,7 @@ images:
   jobs:
     slim: nttlong/fs:fs.slim.amd.1.1
     medium: nttlong/fs:fs.medium.amd.1.1
-    large: nttlong/fs:fs.large.amd.1.1
+    large: nttlong/fs:fs.large.amd.1.4
 
 
 config:
@@ -12,3 +12,4 @@ config:
 
 
 
+#gridfs_fuse --mongodb-uri="mongodb://192.168.18.36:27017" --database="lv-docs" --mount-point="/mnt/gridfs_fuse" # --options=allow_other
