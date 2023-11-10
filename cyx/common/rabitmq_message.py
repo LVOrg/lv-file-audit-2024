@@ -122,7 +122,7 @@ class RabitmqMsg:
                 time.sleep(10)
             self.__channel__.queue_declare(queue=self.get_real_msg(msg_type), auto_delete=False)
             self.__is_declare__ = True
-        self.__channel__.basic_consume(queue=self.get_real_msg(msg_type), on_message_callback=callback, auto_ack=True)
+        self.__channel__.basic_consume(queue=self.get_real_msg(msg_type), on_message_callback=callback, auto_ack=False)
         try:
             self.__channel__.start_consuming()
         except pika.exceptions.ConnectionClosedByBroker as e:
@@ -218,7 +218,7 @@ class RabitmqMsg:
         raise NotImplemented
 
     def delete(self, item: MessageInfo):
-        pass
+        self.delete_msg(item)
 
     def delete_msg(self, item: MessageInfo):
         """

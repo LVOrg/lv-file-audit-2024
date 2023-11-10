@@ -3,7 +3,7 @@ import os
 import sys
 import typing
 
-import tika
+
 
 
 class FileContentExtractorService:

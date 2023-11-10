@@ -1,6 +1,7 @@
 import datetime
 import os
 import pathlib
+import shutil
 import time
 import typing
 import uuid
@@ -27,6 +28,7 @@ class PDFService:
         if not os.path.isdir(self.processing_folder):
             os.makedirs(self.processing_folder, exist_ok=True)
         os.environ["PATH"] += ":/home/vmadmin/python/cy-py/docker-cy-hack/gs/bin:/home/vmadmin/python/cy-py/docker-cy-hack/gs/bin/gs"
+        self.__easyocr_reader_dict__ = {}
 
     def get_image(self, file_path: str):
         import fitz
@@ -184,6 +186,46 @@ class PDFService:
                 if text.__len__() > 0:
                     return True
             return False
+    def get_easyocr_reader(self, langs:typing.List[str]):
+        import easyocr
+        key = "___".join(langs)
+        if self.__easyocr_reader_dict__.get(key) is None:
+            self.__easyocr_reader_dict__[key] = easyocr.Reader(langs)
+        return self.__easyocr_reader_dict__.get(key)
+    def ocr_text(self, pdf_file):
+
+        inputpdf = None
+        try:
+            inputpdf = PdfFileReader(stream=open(pdf_file, "rb"), strict=False)
+        except:
+            inputpdf = PdfFileReader(stream=open(pdf_file, "rb"))
+        if inputpdf is None:
+            return self.get_text(pdf_file)
+
+        split_dir = os.path.join(self.processing_folder, "spliter")
+        file_name_only = pathlib.Path(pdf_file).stem
+        text = ""
+        for i in range(inputpdf.numPages):
+            output = PdfFileWriter()
+            inputpdf.getPage(i)
+            output.addPage(inputpdf.getPage(i))
+            output_page = os.path.join(split_dir, f"{file_name_only}.{i}.pdf")
+            print(f"Process {output_page} ...")
+
+            with open(output_page, "wb") as outputStream:
+                output.write(outputStream)
+            img = self.get_image(output_page)
+            langs = ['vi', 'en']
+            text += " ".join(self.get_easyocr_reader(langs=langs).readtext(img,detail=0))
+            text += self.get_text(output_page)
+            print(f"Process {output_page} was completed")
+        try:
+            shutil.rmtree(split_dir)
+        except:
+            pass
+        return text
+
+
 
     def ocr(self, pdf_file, scale=1, deskew=True)->typing.Optional[str]:
         """
@@ -312,3 +354,8 @@ class PDFService:
             keep_temporary_files=False
         )
         return out_put_file_path
+
+
+
+
+

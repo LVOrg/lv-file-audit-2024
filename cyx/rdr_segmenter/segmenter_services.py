@@ -2,12 +2,13 @@ import os
 import pathlib
 import typing
 import re
-from vws import RDRSegmenter, Tokenizer
+
 
 
 
 class VnSegmenterService:
     def __init__(self):
+        from vws import RDRSegmenter, Tokenizer
         self.rdrsegment = RDRSegmenter.RDRSegmenter()
         self.tokenizer = Tokenizer.Tokenizer()
         # self.word_tokenize = word_tokenize

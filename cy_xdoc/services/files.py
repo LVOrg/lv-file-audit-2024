@@ -450,7 +450,7 @@ class FileServices:
         self.search_engine.delete_doc(app_name, upload_id)
         doc = self.db_connect.db(app_name).doc(DocUploadRegister)
         ret = doc.context.delete(cy_docs.fields._id == upload_id)
-        self.cacher.remove_from_cache(self.cache_type, f"{app_name}/{upload_id}")
+
         return
 
     def do_copy(self, app_name, upload_id):

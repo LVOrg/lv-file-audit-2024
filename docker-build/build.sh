@@ -1,5 +1,5 @@
 #!/bin/bash
-eval "./web-api.sh"
-eval "./job-slim.sh"
-eval "./job-office.sh"
-eval "./build-ai.sh"
+eval "./build-tiny.sh"
+eval "./build-slim.sh"
+eval "./build-medium.sh"
+eval "./build-large.sh"

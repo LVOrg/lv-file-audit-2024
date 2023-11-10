@@ -8,16 +8,16 @@ data:
   - name: generate-image-from-office
     endpoint: files_generate_image_from_office.py
     description: Generate image from any office file, replicate number should be number of worker
-    image: {{.images.jobs.office}}
-  - name: files-generate-image-from-video
-    endpoint: files_generate_image_from_video.py
+    image: {{.images.jobs.medium}}
+  - name: files-generate-image-from-pdf
+    endpoint: files_generate_image_from_pdf.py
     image: {{.images.jobs.slim}}
-  - name: files-ocr-pdf
-    endpoint: files_ocr_pdf.py
-    image: {{.images.jobs.ocr}}
-  - name: files-generate-pdf-from-image
-    endpoint: files_generate_pdf_from_image.py
-    image: {{.images.jobs.slim}}
+#  - name: files-generate-image-from-video
+#    endpoint: files_generate_image_from_video.py
+#    image: {{.images.jobs.slim}}
+#  - name: files-ocr-pdf
+#    endpoint: files_ocr_pdf.py
+#    image: {{.images.jobs.ocr}}
   - name: files-generate-thumbs
     endpoint: files_generate_thumbs.py
     image: {{.images.jobs.slim}}
@@ -27,15 +27,18 @@ data:
   - name: files-save-default-thumb
     endpoint: files_save_default_thumb.py
     image: {{.images.jobs.slim}}
-  - name: files-save-orc-pdf-file
-    endpoint: files_save_orc_pdf_file.py
-    image: {{.images.jobs.ocr}}
+  - name: files-text-from-pdf
+    endpoint: files_text_from_pdf.py
+    image: images.jobs.large
+#  - name: files-save-orc-pdf-file
+#    endpoint: files_save_orc_pdf_file.py
+#    image: {{.images.jobs.ocr}}
   - name: files-save-search-engine
     endpoint: files_save_search_engine.py
     image: {{.images.jobs.slim}}
   - name: files-extrac-text-from-image
     endpoint: files_extrac_text_from_image.py
-    image: {{.images.jobs.easy_ocr}}
+    image: {{.images.jobs.large}}
   - name: files-clean-up
     endpoint: files_clean_up.py
     replicate: 1
