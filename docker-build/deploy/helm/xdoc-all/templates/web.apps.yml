@@ -102,10 +102,10 @@ spec:
             initialDelaySeconds: 3
             periodSeconds: 10
             failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /lvfile/api/readyz
-              port: 80
+#          readinessProbe:
+#            httpGet:
+#              path: /lvfile/api/readyz
+#              port: 80
           envFrom:
             - configMapRef:
                name: {{$api.configMapName}}
