@@ -285,6 +285,9 @@ class DocumentFields:
                 }
             """
             import urllib.parse
+            query_string_boost = 1000
+            if boost_score>0:
+                query_string_boost = boost_score
             ret2 = DocumentFields()
             ret2.__es_expr__ = {
                 "must": {
@@ -292,9 +295,9 @@ class DocumentFields:
                         "query": search_value,
                         "fields": [f"{field_name}"],
                         # "minimum_should_match":len(search_value.lstrip(' ').rstrip(' ').replace('  ',' ').split(' ')),
-                        "allow_leading_wildcard": True,
-                        # "default_operator": "AND"
-                        # "boost": boost_score,
+                        # "allow_leading_wildcard": True,
+                        # "default_operator": "AND",
+                        "boost": query_string_boost,
                         # "analyze_wildcard": True
 
                     },
@@ -366,8 +369,7 @@ class DocumentFields:
             #     # "score_mode": "max"
             # }
 
-            if boost_score > 0:
-                ret.__es_expr__["must"]["query_string"]["boost"] = boost_score
+
             ret.__is_bool__ = True
             ret2.__is_bool__ = True
             # fx_check_field = DocumentFields(field_name) != None
@@ -375,8 +377,8 @@ class DocumentFields:
             ret.__highlight_fields__ += [field_name,f"{field_name}.keyword"]
             ret_return = ret2 | ret
             ret_return.__highlight_fields__ += [field_name, f"{field_name}.keyword"]
-
-            return ret_return
+            ret_macth_pharse = cy_es.cy_es_utils.__make_like__(field_name=field_name,content=query_value,boost_score=boost_score)
+            return ret_macth_pharse
         elif isinstance(item, list):
             """
             {

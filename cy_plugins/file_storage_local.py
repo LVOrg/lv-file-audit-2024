@@ -82,8 +82,11 @@ class FileStorageService:
         """
         raise NotImplemented
 
-    def create(self, app_name: str, rel_file_path: str, content_type: str, chunk_size: int,
-               size: int) -> HybridFileStorage:
+    def create(self, app_name: str,
+               rel_file_path: typing.Optional[str],
+               content_type: typing.Optional[str],
+               chunk_size: typing.Optional[int],
+               size: typing.Optional[int]) -> HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
