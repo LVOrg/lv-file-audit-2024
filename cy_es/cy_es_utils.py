@@ -261,7 +261,8 @@ def __make_wild_card__(field_name, content, boost_score):
         "must": {
             "wildcard": {
                 f"{field_name}.keyword": {
-                    "value": "*"+content+"*"
+                    "value": "*"+content+"*",
+                    "boost": max(boost_score - 250,boost_score)
                 }
             }
 
@@ -275,7 +276,8 @@ def __make_wild_card__(field_name, content, boost_score):
         "must": {
             "wildcard": {
                 f"{field_name}": {
-                    "value": "*"+content+"*"
+                    "value": "*"+content+"*",
+                    "boost": boost_score
                 }
             }
 
@@ -336,7 +338,7 @@ def __make_regexp__(field_name, content, boost_score):
                     "value":".*"+_content_+".*",
                     "flags": "ALL",
                     "case_insensitive": False,
-                    "boost": boost_score - 250
+                    "boost": max(boost_score - 250,boost_score)
                 },
             }
 
@@ -418,12 +420,12 @@ def __make_like__(field_name, content, boost_score):
     # ret.__is_bool__ = True
     # ret.__highlight_fields__=[field_name]
     ret_contains = __make_script_contains__(field_name=field_name,content=content,boost_score=0)
-    ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=1000)
+    ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
     ret_macth_pharse_script = __make_macth_pharse_script_score__(field_name=field_name,content=content,boost_score=0)
     ret_wild_card = __make_wild_card__(field_name=field_name, content=content, boost_score=0)
     ret_script_score = __make_query_string_script_score__(field_name=field_name, content=content, boost_score=0)
     ret_match_phrase = __make_pharse_edgeNGram__(field_name=field_name, content=content, boost_score=0)
-    ret_re = __make_regexp__(field_name=field_name, content=content, boost_score=1500)
+    ret_re = __make_regexp__(field_name=field_name, content=content, boost_score=0)
     ret = ret_query | ret_wild_card | ret_re
     return  ret
 
