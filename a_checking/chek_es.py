@@ -5,7 +5,8 @@ from cy_xdoc.services.search_engine import SearchEngine
 se = cy_kit.singleton(SearchEngine)
 es: elasticsearch.Elasticsearch =se.client
 mapping = cy_es_manager.get_mapping(client=es, index="lv-codx_lacvietdemo")
-keyword_fields = cy_es_manager.get_all_keyword_fields(client=es, index="lv-codx_lacvietdemo")
+keyword_fields = cy_es_manager.get_meta_info_keyword_fields(client=es, index="lv-codx_lacvietdemo")
+cy_es_manager.make_meta_value(client=es, index="lv-codx_lacvietdemo",field_list=keyword_fields)
 index = es.indices.get(
     index="lv-codx_lacvietdemo",
     # ignore=400,
