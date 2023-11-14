@@ -4,34 +4,13 @@ from cy_es import cy_es_manager
 from cy_xdoc.services.search_engine import SearchEngine
 se = cy_kit.singleton(SearchEngine)
 es: elasticsearch.Elasticsearch =se.client
-mapping = cy_es_manager.get_mapping(client=es, index="lv-codx_lacvietdemo")
-keyword_fields = cy_es_manager.get_meta_info_keyword_fields(client=es, index="lv-codx_lacvietdemo")
-cy_es_manager.make_meta_value(client=es, index="lv-codx_lacvietdemo",field_list=keyword_fields)
-index = es.indices.get(
-    index="lv-codx_lacvietdemo",
-    # ignore=400,
-    # body={
-    #     "mappings": {
-    #         "properties": {
-    #             "content_raw_text": {
-    #                 "type": "text"
-    #             }
-    #         }
-    #     }
-    # }
-)
-es.indices.put_mapping(
-    index='lv-codx_lacvietdemo',
-    body={
-        "properties":{
-            "data_item.FileName_raw_text":{
-                "fielddata" : True,
-                "type" : "text"
-            }
-        }
-    }
-)
+# mapping = cy_es_manager.get_mapping(client=es, index="lv-codx_lv-docs")
+fx = cy_es_manager.update_mapping(client=es,index="lv-codx_lv-docs", data = dict(
+
+))
 
 
+for x in fx:
+    print(x)
 
 # Define the index and document type
