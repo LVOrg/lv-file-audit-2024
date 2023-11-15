@@ -395,8 +395,8 @@ def __make_match__(field_name, content, boost_score):
 
     ret_content.__es_expr__ = {
         "must": {
-            "match": {
-                f"{FIELD_RAW_TEXT}.{field_name}.value": _content_
+            "match_phrase_prefix": {
+                f"{FIELD_RAW_TEXT}.{field_name}": content
             }
 
         }
@@ -404,8 +404,8 @@ def __make_match__(field_name, content, boost_score):
     ret_content.__is_bool__=True
     ret_content.__highlight_fields__=[f"{FIELD_RAW_TEXT}.{field_name}"]
     ret_1 = DocumentFields(f"{FIELD_RAW_TEXT}.{field_name}")
-    fx = ret_1.__contains__(_content_)
-    return fx
+    # fx = ret_1.__contains__(_content_)
+    return ret_content
 def __make_like__(field_name, content, boost_score):
     """
     {
@@ -469,5 +469,5 @@ def __make_like__(field_name, content, boost_score):
     ret_re = __make_regexp__(field_name=field_name, content=content, boost_score=0)
     ret = ret_query | ret_wild_card | ret_re
     ret_m = __make_match__(field_name=field_name, content=content, boost_score=0)
-    return ret_m
+    return ret_m|ret_wild_card|ret_re
 
