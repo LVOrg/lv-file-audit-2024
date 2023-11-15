@@ -1,7 +1,7 @@
 images:
   web: nttlong/fs:fs.tiny.amd.1.2
   jobs:
-    slim: nttlong/fs:fs.slim.amd.1.2
+    slim: nttlong/fs:fs.slim.amd.1.3
     medium: nttlong/fs:fs.medium.amd.1.1
     large: nttlong/fs:fs.large.amd.1.4
 

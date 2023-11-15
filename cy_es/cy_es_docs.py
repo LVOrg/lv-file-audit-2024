@@ -181,27 +181,48 @@ class DocumentFields:
             first=""
             last=""
             code_field_name = f"{field_name}"
-            doc_field_key_word = f"doc['{code_field_name}.keyword']"
-            doc_field = f"doc['{field_name}']"
-            if "^" in field_name:
-                field_name = self.__name__.split("^")[0]
-                boost_score = float(self.__name__.split("^")[1])
+            from cy_es.cy_es_manager import FIELD_RAW_TEXT
+            doc_field_key_word = f"doc['{FIELD_RAW_TEXT}.{code_field_name}']"
+            check_field = DocumentFields(f'{FIELD_RAW_TEXT}.{code_field_name}')!=None
+            doc_field = f"doc['{FIELD_RAW_TEXT}']['{field_name}']"
+            # if "^" in field_name:
+            #     field_name = self.__name__.split("^")[0]
+            #     boost_score = float(self.__name__.split("^")[1])
 
-            src= cy_es.cy_es_utils.__create_painless_source__(field_name=field_name,function_name="contains")
-            if item[0] != '*' and item[-1] == '*':
-                query_value = item[:-1]
-                last="*"
-                src = f"({doc_field_key_word}.size()>0) && ({doc_field_key_word}.value.toLowerCase().indexOf(params.item)==0)"
-            elif item[0] == '*' and item[-1] != '*':
-                query_value = item[1:-1]
-                first="*"
-                src = f"({doc_field_key_word}.size()>0) && {doc_field_key_word}.value.toLowerCase().endsWith(params.item)"
-            elif item[0] == '*' and item[-1] == '*':
-                first="*"
-                last="*"
-                query_value = item[1:-1]
-            else:
-                query_value = item
+            # src= cy_es.cy_es_utils.__create_painless_source__(field_name=field_name,function_name="contains")
+            src = f"({doc_field_key_word}.size()>0)&&({doc_field_key_word}.value!=null)&&({doc_field_key_word}.value.toLowerCase().indexOf(params.items)>-1)"
+            ret.__es_expr__ = {
+                "filter": {
+                    "script": {
+
+                        "script": {
+
+                            "source": f"return  {src};",
+                            "lang": "painless",
+                            "params": {
+                                "items": item
+                            }
+                        }
+                    }
+                }
+            }
+
+            ret.__is_bool__ = True
+            return ret
+            # if item[0] != '*' and item[-1] == '*':
+            #     query_value = item[:-1]
+            #     last="*"
+            #
+            # elif item[0] == '*' and item[-1] != '*':
+            #     query_value = item[1:-1]
+            #     first="*"
+            #     src = f"({doc_field_key_word}.size()>0) && {doc_field_key_word}.value.toLowerCase().endsWith(params.item)"
+            # elif item[0] == '*' and item[-1] == '*':
+            #     first="*"
+            #     last="*"
+            #     query_value = item[1:-1]
+            # else:
+            #     query_value = item
 
             search_value= __well_form__(query_value)
             # for x in query_value:

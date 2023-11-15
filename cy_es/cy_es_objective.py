@@ -344,7 +344,7 @@ def get_map_struct(client: Elasticsearch, index: str):
 def search(client: Elasticsearch,
            index: str,
            filter,
-           excludes: typing.List[DocumentFields] = [],
+           excludes: typing.Optional[typing.List[DocumentFields]] = None,
            skip: int = 0,
            limit: int = 50,
            highlight: DocumentFields = None,
@@ -366,9 +366,15 @@ def search(client: Elasticsearch,
 
     body["from"] = skip * limit
     body["size"] = limit
+    if excludes is None:
+        excludes=[]
+    else:
+        excludes = [x.__name__ for x in excludes]
+    from  cy_es.cy_es_manager import FIELD_RAW_TEXT
+    excludes+=["content",FIELD_RAW_TEXT]
     if len(excludes) > 0:
         body["_source"] = {
-            "excludes": [x.__name__ for x in excludes]
+            "excludes": [x for x in excludes]
         }
     """
     __highlight = {
