@@ -70,7 +70,6 @@ buiders = cy_es_objective.docs
 
 create_index = cy_es_objective.create_index
 get_map_struct = cy_es_objective.get_map_struct
-get_map_struct = cy_es_objective.get_map_struct
 select = cy_es_objective.select
 
 __cache__settings_max_result_window___ = {}

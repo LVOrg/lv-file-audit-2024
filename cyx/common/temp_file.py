@@ -168,7 +168,8 @@ class TempFiles:
                      app_name=app_name,
                         upload_id=upload_id
                 )
-                return data_item.MainFileId
+                if not  data_item.MainFileId.startswith("local://"):
+                    return data_item.MainFileId
             return full_file_path
 
 

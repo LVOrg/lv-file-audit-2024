@@ -344,3 +344,4 @@ class DocUploadRegister:
     s3://<url path> 
     local://<relative local path 
     """
+    Search_vv_support: typing.Optional[bool]
