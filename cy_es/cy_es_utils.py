@@ -1,4 +1,5 @@
 import re
+import typing
 
 from elasticsearch import Elasticsearch
 import os
@@ -137,7 +138,7 @@ def __make_query_string__(field_name, content, boost_score):
         "must": {
             "query_string": {
                 "query": __content__,
-                "fields": [f"{FIELD_RAW_TEXT}.{field_name}"],
+                "fields": [f"{field_name}"],
                 "boost": boost_score,
 
             },
@@ -146,7 +147,7 @@ def __make_query_string__(field_name, content, boost_score):
         # "score_mode": "max"
     }
     ret.__is_bool__ = True
-    ret.__highlight_fields__ =[f"{FIELD_RAW_TEXT}.{field_name}"]
+    ret.__highlight_fields__ =[f"{field_name}"]
     return ret
 def __make_script_contains__(field_name, content, boost_score):
     from cy_es.cy_es_docs import DocumentFields
@@ -157,7 +158,7 @@ def __make_script_contains__(field_name, content, boost_score):
             "else{\n"
             "return @field.value.replace('\n',' ').replace('\t',' ').toLowerCase().indexOf(params.item)>-1;"
             "}")
-    src =_src_.replace("@field",f"doc['{FIELD_RAW_TEXT}.{field_name}']")
+    src =_src_.replace("@field",f"doc['{field_name}']")
     ret = DocumentFields()
     ret.__es_expr__ = {
         "filter": {
@@ -199,11 +200,11 @@ def __make_macth_pharse_script_score__(field_name, content, boost_score):
             "script_score": {
                 "query": {
                     "match_phrase":{
-                        f'{FIELD_RAW_TEXT}.{field_name}': __well_form__(content)
+                        f'{field_name}': __well_form__(content)
                     }
                 },
                 "script": {
-                    "source": score_source.replace("@field",f"doc['{FIELD_RAW_TEXT}.{field_name}']"),
+                    "source": score_source.replace("@field",f"doc['{field_name}']"),
                     "params": {
                         "text_search": content
                     }
@@ -213,7 +214,7 @@ def __make_macth_pharse_script_score__(field_name, content, boost_score):
         # "score_mode": "max"
         }}
     ret.__is_bool__ = True
-    ret.__highlight_fields__=[f'{FIELD_RAW_TEXT}.{field_name}']
+    ret.__highlight_fields__=[f'{field_name}']
     return ret
 
 def __make_query_string_script_score__(field_name, content, boost_score):
@@ -237,12 +238,12 @@ def __make_query_string_script_score__(field_name, content, boost_score):
                     "query": {
                         "query_string": {
                             "query": __well_form__(content),
-                            "fields": [f'{FIELD_RAW_TEXT}.{field_name}']
+                            "fields": [f'{field_name}']
                         }
                     },
                     "script_score": {
                         "script": {
-                            "inline": score_source.replace("@field",f"doc['{FIELD_RAW_TEXT}.{field_name}']"),
+                            "inline": score_source.replace("@field",f"doc['{field_name}']"),
                             "params": {
                                 "text_search": content
                             }
@@ -254,7 +255,7 @@ def __make_query_string_script_score__(field_name, content, boost_score):
         # "score_mode": "max"
     }
     ret.__is_bool__ = True
-    ret.__highlight_fields__ =[f'{FIELD_RAW_TEXT}.{field_name}']
+    ret.__highlight_fields__ =[f'{field_name}']
     return ret
 def __make_wild_card__(field_name, content, boost_score):
     from cy_es.cy_es_docs import DocumentFields
@@ -265,8 +266,8 @@ def __make_wild_card__(field_name, content, boost_score):
     ret_keyword.__es_expr__ = {
         "must": {
             "wildcard": {
-                f"{FIELD_RAW_TEXT}.{field_name}.keyword": {
-                    "value": "*"+__content__+"*",
+                f"{field_name}.keyword": {
+                    "value": "*"+content+"*",
                     "boost": max(boost_score - 250,boost_score)
                 }
             }
@@ -280,8 +281,8 @@ def __make_wild_card__(field_name, content, boost_score):
     ret_field.__es_expr__ = {
         "must": {
             "wildcard": {
-                f"{FIELD_RAW_TEXT}.{field_name}": {
-                    "value": "*"+__content__+"*",
+                f"{field_name}": {
+                    "value": "*"+content+"*",
                     "boost": boost_score
                 }
             }
@@ -340,7 +341,7 @@ def __make_regexp__(field_name, content, boost_score):
     ret_keyword.__es_expr__ = {
         "must": {
             "regexp":{
-                f"{FIELD_RAW_TEXT}.{field_name}.keyword": {
+                f"{field_name}.keyword": {
                     "value":".*"+_content_+".*",
                     "flags": "ALL",
                     "case_insensitive": False,
@@ -356,7 +357,7 @@ def __make_regexp__(field_name, content, boost_score):
     ret_content.__es_expr__ = {
         "must": {
             "regexp": {
-                f"{FIELD_RAW_TEXT}.{field_name}": {
+                f"{field_name}": {
                     "value": ".*" + _content_ + ".*",
                     "flags": "ALL",
                     "case_insensitive": False,
@@ -370,8 +371,8 @@ def __make_regexp__(field_name, content, boost_score):
     ret_content.__is_bool__ = True
     ret = ret_keyword | ret_content
     ret.__highlight_fields__ = [field_name, f"{field_name}.keyword"]
-    return ret_keyword
-def __make_match__(field_name, content, boost_score):
+    return ret_keyword | ret_content
+def __make_match__(field_name, content,escape_list:typing.Optional[str]='"'):
     """
         {
       "query": {
@@ -388,22 +389,39 @@ def __make_match__(field_name, content, boost_score):
     from cy_es.cy_es_docs import DocumentFields
 
     ret_content = DocumentFields()
-
-    KIBANA_SPECIAL = '+ - & | ! ( ) { } [ ] ^ " ~ * ? : \\ = > < / .'.split(' ')
-    _content_ = re.sub('([{}])'.format('\\'.join(KIBANA_SPECIAL)), r'\\\1', content)
+    _content_ = content
+    if escape_list is not  None:
+        _content_ = re.sub('([{}])'.format('\\'.join(escape_list)), r'\\\1', content)
     from cy_es.cy_es_manager import FIELD_RAW_TEXT
+    slop=2
+    filter_1 = {
+                    "match_phrase_prefix": {
+                        f"{field_name}": {
+                            "query":_content_,
+                            "boost": 1.0,
+                        "analyzer": "keyword"
+                        }
+                    }
 
+                }
+    filter_2 = {
+                    "match_bool_prefix": {
+                        f"{field_name}": {
+                            "query": _content_,
+                            "boost": 2.0,
+                            "operator": "and"
+                        }
+                    }
+                }
+    filters = [filter_2]
+    # if "://" not in content:
+    #     filters += [filter_2]
     ret_content.__es_expr__ = {
-        "must": {
-            "match_phrase_prefix": {
-                f"{FIELD_RAW_TEXT}.{field_name}": content
-            }
-
-        }
+        "should": filters
     }
     ret_content.__is_bool__=True
-    ret_content.__highlight_fields__=[f"{FIELD_RAW_TEXT}.{field_name}"]
-    ret_1 = DocumentFields(f"{FIELD_RAW_TEXT}.{field_name}")
+    ret_content.__highlight_fields__=[f"{field_name}"]
+    ret_1 = DocumentFields(f"{field_name}")
     # fx = ret_1.__contains__(_content_)
     return ret_content
 def __make_like__(field_name, content, boost_score):
@@ -460,14 +478,17 @@ def __make_like__(field_name, content, boost_score):
     #     }}
     # ret.__is_bool__ = True
     # ret.__highlight_fields__=[field_name]
-    ret_contains = __make_script_contains__(field_name=field_name,content=content,boost_score=0)
-    ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
-    ret_macth_pharse_script = __make_macth_pharse_script_score__(field_name=field_name,content=content,boost_score=0)
-    ret_wild_card = __make_wild_card__(field_name=field_name, content=content, boost_score=0)
-    ret_script_score = __make_query_string_script_score__(field_name=field_name, content=content, boost_score=0)
-    ret_match_phrase = __make_pharse_edgeNGram__(field_name=field_name, content=content, boost_score=0)
-    ret_re = __make_regexp__(field_name=field_name, content=content, boost_score=0)
-    ret = ret_query | ret_wild_card | ret_re
-    ret_m = __make_match__(field_name=field_name, content=content, boost_score=0)
-    return ret_m|ret_wild_card|ret_re
+    from cy_es.cy_es_manager import FIELD_RAW_TEXT
+    # ret_contains = __make_script_contains__(field_name=field_name,content=content,boost_score=0)
+    # ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
+    # ret_macth_pharse_script = __make_macth_pharse_script_score__(field_name=field_name,content=content,boost_score=0)
+    # ret_wild_card = __make_wild_card__(field_name=field_name, content=content, boost_score=0)
+    # ret_script_score = __make_query_string_script_score__(field_name=field_name, content=content, boost_score=0)
+    # ret_match_phrase = __make_pharse_edgeNGram__(field_name=field_name, content=content, boost_score=0)
+    # ret_re = __make_regexp__(field_name=field_name, content=content, boost_score=0)
+    # ret = ret_query | ret_wild_card | ret_re
+    # ret_m = __make_match__(field_name=f"{field_name}", content=content,escape_list='" / \\')
+    ret_m_1 = __make_match__(field_name=f"{field_name}", content=content, escape_list=None)
+
+    return ret_m_1 #| ret_wild_card|ret_re
 

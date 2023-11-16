@@ -227,9 +227,9 @@ class SearchEngine:
 
         if isinstance(privileges, dict):
             privileges = cy_es.text_lower(privileges)
-        content = self.vn_predictor.get_text(content)
-        content = original_content + " " + content
-        content_boots = self.vn.parse_word_segment(content=content, boot=[3])
+        # content = self.vn_predictor.get_text(content)
+        # content = original_content + " " + content
+        # content_boots = self.vn.parse_word_segment(content=content, boot=[3])
 
         search_expr = (cy_es.buiders.mark_delete == False) | (cy_es.buiders.mark_delete == None)
         if privileges is not None and privileges != {}:
@@ -241,24 +241,24 @@ class SearchEngine:
                 ),
                 suggest_handler=self.vn_predictor.get_text
             )
-        if content is not None and content != "" and content.lstrip().rstrip().strip() != "":
-            content_search_match_phrase = cy_es.match_phrase(
-                field=getattr(cy_es.buiders, "content"),
-                content=content,
-                boost=0.01,
-                # slop=1,
-                # analyzer="stop"
-
-            )
-
-            qr = cy_es.query_string(
-                fields=[getattr(cy_es.buiders, f"{self.get_content_field_name()}_seg")],
-                query=content_boots
-                # slop=1
-
-            )
-
-            search_expr = search_expr & (content_search_match_phrase | qr)
+        # if content is not None and content != "" and content.lstrip().rstrip().strip() != "":
+        #     content_search_match_phrase = cy_es.match_phrase(
+        #         field=getattr(cy_es.buiders, "content"),
+        #         content=content,
+        #         boost=0.01,
+        #         # slop=1,
+        #         # analyzer="stop"
+        #
+        #     )
+        #
+        #     qr = cy_es.query_string(
+        #         fields=[getattr(cy_es.buiders, f"{self.get_content_field_name()}_seg")],
+        #         query=content_boots
+        #         # slop=1
+        #
+        #     )
+        #
+        #     search_expr = search_expr & (content_search_match_phrase | qr)
             # search_expr.set_minimum_should_match(1)
         skip = page_index
         highlight_expr = None
@@ -287,12 +287,14 @@ class SearchEngine:
         highlight_expr += search_expr.get_highlight_fields()
         print(f"------------{skip}--{page_size}-------------------------")
         t = datetime.datetime.now()
+        from cy_es.cy_es_manager import FIELD_RAW_TEXT
         try:
             ret = cy_es.search(
                 client=self.client,
                 limit=page_size,
                 excludes=[
                     cy_es.buiders.content,
+                    getattr(cy_es.buiders,FIELD_RAW_TEXT),
 
                     cy_es.buiders.vn_on_accent_content],
                 index=self.get_index(app_name),
