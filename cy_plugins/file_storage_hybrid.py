@@ -29,7 +29,7 @@ class HybridFileStorage:
             self.full_dir = os.path.join(
                 self.file_storage_path, self.id
             )
-            self.filename = os.path.split(rel_file_path)[1]
+            self.filename = self.__well_form__(os.path.split(rel_file_path)[1])
             self.full_path = os.path.join(self.full_dir, self.filename)
             if not os.path.isdir(self.full_dir):
                 os.makedirs(self.full_dir, exist_ok=True)
@@ -210,3 +210,12 @@ class HybridFileStorage:
         )
 
         self.delegate = f
+
+    def __well_form__(self, client_file_name:str):
+        ret = ""
+        for x in client_file_name:
+            if x in "!@#$%^&*()+<>?[]:'\"~=+":
+                ret += "_"
+            else:
+                ret += x
+        return ret

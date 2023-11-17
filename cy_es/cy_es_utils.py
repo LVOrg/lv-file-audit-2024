@@ -204,7 +204,7 @@ def __make_macth_pharse_script_score__(field_name, content, boost_score):
                     }
                 },
                 "script": {
-                    "source": score_source.replace("@field",f"doc['{field_name}']"),
+                    "source": score_source.replace("@field",f"doc['{field_name}.keyword']"),
                     "params": {
                         "text_search": content
                     }
@@ -235,15 +235,22 @@ def __make_query_string_script_score__(field_name, content, boost_score):
     ret.__es_expr__ = {
         "must": {
             "function_score": {
+                    # "query": {
+                    #     "query_string": {
+                    #         "query": __well_form__(content),
+                    #         "fields": [f'{field_name}']
+                    #     }
+                    # },
                     "query": {
-                        "query_string": {
-                            "query": __well_form__(content),
-                            "fields": [f'{field_name}']
+                        "wildcard":{
+                            f"{field_name}":{
+                                "value": "*" + content + "*"
+                            }
                         }
                     },
                     "script_score": {
                         "script": {
-                            "inline": score_source.replace("@field",f"doc['{field_name}']"),
+                            "inline": score_source.replace("@field",f"doc['{field_name}.keyword']"),
                             "params": {
                                 "text_search": content
                             }
@@ -398,8 +405,7 @@ def __make_match__(field_name, content,escape_list:typing.Optional[str]='"'):
                     "match_phrase_prefix": {
                         f"{field_name}": {
                             "query":_content_,
-                            "boost": 1.0,
-                        "analyzer": "keyword"
+                            "boost": 1.0
                         }
                     }
 
@@ -413,14 +419,119 @@ def __make_match__(field_name, content,escape_list:typing.Optional[str]='"'):
                         }
                     }
                 }
-    filters = [filter_2]
+    score_source = ("if(@field.size()==0){\n"
+                    "return 0;"
+                    "}\n"
+                    "else{\n"
+                    "if(@field.value.toLowerCase().contains(params.text_search)){"
+                    "return 1000;"
+                    "}\n"
+                    "else{\n"
+                    "return 0;"
+                    "}"
+                    "}")
+    KIBANA_SPECIAL = '+ - & | ! ( ) { } [ ] ^ " ~ * ? : \\ = > < / .'.split(' ')
+    re_content = ""
+    for x in content:
+        if x in KIBANA_SPECIAL:
+            re_content+= '.+'
+        else:
+            re_content+= x
+    re_content = re_content.lstrip(' ').rstrip(' ')
+
+    script_score = {
+                "script_score": {
+                    "query": {
+                        "bool":{
+                            "should":[
+
+                                {
+                                    "match": {
+                                       field_name: content
+                                    }
+                                }
+                                # {
+                                #     "regexp": {
+                                #         f"{field_name}keyword": {
+                                #             "value": ".*308.*",
+                                #             "flags": "ALL",
+                                #             "case_insensitive": False
+                                #         }
+                                #     }
+                                # },{
+                                #     "regexp": {
+                                #         f"{field_name}": {
+                                #             "value": ".*000.*",
+                                #             "flags": "ALL",
+                                #             "case_insensitive": False
+                                #         }
+                                #     }
+                                # },
+                                # {
+                                #     "match_bool_prefix": {
+                                #         f"{field_name}": {
+                                #             "query":  _content_,
+                                #             "boost": 2.0,
+                                #             "operator": "or"
+                                #         }
+                                #     }
+                                # },
+                                # {
+                                #     "query_string": {
+                                #         "query": re_content,
+                                #         "fields": [f"{field_name}"]
+                                #
+                                #     }
+                                #
+                                # }
+                            ]
+                        }
+                        # "match": {field_name: __well_form__(content)},
+                        # "match_bool_prefix": {
+                        #     f"{field_name}": {
+                        #         "query":  _content_,
+                        #         "boost": 2.0,
+                        #         "operator": "and"
+                        #     }
+                        # }
+                        # "match_bool_prefix": {
+                        #     f"{field_name}": {
+                        #         "query": _content_,
+                        #         "boost": 2.0,
+                        #         "operator": "and"
+                        #     }
+                        # }
+                        # "wildcard": {
+                        #     f"{field_name}": {
+                        #         "value": "*"+__well_form__(content)+"*"
+                        #     }
+                        # }
+                    },
+                    "script": {
+                        "source": score_source.replace("@field",f"doc['{field_name}.keyword']"),
+                         # "source": "return 1;",
+                        "params": {
+                            "text_search": content
+                        }
+                    },
+
+
+            }
+    }
+    filters = [filter_1,filter_2]
+    filters = [script_score]
     # if "://" not in content:
     #     filters += [filter_2]
     ret_content.__es_expr__ = {
         "should": filters
     }
     ret_content.__is_bool__=True
-    ret_content.__highlight_fields__=[f"{field_name}"]
+    from cy_es.cy_es_objective import __ScriptField__
+    script_field = __ScriptField__(
+        name="NewScore",
+        source=score_source.replace("@field",f"doc['{field_name}.keyword']")
+    )
+    ret_content.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",script_field]
     ret_1 = DocumentFields(f"{field_name}")
     # fx = ret_1.__contains__(_content_)
     return ret_content
@@ -480,7 +591,7 @@ def __make_like__(field_name, content, boost_score):
     # ret.__highlight_fields__=[field_name]
     from cy_es.cy_es_manager import FIELD_RAW_TEXT
     # ret_contains = __make_script_contains__(field_name=field_name,content=content,boost_score=0)
-    # ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
+    ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
     # ret_macth_pharse_script = __make_macth_pharse_script_score__(field_name=field_name,content=content,boost_score=0)
     # ret_wild_card = __make_wild_card__(field_name=field_name, content=content, boost_score=0)
     # ret_script_score = __make_query_string_script_score__(field_name=field_name, content=content, boost_score=0)

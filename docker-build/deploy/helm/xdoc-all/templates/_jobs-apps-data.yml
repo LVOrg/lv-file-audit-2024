@@ -57,8 +57,8 @@ data:
   - name: app-reindex-all-data
     endpoint: app_re_index_all_data.py
     image: {{.images.jobs.slim}}
-  - name: files-fix-data-search
-    endpoint: files_fix_data_search.py
-    image: {{.images.jobs.slim}}
+#  - name: files-fix-data-search
+#    endpoint: files_fix_data_search.py
+#    image: {{.images.jobs.slim}}
 ---
 {{- end -}}

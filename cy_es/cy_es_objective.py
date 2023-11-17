@@ -364,6 +364,10 @@ def search(client: Elasticsearch,
     elif isinstance(filter, DocumentFields):
         body = filter.__get_expr__()
 
+    script_fields = [x for x in filter.__highlight_fields__ or [] if isinstance(x,__ScriptField__)]
+    h_fields = [x for x in filter.__highlight_fields__ or [] if not isinstance(x, __ScriptField__)]
+    filter.__highlight_fields__ = h_fields
+
     body["from"] = skip * limit
     body["size"] = limit
     if excludes is None:
@@ -2234,3 +2238,12 @@ import asyncio
 
 async def natural_logic_parse_async(expr):
     return natural_logic_parse(expr)
+
+class __ScriptField__:
+    name: str
+    source: str
+    lan: str
+    def __init__(self,name:str,source:str,lan:typing.Optional[str]=None):
+        self.source=source
+        self.name=name
+        self.lan=lan or "painless"

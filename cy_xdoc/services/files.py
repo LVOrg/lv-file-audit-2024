@@ -444,7 +444,7 @@ class FileServices:
         if upload.MainFileId is not None: delete_file_list_by_id = [str(upload.MainFileId)]
         if upload.OCRFileId is not None: delete_file_list_by_id += [str(upload.OCRFileId)]
         if upload.ThumbFileId is not None: delete_file_list_by_id += [str(upload.ThumbFileId)]
-        delete_file_list += [upload.StoragePath]
+
         self.file_storage_service.delete_files(app_name=app_name, files=delete_file_list, run_in_thread=True)
         self.file_storage_service.delete_files_by_id(app_name=app_name, ids=delete_file_list_by_id, run_in_thread=True)
         self.search_engine.delete_doc(app_name, upload_id)
@@ -529,7 +529,12 @@ class FileServices:
 
         item.ThumbHeight = 700
         data_insert = document_context.fields.reduce(item, skip_require=False)
-        data_insert.MainFileId = item.MainFileId
+        ext_path = "unknown"
+        if data_insert.get("FileExt"):
+            ext_path = data_insert.FileExt[0:3]
+        relocate_path = f"local://{app_name}/{data_insert.RegisterOn.year}/{data_insert.RegisterOn.month:02}/{data_insert.RegisterOn.day:02}/{ext_path}/{item.id}"
+        data_insert.MainFileId = relocate_path
+
 
         if not new_fsg.get_id().startswith("local://"):
             item.ThumbId = None
@@ -538,7 +543,7 @@ class FileServices:
             if isinstance(item.OCRFileId,str):
                 data_insert.OCRFileId = item.OCRFileId.replace(f"/{upload_id}/", f"/{item.id}/")
             if isinstance(item.ThumbFileId,str):
-                data_insert.ThumbFileId = item.ThumbFileId.replace(f"/{upload_id}/", f"/{item.id}/")
+                data_insert.ThumbFileId = f"{relocate_path}/{os.path.split(item.ThumbFileId)[1]}"
             if isinstance(item.AvailableThumbs,list):
                 data_insert.AvailableThumbs=[
                     x.replace(f"/{upload_id}/", f"/{item.id}/") for x in item.AvailableThumbs
