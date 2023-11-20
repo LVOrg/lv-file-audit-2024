@@ -159,10 +159,11 @@ rabbitmq__:
   msg: lacviet
 rabbitmq:
   port_: 31674
-  server: 172.16.7.99
+#  server: 172.16.7.99
+  server: 172.16.7.91
   port: 31674
-  msg: v99-dev
-#  msg: v2
+#  msg: v99-dev
+  msg: v2
 broker:
   is_use: true
   servers: 172.16.7.99:30992

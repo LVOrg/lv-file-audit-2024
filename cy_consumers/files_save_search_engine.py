@@ -26,7 +26,7 @@ content, info = content_services.get_text(__file__)
 
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
-
+from cy_utils import texts
 
 @broker(message=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE)
 class Process:
@@ -53,7 +53,7 @@ class Process:
                 self.logger.info(f"get content from{full_file_path} and get no content")
                 msg.delete(msg_info)
                 return
-
+            content = texts.well_form_text(content)
             upload_item = file_services.get_upload_register(
                 app_name=msg_info.AppName,
                 upload_id=msg_info.Data["_id"]

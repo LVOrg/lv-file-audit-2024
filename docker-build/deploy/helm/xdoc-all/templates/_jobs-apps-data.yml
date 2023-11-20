@@ -15,9 +15,9 @@ data:
   - name: files-generate-image-from-video
     endpoint: files_generate_image_from_video.py
     image: {{.images.jobs.slim}}
-  - name: files-ocr-pdf
-    endpoint: files_ocr_pdf.py
-    image: {{.images.jobs.large}}
+#  - name: files-ocr-pdf
+#    endpoint: files_ocr_pdf.py
+#    image: {{.images.jobs.large}}
   - name: files-generate-thumbs
     endpoint: files_generate_thumbs.py
     image: {{.images.jobs.slim}}

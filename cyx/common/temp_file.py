@@ -33,6 +33,7 @@
 import os
 import pathlib
 import shutil
+import typing
 
 import gridfs.errors
 
@@ -143,7 +144,7 @@ class TempFiles:
         """
         return self.__tem_path__
 
-    def get_path(self, app_name, upload_id, file_ext,file_id: str,sync_file_if_not_exit=True) -> str:
+    def get_path(self, app_name, upload_id, file_ext,file_id: str,sync_file_if_not_exit=True) -> typing.Optional[str]:
         """
         Get Full path file in tenant with root temporary directory in get_root_dir()
         Example: get_path( app_name ='my-app',upload_id='123',file_ext='txt')
@@ -168,6 +169,8 @@ class TempFiles:
                      app_name=app_name,
                         upload_id=upload_id
                 )
+                if data_item is None:
+                    return  None
                 if not  data_item.MainFileId.startswith("local://"):
                     return data_item.MainFileId
             return full_file_path
