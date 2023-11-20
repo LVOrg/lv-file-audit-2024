@@ -69,6 +69,25 @@ def get_meta_info_keyword_fields(
             x.startswith(f"{FIELD_RAW_TEXT}.") and not x.startswith("meta_info.")]
 
 
+def __well_form_text__(content:typing.Optional[str])->typing.Optional[str]:
+    if content is None:
+        return None
+    special_chracter=[
+        "\n",
+        "\r",
+        "\t"
+    ]
+    for ch in special_chracter:
+        if ch in content:
+            content=content.replace(ch," ")
+    while "  " in content:
+        content = content.replace("  "," ")
+    content = content.rstrip(" ").lstrip(" ")
+    return content
+
+
+
+
 def get_fields_text(
         data: typing.Optional[dict],
         key: typing.Optional[typing.List[str]] = None,
@@ -114,9 +133,10 @@ def get_fields_text(
             continue
 
         if isinstance(v, str):
+            well_form_value = __well_form_text__(v)
             if key_len == 0:
                 ret += [k]
-                vals[k] = v
+                vals[k] = well_form_value
             else:
                 ret += [f"{'.'.join(key)}.{k}"]
                 _f_vals_ = ret_dict
@@ -125,7 +145,7 @@ def get_fields_text(
                     if _f_vals_.get(key[_k_]) is None:
                         _f_vals_[key[_k_]] = {}
                     _f_vals_ = _f_vals_[key[_k_]]
-                _f_vals_[k] = v
+                _f_vals_[k] = well_form_value
                 # vals[f"{key}.{k}"] = v
         if isinstance(v, dict) and v != {}:
             key += [k]

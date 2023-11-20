@@ -723,6 +723,15 @@ def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type:
                         f"Hey!\n what the fu**king that?\n.thous should call {x.__name__} << {{your value}} ")
                 data_update[x.__name__] = x.__value__
     try:
+        from cy_es import cy_es_manager
+        data_update["data_item"]["FileName"] = "http://www.codx.vn CV-127/123/12 BU-1234/FX-234"
+        cy_es_manager.update_mapping(
+            client=client,
+            index=index,
+            data=data_update
+        )
+        wildcard_fields, wildcard_data = cy_es_manager.get_fields_text(data_update)
+        data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
         ret_update = client.update(
             index=index,
             id=id,

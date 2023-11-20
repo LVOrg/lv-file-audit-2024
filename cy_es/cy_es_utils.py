@@ -298,7 +298,7 @@ def __make_wild_card__(field_name, content, boost_score):
         # "score_mode": "max"
     }
     ret_field.__is_bool__ = True
-    ret= ret_field | ret_keyword
+    ret= ret_field
     ret.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword"]
     return ret
 def __make_pharse_edgeNGram__(field_name, content, boost_score):
@@ -638,13 +638,17 @@ def __make_like__(field_name, content, boost_score):
     # ret_contains = __make_script_contains__(field_name=field_name,content=content,boost_score=0)
     ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
     # ret_macth_pharse_script = __make_macth_pharse_script_score__(field_name=field_name,content=content,boost_score=0)
-    # ret_wild_card = __make_wild_card__(field_name=field_name, content=content, boost_score=0)
+
     # ret_script_score = __make_query_string_script_score__(field_name=field_name, content=content, boost_score=0)
     # ret_match_phrase = __make_pharse_edgeNGram__(field_name=field_name, content=content, boost_score=0)
     # ret_re = __make_regexp__(field_name=field_name, content=content, boost_score=0)
     # ret = ret_query | ret_wild_card | ret_re
     # ret_m = __make_match__(field_name=f"{field_name}", content=content,escape_list='" / \\')
     ret_m_1 = __make_match__(field_name=f"{field_name}", content=content, escape_list=None)
-
-    return ret_m_1 #| ret_wild_card|ret_re
+    from cy_es  import cy_es_manager
+    ret_wild_card = __make_wild_card__(field_name=f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}", content=content, boost_score=0)
+    ret_query = ret_wild_card|ret_m_1
+    ret_wild_card.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}"]
+    ret_query.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}"]
+    return ret_query
 
