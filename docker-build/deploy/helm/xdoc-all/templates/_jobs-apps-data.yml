@@ -30,15 +30,18 @@ data:
   - name: files-text-from-pdf
     endpoint: files_text_from_pdf.py
     image: {{.images.jobs.large}}
-  - name: files-save-orc-pdf-file
-    endpoint: files_save_orc_pdf_file.py
-    image: {{.images.jobs.slim}}
+    replicate: 1
+#  - name: files-save-orc-pdf-file
+#    endpoint: files_save_orc_pdf_file.py
+#    image: {{.images.jobs.slim}}
   - name: files-save-search-engine
     endpoint: files_save_search_engine.py
     image: {{.images.jobs.slim}}
+    replicate: 1
   - name: files-extrac-text-from-image
     endpoint: files_extrac_text_from_image.py
     image: {{.images.jobs.large}}
+    replicate: 1
   - name: files-clean-up
     endpoint: files_clean_up.py
     replicate: 1
