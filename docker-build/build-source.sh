@@ -9,7 +9,10 @@ buildSourceFunc(){
               "cy_xdoc"
               "cylibs"
               "cyx",
-              "cy_plugins"
+              "cy_plugins",
+              "cy_es",
+              "cy_docs",
+              "bson"
               )
   path_to_env= "$(realpath $(pwd)/../env_webapi/bin)"
 

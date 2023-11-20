@@ -10,6 +10,8 @@ from fastapi import (
     Body
 
 )
+
+import cyx.common.msg
 from cy_controllers.models.file_contents import (
     UploadInfoResult, ParamFileGetInfo,ReadableParam
 )
@@ -50,30 +52,43 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
+        try:
+            thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
+            cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
+            if cache_thumb_path and os.path.isfile(cache_thumb_path):
+                return FileResponse(cache_thumb_path)
 
-        thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
-        cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
-        if cache_thumb_path and os.path.isfile(cache_thumb_path):
-            return FileResponse(cache_thumb_path)
-
-        upload_id = directory.split('/')[0]
-        fs = await self.file_service.get_main_main_thumb_file_async(app_name, upload_id)
-        self.file_service.db_connect.db(app_name)
-        if fs is None:
-            return Response(
-                status_code=404
+            upload_id = directory.split('/')[0]
+            fs = await self.file_service.get_main_main_thumb_file_async(app_name, upload_id)
+            self.file_service.db_connect.db(app_name)
+            if fs is None:
+                return Response(
+                    status_code=404
+                )
+            import inspect
+            if inspect.iscoroutinefunction(fs.read):
+                content = await fs.read(fs.get_size())
+            else:
+                content = fs.read(fs.get_size())
+            fs.seek(0)
+            cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
+            del content
+            mime_type, _ = mimetypes.guess_type(directory)
+            ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+            return ret
+        except FileNotFoundError as e:
+            data_info = self.file_service.get_upload_register(
+                app_name=app_name,
+                upload_id=upload_id
             )
-        import inspect
-        if inspect.iscoroutinefunction(fs.read):
-            content = await fs.read(fs.get_size())
-        else:
-            content = fs.read(fs.get_size())
-        fs.seek(0)
-        cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
-        del content
-        mime_type, _ = mimetypes.guess_type(directory)
-        ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
-        return ret
+            if data_info is not None:
+                self.msg_service.emit(
+                    app_name=app_name,
+                    mime_type = cyx.common.msg.MSG_FILE_UPLOAD,
+                    data= data_info
+                )
+            response = Response(content="Resource not found", status_code=404)
+            return response
 
     @controller.router.get(
         "/api/{app_name}/file/{directory:path}"

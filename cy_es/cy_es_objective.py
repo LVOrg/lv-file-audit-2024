@@ -347,7 +347,7 @@ def search(client: Elasticsearch,
            excludes: typing.Optional[typing.List[DocumentFields]] = None,
            skip: int = 0,
            limit: int = 50,
-           highlight: DocumentFields = None,
+           highlight: typing.Optional[typing.Union[DocumentFields, typing.List]] = None,
            sort=None,
            doc_type: str = "_doc",
            logic_filter=None) -> SearchResult:
@@ -364,18 +364,18 @@ def search(client: Elasticsearch,
     elif isinstance(filter, DocumentFields):
         body = filter.__get_expr__()
 
-    script_fields = [x for x in filter.__highlight_fields__ or [] if isinstance(x,__ScriptField__)]
+    script_fields = [x for x in filter.__highlight_fields__ or [] if isinstance(x, __ScriptField__)]
     h_fields = [x for x in filter.__highlight_fields__ or [] if not isinstance(x, __ScriptField__)]
     filter.__highlight_fields__ = h_fields
 
     body["from"] = skip * limit
     body["size"] = limit
     if excludes is None:
-        excludes=[]
+        excludes = []
     else:
         excludes = [x.__name__ for x in excludes]
-    from  cy_es.cy_es_manager import FIELD_RAW_TEXT
-    excludes+=["content",FIELD_RAW_TEXT]
+    from cy_es.cy_es_manager import FIELD_RAW_TEXT
+    excludes += ["content", FIELD_RAW_TEXT]
     if len(excludes) > 0:
         body["_source"] = {
             "excludes": [x for x in excludes]
@@ -389,6 +389,7 @@ def search(client: Elasticsearch,
                 }
             }
     """
+
     if highlight:
         """
         "highlight": {
@@ -400,10 +401,15 @@ def search(client: Elasticsearch,
   }
         """
         fields = {}
+        # highlight = [x for x in highlight if not isinstance(x, __ScriptField__)]
         for x in highlight:
+            if isinstance(x, __ScriptField__):
+                continue
             if isinstance(x, str):
                 fields[x] = {}
             elif isinstance(x, DocumentFields):
+                if isinstance(x.__name__, __ScriptField__):
+                    continue
                 fields[x.__name__] = {}
         __highlight = {
             "require_field_match": False,
@@ -414,16 +420,37 @@ def search(client: Elasticsearch,
         body["highlight"] = __highlight
     elif highlight:
         body["highlight"] = highlight
-    _sort = "_score:desc,"
-    if sort is not None:
-        if isinstance(sort, list):
-            for x in sort:
-                if isinstance(x, DocumentFields):
-                    _sort += x.__get_expr__() + ","
-                elif isinstance(x, str):
-                    _sort += x + ","
+    _sort_fields_ = []
+    if len(script_fields)==0:
+        _sort_fields_+=[
+            {"_score":"desc"}
+        ]
+    else:
 
-    _sort = _sort[:-1]
+        _sort_fields_ +=[
+            {
+                "_script": {
+                    "type": 'number',
+                    "order": "desc",
+                    "script": {
+                        "lang": 'painless',
+                        "source": script_fields[0].source,
+                        "params": {
+                            "text_search": script_fields[0].params
+                        }
+                    }
+                }
+            }
+        ]
+    # if sort is not None:
+    #     if isinstance(sort, list):
+    #         for x in sort:
+    #             if isinstance(x, DocumentFields):
+    #                 _sort += x.__get_expr__() + ","
+    #             elif isinstance(x, str):
+    #                 _sort += x + ","
+    #
+    # _sort = _sort[:-1]
     #
     # body["aggs"]= {
     #     "keywords" : {
@@ -435,7 +462,21 @@ def search(client: Elasticsearch,
     #         }
     # }
     try:
-        ret = client.search(index=index, doc_type=doc_type, body=body, sort=_sort)
+        if len(script_fields)>0:
+            body["script_fields"] = {
+                script_fields[0].name:{
+                    "script":{
+                        "lang": "painless",
+                        "source": script_fields[0].source,
+                        "params": {
+                            "text_search":script_fields[0].params
+                        },
+
+                    }
+                }
+            }
+        body["sort"]=_sort_fields_
+        ret = client.search(index=index, doc_type=doc_type, body=body)
         return SearchResult(ret)
     except elasticsearch.exceptions.RequestError as e:
         print(body['query'])
@@ -1082,15 +1123,13 @@ def __build_search__(fields, content: str, suggest_handler=None):
         ret = ret.rstrip(" OR ")
         return ret
 
-
-
     from vws import RDRSegmenter, Tokenizer
     rdrsegment = RDRSegmenter.RDRSegmenter()
     tokenizer = Tokenizer.Tokenizer()
 
     def make_expr(content: str, start_score: float) -> str:
         seg_words = rdrsegment.segmentRawSentences(tokenizer, content)
-        seg_words = [x for x in seg_words if ' ' in x and len(x.rstrip(' ').lstrip(' ').strip(' '))>0]
+        seg_words = [x for x in seg_words if ' ' in x and len(x.rstrip(' ').lstrip(' ').strip(' ')) > 0]
         and_content_seg, or_content_seg = make_search(seg_words)
         ret = jon_expr([
 
@@ -1099,6 +1138,7 @@ def __build_search__(fields, content: str, suggest_handler=None):
             content
         ], start_score)
         return ret
+
     from cy_es.cy_es_utils import __well_form__
     content = content.replace('  ', ' ').lstrip(' ').rstrip(' ')
     content = __well_form__(content)
@@ -2239,11 +2279,15 @@ import asyncio
 async def natural_logic_parse_async(expr):
     return natural_logic_parse(expr)
 
+
 class __ScriptField__:
     name: str
     source: str
     lan: str
-    def __init__(self,name:str,source:str,lan:typing.Optional[str]=None):
-        self.source=source
-        self.name=name
-        self.lan=lan or "painless"
+    params: typing.Any
+
+    def __init__(self, name: str, source: str, params: typing.Any, lan: typing.Optional[str] = None):
+        self.source = source
+        self.name = name
+        self.lan = lan or "painless"
+        self.params = params

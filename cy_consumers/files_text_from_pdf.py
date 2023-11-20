@@ -16,7 +16,7 @@ from cyx.common import config
 from cyx.common.temp_file import TempFiles
 from cyx.media.pdf import PDFService
 from cyx.media.image_extractor import ImageExtractorService
-
+from cy_utils import texts
 import pymongo
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
@@ -53,6 +53,7 @@ class Process:
         while try_count>0:
             try:
                 text = self.pdf_file_service.ocr_text(full_file)
+                text = texts.well_form_text(text)
                 upload_item = self.file_services.get_upload_register(
                     app_name=msg_info.AppName,
                     upload_id=msg_info.Data["_id"]

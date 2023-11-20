@@ -218,7 +218,7 @@ class PDFService:
             img = self.get_image(output_page)
             langs = ['vi', 'en']
             text += " ".join(self.get_easyocr_reader(langs=langs).readtext(img,detail=0))
-            text += self.get_text(output_page)
+            text += " "+self.get_text(output_page)
             print(f"Process {output_page} was completed")
         try:
             shutil.rmtree(split_dir)

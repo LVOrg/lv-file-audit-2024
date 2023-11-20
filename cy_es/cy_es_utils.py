@@ -401,7 +401,7 @@ def __make_match__(field_name, content,escape_list:typing.Optional[str]='"'):
         _content_ = re.sub('([{}])'.format('\\'.join(escape_list)), r'\\\1', content)
     from cy_es.cy_es_manager import FIELD_RAW_TEXT
     slop=2
-    filter_1 = {
+    match_phrase_prefix = {
                     "match_phrase_prefix": {
                         f"{field_name}": {
                             "query":_content_,
@@ -410,7 +410,7 @@ def __make_match__(field_name, content,escape_list:typing.Optional[str]='"'):
                     }
 
                 }
-    filter_2 = {
+    match_bool_prefix = {
                     "match_bool_prefix": {
                         f"{field_name}": {
                             "query": _content_,
@@ -419,97 +419,132 @@ def __make_match__(field_name, content,escape_list:typing.Optional[str]='"'):
                         }
                     }
                 }
+    match = {
+        "match": {
+            f"{field_name}": content
+        }
+    }
+    simple = {
+        "simple_query_string" : {
+          "query" : content,
+          "fields" : [
+            field_name
+          ],
+          "flags" : -1,
+          "default_operator" : "AND",
+          "analyze_wildcard" : True,
+          "auto_generate_synonyms_phrase_query" : True,
+          "fuzzy_prefix_length" : 0,
+          "fuzzy_max_expansions" : 0,
+          "fuzzy_transpositions" : True
+        }}
+    wildcard = {
+        "wildcard": {
+            f"{field_name}": "*"+content + "*"
+        }
+    }
+    prefix = {
+        "prefix": {
+         field_name: {
+            "value": content
+          }
+        }
+    }
+    prefix_keyword = {
+        "prefix": {
+            f"{field_name}.keyword": {
+                "value": content
+            }
+        }
+    }
     score_source = ("if(@field.size()==0){\n"
                     "return 0;"
                     "}\n"
                     "else{\n"
-                    "if(@field.value.toLowerCase().contains(params.text_search)){"
+                    "if(@field.value.toLowerCase().contains(params.text_search.toLowerCase())){"
                     "return 1000;"
                     "}\n"
                     "else{\n"
                     "return 0;"
                     "}"
                     "}")
-    KIBANA_SPECIAL = '+ - & | ! ( ) { } [ ] ^ " ~ * ? : \\ = > < / .'.split(' ')
-    re_content = ""
-    for x in content:
-        if x in KIBANA_SPECIAL:
-            re_content+= '.+'
-        else:
-            re_content+= x
-    re_content = re_content.lstrip(' ').rstrip(' ')
+    # score_source = "if(@field.size()>0) { return  @field.value.length() +@field.value.indexOf(params.text_search);} return  @field.length();"
+    score_source = score_source.replace("@field", f"doc['{field_name}.keyword']").replace("@ValueFiel",f"doc['{field_name}']")
 
+    KIBANA_SPECIAL = '+ - & | ! ( ) { } [ ] ^ " ~ * ? : \\ = > < / .'.split(' ')
+    # re_content = ""
+    # for x in content:
+    #     if x in KIBANA_SPECIAL:
+    #         re_content+= '.*'
+    #     else:
+    #         re_content+= x
+    # re_content = re_content.lstrip(' ').rstrip(' ')
+    # filter_re = {
+    #     "regexp": {
+    #         f"{field_name}": {
+    #             "value": "*"+re_content+"*",
+    #             "flags": "ALL",
+    #             "case_insensitive": False
+    #         }
+    #     }
+    # }
+    # items = []
+    # fx=""
+    # check=KIBANA_SPECIAL+[' ']
+    # for c in content:
+    #     if c in check:
+    #         items+=[fx]
+    #         fx=""
+    #     else:
+    #         fx+=c
+    # items+=[fx]
+    # filter_ws =[]
+    # i=0
+    # fullword=""
+    # for x in items:
+    #     if i==0:
+    #         filter_w = {
+    #             "wildcard": {
+    #                 f"{field_name}": "*" + x
+    #             }
+    #         }
+    #     elif i==len(items)-1:
+    #         filter_w = {
+    #             "wildcard": {
+    #                 f"{field_name}": x + "*"
+    #             }
+    #         }
+    #     else:
+    #         fullword+="('"+x+"') AND "
+    #     i+=1
+    #
+    #     filter_ws+=[filter_w]
+    # fullword = fullword.rstrip(" AND ")
+    # filter_ws+=[{
+    #         "query_string": {
+    #             "query": __well_form__(fullword),
+    #             "fields": [f"{field_name}"]
+    #
+    #         },
+    #
+    #     }]
     script_score = {
                 "script_score": {
                     "query": {
                         "bool":{
                             "should":[
-
-                                {
-                                    "match": {
-                                       field_name: content
-                                    }
-                                }
-                                # {
-                                #     "regexp": {
-                                #         f"{field_name}keyword": {
-                                #             "value": ".*308.*",
-                                #             "flags": "ALL",
-                                #             "case_insensitive": False
-                                #         }
-                                #     }
-                                # },{
-                                #     "regexp": {
-                                #         f"{field_name}": {
-                                #             "value": ".*000.*",
-                                #             "flags": "ALL",
-                                #             "case_insensitive": False
-                                #         }
-                                #     }
-                                # },
-                                # {
-                                #     "match_bool_prefix": {
-                                #         f"{field_name}": {
-                                #             "query":  _content_,
-                                #             "boost": 2.0,
-                                #             "operator": "or"
-                                #         }
-                                #     }
-                                # },
-                                # {
-                                #     "query_string": {
-                                #         "query": re_content,
-                                #         "fields": [f"{field_name}"]
-                                #
-                                #     }
-                                #
-                                # }
+                                prefix,
+                                prefix_keyword,
+                                wildcard,
+                                match_bool_prefix,
+                                match_phrase_prefix
                             ]
                         }
-                        # "match": {field_name: __well_form__(content)},
-                        # "match_bool_prefix": {
-                        #     f"{field_name}": {
-                        #         "query":  _content_,
-                        #         "boost": 2.0,
-                        #         "operator": "and"
-                        #     }
-                        # }
-                        # "match_bool_prefix": {
-                        #     f"{field_name}": {
-                        #         "query": _content_,
-                        #         "boost": 2.0,
-                        #         "operator": "and"
-                        #     }
-                        # }
-                        # "wildcard": {
-                        #     f"{field_name}": {
-                        #         "value": "*"+__well_form__(content)+"*"
-                        #     }
-                        # }
+
                     },
                     "script": {
-                        "source": score_source.replace("@field",f"doc['{field_name}.keyword']"),
-                         # "source": "return 1;",
+                        # "source": score_source,
+                         "source": "return 1;",
                         "params": {
                             "text_search": content
                         }
@@ -518,22 +553,32 @@ def __make_match__(field_name, content,escape_list:typing.Optional[str]='"'):
 
             }
     }
-    filters = [filter_1,filter_2]
-    filters = [script_score]
+    # filters =filter_ws # [filter_1,filter_2]+filter_ws
+    # filters = [script_score]
     # if "://" not in content:
     #     filters += [filter_2]
+    # filters += [filter_w]
     ret_content.__es_expr__ = {
-        "should": filters
+        "must": script_score
     }
     ret_content.__is_bool__=True
     from cy_es.cy_es_objective import __ScriptField__
     script_field = __ScriptField__(
         name="NewScore",
-        source=score_source.replace("@field",f"doc['{field_name}.keyword']")
+        source=score_source.replace("@field",f"doc['{field_name}.keyword']"),
+        params=content
     )
-    ret_content.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",script_field]
-    ret_1 = DocumentFields(f"{field_name}")
+    # ret_content.__es_expr__= filter_1
+    # ret_content.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",script_field]
+    # ret_1 = DocumentFields(f"{field_name}")
     # fx = ret_1.__contains__(_content_)
+    ret_content.__highlight_fields__+=[script_field]
+    script_filter= DocumentFields()
+    script_filter.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",script_field]
+    script_filter.__is_bool__ = True
+    script_filter.__es_expr__= {
+        "must": script_score
+    }
     return ret_content
 def __make_like__(field_name, content, boost_score):
     """
