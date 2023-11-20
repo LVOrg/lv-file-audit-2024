@@ -27,20 +27,39 @@ content, info = content_services.get_text(__file__)
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
 from cy_utils import texts
+from cy_xdoc.services.files import FileServices
+from cy_xdoc.services.search_engine import SearchEngine
+from cyx.common.temp_file import TempFiles
+
 
 @broker(message=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE)
 class Process:
-    def __init__(self, logger=cy_kit.singleton(LoggerService)):
+    def __init__(self,
+                 logger=cy_kit.singleton(LoggerService),
+                 search_engine: SearchEngine = cy_kit.singleton(SearchEngine),
+                 file_services=cy_kit.singleton(FileServices),
+                 temp_file=cy_kit.singleton(TempFiles)
+                 ):
         self.logger = logger
+        self.search_engine = search_engine
+        self.file_services = file_services
+        self.temp_file = temp_file
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         try:
-            from cy_xdoc.services.files import FileServices
-            from cy_xdoc.services.search_engine import SearchEngine
-            search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
-            file_services = cy_kit.singleton(FileServices)
+
+
+
 
             full_file_path = msg_info.Data['processing_file']
+            if full_file_path is None:
+                if (msg_info.Data.get("MainFileId") or "").startswith("local://"):
+                    full_file_path = self.temp_file.get_path(
+                        app_name=msg_info.AppName,
+                        file_ext=msg_info.Data["FileExt"],
+                        upload_id=msg_info.Data["_id"],
+                        file_id=msg_info.Data.get("MainFileId")
+                    )
             if not os.path.isfile(full_file_path):
                 self.logger.info(f"{full_file_path} was not found msg was delete")
                 msg.delete(msg_info)
@@ -54,11 +73,11 @@ class Process:
                 msg.delete(msg_info)
                 return
             content = texts.well_form_text(content)
-            upload_item = file_services.get_upload_register(
+            upload_item = self.file_services.get_upload_register(
                 app_name=msg_info.AppName,
                 upload_id=msg_info.Data["_id"]
             )
-            search_engine.update_content(
+            self.search_engine.update_content(
                 app_name=msg_info.AppName,
                 id=msg_info.Data["_id"],
                 content=content,
