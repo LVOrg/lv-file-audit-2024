@@ -3,7 +3,7 @@ import typing
 import elasticsearch
 import elasticsearch.exceptions
 
-FIELD_RAW_TEXT = "FIELDS_RAW_TEXT_V2"
+FIELD_RAW_TEXT = "FIELDS_WILD_CARD_V2"
 
 
 def get_mapping(client: elasticsearch.Elasticsearch, index: str) -> typing.Optional[dict]:
@@ -143,8 +143,8 @@ def __create_mapping__(client: elasticsearch.Elasticsearch, index: str, fields: 
     properties = {}
     for x in fields:
         properties[f"{FIELD_RAW_TEXT}.{x}"] = {
-            "fielddata": True,
-            "type": "text"
+            # "fielddata": True,
+            "type": "wildcard"
         }
     client.indices.put_mapping(
         index=index,
@@ -173,8 +173,8 @@ def update_mapping(
             if ".meta_data.meta_data" in x or "data_item.meta_data." in x:
                 continue
             properties[f"{FIELD_RAW_TEXT}.{x}"] = {
-                "fielddata": True,
-                "type": "text"
+                # "fielddata": True,
+                "type": "wildcard"
             }
         client.indices.put_mapping(
             index=index,

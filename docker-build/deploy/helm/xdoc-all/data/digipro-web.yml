@@ -144,6 +144,6 @@ webApi:
 #msg:
 #  name: rabbit-dev
 #  namespace: file-msg
-#cache:
-#  name: file-cache
-#  namespace: file-cache
+cache:
+  name: file-cache
+  namespace: file-cache
