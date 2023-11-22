@@ -1,10 +1,9 @@
 images:
-  web: nttlong/fs:fs.tiny.amd.1.6
+  web: nttlong/fs:fs.tiny.amd.3.1
   jobs:
-    slim: nttlong/fs:fs.slim.amd.1.5
-    medium: nttlong/fs:fs.medium.amd.1.2
-    large: nttlong/fs:fs.large.amd.1.5
-
+    slim: nttlong/fs:fs.slim.amd.3.1
+    medium: nttlong/fs:fs.medium.amd.3.1
+    large: nttlong/fs:fs.large.amd.3.1
 
 config:
   logs_url: https://hooks.slack.com/services/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

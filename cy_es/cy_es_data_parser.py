@@ -1,6 +1,9 @@
 import datetime
 import re
 def try_parse_date(str_date):
+    if not isinstance(str_date, str):
+        return None, False
+
     if not isinstance(str_date, str) or '+' not in str_date and str_date.__len__() >= 27:
         try:
             t = datetime.datetime.strptime(str_date[0:26] + 'Z', '%Y-%m-%dT%H:%M:%S.%fZ')

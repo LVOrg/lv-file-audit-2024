@@ -21,4 +21,3 @@ grpcio
 grpcio-tools
 slackclient
 celery
-elasticsearch-dsl

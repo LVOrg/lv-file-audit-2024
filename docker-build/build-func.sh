@@ -33,6 +33,7 @@ buildFunc(){
       echo "build image $1 from base version $2 to $3 error"
       exit "${exit_status}"
     fi
+    echo "release" >> $full_repository
 }
 reset_build() {
 

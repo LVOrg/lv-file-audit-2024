@@ -55,21 +55,23 @@ class SearchController(BaseController):
 
     async def pack_list_async(self,url: str, app_name: str, items):
         return self.pack_list(url, app_name, items)
-    @controller.router.get("/api/{app_name}/content/update_by_conditional")
+    @controller.router.post("/api/{app_name}/content/update_by_conditional")
     def file_content_update_by_conditional(
             self,
             app_name: str,
-            conditional:typing.Optional[dict],
-            data_update: typing.Optional[dict]):
+            conditional:typing.Optional[dict]=Body(...),
+            conditional_text: typing.Optional[str]=Body(...),
+            data_update: typing.Optional[dict]=Body(...)):
         """
         Update data to search engine with conditional<br/>
         Cập nhật dữ liệu lên công cụ tìm kiếm có điều kiện
         :param app_name:
-        :param doc_id:
-        :param data:
-        :param token:
+        :param data_update:
+        :param conditional_text:
         :return:
         """
+        if conditional_text:
+            conditional = cy_es.natural_logic_parse(conditional_text)
         ret = self.search_engine.update_by_conditional(
             app_name=app_name,
             conditional=conditional,

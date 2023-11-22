@@ -2,6 +2,7 @@ import datetime
 import inspect
 import time
 import typing
+from datetime import date
 
 import elasticsearch.exceptions
 from elasticsearch import Elasticsearch
@@ -722,16 +723,17 @@ def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type:
                     raise Exception(
                         f"Hey!\n what the fu**king that?\n.thous should call {x.__name__} << {{your value}} ")
                 data_update[x.__name__] = x.__value__
+    from cy_es import cy_es_manager
+    # data_update["data_item"]["FileName"] = "http://www.codx.vn CV-127/123/12 BU-1234/FX-234"
+    cy_es_manager.update_mapping(
+        client=client,
+        index=index,
+        data=data_update
+    )
+    wildcard_fields, wildcard_data = cy_es_manager.get_fields_text(data_update)
+    data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
+    data_update[f'{cy_es_manager.FIELD_RAW_TEXT}_SUPPORT'] = True
     try:
-        from cy_es import cy_es_manager
-        data_update["data_item"]["FileName"] = "http://www.codx.vn CV-127/123/12 BU-1234/FX-234"
-        cy_es_manager.update_mapping(
-            client=client,
-            index=index,
-            data=data_update
-        )
-        wildcard_fields, wildcard_data = cy_es_manager.get_fields_text(data_update)
-        data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
         ret_update = client.update(
             index=index,
             id=id,
@@ -1828,7 +1830,15 @@ def update_by_conditional(
     """
     _data_update = to_json_convertable(data_update)
     body = {}
+    from  cy_es import cy_es_manager
+    fields, _data_update_with_wild_card = cy_es_manager.update_mapping(
+        client=client,
+        index=index,
+        data= _data_update
 
+    )
+    wild_card_data = {cy_es_manager.FIELD_RAW_TEXT: _data_update_with_wild_card}
+    _data_update = {**data_update,**wild_card_data}
     if isinstance(conditional, DocumentFields):
         body = conditional.__get_expr__()
     if isinstance(conditional, dict):
