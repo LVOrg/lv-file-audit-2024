@@ -416,7 +416,13 @@ def search(client: Elasticsearch,
             "require_field_match": False,
             "pre_tags": ["<em>"],
             "post_tags": ["</em>"],
-            "fields": fields
+            "fields": fields,
+            # "order": "score",
+            # "encoder": "html",
+            # "require_field_match": True,
+            # "fields": {
+            #     "*": {}
+            # }
         }
         body["highlight"] = __highlight
     elif highlight:
