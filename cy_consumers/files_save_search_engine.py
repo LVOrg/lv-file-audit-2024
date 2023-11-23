@@ -47,10 +47,6 @@ class Process:
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         try:
-
-
-
-
             full_file_path = msg_info.Data['processing_file']
             if full_file_path is None:
                 if (msg_info.Data.get("MainFileId") or "").startswith("local://"):
@@ -81,7 +77,7 @@ class Process:
                 app_name=msg_info.AppName,
                 id=msg_info.Data["_id"],
                 content=content,
-                meta_data=info,
+                meta_data=None,
                 data_item=upload_item
             )
 

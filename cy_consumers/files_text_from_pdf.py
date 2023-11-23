@@ -49,27 +49,20 @@ class Process:
         )
         if not os.path.isfile(full_file):
             msg_broker.delete(msg_info)
-        try_count = 3
-        while try_count>0:
-            try:
-                text = self.pdf_file_service.ocr_text(full_file)
-                text = texts.well_form_text(text)
-                upload_item = self.file_services.get_upload_register(
-                    app_name=msg_info.AppName,
-                    upload_id=msg_info.Data["_id"]
-                )
-                self.search_engine.update_content(
-                    app_name=msg_info.AppName,
-                    id=msg_info.Data["_id"],
-                    content=text,
-                    meta_data= {},
-                    data_item=upload_item
-                )
-                self.logger.info(f"{full_file} was updated to search engine")
-                try_count =0
-            except:
-                time.sleep(2)
-                try_count-=1
+        text = self.pdf_file_service.ocr_text(full_file)
+        text = texts.well_form_text(text)
+        upload_item = self.file_services.get_upload_register(
+            app_name=msg_info.AppName,
+            upload_id=msg_info.Data["_id"]
+        )
+        self.search_engine.update_content(
+            app_name=msg_info.AppName,
+            id=msg_info.Data["_id"],
+            content=text,
+            meta_data={},
+            data_item=upload_item
+        )
+        self.logger.info(f"{full_file} was updated to search engine")
         msg_broker.delete(msg_info)
 
 

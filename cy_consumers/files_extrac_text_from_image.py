@@ -57,88 +57,41 @@ class Process:
         self.temp_file= temp_file
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        try:
-            full_file = msg_info.Data.get("processing_file")
-            try_count = 5
-            if not os.path.isfile(full_file):
-                while try_count > 0:
-                    self.logger.info(
-                        f'Try pull file {msg_info.Data["_id"]},{msg_info.Data["FileExt"]} in {msg_info.AppName}')
-                    full_file = self.temp_file.get_path(
-                        app_name=msg_info.AppName,
-                        file_ext=msg_info.Data["FileExt"],
-                        upload_id=msg_info.Data["_id"],
-                        file_id = msg_info.Data.get("MainFileId")
-                    )
-                    if not os.path.isfile(full_file):
-                        time.sleep(10)
-                        try_count -= 1
-                    else:
-                        try_count = 0
+        full_file = msg_info.Data.get("processing_file")
+        if not os.path.isfile(full_file):
+            full_file = self.temp_file.get_path(
+                app_name=msg_info.AppName,
+                file_ext=msg_info.Data["FileExt"],
+                upload_id=msg_info.Data["_id"],
+                file_id=msg_info.Data.get("MainFileId")
+            )
+        if full_file is None:
+            msg.delete(msg_info)
+            return
+
+        if not os.path.isfile(full_file):
+
             if full_file is None:
-
                 msg.delete(msg_info)
+                self.logger.info(f"Generate pdf from {full_file}:\nfile was not found")
                 return
-
-
+        upload_item = self.file_services.get_upload_register(
+            app_name=msg_info.AppName,
+            upload_id=msg_info.Data["_id"]
+        )
+        if upload_item:
             if not os.path.isfile(full_file):
-
-                if full_file is None:
-                    msg.delete(msg_info)
-                    self.logger.info(f"Generate pdf from {full_file}:\nfile was not found")
-                    return
-            print(f"Generate image form {full_file}")
-            pdf_file = None
-            try:
-
-                upload_item = self.file_services.get_upload_register(
-                    app_name=msg_info.AppName,
-                    upload_id=msg_info.Data["_id"]
-                )
-                if upload_item:
-                    if not os.path.isfile(full_file):
-                        msg.delete(msg_info)
-                        return
-                    content = self.easy_service.get_text(image_file=full_file)
-                    if content == "":
-                        msg.delete(msg_info)
-                        return
-                    try_count = 10
-                    while try_count>0:
-                        try:
-                            self.search_engine.update_content(
-                                app_name=msg_info.AppName,
-                                id=msg_info.Data["_id"],
-                                content=content,
-                                data_item=upload_item
-                            )
-                            try_count = 0
-                        except elasticsearch.exceptions.ConnectionTimeout as e:
-                            self.logger.error(e,more_info=dict(
-                                es_index = msg_info.AppName,
-                                data = msg_info.Data,
-                                msg=f"next re-try time {try_count}"
-                            ))
-                            time.sleep(5)
-                            try_count =-1
-                        except Exception as e:
-                            self.logger.error(e,more_info=dict(
-                                es_index = msg_info.AppName,
-                                data = msg_info.Data
-                            ))
-                            return
-                    self.logger.info(f"Generate pdf from {full_file}:\nPDF file is {pdf_file}")
-                    msg.delete(msg_info)
-
-            except img2pdf.AlphaChannelError as e:
-                self.logger.error(e,more_info=dict(
-                            es_index = msg_info.AppName,
-                            data = msg_info.Data
-                        ))
                 msg.delete(msg_info)
                 return
-        except Exception as e:
-            self.logger.error(e,more_info=dict(
-                            es_index = msg_info.AppName,
-                            data = msg_info.Data
-                        ))
+            content = self.easy_service.get_text(image_file=full_file)
+            if content == "":
+                msg.delete(msg_info)
+                return
+            self.search_engine.update_content(
+                app_name=msg_info.AppName,
+                id=msg_info.Data["_id"],
+                content=content,
+                data_item=upload_item
+            )
+            # self.logger.info(f"Generate pdf from {full_file}:\nPDF file is {pdf_file}")
+            msg.delete(msg_info)

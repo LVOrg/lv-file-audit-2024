@@ -33,28 +33,25 @@ class Process:
         self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        try:
-            full_file = temp_file.get_path(
-                app_name=msg_info.AppName,
-                file_ext=msg_info.Data["FileExt"],
-                upload_id=msg_info.Data["_id"],
-                file_id = msg_info.Data.get("MainFileId")
+        full_file = temp_file.get_path(
+            app_name=msg_info.AppName,
+            file_ext=msg_info.Data["FileExt"],
+            upload_id=msg_info.Data["_id"],
+            file_id=msg_info.Data.get("MainFileId")
 
-            )
-            self.logger.info(f"Generate image form {full_file}")
-            img_file = pdf_file_service.get_image(full_file)
-            ret = temp_file.move_file(
-                from_file=img_file,
-                app_name=msg_info.AppName,
-                sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
-            )
-            msg_info.Data["processing_file"] = ret
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-                data=msg_info.Data
-            )
-            msg.delete(msg_info)
-            self.logger.info(msg_info)
-        except Exception as e:
-            self.logger.error(e,msg_info=msg_info.Data)
+        )
+        self.logger.info(f"Generate image form {full_file}")
+        img_file = pdf_file_service.get_image(full_file)
+        ret = temp_file.move_file(
+            from_file=img_file,
+            app_name=msg_info.AppName,
+            sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
+        )
+        msg_info.Data["processing_file"] = ret
+        msg.emit(
+            app_name=msg_info.AppName,
+            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+            data=msg_info.Data
+        )
+        msg.delete(msg_info)
+        self.logger.info(msg_info)

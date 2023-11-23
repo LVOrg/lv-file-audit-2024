@@ -22,6 +22,7 @@ from cyx.common.msg import MessageService
 from cyx.common.brokers import Broker
 from cyx.common.rabitmq_message import RabitmqMsg
 import cyx.common
+from fastapi.middleware.gzip import GZipMiddleware
 
 config = cyx.common.config
 if isinstance(config.get('rabbitmq'), dict):
@@ -113,6 +114,8 @@ Server-Timing: miss, db;dur=53, app;dur=47.2"""
 
 # cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
+GZipMiddleware(app)
+
 from cy_xdoc.load_controllers import load_controller
 load_controller(
     app,

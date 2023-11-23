@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 
 
@@ -17,7 +18,7 @@ from cyx.loggers import LoggerService
 from cy_xdoc.services.files import FileServices
 import cy_docs
 
-@broker(MSG_APP_RE_INDEX_ALL)
+@broker(message=MSG_APP_RE_INDEX_ALL)
 class Consumer:
     def __init__(self,
                  logger=cy_kit.singleton(LoggerService),
@@ -34,10 +35,14 @@ class Consumer:
             qr = self.files_service.get_queryable_doc(msg_info.AppName)
             is_continue = True
             while is_continue:
+                filer_file = cy_docs.EXPR(qr.fields.SizeInBytes == qr.fields.SizeUploaded)
+                process_time = datetime.datetime.utcnow()
+                process_field= f"{process_time.year}_{process_time.month: 02}_{process_time.day :02}_{process_time.minute: 02}"
+
+                fileter_reindex = cy_docs.not_exists(getattr(cy_docs.fields.ReIndexInfo,process_field))
                 try:
                     items = qr.context.aggregate().match(
-                        ((qr.fields.ReRunMessage == False) | (cy_docs.not_exists(qr.fields.ReRunMessage))) & \
-                        (cy_docs.EXPR(qr.fields.SizeInBytes == qr.fields.SizeUploaded))
+                        filer_file|fileter_reindex
                     ).sort(
                         qr.fields.RegisterOn.desc()
                     ).limit(100)
@@ -55,7 +60,7 @@ class Consumer:
                             )
                             qr.context.update(
                                 qr.fields.id == x.id,
-                                qr.fields.ReRunMessage<<True
+                                getattr(cy_docs.fields.ReIndexInfo,process_field)<<True
                             )
                             msg_broker.delete(msg_info)
                         except Exception as e:
@@ -65,3 +70,4 @@ class Consumer:
             print("Run")
         except Exception as e:
             self.logger.error(e)
+            msg_broker.delete(msg_info)

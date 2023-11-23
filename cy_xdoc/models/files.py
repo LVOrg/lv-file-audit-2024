@@ -345,3 +345,4 @@ class DocUploadRegister:
     local://<relative local path 
     """
     Search_vv_support: typing.Optional[bool]
+    ReIndexInfo: typing.Optional[dict]

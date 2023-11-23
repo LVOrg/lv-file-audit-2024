@@ -26,6 +26,9 @@ MSG_FILE_UPLOAD
 └── MSG_FILE_OCR_CONTENT
     └── MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 """
+import time
+import typing
+import uuid
 
 MSG_FILE_UPLOAD = "files.upload"
 """
@@ -109,6 +112,7 @@ class MessageInfo:
         self.AppName: str = None
         self.Id: str = None
         self.tags = None
+        self.deleted = False
 
 
 class MessageService:
@@ -161,6 +165,25 @@ class MessageService:
 
 
 def broker(message: str):
+    from cy_docs import define, get_doc
+    import cyx.common.base
+    import cy_kit
+    db_connect = cy_kit.singleton(cyx.common.base.DbConnect)
+
+    @define(name="SYS_DelayMessage",
+            indexes=["AppName","UploadID","MessageType"],
+            uniques=["AppName,UploadID,MessageType"]
+            )
+    class SYS_DelayMessage:
+        AppName: typing.Optional[str]
+        UploadId: typing.Optional[str]
+        MessageType: typing.Optional[str]
+        CreatedOn: typing.Optional[datetime.datetime]
+        ModifiedOn: typing.Optional[datetime.datetime]
+        ResumeCount: typing.Optional[int]
+        MessageBody: typing.Optional[dict]
+    sys_delay_message_docs = db_connect.db("admin").doc(SYS_DelayMessage)
+
     def __wrapper__(cls):
         from cyx.common.rabitmq_message import RabitmqMsg
         if not hasattr(cls, "on_receive_msg"):
@@ -184,11 +207,69 @@ def broker(message: str):
 
         setattr(cls, "__set_msg__", __set_msg__)
         import cy_kit
+        import pika
         ins = cy_kit.singleton(cls)
         ins.__set_msg__(message)
+        setattr(ins, "__msg_process_fail_count__", 0)
         msg = cy_kit.singleton(RabitmqMsg)
+        from cyx.loggers import LoggerService
+        logger = cy_kit.singleton(LoggerService)
+        setattr(ins, "__msg_broker__", msg)
         def on_receive_msg(msg_info: MessageInfo):
-            ins.on_receive_msg(msg_info,msg)
+            ins.__msg_process_fail_count__ =0
+            is_ok= False
+            while ins.__msg_process_fail_count__ <3:
+                try:
+                    ins.on_receive_msg(msg_info,msg)
+                    ins.__msg_process_fail_count__=4
+                    is_ok = True
+                except pika.exceptions.ChannelClosedByBroker as e:
+                    ins.__msg_process_fail_count__ += 1
+                    print(f"{ins.message_type} fail. Re try {ins.__msg_process_fail_count__}")
+                    time.sleep(0.5)
+                    logger.error(e, msg_info=dict(
+                        msg=f"Fail process {ins.message_type}",
+                        msg_body=msg_info.Data,
+                        app_name=msg_info.AppName
+                    ))
+
+                except Exception as e:
+                    ins.__msg_process_fail_count__ +=1
+                    print(f"{ins.message_type} fail. Re try {ins.__msg_process_fail_count__ }")
+                    time.sleep(0.5)
+                    logger.error(e,msg_info=dict(
+                        msg=f"Fail process {ins.message_type}",
+                        msg_body = msg_info.Data,
+                        app_name = msg_info.AppName
+                    ))
+            if not is_ok:
+                filter = ((sys_delay_message_docs.fields.UploadId==msg_info.Data["UploadId"]) &
+                          (sys_delay_message_docs.fields.AppName==msg_info.AppName) &
+                          (sys_delay_message_docs.fields.MessageType == ins.message_type))
+                data_item = sys_delay_message_docs.context.find_one(filter)
+                if data_item:
+                    data_item[sys_delay_message_docs.fields.ResumeCount] += 1
+                    data_item[sys_delay_message_docs.fields.ModifiedOn] = datetime.datetime.utcnow()
+                    sys_delay_message_docs.context.update(
+                        sys_delay_message_docs.fields.Id==data_item["_id"],
+                        sys_delay_message_docs.fields.ModifiedOn <<datetime.datetime.utcnow(),
+                        sys_delay_message_docs.fields.ResumeCount << data_item[sys_delay_message_docs.fields.ResumeCount]
+                    )
+                else:
+                    sys_delay_message_docs.context.insert_one(
+                        sys_delay_message_docs.fields.Id<<str(uuid.uuid4()),
+                        sys_delay_message_docs.fields.ResumeCount<<0,
+                        sys_delay_message_docs.fields.MessageType<< ins.message_type,
+                        sys_delay_message_docs.fields.AppName<<msg_info.AppName,
+                        sys_delay_message_docs.fields.UploadId<<msg_info.Data["UploadID"],
+                        sys_delay_message_docs.fields.MessageBody<<msg_info.Data
+                    )
+            # if msg_info.tags and hasattr(msg_info.tags.get('ch',{}),"basic_ack"):
+            #     msg_info.tags['ch'].basic_ack()
+
+            msg.delete(msg_info)
+
+
         msg.consume(
             msg_type=ins.message_type,
             handler=on_receive_msg

@@ -33,43 +33,37 @@ class Process:
         self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        try:
-            from cyx.media.libre_office import LibreOfficeService
-            libre_office_service = cy_kit.singleton(LibreOfficeService)
-            if msg_info.Data["FileExt"] == "pdf":
-                msg.delete(msg_info)
-                return
-            full_file = temp_file.get_path(
-                app_name=msg_info.AppName,
-                file_ext=msg_info.Data["FileExt"],
-                upload_id=msg_info.Data["_id"],
-                file_id=msg_info.Data.get("MainFileId")
-
-            )
-            if full_file is None:
-                self.logger.info(f"Generate image form nothing")
-                msg.delete(msg_info)
-
-            self.logger.info(f"Generate image form {full_file}")
-            self.logger.info(f"Generate image form {full_file} start")
-            img_file = libre_office_service.get_image(file_path=full_file)
-            self.logger.info(f"Generate image form {full_file} end")
-            ret = temp_file.move_file(
-                from_file=img_file,
-                app_name=msg_info.AppName,
-                sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
-            )
-            msg_info.Data["processing_file"] = ret
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-                data=msg_info.Data
-            )
-            self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n {full_file}")
+        from cyx.media.libre_office import LibreOfficeService
+        libre_office_service = cy_kit.singleton(LibreOfficeService)
+        if msg_info.Data["FileExt"] == "pdf":
             msg.delete(msg_info)
-            self.logger.info(msg_info.Data)
-        except Exception as e:
-            self.logger.error(e,more_info=dict(
-                            es_index = msg_info.AppName,
-                            data = msg_info.Data
-                        ))
+            return
+        full_file = temp_file.get_path(
+            app_name=msg_info.AppName,
+            file_ext=msg_info.Data["FileExt"],
+            upload_id=msg_info.Data["_id"],
+            file_id=msg_info.Data.get("MainFileId")
+
+        )
+        if full_file is None:
+            self.logger.info(f"Generate image form nothing")
+            msg.delete(msg_info)
+
+        self.logger.info(f"Generate image form {full_file}")
+        self.logger.info(f"Generate image form {full_file} start")
+        img_file = libre_office_service.get_image(file_path=full_file)
+        self.logger.info(f"Generate image form {full_file} end")
+        ret = temp_file.move_file(
+            from_file=img_file,
+            app_name=msg_info.AppName,
+            sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
+        )
+        msg_info.Data["processing_file"] = ret
+        msg.emit(
+            app_name=msg_info.AppName,
+            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+            data=msg_info.Data
+        )
+        self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n {full_file}")
+        msg.delete(msg_info)
+        self.logger.info(msg_info.Data)

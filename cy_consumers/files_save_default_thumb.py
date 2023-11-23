@@ -36,27 +36,24 @@ class Process:
         self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        try:
-            full_file_path = msg_info.Data['processing_file']
-            fs = self.file_storage_services.store_file(
-                app_name=msg_info.AppName,
-                source_file=full_file_path,
-                rel_file_store_path=f"thumb/{msg_info.Data['FullFileNameLower']}.webp",
-            )
+        full_file_path = msg_info.Data['processing_file']
+        fs = self.file_storage_services.store_file(
+            app_name=msg_info.AppName,
+            source_file=full_file_path,
+            rel_file_store_path=f"thumb/{msg_info.Data['FullFileNameLower']}.webp",
+        )
 
-            self.file_services.update_main_thumb_id(
-                app_name=msg_info.AppName,
-                upload_id=msg_info.Data["_id"],
-                main_thumb_id=fs.get_id()
-            )
+        self.file_services.update_main_thumb_id(
+            app_name=msg_info.AppName,
+            upload_id=msg_info.Data["_id"],
+            main_thumb_id=fs.get_id()
+        )
 
-            self.search_engine.update_data_field(
-                app_name=msg_info.AppName,
-                id=msg_info.Data["_id"],
-                field_path="data_item.HasThumb",
-                field_value=True
-            )
-            msg.delete(msg_info)
-            self.logger.info(f"update {full_file_path} to thumb of file")
-        except Exception as e:
-            self.logger.error(e,msg_info=msg_info.Data)
+        self.search_engine.update_data_field(
+            app_name=msg_info.AppName,
+            id=msg_info.Data["_id"],
+            field_path="data_item.HasThumb",
+            field_value=True
+        )
+        msg.delete(msg_info)
+        self.logger.info(f"update {full_file_path} to thumb of file")

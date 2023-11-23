@@ -26,26 +26,23 @@ class Process:
         self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        try:
-            from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
-            from cy_xdoc.services.files import FileServices
-            file_storage_services = cy_kit.singleton(MongoDbFileService)
+        from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
+        from cy_xdoc.services.files import FileServices
+        file_storage_services = cy_kit.singleton(MongoDbFileService)
 
-            full_file_path = msg_info.Data['processing_file']
-            if not os.path.isfile(full_file_path):
-                msg.delete(msg_info)
-                self.logger.info(f"File {full_file_path} was not found")
-                return
-
-            upload_id = msg_info.Data["_id"]
-            print(f"Save {full_file_path} to {upload_id}")
-            scale_to_size = pathlib.Path(full_file_path).stem.split('_')[-1:][0]
-            file_storage_services.store_file(
-                app_name=msg_info.AppName,
-                source_file=full_file_path,
-                rel_file_store_path=f"thumbs/{upload_id}/{scale_to_size}.webp",
-            )
+        full_file_path = msg_info.Data['processing_file']
+        if not os.path.isfile(full_file_path):
             msg.delete(msg_info)
-            self.logger.info(f"Save {full_file_path} to {upload_id}")
-        except Exception as e:
-            self.logger.error(e,msg_info=msg_info.Data)
+            self.logger.info(f"File {full_file_path} was not found")
+            return
+
+        upload_id = msg_info.Data["_id"]
+        print(f"Save {full_file_path} to {upload_id}")
+        scale_to_size = pathlib.Path(full_file_path).stem.split('_')[-1:][0]
+        file_storage_services.store_file(
+            app_name=msg_info.AppName,
+            source_file=full_file_path,
+            rel_file_store_path=f"thumbs/{upload_id}/{scale_to_size}.webp",
+        )
+        msg.delete(msg_info)
+        self.logger.info(f"Save {full_file_path} to {upload_id}")

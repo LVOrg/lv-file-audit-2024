@@ -29,59 +29,56 @@ class Process:
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
 
-        try:
-            from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
-            from cy_xdoc.services.files import FileServices
-            from cy_xdoc.services.search_engine import SearchEngine
-            search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
-            full_file_path = msg_info.Data['processing_file']
-            file_storage_services = cy_kit.singleton(MongoDbFileService)
-            file_services = cy_kit.singleton(FileServices)
-            if not os.path.isfile(full_file_path):
-                self.logger.info(
-                    f"app={msg_info.AppName} save thumb file {full_file_path} was not found msg will be deleted")
-                msg.delete(msg_info)
-                return
-            server_orc_file_path = f'file-ocr/{msg_info.Data["_id"]}/{msg_info.Data["FileNameOnly"]}.pdf'
-            fs = None
-            try:
-                fs = file_storage_services.store_file(
-                    app_name=msg_info.AppName,
-                    source_file=full_file_path,
-                    rel_file_store_path=server_orc_file_path
-                )
-                fs.full_path = full_file_path
-
-                self.logger.info(f"app={msg_info.AppName} save thumb file {server_orc_file_path} is OK")
-            except pymongo.errors.DuplicateKeyError as e:
-                self.logger(e,msg_info= msg_info.Data)
-                msg.delete(msg_info)
-                return
-            if hasattr(fs,"full_path") and isinstance(fs.full_path,str):
-                file_services.update_ocr_info(
-                    app_name=msg_info.AppName,
-                    upload_id=msg_info.Data["_id"],
-                    ocr_file_id=fs.full_path
-                )
-            else:
-                file_services.update_ocr_info(
-                    app_name=msg_info.AppName,
-                    upload_id=msg_info.Data["_id"],
-                    ocr_file_id=fs.get_id() or fs.full_path
-                )
-            search_engine.update_data_field(
-                app_name=msg_info.AppName,
-                id=msg_info.Data["_id"],
-                field_path="data_item.OCRFileId",
-                field_value=fs.get_id()
-            )
-            #
-            # file_services.update_main_thumb_id(
-            #     app_name=msg_info.AppName,
-            #     upload_id=msg_info.Data["_id"],
-            #     main_thumb_id=fs.get_id()
-            # )
+        from cyx.common.file_storage_mongodb import MongoDbFileStorage, MongoDbFileService
+        from cy_xdoc.services.files import FileServices
+        from cy_xdoc.services.search_engine import SearchEngine
+        search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
+        full_file_path = msg_info.Data['processing_file']
+        file_storage_services = cy_kit.singleton(MongoDbFileService)
+        file_services = cy_kit.singleton(FileServices)
+        if not os.path.isfile(full_file_path):
+            self.logger.info(
+                f"app={msg_info.AppName} save thumb file {full_file_path} was not found msg will be deleted")
             msg.delete(msg_info)
-            self.logger.info(f'update {full_file_path} to ORC of file of {msg_info.Data["_id"]}')
-        except Exception as e:
-            self.logger.error(e,msg_info= msg_info.Data)
+            return
+        server_orc_file_path = f'file-ocr/{msg_info.Data["_id"]}/{msg_info.Data["FileNameOnly"]}.pdf'
+        fs = None
+        try:
+            fs = file_storage_services.store_file(
+                app_name=msg_info.AppName,
+                source_file=full_file_path,
+                rel_file_store_path=server_orc_file_path
+            )
+            fs.full_path = full_file_path
+
+            self.logger.info(f"app={msg_info.AppName} save thumb file {server_orc_file_path} is OK")
+        except pymongo.errors.DuplicateKeyError as e:
+            self.logger(e, msg_info=msg_info.Data)
+            msg.delete(msg_info)
+            return
+        if hasattr(fs, "full_path") and isinstance(fs.full_path, str):
+            file_services.update_ocr_info(
+                app_name=msg_info.AppName,
+                upload_id=msg_info.Data["_id"],
+                ocr_file_id=fs.full_path
+            )
+        else:
+            file_services.update_ocr_info(
+                app_name=msg_info.AppName,
+                upload_id=msg_info.Data["_id"],
+                ocr_file_id=fs.get_id() or fs.full_path
+            )
+        search_engine.update_data_field(
+            app_name=msg_info.AppName,
+            id=msg_info.Data["_id"],
+            field_path="data_item.OCRFileId",
+            field_value=fs.get_id()
+        )
+        #
+        # file_services.update_main_thumb_id(
+        #     app_name=msg_info.AppName,
+        #     upload_id=msg_info.Data["_id"],
+        #     main_thumb_id=fs.get_id()
+        # )
+        msg.delete(msg_info)
+        self.logger.info(f'update {full_file_path} to ORC of file of {msg_info.Data["_id"]}')

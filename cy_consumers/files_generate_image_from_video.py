@@ -40,72 +40,67 @@ class Process:
         self.video_service = video_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        try:
-            from cyx.common.temp_file import TempFiles
+        from cyx.common.temp_file import TempFiles
 
-
-
-            full_file = msg_info.Data.get("processing_file")
-            try_count = 5
-            while try_count > 0:
-                self.logger.info(
-                    f'Try pull file {msg_info.Data["_id"]},{msg_info.Data["FileExt"]} in {msg_info.AppName}')
-                full_file = self.temp_file.get_path(
-                    app_name=msg_info.AppName,
-                    file_ext=msg_info.Data["FileExt"],
-                    upload_id=msg_info.Data["_id"],
-                    file_id=msg_info.Data.get("MainFileId")
-                )
-                if not os.path.isfile(full_file):
-                    time.sleep(10)
-                    try_count -= 1
-                else:
-                    try_count = 0
-            if full_file is None:
-                msg.delete(msg_info)
-                return
-            img_file = None
-            try:
-                img_file = self.video_service.get_image(full_file)
-                self.logger.info(f"Generate image from {full_file} was complete at:\n {img_file}")
-            except Exception as e:
-                self.logger.error(e,msg_info=msg_info.Data)
-                msg.delete(msg_info)
-                return
-            ret = temp_file.move_file(
-                from_file=img_file,
+        full_file = msg_info.Data.get("processing_file")
+        try_count = 5
+        while try_count > 0:
+            self.logger.info(
+                f'Try pull file {msg_info.Data["_id"]},{msg_info.Data["FileExt"]} in {msg_info.AppName}')
+            full_file = self.temp_file.get_path(
                 app_name=msg_info.AppName,
-                sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO
+                file_ext=msg_info.Data["FileExt"],
+                upload_id=msg_info.Data["_id"],
+                file_id=msg_info.Data.get("MainFileId")
             )
-
-            self.logger.info(f"Generate image from {full_file} was complete at:\n {ret}")
-            msg_info.Data["processing_file"] = ret
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-                data=msg_info.Data
-            )
-
-            self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n{ret}\nOriginal file:\n{full_file}")
-
-            pdf_file = self.video_service.get_pdf(full_file, num_of_segment=60)
-            pdf_file = temp_file.move_file(
-                from_file=pdf_file,
-                app_name=msg_info.AppName,
-                sub_dir=cyx.common.msg.MSG_FILE_OCR_CONTENT
-            )
-            msg_info.Data["processing_file"] = pdf_file
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT,
-                data=msg_info.Data
-            )
-            self.logger.info(f"{cyx.common.msg.MSG_FILE_OCR_CONTENT}\n{ret}\nOriginal file:\n{full_file}")
-            if isinstance(msg_info.Data.get("MainFileId"),str) and msg_info.Data["MainFileId"].startswith("local://"):
-                pass
+            if not os.path.isfile(full_file):
+                time.sleep(10)
+                try_count -= 1
             else:
-                os.remove(full_file)
+                try_count = 0
+        if full_file is None:
+            msg.delete(msg_info)
+            return
+        img_file = None
+        try:
+            img_file = self.video_service.get_image(full_file)
+            self.logger.info(f"Generate image from {full_file} was complete at:\n {img_file}")
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(e, msg_info=msg_info.Data)
+            msg.delete(msg_info)
+            return
+        ret = temp_file.move_file(
+            from_file=img_file,
+            app_name=msg_info.AppName,
+            sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO
+        )
+
+        self.logger.info(f"Generate image from {full_file} was complete at:\n {ret}")
+        msg_info.Data["processing_file"] = ret
+        msg.emit(
+            app_name=msg_info.AppName,
+            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+            data=msg_info.Data
+        )
+
+        self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n{ret}\nOriginal file:\n{full_file}")
+
+        pdf_file = self.video_service.get_pdf(full_file, num_of_segment=60)
+        pdf_file = temp_file.move_file(
+            from_file=pdf_file,
+            app_name=msg_info.AppName,
+            sub_dir=cyx.common.msg.MSG_FILE_OCR_CONTENT
+        )
+        msg_info.Data["processing_file"] = pdf_file
+        msg.emit(
+            app_name=msg_info.AppName,
+            message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT,
+            data=msg_info.Data
+        )
+        self.logger.info(f"{cyx.common.msg.MSG_FILE_OCR_CONTENT}\n{ret}\nOriginal file:\n{full_file}")
+        if isinstance(msg_info.Data.get("MainFileId"), str) and msg_info.Data["MainFileId"].startswith("local://"):
+            pass
+        else:
+            os.remove(full_file)
 
 
