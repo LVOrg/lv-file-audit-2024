@@ -84,7 +84,7 @@ class FilesContentController(BaseController):
             if data_info is not None:
                 self.msg_service.emit(
                     app_name=app_name,
-                    mime_type = cyx.common.msg.MSG_FILE_UPLOAD,
+                    message_type= cyx.common.msg.MSG_FILE_UPLOAD,
                     data= data_info
                 )
             response = Response(content="Resource not found", status_code=404)

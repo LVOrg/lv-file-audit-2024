@@ -64,7 +64,7 @@ COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cyx /app/cyx">>$job_office_file
-job_office_tag=2
+job_office_tag=4
 job_office_tag_build="fs.medium."$(tag $job_core_office_tag).$job_office_tag
 job_office_image=$repository/$image_name.$job_office_tag_build
 buildFunc $job_office_file $repository $image_name $job_office_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"

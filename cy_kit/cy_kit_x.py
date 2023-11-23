@@ -222,7 +222,7 @@ class VALUE_DICT(dict):
         return self.__data__
 
 
-def yaml_config(full_path_to_yaml_file: str, apply_sys_args: bool = True):
+def yaml_config(full_path_to_yaml_file: str, apply_sys_args: bool = True,env_prefix_config_key="config."):
     """
             Load yaml file , read content then parse to Dictionary.
         If thou set apply_sys_args is True.
@@ -262,6 +262,10 @@ def yaml_config(full_path_to_yaml_file: str, apply_sys_args: bool = True):
                 __config__ = yaml.safe_load(stream)
                 if apply_sys_args:
                     __config__ = combine_agruments(__config__)
+                if env_prefix_config_key:
+                    from cy_kit.config_utils import convert_env_to_dict
+                    _config =convert_env_to_dict(env_prefix_config_key)
+                    __config__ = {**__config__, **_config}
                 __cache_yam_dict__[full_path_to_yaml_file] = VALUE_DICT(__config__)
         finally:
             __cache_yam_dict_lock__.release()
@@ -915,3 +919,18 @@ def watch_forever(sleep_time=0.0001):
         return start
 
     return wraper
+
+
+def flatten_dict(data: typing.Optional[typing.Dict]) -> typing.Optional[
+    typing.List[typing.Tuple[typing.AnyStr, typing.Any]]]:
+    if data is None:
+        return []
+    ret = {}
+    ret = []
+    for k, v in data.items():
+        if isinstance(v, dict):
+            ret_list = flatten_dict(v)
+            ret += [(f"{k}.{x}", y) for (x, y) in ret_list]
+        else:
+            ret += [(k, v)]
+    return ret

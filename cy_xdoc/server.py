@@ -8,6 +8,7 @@ import os
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
+print(os.getenv("DB__CNN"))
 sys.path.append("/app")
 import cyx.framewwork_configs
 import cyx.common
@@ -33,7 +34,11 @@ if isinstance(config.get('rabbitmq'), dict):
 from cyx.loggers import LoggerService
 
 logger = cy_kit.singleton(LoggerService)
-print(config)
+import cy_kit.config_utils
+config_list = cy_kit.config_utils.flatten_dict(config)
+for k,v in config_list:
+    print(f"{k}={v}")
+
 
 from cyx.common.base import DbConnect
 

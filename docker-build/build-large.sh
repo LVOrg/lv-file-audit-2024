@@ -54,7 +54,7 @@ COPY ./../cy_plugins /app/cy_plugins
 #RUN pip cache purge
 ENTRYPOINT []
 ">>$ai_file
-ai_tag=2
+ai_tag=4
 ai_tag_build="fs.large."$(tag $ai_lib_tag).$ai_tag
 ai_image=$repository/$image_name:$ai_tag_build
 buildFunc $ai_file $repository $image_name $ai_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
