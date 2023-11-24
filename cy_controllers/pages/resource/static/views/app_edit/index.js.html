@@ -1,49 +1,94 @@
-﻿<div class="edit">
+﻿<div class="edit" style="max-width:800px;min-width:800px;padding:20px">
     <style>
-        .edit .col-6 {
-            margin-bottom:4px;
+        .app-editor-frame {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+        }
+        .app-editor-frame span {
+            text-align:right
+        }
+        .app-editor-section {
+
+        }
+        .app-editor-section fieldset legend {
+            font-size: 12pt;
         }
     </style>
-    <div class="row">
-        <div class="col-6">
-            Logo
+    <div class="layout-columns">
+        <div>
+            <div class="app-editor-frame">
+                <span>App name</span><input type="text" ng-model="app.Name" class="form-control" />
+                    <span>Domain</span><input type="text" ng-model="app.Domain" class="form-control" />
+                    <span>Login Url</span><input type="text" ng-model="app.LoginUrl" class="form-control" />
+                    <span>Return Url After SignIn</span><input type="text" ng-model="app.ReturnUrlAfterSignIn" class="form-control" />
+            </div>
         </div>
-        <div class="col-6">
-            <input type="file" id="logo" class="form-control" />
+        <div>
+            <fieldset class="app-editor-section">
+                <legend>Azure App</legend>
+                <div class="app-editor-frame">
+                    <span>Name</span>
+                    <input type="text" ng-model="app.Apps.Azure.Name" class="form-control" />
+                    <span>Application (client) ID</span>
+                    <input type="text" ng-model="app.Apps.Azure.ClientId" class="form-control" />
+                    <span>Directory (tenant) ID</span>
+                    <input type="text" ng-model="app.Apps.Azure.TenantId" class="form-control" />
+                </div>
+            </fieldset>
         </div>
-        <div class="col-6">
-            App name
-        </div>
-        <div class="col-6">
-            <input type="text" ng-model="app.Name" class="form-control" />
-        </div>
-        <div class="col-6">
-            Domain
-        </div>
-        <div class="col-6">
-            <input type="text" ng-model="app.Domain" class="form-control" />
-        </div>
-        <div class="col-6">
-            Login Url
-        </div>
-        <div class="col-6">
-            <input type="text" ng-model="app.LoginUrl" class="form-control" />
-        </div>
-        <div class="col-6">
-            Return Url After SignIn
-        </div>
-        <div class="col-6">
-            <input type="text" ng-model="app.ReturnUrlAfterSignIn" class="form-control" />
-        </div>
-        <div class="col-6">
-            Description
-        </div>
-        <div class="col-6">
-            <textarea ng-model="app.Description" class="form-control"></textarea>
-        </div>
-        <div class="col-12">
-        
-            <input type="button" class="btn btn-primary pull-right" value="{{$res('Create')}}" ng-click="doUpdateApp().then()" />
+        <div class="layout-rows" style="padding-top:40px">
+            <div class="dock full"></div>
+            <div style="margin:10px">
+                <input type="button" class="btn btn-primary btn-sm" value="{{$res('Save changes')}}" ng-click="doUpdateApp().then()" />
+            </div>
+            <div style="margin:10px">
+                <input type="button" class="btn btn-primary btn-sm" style="float:right" value="{{$res('Cancel')}}" ng-click="$close()" />
+            </div>
         </div>
     </div>
+
+
+<!--    <div class="row">-->
+<!--        <div class="col-6">-->
+<!--            Logo-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            <input type="file" id="logo" class="form-control" />-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            App name-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            <input type="text" ng-model="app.Name" class="form-control" />-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            Domain-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            <input type="text" ng-model="app.Domain" class="form-control" />-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            Login Url-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            <input type="text" ng-model="app.LoginUrl" class="form-control" />-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            Return Url After SignIn-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            <input type="text" ng-model="app.ReturnUrlAfterSignIn" class="form-control" />-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            Description-->
+<!--        </div>-->
+<!--        <div class="col-6">-->
+<!--            <textarea ng-model="app.Description" class="form-control"></textarea>-->
+<!--        </div>-->
+<!--        <div class="col-12">-->
+<!--        -->
+<!--            <input type="button" class="btn btn-primary pull-right" value="{{$res('Create')}}" ng-click="doUpdateApp().then()" />-->
+<!--        </div>-->
+<!--    </div>-->
 </div>

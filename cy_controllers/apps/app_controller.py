@@ -15,7 +15,7 @@ from fastapi import (
     HTTPException,
     status,
     Request,
-    Response
+    Response, Body
 )
 from cy_xdoc.auths import Authenticate
 
@@ -120,8 +120,8 @@ class AppsController(BaseController):
             )
             return ret
 
-    @controller.route.post("/api/admin/apps/get/{get_app_name}")
-    def get_info(self,get_app_name: str) -> AppInfo:
+    @controller.route.post("/api/admin/apps/get")
+    def get_info(self,AppName: typing.Optional[str]=Body(embed=True)) -> AppInfo:
         """
         get application info if not exist return { AppId:null}
         lấy thông tin ứng dụng nếu không tồn tại return { AppId: null}
@@ -130,7 +130,7 @@ class AppsController(BaseController):
         :return:
         """
         app_name = "admin"
-        ret = self.service_app.get_item(app_name, app_get=get_app_name)
+        ret = self.service_app.get_item(app_name, app_get=AppName)
         if ret:
             return ret.to_pydantic()
         else:

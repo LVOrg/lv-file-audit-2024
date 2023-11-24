@@ -19,19 +19,37 @@
   .app-label {
     white-space: nowrap;
   }
+        .dropdown-menu {
+            padding: 10px;
+            margin:4px;
+        }
     </style>
     <div class="dock full" style="padding:10px;margin-bottom:40px">
          <div rcmpct-lazy-scroll source="listOfApps" item-var="p" class="row" on-request-data="getListOfApps" page-size="20">
             <rcmpct-template>
                 <rcmpct-grid cols="(,700,100%)(700,,50% 50%)"  class="goldilocks box" file-id="{{p.id}}">
                     <rcmpct-grid cols="50% 50%">
-                            <div class="app-label">Name :</div> <b>{{p.Name}}</b>
+                            <div class="app-label">Name :</div> <b>{{p.Name}}<i class="bi bi-pen"></i></b>
                             <div class="app-label">Created on :</div> <span>{{p.RegisteredOn|date:'dd-MM-yyyy'}}</span>
                             <div class="app-label">Most recently activities :</div> <span>{{p.LatestAccess|date:'dd-MM-yyyy'}}</span>
                             <div class="app-label">Activities score :</div> <span>{{p.AccessCount}}</span>
-                        <div class="app-label">Re-Index</div><span><button ng-click="doReIndex(p.Name).then()">Run ...</button></span>
 
-                        </rcmpct-grid>
+                    </rcmpct-grid>
+                    <div class="layout-rows">
+                        <div class="dock full"></div>
+                        <div>
+                            <div class="dropdown">
+                            <button style="text-wrap:nowrap;border:none !important" class="form-control form-control-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span style="fon-size:8pt">...</span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                              <li><a href="javascript:void(0);" ng-click="doReIndex(p.Name).then()">Re-Index</a></li>
+                              <li><a href="javascript:void(0);" ng-click="doEdit(p.Name).then()">Edit</a></li>
+
+                            </ul>
+                          </div>
+                        </div>
+                    </div>
                 </rcmpct-grid>
 
 

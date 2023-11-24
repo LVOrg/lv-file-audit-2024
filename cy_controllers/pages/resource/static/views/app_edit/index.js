@@ -6,12 +6,12 @@ import { redirect, urlWatching, getPaths, msgError } from "../../js/ui/core.js"
 var appEditView = await View(import.meta, class EditAppView extends BaseScope {
     app = {}
     onInit() {
-        this.doEditApp(getPaths()[2])
+//        this.doEditApp(getPaths()[2])
     }
     async doEditApp(appName) {
-        this.app = await api.post(`apps/admin/get`, {
-            AppName: appName,
-            Token: window.token
+
+        this.app = await api.post(`admin/apps/get`, {
+            AppName: appName
         })
         this.$applyAsync();
     }
