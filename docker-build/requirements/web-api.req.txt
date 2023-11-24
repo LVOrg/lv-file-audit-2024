@@ -21,3 +21,5 @@ grpcio
 grpcio-tools
 slackclient
 celery
+olefile
+Werkzeug

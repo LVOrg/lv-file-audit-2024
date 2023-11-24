@@ -26,6 +26,8 @@ import cyx.common
 from fastapi.middleware.gzip import GZipMiddleware
 
 config = cyx.common.config
+
+
 if isinstance(config.get('rabbitmq'), dict):
     cy_kit.config_provider(
         from_class=Broker,
@@ -39,7 +41,9 @@ config_list = cy_kit.config_utils.flatten_dict(config)
 for k,v in config_list:
     print(f"{k}={v}")
 
-
+if hasattr(config,"auto_ssl_redirect") and  config.auto_ssl_redirect=="on":
+    if not config.host_url.startswith("https://"):
+        config.host_url = "https://"+config.host_url[len("http://"):]
 from cyx.common.base import DbConnect
 
 cnn = cy_kit.singleton(DbConnect)
@@ -54,7 +58,10 @@ cy_app_web = cy_web.create_web_app(
     dev_mode=cyx.common.config.debug,
 
 )
-
+if hasattr(config,"auto_ssl_redirect") and config.auto_ssl_redirect=="on":
+    print(f"Run app with https redirect automatically")
+    from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+    cy_app_web.app.add_middleware(HTTPSRedirectMiddleware)
 from fastapi import HTTPException
 
 

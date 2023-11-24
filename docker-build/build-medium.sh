@@ -68,3 +68,12 @@ job_office_tag=4
 job_office_tag_build="fs.medium."$(tag $job_core_office_tag).$job_office_tag
 job_office_image=$repository/$image_name.$job_office_tag_build
 buildFunc $job_office_file $repository $image_name $job_office_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
+#soffice --headless --convert-to pdf test-002.docx --outdir split_files-003
+#soffice --headless --convert-to pdf:calc_pdf_Export    test-001.xlsx --outdir split_files-008
+#qpdf --split-pages=1 test-002.pdf output-page-%d.pdf
+#soffice --headless --extract-pages test.docx --outdir split_files --single-page
+#docker run -it --entrypoint bash -v $(pwd)/../a-working:/tmp/test plamapp2one/docker-unoconv-webservice:latest
+#docker run -it --entrypoint bash -v $(pwd)/../a-working:/tmp/test linuxserver/libreoffice
+#docker run -it --entrypoint bash norem/unoconverter:latest
+#unoconv -f pdf -e PageRange=1-3 test.doc
+#https://vmiklos.hu/blog/pdf-convert-to.html
