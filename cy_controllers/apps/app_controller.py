@@ -89,6 +89,7 @@ class AppsController(BaseController):
 
     @controller.route.post("/api/admin/apps/update/{app_name}", summary="update_app")
     def app_update(self,app_name: str, app: AppInfoRegisterModel) -> AppInfoRegisterResult:
+
         import cy_xdoc
         Data = app.Data
         if not self.request.username or self.request.username != "root":
@@ -96,12 +97,23 @@ class AppsController(BaseController):
                 status_code= status.HTTP_401_UNAUTHORIZED
 
             )
-        ret = AppInfoRegisterResult()
+
         try:
+            app = self.service_app.update(
+                Name=Data.Name,
+                Description=Data.Description,
+                azure_app_name=Data.Apps.Azure.Name if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.Name else None,
+                azure_client_id=Data.Apps.Azure.ClientId if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.ClientId else None,
+                azure_tenant_id=Data.Apps.Azure.TenantId if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.TenantId else None,
+                azure_client_secret=Data.Apps.Azure.ClientSecret if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.ClientSecret else None,
+                azure_client_is_personal_acc=Data.Apps.Azure.IsPersonal if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.IsPersonal else False
+
+            )
+            ret = AppInfoRegisterResult()
             data = Data.dict()
-            del data["Name"]
+
             data["ReturnSegmentKey"] = Data.ReturnSegmentKey or "returnUrl"
-            app = self.service_app.update(**data)
+
             ret.Data = app.to_pydantic()
             self.apps_cache.clear_cache()
             return ret
@@ -113,6 +125,7 @@ class AppsController(BaseController):
             )
             return ret
         except Exception as e:
+            raise e
             ret.Error = ErrorResult(
                 Code=cy_xdoc.get_error_code(e),
                 Fields=cy_xdoc.get_error_fields(e),
@@ -129,12 +142,13 @@ class AppsController(BaseController):
         :param token:
         :return:
         """
+        import cy_docs
         app_name = "admin"
         ret = self.service_app.get_item(app_name, app_get=AppName)
         if ret:
             return ret.to_pydantic()
         else:
-            return self.cy_docs.create_empty_pydantic(AppInfo)
+            return cy_docs.create_empty_pydantic(AppInfo)
 
     @controller.route.post("/api/admin/apps")
     def get_list_of_apps(self) -> typing.List[AppInfo]:

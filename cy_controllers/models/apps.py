@@ -11,9 +11,12 @@ class AppMicrosoftAzure(BaseModel):
     Goto https://entra.microsoft.com locate App Registration obtain whole info
     """
     Name: typing.Optional[str]
-    ClientID: str
-    TenantID: str
-
+    ClientId: str
+    TenantId: str
+    UrlLogin: typing.Optional[str]
+    ClientSecret: typing.Optional[str]
+    IsPersonal: typing.Optional[bool]
+    AccessToken: typing.Optional[str]
 
 class AppsOnCloud(BaseModel):
     """

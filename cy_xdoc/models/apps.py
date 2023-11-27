@@ -2,6 +2,21 @@ import typing
 from datetime import datetime
 import cy_docs
 from bson import ObjectId
+class AppMicrosoftAzure:
+    """
+    Info map from Microsoft Azure
+    Goto https://entra.microsoft.com locate App Registration obtain whole info
+    """
+    Name: typing.Optional[str]
+    ClientId: str
+    TenantId: str
+    UrlLogin:typing.Optional[str]
+    ClientSecret: typing.Optional[str]
+    IsPersonal: typing.Optional[bool]
+    AccessToken: typing.Optional[str]
+class AppsOnCloudModle:
+    Azure: typing.Optional[AppMicrosoftAzure]
+
 @cy_docs.define(
     name="sys_applications",
     uniques=["Name","NameLower","Email"],
@@ -41,7 +56,7 @@ class App:
     """
     Stat of app
     """
-
+    AppOnCloud: typing.Optional[AppsOnCloudModle]
 
 
 class AppStatsDimension:

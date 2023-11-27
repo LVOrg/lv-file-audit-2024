@@ -23,3 +23,6 @@ slackclient
 celery
 olefile
 Werkzeug
+python-onedrive
+microsoftgraph-python
+msal

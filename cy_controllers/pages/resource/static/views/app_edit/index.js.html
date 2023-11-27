@@ -34,6 +34,15 @@
                     <input type="text" ng-model="app.Apps.Azure.ClientId" class="form-control" />
                     <span>Directory (tenant) ID</span>
                     <input type="text" ng-model="app.Apps.Azure.TenantId" class="form-control" />
+                    <span>Client secrets</span>
+                    <input type="text" ng-model="app.Apps.Azure.ClientSecret" class="form-control" />
+                    <span>Personal Microsoft account users</span>
+                    <input type="checkbox" ng-model="app.Apps.Azure.IsPersonal" class="form-control" />
+                    <span>Access token</span>
+                    <input type="text" ng-model="app.Apps.Azure.AccessToken" class="form-control" />
+                </div>
+                <div ng-if="app.Apps.Azure.UrlLogin">
+                    <a target="_blank" ng-href="{{app.Apps.Azure.UrlLogin}}">Login and get access token key</a>
                 </div>
             </fieldset>
         </div>

@@ -18,6 +18,7 @@ __scope__ = [
     'offline_access',
     'https://graph.microsoft.com/user.read'
 ]
+
 __scope_str__ = urllib.parse.quote(" ".join(__scope__), 'utf8')
 
 
@@ -77,7 +78,7 @@ def post_form_data(url: str, post_data: typing.Optional[typing.Dict]) -> typing.
         raise Exception(f"Error: {response.status_code}")
 
 
-def get_login_url(return_url: str, client_id: str, tenant: str):
+def get_login_url(return_url: str, client_id: str, tenant: str,is_personal:bool=False):
     """
     get login URL of microsoft online
     All require factors to do that are return_url, client_id, tenant must be registered before use
@@ -88,7 +89,10 @@ def get_login_url(return_url: str, client_id: str, tenant: str):
     """
     encoded_return_url = urllib.parse.quote_plus(return_url)
 
-    login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
+    if not is_personal:
+        login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
+    else:
+        login_url = f"{__url_login_microsoftonline__}/consumers/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
 
     return login_url
 
@@ -122,7 +126,7 @@ def get_verify_code(request: Request):
     return request.query_params.get("code")
 
 
-def get_auth_token(verify_code, host_url,tenant,client_id,client_secret):
+def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret):
     """
     After get verify code.
     Call this fucking shit to get access token key
@@ -142,13 +146,13 @@ def get_auth_token(verify_code, host_url,tenant,client_id,client_secret):
         "code": verify_code,
         "client_id": client_id,
         "client_secret": client_secret,
-        "redirect_uri": host_url,
-        "scope": __scope_str__,
+        "redirect_uri": redirect_uri
+        # "scope": "https%3A%2F%2Fgraph.microsoft.com%2Fmail.read",
     }
 
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-
-    response = requests.post(f"https://login.microsoftonline.com/{tenant}/oauth2/token", data=data, headers=headers)
+    #https://login.microsoftonline.com/13a53f39-4b4d-4268-8c5e-ae6260178923/oauth2/v2.0/token
+    response = requests.post(f"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token", data=data)
 
     if response.status_code == 200:
         response_data = json.loads(response.text)

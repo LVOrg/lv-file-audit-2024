@@ -20,6 +20,7 @@ from cy_controllers.files.files_controllers import FilesController
 from cy_controllers.files.file_privileges_controller import FilesPrivilegesController
 from cy_controllers.systems.system_controllers import SystemsController
 from cy_controllers.health_check.health_check_controllers import HealthCheckController
+from cy_controllers.azure.token_controller import AzureController
 from cyx.loggers import LoggerService
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
@@ -34,6 +35,7 @@ controllers_list=[
         FilesPrivilegesController,
         SearchController,
         SystemsController,
+        AzureController,
         PagesController
 
     ]
