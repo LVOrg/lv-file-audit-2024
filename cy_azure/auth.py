@@ -16,6 +16,7 @@ __url_login_microsoftonline__ = "https://login.microsoftonline.com"
 __scope__ = [
     'openid',
     'offline_access',
+    # 'https://contoso.com/.default',
     'https://graph.microsoft.com/user.read'
 ]
 class AzureTokeResultInfo:
@@ -91,7 +92,10 @@ def get_login_url(return_url: str, client_id: str, tenant: str,scopes:typing.Opt
     :param tenant:
     :return:
     """
-    _scopes =list(set(__scope__+scopes))
+    if 'https://contoso.com/.default' not in __scope__:
+        _scopes =list(set(__scope__+scopes))
+    else:
+        _scopes = ['https://contoso.com/.default']
     encoded_return_url = urllib.parse.quote_plus(return_url)
     __scope_str__ = urllib.parse.quote(" ".join(_scopes), 'utf8')
     login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"

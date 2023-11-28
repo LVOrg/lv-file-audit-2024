@@ -77,16 +77,26 @@ class AzureController(BaseController):
                     client_secret= app.Apps["Azure"].get("ClientSecret")
 
                 )
-
+                _access_token= None
+                _refresh_token= None
+                _id_token= None
+                if hasattr(access_token,"access_token"):
+                    _access_token = access_token.access_token
+                if hasattr(access_token,"refresh_token"):
+                    _refresh_token = access_token.refresh_token
+                if hasattr(access_token,"id_token"):
+                    _id_token = access_token.id_token
                 self.service_app.save_azure_access_token(
                     app_name=app_name,
-                    azure_access_token = access_token.access_token,
-                    azure_refresh_token= access_token.refresh_token,
-                    azure_token_id= access_token.id_token
+                    azure_access_token = _access_token,
+                    azure_refresh_token= _refresh_token,
+                    azure_token_id= _id_token
                 )
 
                 # return app.to_pydantic()
-                return access_token
+                from fastapi.responses import HTMLResponse
+                ret=f"<html><head></head><body><textarea style='width:100%;min-height:300px'>{_access_token}</textarea></body></html>"
+                return HTMLResponse(ret)
             except Exception as e:
                 import traceback
                 ret_error = traceback.format_exception(e)

@@ -13,7 +13,7 @@ class ApiCallException(Exception):
 
     def __str__(self):
         return self.message+"\n"+self.code
-def call_ms_func(method:str,api_url:str,token:str,body:typing.Optional[dict],return_type:T,request_content_type: typing.Optional[str])->T:
+def call_ms_func(method:str,api_url:str,token:str,body,return_type:T,request_content_type: typing.Optional[str])->T:
     """
     The bullshit function use for Whore-Microsoft-online calling.
     Official Exception is cy_azure.fwcking_ms.caller.ApiCallException
