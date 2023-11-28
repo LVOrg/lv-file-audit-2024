@@ -18,8 +18,12 @@ __scope__ = [
     'offline_access',
     'https://graph.microsoft.com/user.read'
 ]
-
-__scope_str__ = urllib.parse.quote(" ".join(__scope__), 'utf8')
+class AzureTokeResultInfo:
+    access_token: typing.Optional[str]
+    id_token : typing.Optional[str]
+    refresh_token: typing.Optional[str]
+    token_type: typing.Optional[str]
+    scope: typing.Optional[str]
 
 
 def get_user_info(access_token: typing.Optional[str]):
@@ -78,7 +82,7 @@ def post_form_data(url: str, post_data: typing.Optional[typing.Dict]) -> typing.
         raise Exception(f"Error: {response.status_code}")
 
 
-def get_login_url(return_url: str, client_id: str, tenant: str,is_personal:bool=False):
+def get_login_url(return_url: str, client_id: str, tenant: str,scopes:typing.Optional[typing.List[str]]=[]):
     """
     get login URL of microsoft online
     All require factors to do that are return_url, client_id, tenant must be registered before use
@@ -87,12 +91,11 @@ def get_login_url(return_url: str, client_id: str, tenant: str,is_personal:bool=
     :param tenant:
     :return:
     """
+    _scopes =list(set(__scope__+scopes))
     encoded_return_url = urllib.parse.quote_plus(return_url)
+    __scope_str__ = urllib.parse.quote(" ".join(_scopes), 'utf8')
+    login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
 
-    if not is_personal:
-        login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
-    else:
-        login_url = f"{__url_login_microsoftonline__}/consumers/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
 
     return login_url
 
@@ -126,7 +129,7 @@ def get_verify_code(request: Request):
     return request.query_params.get("code")
 
 
-def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret):
+def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret)->AzureTokeResultInfo:
     """
     After get verify code.
     Call this fucking shit to get access token key
@@ -156,7 +159,10 @@ def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret):
 
     if response.status_code == 200:
         response_data = json.loads(response.text)
-        return response_data
+        ret_info = AzureTokeResultInfo()
+        for k,v in response_data.items():
+            ret_info.__dict__[k]=v
+        return ret_info
     else:
         raise Exception(f"Error: {response.status_code}")
 #sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout fs.key -out fs.crt

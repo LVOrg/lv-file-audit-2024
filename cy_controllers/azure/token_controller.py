@@ -80,11 +80,13 @@ class AzureController(BaseController):
 
                 self.service_app.save_azure_access_token(
                     app_name=app_name,
-                    azure_access_token = access_token.get("access_token")
+                    azure_access_token = access_token.access_token,
+                    azure_refresh_token= access_token.refresh_token,
+                    azure_token_id= access_token.id_token
                 )
 
                 # return app.to_pydantic()
-                return access_token.get("access_token")
+                return access_token
             except Exception as e:
                 import traceback
                 ret_error = traceback.format_exception(e)

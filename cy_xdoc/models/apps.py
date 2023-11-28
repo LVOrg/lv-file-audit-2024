@@ -14,6 +14,8 @@ class AppMicrosoftAzure:
     ClientSecret: typing.Optional[str]
     IsPersonal: typing.Optional[bool]
     AccessToken: typing.Optional[str]
+    RefreshToken: typing.Optional[str]
+    TokenId: typing.Optional[str]
 class AppsOnCloudModle:
     Azure: typing.Optional[AppMicrosoftAzure]
 

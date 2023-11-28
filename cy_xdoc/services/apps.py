@@ -10,12 +10,14 @@ from cy_xdoc.models.apps import App
 import cyx.common
 import cyx.common.cacher
 from cyx.cache_service.memcache_service import MemcacheServices
-
+from cy_azure.services.ms_apps_services import MSAppService
 
 class AppsCacheService:
-    def __init__(self, cacher=cy_kit.singleton(MemcacheServices)):
+    def __init__(self,
+                 cacher=cy_kit.singleton(MemcacheServices)):
         self.cacher = cacher
         self.cache_key = "APP:CACHE"
+
 
     def clear_cache(self):
         self.cacher.delete_key(self.cache_key)
@@ -25,13 +27,15 @@ class AppServices:
 
     def __init__(self,
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
-                 cacher=cy_kit.singleton(cyx.common.cacher.CacherService)
+                 cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
+                 ms_app=cy_kit.singleton(MSAppService)
                  ):
         self.db_connect = db_connect
         self.config = cyx.common.config
         self.admin_db = self.config.admin_db_name
         self.cacher = cacher
         self.cache_type = f"{App.__module__}.{App.__name__}"
+        self.ms_app = ms_app
 
     def get_list(self, app_name: str):
         docs = self.db_connect.db(app_name).doc(App)
@@ -137,12 +141,18 @@ class AppServices:
             RegisteredOn=datetime.datetime.utcnow()
         )
         return ret
-    def save_azure_access_token(self, app_name, azure_access_token):
+    def save_azure_access_token(self,
+                                app_name:str,
+                                azure_access_token:str,
+                                azure_refresh_token:str,
+                                azure_token_id:str):
         docs = self.db_connect.db('admin').doc(App)
         doc = docs.fields
         ret = docs.context.update(
             doc.Name == app_name,
-            doc.AppOnCloud.Azure.AccessToken << azure_access_token
+            doc.AppOnCloud.Azure.AccessToken << azure_access_token,
+            doc.AppOnCloud.Azure.RefreshToken << azure_refresh_token,
+            doc.AppOnCloud.Azure.TokenId<<azure_token_id
 
         )
         return ret
@@ -163,8 +173,18 @@ class AppServices:
                 return_url=f"{cy_web.get_host_url()}/api/{Name}/azure/after_login",
                 client_id= azure_client_id,
                 tenant= azure_tenant_id,
-                is_personal=azure_client_is_personal_acc
+                scopes=['Sites.ReadWrite.All',
+                        'Files.ReadWrite.All',
+                        'directory.ReadWrite.All',
+                        'Files.Read',
+                        'Files.Read.All',
+                        'Files.ReadWrite',
+                        'Files.ReadWrite.All']
             )
+            # url_azure_login = self.ms_app.get_login_url(
+            #     client_id=azure_client_id,
+            #     redirect_uri= f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
+            # )
             # url_azure_login+=f"?lv-file-app-name={Name}"
         ret = docs.context.update(
             doc.Name == Name,

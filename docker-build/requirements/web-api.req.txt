@@ -26,3 +26,6 @@ Werkzeug
 python-onedrive
 microsoftgraph-python
 msal
+onedrivesdk
+msgraph-core
+azure-identity

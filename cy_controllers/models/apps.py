@@ -17,6 +17,8 @@ class AppMicrosoftAzure(BaseModel):
     ClientSecret: typing.Optional[str]
     IsPersonal: typing.Optional[bool]
     AccessToken: typing.Optional[str]
+    RefreshToken: typing.Optional[str]
+    TokenId: typing.Optional[str]
 
 class AppsOnCloud(BaseModel):
     """
