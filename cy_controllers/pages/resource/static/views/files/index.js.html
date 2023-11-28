@@ -357,6 +357,9 @@ img.mirror {
             <input type="button" class="btn btn-danger btn-sm" value="{{$res('Delete selected items')}}" ng-click="doDeleteItems().then()" style="margin-right:10px" />
         </div>
         <div class="dock full"></div>
+        <div style="padding:4px" ng-if="currentApp.AzureLoginUrl">
+            <input type="button" class="btn btn-primary btn-sm" value="{{$res('One-Drive upload')}}" ng-click="doOneDriveOpenUpload.then()" style="margin-right:10px" />
+        </div>
         <div style="padding:4px">
             <input type="button" class="btn btn-primary btn-sm" value="{{$res('Upload')}}" ng-click="doOpenUploadMultiFilesWindow().then()" style="margin-right:10px" />
         </div>
