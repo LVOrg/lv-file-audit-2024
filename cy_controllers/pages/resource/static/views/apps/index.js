@@ -49,13 +49,7 @@ var appsView = await View(import.meta, class AppsView extends BaseScope {
           var r = await import("../app_edit/index.js");
             var app_edit = await r.default();
             await app_edit.doEditApp(appName);
-//            player.playByItem(item);
             app_edit.asWindow();
-//        debugger;
-//        var ret = await api.post(`apps/${appName}/re_index`, {
-//
-//        });
-//        alert(ret);
 
     }
     //async loadFullTextSearch() {

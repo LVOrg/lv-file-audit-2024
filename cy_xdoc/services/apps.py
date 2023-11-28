@@ -49,7 +49,8 @@ class AppServices:
             docs.fields.return_url_afterSignIn,
             docs.fields.LatestAccess,
             docs.fields.AccessCount,
-            docs.fields.RegisteredOn
+            docs.fields.RegisteredOn,
+            cy_docs.fields.AzureLoginUrl>>docs.fields.AppOnCloud.Azure.UrlLogin
 
         ).sort(
             docs.fields.LatestAccess.desc(),

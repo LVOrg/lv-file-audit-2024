@@ -7,6 +7,7 @@ import {parseUrlParams, dialogConfirm, redirect, urlWatching, getPaths, msgError
 
 var filesView = await View(import.meta, class FilesView extends BaseScope {
     listOfApp = [undefined]
+    appsMap = {}
     currentApp = undefined
     listOfFiles = []
     currentAppName = undefined
@@ -30,17 +31,42 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         this.listOfApp = await api.post(`admin/apps`, {
             
         })
+        this.appsMap={}
+        for(var i=0;i<this.listOfApp.length;i++){
+            this.appsMap[this.listOfApp[i].Name.toLowerCase()]=this.listOfApp[i];
+        }
         this.currentApp = this.listOfApp[0];
         this.currentAppName = this.currentApp.Name;
         await this.doLoadAllFiles();
         this.$applyAsync();
         debugger;
     }
+    async doEditApp(appName) {
+
+          var r = await import("../app_edit/index.js");
+            var app_edit = await r.default();
+            await app_edit.doEditApp(appName);
+            app_edit.asWindow();
+
+    }
     async doLoadAllFileByApp(appName) {
-        this.listOfFiles = await api.post(`${appName}/files`, {
-            
-        });
-        this.$applyAsync();
+        debugger;
+        var indexOfApp=-1;
+
+        while(indexOfApp<0) {
+            indexOfApp++;
+            if(appName.toLowerCase()==this.listOfApp[indexOfApp].Name.toLowerCase()) {
+                break;
+            }
+        }
+        if((indexOfApp>=0)&&(indexOfApp<this.listOfApp.length)) {
+            this.currentApp = this.listOfApp[indexOfApp];
+            this.currentAppName = this.currentApp.Name;
+            this.listOfFiles = await api.post(`${appName}/files`, {
+
+            });
+            this.$applyAsync();
+        }
     }
     async showAddTagsButton(){
         for(var i=0;i<this.listOfFiles.length;i++){
@@ -59,18 +85,23 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         this.$applyAsync();
     }
     async doLoadAllFiles() {
+        debugger;
         var me = this;
+            if(this.appsMap[this.currentAppName.toLowerCase()]) {
+                this.currentApp = this.appsMap[this.currentAppName.toLowerCase()];
+                console.log(this.currentApp )
+                this.listOfFiles = await api.post(`${this.currentAppName}/files`, {
 
-        
-        this.listOfFiles = await api.post(`${this.currentAppName}/files`, {
-           
-            PageIndex: 0,
-            PageSize: 20,
-            FieldSearch: "FileName",
-            ValueSearch: me.fileNameSearchValue
-        });
-        this.$applyAsync();
+                PageIndex: 0,
+                PageSize: 20,
+                FieldSearch: "FileName",
+                ValueSearch: me.fileNameSearchValue
+                });
+                this.$applyAsync();
+            }
+
     }
+
     async doSearchByFileName() {
         await this.doLoadAllFiles();
     }

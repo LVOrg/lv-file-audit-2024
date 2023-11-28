@@ -45,6 +45,7 @@ class AppInfo(BaseModel):
     LatestAccess: typing.Optional[datetime.datetime]
     AccessCount: typing.Optional[int]
     Apps: typing.Optional[AppsOnCloud]
+    AzureLoginUrl: typing.Optional[str]
 
 
 from pydantic import Field

@@ -125,8 +125,9 @@ img.mirror {
         }
 
     </style>
-    <div class="header layout-rows">
-        <div class="layout-rows header-panel">
+    <div>
+        <div class="header layout-rows">
+            <div class="layout-rows header-panel">
             <div>
                 <input list="app-list" style="min-width:220px" id="ice-cream-choice" ng-change="doLoadAllFiles().then()" name="ice-cream-choice" ng-model="currentAppName"  class="form-control form-control-sm">
                 <datalist id="app-list"   >
@@ -135,6 +136,7 @@ img.mirror {
                     </option>
                 </datalist>
             </div>
+
             <div>
                 <div class="input-group mb-3" style="width:250px">
                     <input type="text" class="form-control form-control-sm" ng-model="fileNameSearchValue" placeholder="{{$res('Search by Filename')}}">
@@ -143,22 +145,38 @@ img.mirror {
                     </div>
                 </div>
             </div>
-            <div>
-                <div class="input-group mb-3" style="width:250px">
-                    <span class="input-group-append">{{$res("Sort by")}}</span>
-                    <datalist class="form-control form-control-sm" ng-model="fileNameSort"></datalist>
-                    <!--<div class="input-group-append">
-                        <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()" type="button">{{$res("Tìm")}}</button>
-                    </div>-->
-                </div>
-               
-            </div>
+<!--            <div>-->
+<!--                <div class="input-group mb-3" style="width:250px">-->
+<!--                    <span class="input-group-append">{{$res("Sort by")}}</span>-->
+<!--                    <datalist class="form-control form-control-sm" ng-model="fileNameSort"></datalist>-->
+<!--                    &lt;!&ndash;<div class="input-group-append">-->
+<!--                        <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()" type="button">{{$res("Tìm")}}</button>-->
+<!--                    </div>&ndash;&gt;-->
+<!--                </div>-->
+<!--               -->
+<!--            </div>-->
 
             <div class="dock full"></div>
 
 
 
         </div>
+        </div>
+        <div>
+            <div style="padding-right:20px">
+                <p ng-if="!currentApp.AzureLoginUrl" style="text-align:right">
+                    <a href="javascript:void(0);" ng-click="doEditApp(currentAppName).then()">
+                        Link to MS One drive. How does that shit work?</a>
+                </p>
+                <p ng-if="currentApp.AzureLoginUrl"  style="text-align:right" >
+                    <a target="_blank"  ng-href="{{currentApp.AzureLoginUrl}}">Login to Microsoft Online</a>
+
+                </p>
+
+            </div>
+        </div>
+
+
     </div>
     
     <div class="dock full" style="margin:15px">
