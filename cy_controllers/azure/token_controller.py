@@ -39,6 +39,8 @@ class AzureController(BaseController):
     )
     async def after_login(self, app_name: str) -> typing.Optional[typing.Any]:
         from cy_azure import auth
+        if self.request.query_params.get("error"):
+            return self.request.query_params.get("error_description")
         verify_code = auth.get_verify_code(self.request)
         redirect_uri = str(self.request.url).split('?')[0]
         """

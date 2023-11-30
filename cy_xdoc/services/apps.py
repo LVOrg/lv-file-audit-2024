@@ -174,14 +174,13 @@ class AppServices:
                 return_url=f"{cy_web.get_host_url()}/api/{Name}/azure/after_login",
                 client_id= azure_client_id,
                 tenant= azure_tenant_id,
-                scopes=['Sites.ReadWrite.All',
-                        'Files.ReadWrite.All',
-                        'directory.ReadWrite.All',
-                        'Files.Read',
-                        'Files.Read.All',
-                        'Files.ReadWrite',
-                        'Files.ReadWrite.All']
+                scopes=[
+                        'https://graph.microsoft.com/user.read',
+                        'https://graph.microsoft.com/Files.ReadWrite.All',
+                        'https://graph.microsoft.com/Files.ReadWrite'],
+                is_personal_account=azure_client_is_personal_acc
             )
+
             # url_azure_login = self.ms_app.get_login_url(
             #     client_id=azure_client_id,
             #     redirect_uri= f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"

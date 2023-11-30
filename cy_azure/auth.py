@@ -17,7 +17,9 @@ __scope__ = [
     'openid',
     'offline_access',
     # 'https://contoso.com/.default',
-    'https://graph.microsoft.com/user.read'
+    'User.ReadWrite.All',
+    'wl.signin', 'wl.offline_access', 'onedrive.readwrite'
+    # "https://graph.microsoft.com/.default"
 ]
 class AzureTokeResultInfo:
     access_token: typing.Optional[str]
@@ -83,7 +85,7 @@ def post_form_data(url: str, post_data: typing.Optional[typing.Dict]) -> typing.
         raise Exception(f"Error: {response.status_code}")
 
 
-def get_login_url(return_url: str, client_id: str, tenant: str,scopes:typing.Optional[typing.List[str]]=[]):
+def get_login_url(return_url: str, client_id: str, tenant: str,scopes:typing.Optional[typing.List[str]]=[],is_personal_account:bool=False):
     """
     get login URL of microsoft online
     All require factors to do that are return_url, client_id, tenant must be registered before use
@@ -92,14 +94,22 @@ def get_login_url(return_url: str, client_id: str, tenant: str,scopes:typing.Opt
     :param tenant:
     :return:
     """
-    if 'https://contoso.com/.default' not in __scope__:
-        _scopes =list(set(__scope__+scopes))
-    else:
-        _scopes = ['https://contoso.com/.default']
+    rel_logon_urlrel_logon_url = f"{tenant}/oauth2/v2.0/authorize"
+    _scopes =list(set(__scope__+scopes+[f"api://{client_id}/Admin"]))
+    for x in _scopes:
+        print(x)
     encoded_return_url = urllib.parse.quote_plus(return_url)
     __scope_str__ = urllib.parse.quote(" ".join(_scopes), 'utf8')
+    #https://login.microsoftonline.com/13d23acb-69f3-4651-98fe-76e95992f779/oauth2/v2.0/authorize
+    #https://login.microsoftonline.com/13d23acb-69f3-4651-98fe-76e95992f779/oauth2/authorize
+    if is_personal_account:
+        tenant="consumers"
+    claims='&claims=%7B%22access_token%22%3A%7B%22acrs%22%3A%7B%22essential%22%3Atrue%2C%22value%22%3A%22c1%22%7D%7D%7D'
+    # fx=f'https://login.microsoftonline.com/testdirectory.onmicrosoft.com/adminconsent?client_id={client_id}&redirect_uri={encoded_return_url}'
     login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/v2.0/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
-
+    login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
+    # login_url = f"{__url_login_microsoftonline__}/{tenant}/oauth2/authorize?client_id={client_id}&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
+    # login_url =f"https://login.microsoftonline.com/{tenant}/adminconsent?client_id={client_id})&response_type=code&redirect_uri={encoded_return_url}&scope={__scope_str__}"
 
     return login_url
 
@@ -154,6 +164,7 @@ def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret)->Az
         "client_id": client_id,
         "client_secret": client_secret,
         "redirect_uri": redirect_uri
+
         # "scope": "https%3A%2F%2Fgraph.microsoft.com%2Fmail.read",
     }
 
@@ -168,6 +179,6 @@ def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret)->Az
             ret_info.__dict__[k]=v
         return ret_info
     else:
-        raise Exception(f"Error: {response.status_code}")
+        raise Exception(f"Error: {response.status_code} {response.text}")
 #sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout fs.key -out fs.crt
 #

@@ -170,7 +170,9 @@ img.mirror {
                 </p>
                 <p ng-if="currentApp.AzureLoginUrl"  style="text-align:right" >
                     <a target="_blank"  ng-href="{{currentApp.AzureLoginUrl}}">Login to Microsoft Online</a>
-
+                    or
+                    <a href="javascript:void(0);" ng-click="doEditApp(currentAppName).then()">
+                        Re-Config that shit!</a>
                 </p>
 
             </div>
