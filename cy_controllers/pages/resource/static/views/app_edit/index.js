@@ -13,6 +13,7 @@ var appEditView = await View(import.meta, class EditAppView extends BaseScope {
 //        this.doEditApp(getPaths()[2])
     }
     async doEditApp(appName) {
+        this.clientSecretInputType='password'
         var me=this;
         me.app = await api.post(`admin/apps/get`, {
             AppName: appName
@@ -28,7 +29,18 @@ var appEditView = await View(import.meta, class EditAppView extends BaseScope {
     }
     async doNewApp() {
         this.app = {}
+        this.clientSecretInputType='password'
         this.$applyAsync();
+    }
+    clientSecretOnOff(){
+        if (this.clientSecretInputType=='password'){
+            this.clientSecretInputType='text'
+            this.$applyAsync();
+        }
+        else {
+            this.clientSecretInputType='password'
+            this.$applyAsync();
+        }
     }
     async doUpdateApp() {
         debugger;

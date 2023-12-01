@@ -28,18 +28,32 @@
             <fieldset class="app-editor-section">
                 <legend>Azure App</legend>
                 <div class="app-editor-frame">
+                    <span>Skip Share Point Online License</span>
+                    <div>
+                        <input type="checkbox" ng-model="app.Apps.Azure.IsPersonal"  />
+                        <span style="font-size:9pt">
+                            The shit is really important! <br/>
+                            Who do not have money and desire to use Microsoft One Drive.
+                            <br>
+                            <b style="color:red">Skip Share Point Online License</b>
+                            is the shit work with an application and account type of that application must be
+                            <b>All Microsoft account users</b>
+                        </span>
+                    </div>
                     <span>Name</span>
                     <input type="text" ng-model="app.Apps.Azure.Name" class="form-control" />
                     <span>Application (client) ID</span>
                     <input type="text" ng-model="app.Apps.Azure.ClientId" class="form-control" />
-                    <span>Directory (tenant) ID</span>
-                    <input type="text" ng-model="app.Apps.Azure.TenantId" class="form-control" />
+                    <span ng-if="!app.Apps.Azure.IsPersonal">Directory (tenant) ID</span>
+                    <input  ng-if="!app.Apps.Azure.IsPersonal" type="text" ng-model="app.Apps.Azure.TenantId" class="form-control" />
                     <span>Client secrets</span>
-                    <input type="text" ng-model="app.Apps.Azure.ClientSecret" class="form-control" />
-                    <span>Personal Microsoft account users</span>
-                    <input type="checkbox" ng-model="app.Apps.Azure.IsPersonal" class="form-control" />
-                    <span>Access token</span>
-                    <input type="text" ng-model="app.Apps.Azure.AccessToken" class="form-control" />
+                    <div class="input-group">
+
+                        <input type="{{clientSecretInputType}}" ng-model="app.Apps.Azure.ClientSecret" class="form-control" />
+                        <button ng-click="clientSecretOnOff()"><span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span></button>
+                    </div>
+
+
                 </div>
                 <div ng-if="app.Apps.Azure.UrlLogin">
                     <a target="_blank" ng-href="{{app.Apps.Azure.UrlLogin}}">Login and get access token key</a>
