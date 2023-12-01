@@ -14,11 +14,11 @@ urllib3.disable_warnings()
 __url_grap_v10_me__ = "https://graph.microsoft.com/v1.0/me"
 __url_login_microsoftonline__ = "https://login.microsoftonline.com"
 __scope__ = [
-    'openid',
-    'offline_access',
-    # 'https://contoso.com/.default',
-    'User.ReadWrite.All',
-    'wl.signin', 'wl.offline_access', 'onedrive.readwrite'
+    # 'openid',
+    # 'offline_access',
+    # # 'https://contoso.com/.default',
+    # 'User.ReadWrite.All',
+    # 'wl.signin', 'wl.offline_access', 'onedrive.readwrite'
     # "https://graph.microsoft.com/.default"
 ]
 class AzureTokeResultInfo:
@@ -170,7 +170,7 @@ def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret)->Az
 
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     #https://login.microsoftonline.com/13a53f39-4b4d-4268-8c5e-ae6260178923/oauth2/v2.0/token
-    response = requests.post(f"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token", data=data)
+    response = requests.post(f"https://login.microsoftonline.com/common/oauth2/v2.0/token", data=data)
 
     if response.status_code == 200:
         response_data = json.loads(response.text)

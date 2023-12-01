@@ -47,7 +47,11 @@ class AzureController(BaseController):
         If everything from Whore-Microsoft-Azure:
         The will get the shit verify code, then get Access Token
         """
-
+        if self.request.query_params.get("id_token"):
+            _access_token = self.request.query_params.get("id_token")
+            from fastapi.responses import HTMLResponse
+            ret = f"<html><head></head><body><textarea style='width:100%;min-height:300px'>{_access_token}</textarea></body></html>"
+            return HTMLResponse(ret)
         app = self.service_app.get_item(
             app_name='admin',
             app_get=app_name
@@ -97,11 +101,27 @@ class AzureController(BaseController):
 
                 # return app.to_pydantic()
                 from fastapi.responses import HTMLResponse
-                ret=f"<html><head></head><body><textarea style='width:100%;min-height:300px'>{_access_token}</textarea></body></html>"
+                ret=f"<html><head></head><body><span>Access Token</span><br/><textarea style='width:100%;min-height:300px'>{_access_token}</textarea></body></html>"
+                ret += f"<html><head></head><body><span>Token ID</span><br/><textarea style='width:100%;min-height:300px'>{_id_token}</textarea></body></html>"
                 return HTMLResponse(ret)
+
             except Exception as e:
                 import traceback
                 ret_error = traceback.format_exception(e)
                 return ret_error
         else:
             raise Exception(f"{app_name} was not link to Microsoft Azure App")
+
+    @controller.route.post(
+        "/api/{app_name}/azure/after_login",
+        summary="After login to Azure is OK. Use this api to get the f**king Access Token Key"
+    )
+    async def after_login(self, app_name: str):
+        from fastapi.responses import HTMLResponse
+        form_data = await self.request.form()
+        c=""
+        for key, value in form_data.items():
+            c+=f"{key}={value}"
+            print(f"Key: {key}, Value: {value}")
+        ret = f"<html><head></head><body><textarea style='width:100%;min-height:300px'>{form_data['id_token']}</textarea></body></html>"
+        return HTMLResponse(ret)

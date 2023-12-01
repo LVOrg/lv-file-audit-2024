@@ -169,17 +169,24 @@ class AppServices:
         doc = docs.fields
         url_azure_login = None
         if isinstance(azure_client_id,str):
-            from cy_azure import auth
-            url_azure_login = auth.get_login_url(
-                return_url=f"{cy_web.get_host_url()}/api/{Name}/azure/after_login",
-                client_id= azure_client_id,
-                tenant= azure_tenant_id,
-                scopes=[
-                        'https://graph.microsoft.com/user.read',
-                        'https://graph.microsoft.com/Files.ReadWrite.All',
-                        'https://graph.microsoft.com/Files.ReadWrite'],
-                is_personal_account=azure_client_is_personal_acc
-            )
+            from cy_azure.fwcking_auth import scopes, urls_auth
+            redirect_url= f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
+            if azure_client_is_personal_acc:
+                url_azure_login = urls_auth.get_personal_account_login_url(
+                    client_id = azure_client_id,
+                    scopes = scopes.get_one_drive(),
+                    redirect_uri = redirect_url
+                )
+            else:
+                url_azure_login = urls_auth.get_business_account_login_url(
+                    client_id=azure_client_id,
+                    tenant_id= azure_tenant_id,
+                    scopes=scopes.get_one_drive(),
+                    redirect_uri=redirect_url
+                )
+
+
+
 
             # url_azure_login = self.ms_app.get_login_url(
             #     client_id=azure_client_id,
