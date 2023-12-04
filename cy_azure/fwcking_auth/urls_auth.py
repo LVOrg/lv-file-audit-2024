@@ -1,5 +1,70 @@
 import typing
 import urllib.parse
+import requests
+import json
+
+
+def get_access_token_key_by_username_pass(
+        client_id: str, tenant_id: str,
+        username:str,password:str,
+        scopes: typing.List[str],
+        secret_value: str) -> typing.Optional[typing.Tuple[str,typing.List[str]]]:
+    fucking_scope = list(set(scopes + ['offline_access', 'openid', 'profile']+[f"api://{client_id}/all"]))
+    txt_scope = "+".join(fucking_scope)
+    data = {'grant_type':"password", #"password", # "client_credentials",
+            'resource':"https://graph.microsoft.com", #"https://graph.microsoft.com", # "553ae3ba-037a-4fc4-bd8e-368b06692c06" , # ["553ae3ba-037a-4fc4-bd8e-368b06692c06","https://graph.microsoft.com"],
+            'client_id': client_id,
+            'client_secret': secret_value,
+             'scope':scopes+ [
+                 'offline_access',
+                 'openid',
+                 'profile',
+                 'https://graph.microsoft.com/mail.read',
+                 'https://graph.microsoft.com/user.read.all',
+                 'https://graph.microsoft.com/user.ReadWrite.all',
+                 'https://graph.microsoft.com/Files.Read',
+                 'https://graph.microsoft.com/Files.Read.All',
+                 'https://graph.microsoft.com/Files.Read.Selected',
+                 'https://graph.microsoft.com/Files.ReadWrite',
+                 'https://graph.microsoft.com/Files.ReadWrite.All'
+             ],
+            'username':username,
+            'password':password
+            }
+
+    URL3 = f"https://login.windows.net/common/oauth2/token"
+    r = requests.post(url=URL3, data=data)
+    j = json.loads(r.text)
+    if j.get("error"):
+        f_error= f"code:{j.get('error')},{j['error_description']}"
+        raise Exception(f_error)
+    TOKEN = j["access_token"]
+    ret_scope= j["scope"]
+    return TOKEN,ret_scope
+def accquire_access_token_key_token(
+        client_id: str, tenant_id: str,
+        secret_value: str,
+        scopes:typing.List[str]) -> str:
+    fucking_scope = list(set(scopes + ['offline_access', 'openid', 'profile']))
+    txt_scope = "+".join(fucking_scope)
+
+    _fscopes= [ f"{x}/.default" for x in scopes]
+    fucking_data_2 = {'grant_type': "client_credentials",  # "client_credentials",
+                    # 'resource': "https://graph.microsoft.com",
+                    'client_id': client_id,
+                    'client_secret': secret_value,
+                    'scope': ['https://graph.microsoft.com/.default'],
+                    }
+    fucking_ur=f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+
+    r = requests.post(url=fucking_ur,data=fucking_data_2)
+    j = json.loads(r.text)
+    if j.get("error"):
+        f_error= f"code:{j.get('error')},{j['error_description']}"
+        raise Exception(f_error)
+    TOKEN = j["access_token"]
+    ret_scope= j["scope"]
+    return TOKEN,ret_scope
 
 
 def get_personal_account_login_url(client_id: str, scopes: typing.List[str], redirect_uri: str) -> str:

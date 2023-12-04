@@ -19,6 +19,7 @@ class AppMicrosoftAzure(BaseModel):
     AccessToken: typing.Optional[str]
     RefreshToken: typing.Optional[str]
     TokenId: typing.Optional[str]
+    AuthCode: typing.Optional[str]
 
 class AppsOnCloud(BaseModel):
     """

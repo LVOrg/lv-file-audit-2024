@@ -146,14 +146,16 @@ class AppServices:
                                 app_name:str,
                                 azure_access_token:str,
                                 azure_refresh_token:str,
-                                azure_token_id:str):
+                                azure_token_id:str,
+                                azure_verify_code:str):
         docs = self.db_connect.db('admin').doc(App)
         doc = docs.fields
         ret = docs.context.update(
             doc.Name == app_name,
             doc.AppOnCloud.Azure.AccessToken << azure_access_token,
             doc.AppOnCloud.Azure.RefreshToken << azure_refresh_token,
-            doc.AppOnCloud.Azure.TokenId<<azure_token_id
+            doc.AppOnCloud.Azure.TokenId<<azure_token_id,
+            doc.AppOnCloud.Azure.AuthCode << azure_verify_code
 
         )
         return ret
@@ -164,6 +166,7 @@ class AppServices:
                azure_client_id: typing.Optional[str] = None,
                azure_tenant_id: typing.Optional[str] = None,
                azure_client_secret:typing.Optional[str]=None,
+               azure_auth_code:typing.Optional[str]=None,
                azure_client_is_personal_acc: typing.Optional[bool]=False):
         docs = self.db_connect.db('admin').doc(App)
         doc = docs.fields
@@ -203,6 +206,7 @@ class AppServices:
             doc.AppOnCloud.Azure.UrlLogin << url_azure_login,
             doc.AppOnCloud.Azure.ClientSecret << azure_client_secret,
             doc.AppOnCloud.Azure.IsPersonal << azure_client_is_personal_acc,
+            doc.AppOnCloud.Azure.AuthCode << azure_auth_code,
             doc.NameLower<<Name.lower()
 
         )

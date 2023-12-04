@@ -16,6 +16,7 @@ class AppMicrosoftAzure:
     AccessToken: typing.Optional[str]
     RefreshToken: typing.Optional[str]
     TokenId: typing.Optional[str]
+    AuthCode: typing.Optional[str]
 class AppsOnCloudModle:
     Azure: typing.Optional[AppMicrosoftAzure]
 

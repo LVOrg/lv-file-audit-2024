@@ -96,7 +96,8 @@ class AzureController(BaseController):
                     app_name=app_name,
                     azure_access_token = _access_token,
                     azure_refresh_token= _refresh_token,
-                    azure_token_id= _id_token
+                    azure_token_id= _id_token,
+                    azure_verify_code= verify_code
                 )
 
                 # return app.to_pydantic()
