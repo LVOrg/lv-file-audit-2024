@@ -3,7 +3,7 @@ import typing
 import msal
 
 
-class MSAppService:
+class FuckingWhoreMSAppService:
     def __init__(self):
         self.apps_cache = {}
 

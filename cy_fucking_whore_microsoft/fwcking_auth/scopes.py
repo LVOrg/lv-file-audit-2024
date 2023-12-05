@@ -12,3 +12,7 @@ def get_one_drive()->typing.List[str]:
         'Files.ReadWrite',
         'Files.ReadWrite.All'
     ]
+def get_account()->typing.List[str]:
+    return [
+        "User.Invite.All"
+    ]

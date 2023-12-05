@@ -21,6 +21,7 @@ from cyx.common.brokers import Broker
 from cyx.common.rabitmq_message import RabitmqMsg
 import cy_docs
 import cyx.common.msg
+from cy_fucking_whore_microsoft.services import account_services
 from cyx.common.file_storage_mongodb import (
     MongoDbFileService, MongoDbFileStorage
 )
@@ -51,5 +52,6 @@ class BaseController:
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
     search_engine = cy_kit.singleton(SearchEngine)
+    fucking_azure_account_service:account_services.AccountService = cy_kit.singleton(account_services.AccountService)
     def __init__(self, request: Request):
         self.request = request

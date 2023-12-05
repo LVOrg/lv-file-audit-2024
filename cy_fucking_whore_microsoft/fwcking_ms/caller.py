@@ -6,7 +6,7 @@ import urllib
 URL = 'https://graph.microsoft.com/v1.0/'
 from typing import Generic, TypeVar
 T = TypeVar('T')
-class ApiCallException(Exception):
+class FuckingWhoreMSApiCallException(Exception):
     def __init__(self, message,code):
         self.message = message
         self.code=code
@@ -31,7 +31,11 @@ def call_ms_func(method:str,api_url:str,token:str,body,return_type:T,request_con
     if request_content_type is not None:
         HEADERS["Content-Type"]=request_content_type
     if body:
-        response = http_method(URL + api_url, headers=HEADERS, data=body)
+        if request_content_type=="application/json":
+            response = http_method(URL + api_url, headers=HEADERS, json=body)
+        else:
+            response = http_method(URL + api_url, headers=HEADERS, data=body)
+
     else:
         response = http_method(URL + api_url, headers=HEADERS)
     if response.status_code >= 200 and response.status_code < 300:
@@ -48,7 +52,7 @@ def call_ms_func(method:str,api_url:str,token:str,body,return_type:T,request_con
             error = json.loads(response.text)
             error_message = error["error"].get("message")
             error_code = error["error"].get("code")
-            ex = ApiCallException(message=error_message,code=error_code)
+            ex = FuckingWhoreMSApiCallException(message=error_message, code=error_code)
         except:
             pass
         raise ex
@@ -82,7 +86,7 @@ def refresh_token(client_id:str,client_secret:str,refresh_token:str,scopes:typin
             error = json.loads(response.text)
             error_message = error["error"].get("message")
             error_code = error["error"].get("code")
-            ex = ApiCallException(message=error_message, code=error_code)
+            ex = FuckingWhoreMSApiCallException(message=error_message, code=error_code)
         except:
             pass
         raise ex

@@ -21,6 +21,7 @@ from cy_controllers.files.file_privileges_controller import FilesPrivilegesContr
 from cy_controllers.systems.system_controllers import SystemsController
 from cy_controllers.health_check.health_check_controllers import HealthCheckController
 from cy_controllers.azure.token_controller import AzureController
+from cy_controllers.azure.fucking_one_drive import FuckingOneDriveController
 from cyx.loggers import LoggerService
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
@@ -36,6 +37,7 @@ controllers_list=[
         SearchController,
         SystemsController,
         AzureController,
+        FuckingOneDriveController,
         PagesController
 
     ]

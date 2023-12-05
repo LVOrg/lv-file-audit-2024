@@ -10,7 +10,9 @@ from cy_xdoc.models.apps import App
 import cyx.common
 import cyx.common.cacher
 from cyx.cache_service.memcache_service import MemcacheServices
-from cy_azure.services.ms_apps_services import MSAppService
+from cy_fucking_whore_microsoft.services.ms_apps_services import FuckingWhoreMSAppService
+from cy_fucking_whore_microsoft.fwcking_auth import scopes, urls_auth
+
 
 class AppsCacheService:
     def __init__(self,
@@ -18,9 +20,11 @@ class AppsCacheService:
         self.cacher = cacher
         self.cache_key = "APP:CACHE"
 
-
     def clear_cache(self):
         self.cacher.delete_key(self.cache_key)
+
+
+from cyx.common.base import DbCollection
 
 
 class AppServices:
@@ -28,14 +32,17 @@ class AppServices:
     def __init__(self,
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
-                 ms_app=cy_kit.singleton(MSAppService)
+                 fucking_whore_ms_app_service=cy_kit.singleton(FuckingWhoreMSAppService)
                  ):
         self.db_connect = db_connect
         self.config = cyx.common.config
         self.admin_db = self.config.admin_db_name
         self.cacher = cacher
         self.cache_type = f"{App.__module__}.{App.__name__}"
-        self.ms_app = ms_app
+        self.fucking_whore_ms_app_service = fucking_whore_ms_app_service
+
+    def get_queryable(self) -> DbCollection[App]:
+        return self.db_connect.db("admin").doc(App)
 
     def get_list(self, app_name: str):
         docs = self.db_connect.db(app_name).doc(App)
@@ -50,7 +57,7 @@ class AppServices:
             docs.fields.LatestAccess,
             docs.fields.AccessCount,
             docs.fields.RegisteredOn,
-            cy_docs.fields.AzureLoginUrl>>docs.fields.AppOnCloud.Azure.UrlLogin
+            cy_docs.fields.AzureLoginUrl >> docs.fields.AppOnCloud.Azure.UrlLogin
 
         ).sort(
             docs.fields.LatestAccess.desc(),
@@ -59,7 +66,7 @@ class AppServices:
         )
         return ret
 
-    def get_item(self, app_name, app_get:typing.Optional[str]):
+    def get_item(self, app_name, app_get: typing.Optional[str]):
         docs = self.db_connect.db(app_name).doc(App)
         ret = docs.context.aggregate().project(
             cy_docs.fields.AppId >> docs.fields.Id,
@@ -69,7 +76,7 @@ class AppServices:
             docs.fields.LoginUrl,
             docs.fields.ReturnUrlAfterSignIn,
             docs.fields.ReturnSegmentKey,
-            cy_docs.fields.Apps>>docs.fields.AppOnCloud
+            cy_docs.fields.Apps >> docs.fields.AppOnCloud
 
         ).match(docs.fields.NameLower == app_get.lower()).first_item()
         if ret is None:
@@ -142,54 +149,53 @@ class AppServices:
             RegisteredOn=datetime.datetime.utcnow()
         )
         return ret
+
     def save_azure_access_token(self,
-                                app_name:str,
-                                azure_access_token:str,
-                                azure_refresh_token:str,
-                                azure_token_id:str,
-                                azure_verify_code:str):
+                                app_name: str,
+                                azure_access_token: str,
+                                azure_refresh_token: str,
+                                azure_token_id: str,
+                                azure_verify_code: str):
         docs = self.db_connect.db('admin').doc(App)
         doc = docs.fields
         ret = docs.context.update(
             doc.Name == app_name,
             doc.AppOnCloud.Azure.AccessToken << azure_access_token,
             doc.AppOnCloud.Azure.RefreshToken << azure_refresh_token,
-            doc.AppOnCloud.Azure.TokenId<<azure_token_id,
+            doc.AppOnCloud.Azure.TokenId << azure_token_id,
             doc.AppOnCloud.Azure.AuthCode << azure_verify_code
 
         )
         return ret
+
     def update(self,
                Name: str,
                Description: typing.Optional[str] = None,
                azure_app_name: typing.Optional[str] = None,
                azure_client_id: typing.Optional[str] = None,
                azure_tenant_id: typing.Optional[str] = None,
-               azure_client_secret:typing.Optional[str]=None,
-               azure_auth_code:typing.Optional[str]=None,
-               azure_client_is_personal_acc: typing.Optional[bool]=False):
+               azure_client_secret: typing.Optional[str] = None,
+               azure_auth_code: typing.Optional[str] = None,
+               azure_client_is_personal_acc: typing.Optional[bool] = False):
         docs = self.db_connect.db('admin').doc(App)
         doc = docs.fields
         url_azure_login = None
-        if isinstance(azure_client_id,str):
-            from cy_azure.fwcking_auth import scopes, urls_auth
-            redirect_url= f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
+        if isinstance(azure_client_id, str):
+
+            redirect_url = f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
             if azure_client_is_personal_acc:
                 url_azure_login = urls_auth.get_personal_account_login_url(
-                    client_id = azure_client_id,
-                    scopes = scopes.get_one_drive(),
-                    redirect_uri = redirect_url
+                    client_id=azure_client_id,
+                    scopes=scopes.get_one_drive(),
+                    redirect_uri=redirect_url
                 )
             else:
                 url_azure_login = urls_auth.get_business_account_login_url(
                     client_id=azure_client_id,
-                    tenant_id= azure_tenant_id,
-                    scopes=scopes.get_one_drive(),
+                    tenant_id=azure_tenant_id,
+                    scopes=scopes.get_one_drive()+scopes.get_account(),
                     redirect_uri=redirect_url
                 )
-
-
-
 
             # url_azure_login = self.ms_app.get_login_url(
             #     client_id=azure_client_id,
@@ -207,7 +213,7 @@ class AppServices:
             doc.AppOnCloud.Azure.ClientSecret << azure_client_secret,
             doc.AppOnCloud.Azure.IsPersonal << azure_client_is_personal_acc,
             doc.AppOnCloud.Azure.AuthCode << azure_auth_code,
-            doc.NameLower<<Name.lower()
+            doc.NameLower << Name.lower()
 
         )
         agg = docs.context.aggregate().project(
@@ -221,7 +227,7 @@ class AppServices:
             cy_docs.fields.Apps >> docs.fields.AppOnCloud
 
         )
-        ret_app = agg.match((doc.NameLower == Name.lower())|(doc.Name == Name)).first_item()
+        ret_app = agg.match((doc.NameLower == Name.lower()) | (doc.Name == Name)).first_item()
         # if ret_app is None:
         #     ret_app = agg.match(docs.fields.Name == Name).first_item()
         return ret_app
@@ -238,5 +244,3 @@ class AppServices:
                 document.fields.LoginUrl << login_url,
                 document.fields.ReturnUrlAfterSignIn << return_url_after_sign_in
             )
-
-

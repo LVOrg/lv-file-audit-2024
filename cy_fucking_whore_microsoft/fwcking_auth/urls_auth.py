@@ -5,7 +5,7 @@ import json
 
 
 def get_access_token_key_by_username_pass(
-        client_id: str, tenant_id: str,
+        client_id: str,
         username:str,password:str,
         scopes: typing.List[str],
         secret_value: str) -> typing.Optional[typing.Tuple[str,typing.List[str]]]:
@@ -34,21 +34,22 @@ def get_access_token_key_by_username_pass(
 
     URL3 = f"https://login.windows.net/common/oauth2/token"
     r = requests.post(url=URL3, data=data)
+    print(r.text)
     j = json.loads(r.text)
     if j.get("error"):
-        f_error= f"code:{j.get('error')},{j['error_description']}"
-        raise Exception(f_error)
+        from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+        ex  = FuckingWhoreMSApiCallException(
+            code = j.get('error'),
+            message = j['error_description']
+        )
+        raise ex
     TOKEN = j["access_token"]
-    ret_scope= j["scope"]
+    ret_scope= j["scope"].split(' ')
     return TOKEN,ret_scope
 def accquire_access_token_key_token(
         client_id: str, tenant_id: str,
-        secret_value: str,
-        scopes:typing.List[str]) -> str:
-    fucking_scope = list(set(scopes + ['offline_access', 'openid', 'profile']))
-    txt_scope = "+".join(fucking_scope)
+        secret_value: str) -> str:
 
-    _fscopes= [ f"{x}/.default" for x in scopes]
     fucking_data_2 = {'grant_type': "client_credentials",  # "client_credentials",
                     # 'resource': "https://graph.microsoft.com",
                     'client_id': client_id,
@@ -56,6 +57,7 @@ def accquire_access_token_key_token(
                     'scope': ['https://graph.microsoft.com/.default'],
                     }
     fucking_ur=f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+    # fucking_ur = f"https://login.microsoftonline.com/common/oauth2/v2.0/token"
 
     r = requests.post(url=fucking_ur,data=fucking_data_2)
     j = json.loads(r.text)
@@ -63,8 +65,8 @@ def accquire_access_token_key_token(
         f_error= f"code:{j.get('error')},{j['error_description']}"
         raise Exception(f_error)
     TOKEN = j["access_token"]
-    ret_scope= j["scope"]
-    return TOKEN,ret_scope
+
+    return TOKEN
 
 
 def get_personal_account_login_url(client_id: str, scopes: typing.List[str], redirect_uri: str) -> str:
