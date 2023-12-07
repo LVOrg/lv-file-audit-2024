@@ -117,7 +117,7 @@ webApi:
   # Thou must inquire thee's DEV-OP about ingress-controller and get correct name
   namespace: xdoc-web
   # namespace: The same rule of name
-  hostUrl: http://172.16.7.99/lvfile
+  hostUrl: https://172.16.7.99/lvfile
   # inquire about Web Host server from thee's DEV-OP
   configMapName: xdoc-config
   replicas: 4

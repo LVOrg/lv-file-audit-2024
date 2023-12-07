@@ -10,6 +10,7 @@ import cy_web
 import typing
 from pydantic import BaseModel
 from fastapi.responses import Response, JSONResponse
+
 router = APIRouter()
 controller = Controller(router)
 
@@ -85,8 +86,10 @@ class Error(BaseModel):
 
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
 import asyncio
+
 MAX_REQUESTS_UPLOAD_FILES = 2
 semaphore = asyncio.Semaphore(MAX_REQUESTS_UPLOAD_FILES)
+
 
 class RegisterUploadInfoResult(BaseModel):
     """
@@ -165,16 +168,16 @@ class FilesRegisterController(BaseController):
         async with semaphore:
             if request_user is None:
                 request_user = {}
-            request_count = request_user.get(self.request.client.host,0)
+            request_count = request_user.get(self.request.client.host, 0)
             if request_count >= MAX_REQUESTS_UPLOAD_FILES:
                 return JSONResponse(
                     {
-                        "code":"Exceed limit request",
+                        "code": "Exceed limit request",
                         "message": "Upstream: too many requests"
                     }, status_code=429
                 )
-            request_user[self.request.client.host] = request_count+1
-            self.memcache_service.set_dict("request_user",request_user)
+            request_user[self.request.client.host] = request_count + 1
+            self.memcache_service.set_dict("request_user", request_user)
 
         if Data.storageType is None or Data.storageType not in ["onedrive", "local"]:
             ret_quit = RegisterUploadInfoResult()
@@ -209,8 +212,8 @@ class FilesRegisterController(BaseController):
                 privileges_type=privileges,
                 meta_data=Data.meta_data,
                 skip_option=skip_option,
-                storage_type= Data.storageType,
-                onedriveScope= Data.onedriveScope
+                storage_type=Data.storageType,
+                onedriveScope=Data.onedriveScope
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
