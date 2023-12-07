@@ -7,12 +7,17 @@ from cy_fucking_whore_microsoft.fwcking_ms.caller import call_ms_func, FuckingWh
 import jwt
 import requests
 from cy_xdoc.services.apps import AppServices
+from cyx.cache_service.memcache_service import MemcacheServices
 from enum import Enum
 
 
 class AccountService:
-    def __init__(self, app_service=cy_kit.singleton(AppServices)):
+    def __init__(self,
+                 app_service=cy_kit.singleton(AppServices),
+                 memcache_service = cy_kit.singleton(MemcacheServices)
+                 ):
         self.app_service = app_service
+        self.memcache_service = memcache_service
 
     def get_current_acc_info(self, access_token) -> dict:
         """
@@ -110,6 +115,10 @@ class AccountService:
         :param app_name:
         :return:
         """
+        cache_key = f"{__file__}/{app_name}/acquire_token"
+        ret_token = self.memcache_service.get_str(cache_key)
+        if isinstance(ret_token,str):
+            return ret_token
         qr = self.app_service.get_queryable()
         app = qr.context.find_one(
             qr.fields.NameLower == app_name.lower()
@@ -175,6 +184,8 @@ class AccountService:
             )
             raise ex
         decoded_token = jwt.decode(data.get("id_token"), options={"verify_signature": False, "verify_aud": False})
+
+
         if decoded_token.get('aud') != fucking_ms_app_azure_id:
             ex = FuckingWhoreMSApiCallException(
                 message=f"Application {app_name} in LV File Service link to {decoded_token.get('aud')}, not link to {fucking_ms_app_azure_id}",
@@ -187,6 +198,9 @@ class AccountService:
                 code=ErrorEnum.IMPROPER_MICROSOFT_APP_REGISTER
             )
             raise ex
+        cache_time = data.get('expires_in', 600)-300
+
+        self.memcache_service.set_str(cache_key,data["access_token"],cache_time)
         return data["access_token"]
 
     def get_root_dir_of_one_drive(self, app_name) -> str:

@@ -165,19 +165,19 @@ class FilesRegisterController(BaseController):
             """
         request_user = self.memcache_service.get_dict("request_user")
 
-        async with semaphore:
-            if request_user is None:
-                request_user = {}
-            request_count = request_user.get(self.request.client.host, 0)
-            if request_count >= MAX_REQUESTS_UPLOAD_FILES:
-                return JSONResponse(
-                    {
-                        "code": "Exceed limit request",
-                        "message": "Upstream: too many requests"
-                    }, status_code=429
-                )
-            request_user[self.request.client.host] = request_count + 1
-            self.memcache_service.set_dict("request_user", request_user)
+        # async with semaphore:
+        #     if request_user is None:
+        #         request_user = {}
+        #     request_count = request_user.get(self.request.client.host, 0)
+        #     if request_count >= MAX_REQUESTS_UPLOAD_FILES:
+        #         return JSONResponse(
+        #             {
+        #                 "code": "Exceed limit request",
+        #                 "message": "Upstream: too many requests"
+        #             }, status_code=429
+        #         )
+        #     request_user[self.request.client.host] = request_count + 1
+        #     self.memcache_service.set_dict("request_user", request_user)
 
         if Data.storageType is None or Data.storageType not in ["onedrive", "local"]:
             ret_quit = RegisterUploadInfoResult()

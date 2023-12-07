@@ -29,7 +29,7 @@ from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.common.file_storage_mongodb import MongoDbFileService
 from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 from cyx.common import config
-
+from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
@@ -42,8 +42,9 @@ class FileServices:
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
                  logger=cy_kit.singleton(LoggerService),
-                 memcache_service=cy_kit.singleton(MemcacheServices)):
-
+                 memcache_service=cy_kit.singleton(MemcacheServices),
+                 onedrive_service = cy_kit.singleton(OnedriveService)):
+        self.onedrive_service = onedrive_service
         self.file_storage_service = file_storage_service
         self.search_engine = search_engine
         self.db_connect = db_connect
@@ -234,6 +235,13 @@ class FileServices:
             app_name=app_name,
             privileges_type_from_client=privileges_type
         )
+        fucking_session_url=None
+        if storage_type=="onedrive":
+            fucking_session_url = self.onedrive_service.get_upload_session(
+                app_name=app_name,
+                upload_id= id,
+                client_file_name = client_file_name
+            )
 
         def cahe_register():
             cache_doc = cy_docs.DocumentObject()
@@ -282,6 +290,7 @@ class FileServices:
             cache_doc[doc.fields.SkipActions] = skip_option
             cache_doc[doc.fields.StorageType] = storage_type
             cache_doc[doc.fields.OnedriveScope] = onedriveScope
+            cache_doc[doc.fields.OnedriveSessionUrl] = fucking_session_url
             self.set_upload_register_to_cache(
                 app_name=app_name,
                 upload_id=id,
@@ -338,7 +347,8 @@ class FileServices:
                         doc.fields.meta_data << meta_data,
                         doc.fields.SkipActions << skip_option,
                         doc.fields.StorageType << storage_type,
-                        doc.fields.OnedriveScope << onedriveScope
+                        doc.fields.OnedriveScope << onedriveScope,
+                        doc.fields.OnedriveSessionUrl << fucking_session_url
                     )
                 except Exception as e:
                     time.sleep(0.1)

@@ -348,3 +348,4 @@ class DocUploadRegister:
     ReIndexInfo: typing.Optional[dict]
     StorageType: typing.Optional[str]
     OnedriveScope: typing.Optional[str]
+    OnedriveSessionUrl: typing.Optional[str]
