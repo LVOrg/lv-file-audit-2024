@@ -179,6 +179,13 @@ def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret)->Az
             ret_info.__dict__[k]=v
         return ret_info
     else:
+        re_json = response.json()
+        from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+        if re_json.get("error"):
+            raise FuckingWhoreMSApiCallException(
+                code=re_json.get("error"),
+                message=re_json.get("error_description")
+            )
         raise Exception(f"Error: {response.status_code} {response.text}")
 #sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout fs.key -out fs.crt
 #

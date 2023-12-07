@@ -13,11 +13,13 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
     currentAppName = undefined
     hasSelected=false
     async init() {
+
         this.ui={
             hasSelected:false
         }
         var queryData = parseUrlParams();
         var r =await this.$getElement();
+
         $(window).resize(()=>{
                 $(r).css({
                     "max-height":$(document).height()-100
@@ -86,9 +88,18 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
     }
     async doLoadAllFiles() {
         debugger;
+        ///lvfile/api/{app_name}/azure/get_login_url
+
         var me = this;
             if(this.appsMap[this.currentAppName.toLowerCase()]) {
                 this.currentApp = this.appsMap[this.currentAppName.toLowerCase()];
+                var azureLogin=await api.post(`${this.currentAppName}/azure/get_login_url`, {});
+                if(azureLogin.error){
+                    this.currentApp.AzureLoginUrl=undefined;
+                }
+                else {
+                    this.currentApp.AzureLoginUrl=azureLogin.loginUrl;
+                }
                 console.log(this.currentApp )
                 this.listOfFiles = await api.post(`${this.currentAppName}/files`, {
 

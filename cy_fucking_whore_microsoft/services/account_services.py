@@ -3,7 +3,7 @@ import typing
 import uuid
 
 import cy_kit
-from cy_fucking_whore_microsoft.fwcking_ms.caller import call_ms_func, FuckingWhoreMSApiCallException,ErrorEnum
+from cy_fucking_whore_microsoft.fwcking_ms.caller import call_ms_func, FuckingWhoreMSApiCallException, ErrorEnum
 import jwt
 import requests
 from cy_xdoc.services.apps import AppServices
@@ -28,7 +28,8 @@ class AccountService:
             request_content_type=None,
             return_type=dict
         )
-    def acquire_acc_info(self,app_name:str) -> dict:
+
+    def acquire_acc_info(self, app_name: str) -> dict:
         """
         The shit function use for current account info getting from Whore-Microsoft-Online
         :param access_token:
@@ -43,6 +44,7 @@ class AccountService:
             request_content_type=None,
             return_type=dict
         )
+
     def acquire_new_token(self, app_name: str, refresh_token: str, scope: typing.List[str]) -> dict:
 
         qr = self.app_service.get_queryable()
@@ -141,8 +143,8 @@ class AccountService:
         if fucking_ms_onedrive_dir is None:
             fucking_ms_onedrive_dir = str(uuid.uuid4())
             qr.context.update(
-                qr.fields.NameLower==app_name.lower(),
-                qr.fields.AppOnCloud.Azure.RootDir<<fucking_ms_app_azure_id
+                qr.fields.NameLower == app_name.lower(),
+                qr.fields.AppOnCloud.Azure.RootDir << fucking_ms_app_azure_id
 
             )
         post_url = f"https://login.microsoftonline.com/{fucking_ms_app_azure_tenant_id}/oauth2/v2.0/token"
@@ -176,19 +178,18 @@ class AccountService:
         if decoded_token.get('aud') != fucking_ms_app_azure_id:
             ex = FuckingWhoreMSApiCallException(
                 message=f"Application {app_name} in LV File Service link to {decoded_token.get('aud')}, not link to {fucking_ms_app_azure_id}",
-                code= ErrorEnum.IMPROPER_MICROSOFT_APP_REGISTER
+                code=ErrorEnum.IMPROPER_MICROSOFT_APP_REGISTER
             )
             raise ex
         if data.get("access_token") is None:
             ex = FuckingWhoreMSApiCallException(
                 message=f"Application {app_name} in LV File Service link to {decoded_token.get('aud')}, not link to {fucking_ms_app_azure_id}",
-                code= ErrorEnum.IMPROPER_MICROSOFT_APP_REGISTER
+                code=ErrorEnum.IMPROPER_MICROSOFT_APP_REGISTER
             )
             raise ex
         return data["access_token"]
 
-
-    def get_root_dir_of_one_drive(self, app_name)->str:
+    def get_root_dir_of_one_drive(self, app_name) -> str:
         qr = self.app_service.get_queryable()
         app = qr.context.find_one(
             qr.fields.NameLower == app_name.lower()
@@ -226,3 +227,48 @@ class AccountService:
 
             )
         return fucking_ms_onedrive_dir
+
+    def get_handler_after_login_url(self, app_name: str):
+        import cy_web
+        return f"{cy_web.get_host_url()}/api/{app_name}/azure/after_login"
+
+    def get_login_url(self, app_name):
+        qr = self.app_service.get_queryable()
+        app = qr.context.find_one(
+            qr.fields.NameLower == app_name.lower()
+        )
+
+        if app is None:
+            raise FuckingWhoreMSApiCallException(
+                code=ErrorEnum.APP_NOT_FOUND,
+                message=f"Application {app_name} was not found in LV File Service"
+            )
+        fucking_ms_app_azure_id = app[qr.fields.AppOnCloud.Azure.ClientId]
+        fucking_ms_app_azure_tenant_id = app[qr.fields.AppOnCloud.Azure.TenantId]
+        fucking_ms_app_azure_client_secret = app[qr.fields.AppOnCloud.Azure.ClientSecret]
+        fucking_ms_app_azure_is_personal = app[qr.fields.AppOnCloud.Azure.IsPersonal]
+        if None in [
+            fucking_ms_app_azure_id,
+            fucking_ms_app_azure_tenant_id,
+            fucking_ms_app_azure_client_secret
+        ]:
+            raise FuckingWhoreMSApiCallException(
+                code=ErrorEnum.REQUIRE_LINK_TO_MICROSOFT,
+                message=f"Application {app_name} is not link to MS"
+            )
+
+        from cy_fucking_whore_microsoft.fwcking_auth import urls_auth, scopes
+        import cy_web
+        # https://f297-115-79-200-101.ngrok-free.app/api/lv-docs/azure/after_login
+        if fucking_ms_app_azure_is_personal:
+            return urls_auth.get_personal_account_login_url(
+                client_id=fucking_ms_app_azure_id,
+                scopes=scopes.get_one_drive() + scopes.get_account(),
+                redirect_uri=self.get_handler_after_login_url(app_name)
+            )
+        else:
+            return urls_auth.get_business_account_login_url(
+                client_id=fucking_ms_app_azure_id,
+                scopes=scopes.get_one_drive() + scopes.get_account(),
+                redirect_uri=self.get_handler_after_login_url(app_name)
+            )

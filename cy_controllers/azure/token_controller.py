@@ -86,16 +86,12 @@ class AzureController(BaseController):
                 [[x.split('=')[0], urllib.parse.unquote(x.split('=')[1])] for x in uri_login.query.split('&') if
                  "=" in x])
             UrlLogin = t_data["redirect_uri"]
-            if UrlLogin != redirect_uri:
-                raise Exception("Invalid request or Azure App register")
-            if (not app.Apps["Azure"].get("ClientId") or
-                    not app.Apps["Azure"].get("TenantId") or
-                    not app.Apps["Azure"].get("ClientSecret")):
-                raise Exception("Invalid request or Azure App register")
+
+
             try:
                 access_token = auth.get_auth_token(
                     verify_code=verify_code,
-                    redirect_uri=UrlLogin,
+                    redirect_uri= self.fucking_azure_account_service.get_handler_after_login_url(app_name),
                     tenant=app.Apps["Azure"].get("TenantId"),
                     client_id=app.Apps["Azure"].get("ClientId"),
                     client_secret=app.Apps["Azure"].get("ClientSecret")
@@ -122,7 +118,24 @@ class AzureController(BaseController):
                 from fastapi.responses import HTMLResponse
                 ret = f"<html><head></head><body><span>Access Token</span><br/><textarea style='width:100%;min-height:300px'>{_access_token}</textarea></body></html>"
                 ret += f"<html><head></head><body><span>Token ID</span><br/><textarea style='width:100%;min-height:300px'>{_id_token}</textarea></body></html>"
-                return HTMLResponse(ret)
+                return HTMLResponse(f"<html>"
+                                    f"<head>"
+                                    f"</head>"
+                                    f"<body>"
+                                    f"Now, You can close your browser."
+                                    f"</body>"
+                                    f"</html>")
+            except FuckingWhoreMSApiCallException as e:
+                from fastapi.responses import JSONResponse
+
+                return JSONResponse(
+                    status_code=500,
+                    content=dict(
+                        code=e.code,
+                        message=e.message
+                    )
+                )
+
 
             except Exception as e:
                 import traceback
@@ -309,3 +322,19 @@ class AzureController(BaseController):
     async def invite_acceptance(self,app_name):
         return "OK"
 
+    @controller.router.post(
+        path="/api/{app_name}/azure/get_login_url"
+    )
+    async def get_login_url(self,app_name:str)->typing.Union[str,dict]:
+        try:
+            ret =self.fucking_azure_account_service.get_login_url(app_name)
+            return dict(
+                loginUrl=ret
+            )
+        except FuckingWhoreMSApiCallException as e:
+            return dict(
+                error=dict(
+                    code=e.code,
+                    message=e.message
+                )
+            )

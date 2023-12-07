@@ -1,0 +1,6 @@
+version: "2"
+authtoken: 2ZCdwdvE0xr8nvDV4r8Ttgp6hur_ezEJ7U2jCraKDjpoVcgv
+tunnels:
+  we-keel:
+    proto: https
+    addr: https://172.16.13.72:8012
