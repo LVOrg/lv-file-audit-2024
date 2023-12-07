@@ -43,7 +43,7 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         this.$applyAsync();
         debugger;
     }
-    async doEditApp(appName) {
+    async doEditAppFromFileExplorer(appName) {
 
           var r = await import("../app_edit/index.js");
             var app_edit = await r.default();
