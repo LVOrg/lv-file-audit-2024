@@ -85,7 +85,7 @@ class Error(BaseModel):
 
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
 import asyncio
-MAX_REQUESTS_UPLOAD_FILES = 3
+MAX_REQUESTS_UPLOAD_FILES = 2
 semaphore = asyncio.Semaphore(MAX_REQUESTS_UPLOAD_FILES)
 
 class RegisterUploadInfoResult(BaseModel):
