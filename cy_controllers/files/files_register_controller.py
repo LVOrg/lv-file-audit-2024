@@ -9,10 +9,9 @@ from cy_controllers.common.base_controller import (
 import cy_web
 import typing
 from pydantic import BaseModel
-
+from fastapi.responses import Response, JSONResponse
 router = APIRouter()
 controller = Controller(router)
-
 
 
 class PrivilegesType(BaseModel):
@@ -34,7 +33,8 @@ class RegisterUploadInfo(BaseModel):
     ThumbConstraints: typing.Optional[str]
     Privileges: typing.Optional[typing.List[PrivilegesType]]
     meta_data: typing.Optional[dict]
-
+    storageType: typing.Optional[str]
+    onedriveScope: typing.Optional[str]
 
 
 class RegisterUploadResult(BaseModel):
@@ -74,16 +74,19 @@ class RegisterUploadResult(BaseModel):
     SearchEngineInsertTimeInSecond: float
 
 
-
 class Error(BaseModel):
     """
     Thông tin chi tiết của lỗi
     """
-    Code: str|None
-    Message: str|None
-    Fields: typing.List[str]|None
+    Code: str | None
+    Message: str | None
+    Fields: typing.List[str] | None
 
 
+from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+import asyncio
+MAX_REQUESTS_UPLOAD_FILES = 1
+semaphore = asyncio.Semaphore(MAX_REQUESTS_UPLOAD_FILES)
 
 class RegisterUploadInfoResult(BaseModel):
     """
@@ -91,9 +94,15 @@ class RegisterUploadInfoResult(BaseModel):
     """
     Data: typing.Optional[RegisterUploadResult]
     Error: typing.Optional[Error]
+
+
 class RequestRegisterUploadInfo(BaseModel):
-    Data:RegisterUploadInfo
+    Data: RegisterUploadInfo
+
+
 from cy_controllers.models.files import SkipFileProcessingOptions
+
+
 @controller.resource()
 class FilesRegisterController(BaseController):
     dependencies = [
@@ -106,7 +115,8 @@ class FilesRegisterController(BaseController):
     async def register_async(self,
                              app_name: str,
                              Data: RegisterUploadInfo,
-                             SkipOptions: typing.Optional[SkipFileProcessingOptions]=None) ->typing.Optional[RegisterUploadInfoResult]:
+                             SkipOptions: typing.Optional[SkipFileProcessingOptions] = None) -> typing.Optional[
+        RegisterUploadInfoResult]:
         """
             <p>
             <b>
@@ -150,9 +160,36 @@ class FilesRegisterController(BaseController):
             :param token:
             :return:
             """
+        request_user = self.memcache_service.get_dict("request_user")
 
+        async with semaphore:
+            if request_user is None:
+                request_user = {}
+            request_count = request_user.get(self.request.client.host,0)
+            if request_count >= MAX_REQUESTS_UPLOAD_FILES:
+                return JSONResponse({"message": "Too many requests"}, status_code=429)
+            request_user[self.request.client.host] = request_count+1
+            self.memcache_service.set_dict("request_user",request_user)
+
+        if Data.storageType is None or Data.storageType not in ["onedrive", "local"]:
+            ret_quit = RegisterUploadInfoResult()
+            ret_quit.Error = Error()
+            ret_quit.Error.Message = f"Missing field storageType. storageType must be local or onedrive"
+            ret_quit.Error.Code = "MissingField"
+            return ret_quit
+        if Data.storageType == "onedrive":
+            try:
+                self.fucking_azure_account_service.acquire_token(
+                    app_name=app_name
+                )
+            except FuckingWhoreMSApiCallException as e:
+                ret_quit = RegisterUploadInfoResult()
+                ret_quit.Error = Error()
+                ret_quit.Error.Message = e.message
+                ret_quit.Error.Code = e.code
+                return ret_quit
         privileges = Data.Privileges
-        skip_option={}
+        skip_option = {}
         if SkipOptions:
             skip_option = SkipOptions.dict()
         try:
@@ -166,7 +203,9 @@ class FilesRegisterController(BaseController):
                 web_host_root_url=cy_web.get_host_url(),
                 privileges_type=privileges,
                 meta_data=Data.meta_data,
-                skip_option= skip_option
+                skip_option=skip_option,
+                storage_type= Data.storageType,
+                onedriveScope= Data.onedriveScope
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
@@ -175,7 +214,7 @@ class FilesRegisterController(BaseController):
             self.logger_service.error(ex)
             ret_data = RegisterUploadInfoResult()
             ret_data.Error = Error(
-                Code = "system",
-                Message = "Unknown error at server"
+                Code="system",
+                Message="Unknown error at server"
             )
             return ret_data

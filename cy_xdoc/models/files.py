@@ -346,3 +346,5 @@ class DocUploadRegister:
     """
     Search_vv_support: typing.Optional[bool]
     ReIndexInfo: typing.Optional[dict]
+    StorageType: typing.Optional[str]
+    OnedriveScope: typing.Optional[str]

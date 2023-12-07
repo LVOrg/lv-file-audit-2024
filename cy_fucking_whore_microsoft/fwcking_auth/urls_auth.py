@@ -49,7 +49,7 @@ def get_access_token_key_by_username_pass(
 def accquire_access_token_key_token(
         client_id: str, tenant_id: str,
         secret_value: str) -> str:
-
+    from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
     fucking_data_2 = {'grant_type': "client_credentials",  # "client_credentials",
                     # 'resource': "https://graph.microsoft.com",
                     'client_id': client_id,
@@ -62,11 +62,15 @@ def accquire_access_token_key_token(
     r = requests.post(url=fucking_ur,data=fucking_data_2)
     j = json.loads(r.text)
     if j.get("error"):
-        f_error= f"code:{j.get('error')},{j['error_description']}"
-        raise Exception(f_error)
-    TOKEN = j["access_token"]
+        ex = FuckingWhoreMSApiCallException(
+            code=j.get('error'),
+            message=j['error_description']
+        )
 
-    return TOKEN
+        raise ex
+    ret_token = j["access_token"]
+
+    return ret_token
 
 
 def get_personal_account_login_url(client_id: str, scopes: typing.List[str], redirect_uri: str) -> str:

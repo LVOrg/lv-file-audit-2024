@@ -21,11 +21,13 @@ from cyx.common.brokers import Broker
 from cyx.common.rabitmq_message import RabitmqMsg
 import cy_docs
 import cyx.common.msg
-from cy_fucking_whore_microsoft.services import account_services
+from cy_fucking_whore_microsoft.services import (
+    account_services, ondrive_services
+)
 from cyx.common.file_storage_mongodb import (
     MongoDbFileService, MongoDbFileStorage
 )
-
+from cyx.common.mongo_db_services import MongodbService
 from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.loggers import LoggerService
 from fastapi import APIRouter, Depends
@@ -36,8 +38,10 @@ import mimetypes
 import fastapi
 import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
-from cy_xdoc.services.apps import AppServices,AppsCacheService
+from cy_xdoc.services.apps import AppServices, AppsCacheService
 from cy_xdoc.services.search_engine import SearchEngine
+
+
 class BaseController:
     msg_service = cy_kit.singleton(RabitmqMsg)
     file_service: FileServices = cy_kit.singleton(FileServices)
@@ -52,6 +56,11 @@ class BaseController:
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
     search_engine = cy_kit.singleton(SearchEngine)
-    fucking_azure_account_service:account_services.AccountService = cy_kit.singleton(account_services.AccountService)
+    fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
+    fucking_azure_onedrive_service:ondrive_services.OnedriveService = cy_kit.singleton(ondrive_services.OnedriveService)
+    mongodb_service = cy_kit.singleton(MongodbService)
+
+
+
     def __init__(self, request: Request):
         self.request = request

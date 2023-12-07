@@ -7,7 +7,9 @@ from fastapi import (
     Depends,
     Request,
     Response,
-    Body
+    Body,
+    UploadFile,
+    File
 
 )
 
@@ -30,7 +32,9 @@ import cy_docs
 import urllib
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException, call_ms_func
 from cy_fucking_whore_microsoft.fucking_models.one_drive import (
-    BullShitError, GetListFolderResult
+    BullShitError, GetListFolderResult,
+    GetQuotaInfo, GetQuotaResult,
+    RegisterUploadResult, RegisterUploadResultInfo
 )
 
 from cy_xdoc.auths import Authenticate
@@ -64,6 +68,56 @@ class FuckingOneDriveController(BaseController):
         except FuckingWhoreMSApiCallException as e:
             ret.error = BullShitError(
                 code= e.code,
+                message = e.message
+            )
+            return ret
+    @controller.router.post(
+        path="/api/{app_name}/onedrive/get_quota"
+    )
+    async def get_quota(self,app_name)->GetQuotaResult:
+        ret = GetQuotaResult()
+        try:
+            drive_info = self.fucking_azure_onedrive_service.get_drive_info(
+                app_name=app_name
+            )
+            ret.data = GetQuotaInfo()
+            ret.data.driveType= drive_info.driveType
+            ret.data.remainingInBytes = drive_info.remaining
+            ret.data.totalInBytes = drive_info.total
+            ret.data.remainingInGB = drive_info.remaining/(1024**3)
+            ret.data.totalInGB = drive_info.total / (1024 ** 3)
+            return ret
+
+        except FuckingWhoreMSApiCallException as e:
+            ret.error = BullShitError(
+                code = e.code,
+                message = e.message
+            )
+            return ret
+    @controller.router.post(
+        path="/api/{app_name}/onedrive/files/upload"
+    )
+    async def do_upload(self,
+                        app_name:str,
+
+                        fileChunk: UploadFile = File(...),
+                        fileSizeInBytes: typing.Optional[int] = Body(embed=True,default=None),
+                        chunkIndex: typing.Optional[int] = Body(embed=True,default=None)
+                        )->typing.Union[RegisterUploadResult,str]:
+        ret= RegisterUploadResult()
+        try:
+            fucking_onedrive_root_folder_for_lv_file = self.fucking_azure_onedrive_service.get_root_folder(
+                app_name = app_name
+            )
+            if fileSizeInBytes is None:
+                self.fucking_azure_onedrive_service.upload_file(
+                    app_name=app_name,
+                    file=fileChunk
+                )
+            return "xong"
+        except FuckingWhoreMSApiCallException as e:
+            ret.error = BullShitError(
+                code = e.code,
                 message = e.message
             )
             return ret

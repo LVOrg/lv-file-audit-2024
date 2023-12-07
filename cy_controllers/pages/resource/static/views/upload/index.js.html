@@ -16,6 +16,25 @@
             <input type="checkbox" ng-model="data.IsPublic"/>
         </div>
         <label>
+            {{$res("Is StorageType")}}:
+        </label>
+        <div>
+            <select ng-model="data.storageType" >
+                <option value="local">Local</option>
+                <option value="onedrive">Onedrive</option>
+            </select>
+        </div>
+        <label>
+            {{$res("Scope")}}:
+        </label>
+        <div>
+            <select ng-model="data.onedriveScope" ng-disabled="data.storageType!='onedrive'">
+                <option value="local">anonymous</option>
+                <option value="organization">organization</option>
+                <option value="users">users</option>
+            </select>
+        </div>
+        <label>
             {{$res("File size")}}:
         </label>
         <label>

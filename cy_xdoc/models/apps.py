@@ -19,6 +19,7 @@ class AppMicrosoftAzure:
     AuthCode: typing.Optional[str]
     UserName: typing.Optional[str]
     Password: typing.Optional[str]
+    RootDir: typing.Optional[str]
 class AppsOnCloudModle:
     Azure: typing.Optional[AppMicrosoftAzure]
 

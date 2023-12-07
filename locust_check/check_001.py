@@ -13,7 +13,7 @@ from locust_check.datas import congty_csc,lacviet_demo,congty_csc_2,get_data,dat
 tenant="lacvietdemo"
 #https://apps.codx.vn/api/Auth/exec52
 data_test_list=[
-    get_data(data_get_folder,"lacvietdemo","admin")
+    get_data(data_get_folder,"congtycsc","admin")
 ]
 assemblyName=["FileBussiness"]
 
@@ -26,8 +26,8 @@ class CongTyCSCUser(HttpUser):
         print("/api/WP/exec71")
         #http://172.16.7.34:8011/api/WP/exec19
         for x in data_test_list:
-            self.client.post("/api/WP/exec19", json= x,headers= {
-                "lvtk":key_43
+            self.client.post("/api/TM/exec51", json= x,headers= {
+                "lvtk":key_aws
             })
 
     # @task

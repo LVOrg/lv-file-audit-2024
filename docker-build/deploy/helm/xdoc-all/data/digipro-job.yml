@@ -29,7 +29,7 @@
 config:
   db:
     cnn__: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
-    cnn: mongodb://172.16.19.85:27017
+    cnn: mongodb%3A//172.16.19.85%3A27017%2C172.16.19.83%3A27017%2C172.16.19.84%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'digipro_admin'
     # File-Service need one database in a certain Mongodb to manage all Tenants.

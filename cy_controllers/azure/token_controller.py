@@ -184,10 +184,20 @@ class AzureController(BaseController):
             qr.fields.NameLower==app_name.lower()
         )
         if app is None:
+            app = qr.context.find_one(
+                qr.fields.Name == app_name
+            )
+            if app:
+                qr.context.update(
+                    qr.fields.Name == app_name,
+                    qr.fields.NameLower << app_name.lower()
+                )
+        if app is None:
             ret.error = BullShitError(
                 code="AppWasNotFound",
-                description=f"Application {app_name} was not found in LV File Service"
+                message=f"Application {app_name} was not found in LV File Service"
             )
+            return ret
 
         fucking_azure_app = app[qr.fields.AppOnCloud.Azure]
         if fucking_azure_app is None:
@@ -196,6 +206,7 @@ class AzureController(BaseController):
                 message=f"We could not find any link information to Azure. "
                         f"Please! config your application in LV File Service"
             )
+            return ret
         fucking_azure_client_id = app[qr.fields.AppOnCloud.Azure.ClientId]
         fucking_azure_tenant_id = app[qr.fields.AppOnCloud.Azure.TenantId]
         fucking_azure_client_secret = app[qr.fields.AppOnCloud.Azure.ClientSecret]

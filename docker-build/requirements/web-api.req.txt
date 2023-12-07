@@ -29,3 +29,4 @@ msal
 onedrivesdk
 msgraph-core
 azure-identity
+mistletoe

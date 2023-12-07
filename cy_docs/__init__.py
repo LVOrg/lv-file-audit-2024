@@ -11,7 +11,7 @@ __release_mode__ = True
 __working_dir__ = pathlib.Path(__file__).parent.__str__()
 
 sys.path.append(__working_dir__)
-import cy_docs_x
+from cy_docs import cy_docs_x
 
 from typing import TypeVar, Generic, List
 
@@ -87,8 +87,11 @@ DocumentObject = cy_docs_x.DocumentObject
 def file_get(client: pymongo.MongoClient, db_name: str, file_id):
     return cy_docs_x.file_get(client, db_name, file_id)
 
+
 async def file_get_async(client: pymongo.MongoClient, db_name: str, file_id):
     return await cy_docs_x.file_get_async(client, db_name, file_id)
+
+
 async def get_file_async(client, db_name, file_id):
     return await cy_docs_x.get_file_async(client, db_name, file_id)
 
@@ -123,7 +126,8 @@ def file_add_chunk(client: pymongo.MongoClient, db_name: str, file_id: bson.Obje
     )
 
 
-def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes,index_chunk:int=0):
+def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes,
+                    index_chunk: int = 0):
     return cy_docs_x.file_add_chunks(
         client=client,
         db_name=db_name,
@@ -172,21 +176,24 @@ def create_empty_pydantic(_type):
     return ret
 
 
+Field = cy_docs_x.Field
+
+
 def EXPR(expr):
     """
     Mongodb expr function use in case {$expr:{$gt:["$Grade1", "$Grade2"]}}
     :param fx:
     :return:
     """
-    assert isinstance(expr, dict) or isinstance(expr, cy_docs_x.Field)
+    assert isinstance(expr, dict) or isinstance(expr, Field)
     if isinstance(expr, dict):
-        ret = cy_docs_x.Field(expr)
+        ret = Field(expr)
         ret.__data__ = {
             "$expr": expr
         }
         return ret
-    elif isinstance(expr, cy_docs_x.Field):
-        ret = cy_docs_x.Field(init_value=expr.to_mongo_db_expr())
+    elif isinstance(expr, Field):
+        ret = Field(init_value=expr.to_mongo_db_expr())
         ret.__data__ = {
             "$expr": expr.to_mongo_db_expr()
         }
@@ -218,7 +225,6 @@ def EXPR(expr):
 #         return cy_docs_x.fields[self.__cls__]
 
 
-
 # def queryable_doc(
 #         client: pymongo.MongoClient,
 #         db_name: str, instance_tye: T,
@@ -226,3 +232,48 @@ def EXPR(expr):
 #         QueryableCollection[T]:
 #     return cy_docs_x.queryable_doc(client, db_name, instance_tye, document_name)
 queryable_doc = cy_docs_x.queryable_doc
+from pymongo.mongo_client import MongoClient
+from cy_docs.cy_docs_x import context
+
+
+class DbQueryableCollection(Generic[T]):
+    def __init__(self, cls, client: MongoClient, db_name: str):
+        self.__cls__ = cls
+        self.__client__ = client
+        self.__db_name__ = db_name
+
+    @property
+    def context(self):
+        """
+        Query context full Mongodb Access
+        :return:
+        """
+        ret = context(
+            client=self.__client__,
+            cls=self.__cls__
+        )[self.__db_name__]
+        return ret
+
+    @property
+    def fields(self) -> T:
+        return expr(self.__cls__)
+
+
+class DbQueryable:
+    def __init__(self, db_name: str, client: MongoClient):
+        self.db_name = db_name
+        self.client = client
+
+    def get_document_context(self, cls: T) -> DbQueryableCollection[T]:
+        return DbQueryableCollection[T](cls, self.client, self.db_name)
+
+
+class MongoQueryable:
+    def __init__(self, client: MongoClient):
+        self.__client__ = client
+        self.__cache__ = {}
+
+    def get_db_context(self, db_name: str) -> DbQueryable:
+        if self.__cache__.get(db_name) is None:
+            self.__cache__[db_name] = DbQueryable(db_name)
+        return self.__cache__[db_name]

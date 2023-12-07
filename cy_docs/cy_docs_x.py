@@ -48,6 +48,7 @@ import pymongo.mongo_client
 import gridfs
 
 
+
 def get_mongodb_text(data):
     if isinstance(data, dict):
 
@@ -758,8 +759,8 @@ class Field(__BaseField__):
     def __rshift__(self, other):
         # init_data = self.__field_name__
         init_data = other
-
-        if isinstance(other, Field):
+        import cy_docs
+        if isinstance(other, Field) or isinstance(other,cy_docs.cy_docs_x.Field):
             _expr = other.to_mongo_db_expr()
 
             if isinstance(_expr, dict):
@@ -826,7 +827,7 @@ class Field(__BaseField__):
         ret.__sort__ = -1
         return ret
 
-
+__FIELD__ = Field
 def to_json_convertable(data, predict_content_handler=None):
     if isinstance(data, dict):
         ret = {}
@@ -1206,7 +1207,7 @@ class AggregateDocument:
         :param kwargs:
         :return:
         """
-
+        import cy_docs
         stage = {
 
         }
@@ -1220,12 +1221,14 @@ class AggregateDocument:
             else:
                 raise Exception(f"Thous can not use project stage with {args}")
         elif isinstance(args, tuple) or isinstance(args, list):
-            agg_fields = [x for x in args if isinstance(x, Field) and x.__agg__function_call__]
+            agg_fields = [x for x in args if (isinstance(x, Field) or isinstance(x,cy_docs.cy_docs_x.Field)) and x.__agg__function_call__]
             if len(agg_fields) > 0:
                 return self.group(*args)
             else:
+                import cy_docs
+
                 for x in args:
-                    if isinstance(x, Field):
+                    if isinstance(x, Field) or isinstance(x,cy_docs.cy_docs_x.Field):
                         if x.__alias__ is not None:
                             stage[x.__alias__] = x.to_mongo_db_expr()
                         elif x.__name__ is not None:

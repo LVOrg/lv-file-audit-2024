@@ -185,6 +185,8 @@ class FileServices:
                                         thumbs_support: str,
                                         web_host_root_url: str,
                                         privileges_type,
+                                        storage_type:str,
+                                        onedriveScope:str,
                                         meta_data: dict = None,
                                         skip_option: dict = None):
         return self.add_new_upload_info(
@@ -197,7 +199,9 @@ class FileServices:
             web_host_root_url=web_host_root_url,
             privileges_type=privileges_type,
             meta_data=meta_data,
-            skip_option=skip_option
+            skip_option=skip_option,
+            storage_type = storage_type,
+            onedriveScope = onedriveScope
         )
 
     def add_new_upload_info(self,
@@ -209,6 +213,8 @@ class FileServices:
                             thumbs_support: str,
                             web_host_root_url: str,
                             privileges_type,
+                            storage_type:str,
+                            onedriveScope: str,
                             meta_data: dict = None,
                             skip_option: dict = None):
 
@@ -274,6 +280,8 @@ class FileServices:
             cache_doc[doc.fields.ClientPrivileges] = privileges_client
             cache_doc[doc.fields.meta_data] = meta_data
             cache_doc[doc.fields.SkipActions] = skip_option
+            cache_doc[doc.fields.StorageType] = storage_type
+            cache_doc[doc.fields.OnedriveScope] = onedriveScope
             self.set_upload_register_to_cache(
                 app_name=app_name,
                 upload_id=id,
@@ -328,7 +336,9 @@ class FileServices:
                         doc.fields.Privileges << privileges_server,
                         doc.fields.ClientPrivileges << privileges_client,
                         doc.fields.meta_data << meta_data,
-                        doc.fields.SkipActions << skip_option
+                        doc.fields.SkipActions << skip_option,
+                        doc.fields.StorageType << storage_type,
+                        doc.fields.OnedriveScope << onedriveScope
                     )
                 except Exception as e:
                     time.sleep(0.1)

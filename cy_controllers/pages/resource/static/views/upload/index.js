@@ -8,7 +8,9 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
     info = {}
     data = {
         tags:[],
-        IsPublic:true
+        IsPublic:true,
+        storageType:"local",
+        onedriveScope:"anonymous"
     }
     meta_text = JSON.stringify({})
     Options = {}
@@ -20,7 +22,9 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
         if (!this.data){
             this.data={
                 tags:[],
-                IsPublic:true
+                IsPublic:true,
+                storageType:"local",
+                onedriveScope:"anonymous"
             }
         }
         this.appName = appName;
@@ -71,7 +75,9 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
                     IsPublic: this.data.IsPublic||false,
                     ThumbConstraints:"700,350,200,120",
                     Privileges: this.data.tags,
-                    meta_data: meta_data
+                    meta_data: meta_data,
+                    storageType: this.data.storageType,
+                    onedriveScope: this.data.onedriveScope
                 },
                 SkipOptions: this.Options
             });
