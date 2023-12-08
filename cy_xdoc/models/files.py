@@ -349,3 +349,4 @@ class DocUploadRegister:
     StorageType: typing.Optional[str]
     OnedriveScope: typing.Optional[str]
     OnedriveSessionUrl: typing.Optional[str]
+    RemoteUrl: typing.Optional[str]

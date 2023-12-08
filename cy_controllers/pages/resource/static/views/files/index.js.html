@@ -201,7 +201,10 @@ img.mirror {
                                 <a style="text-overflow:ellipsis;white-space:nowrap" ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">{{p.FileName}}</a>
 
                             </div>
-
+                            <label>{{$res("Storage type")}}</label>
+                            <label>
+                                {{p.StorageType}}
+                            </label>
                             <label>{{$res("Status")}}</label>
                             <div>
                                 <label ng-if="p.Status==1">

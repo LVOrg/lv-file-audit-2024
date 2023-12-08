@@ -1,8 +1,9 @@
 import cy_web
 from cyx.common import config
+from fastapi.requests import Request
 def get_meta_data():
 
-    api_url= cy_web.get_host_url()+"/api"
+    api_url=cy_web.get_host_url()+"/api"
     if config.get("api_url"):
         api_url = config.api_url
     return dict(

@@ -119,3 +119,7 @@ for x in list_of_attrs:
         default=False
     )
     SkipFileProcessingOptions.__dict__["__fields__"][x_name]=x_field
+
+class DeleteFileResult(BaseModel):
+    AffectedCount: typing.Optional[int]
+    Error: typing.Optional[ErrorInfo]

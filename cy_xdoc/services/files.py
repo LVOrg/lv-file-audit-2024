@@ -30,6 +30,7 @@ from cyx.common.file_storage_mongodb import MongoDbFileService
 from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 from cyx.common import config
 from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
+from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
@@ -107,7 +108,9 @@ class FileServices:
                 doc.fields.SearchEngineErrorLog,
                 doc.fields.SearchEngineMetaIsUpdate,
                 doc.fields.BrokerMsgUploadIsOk,
-                doc.fields.BrokerErrorLog
+                doc.fields.BrokerErrorLog,
+                doc.fields.StorageType,
+                doc.fields.RemoteUrl
 
             )
             self.logger.info("Get list of files is OK")
@@ -116,6 +119,11 @@ class FileServices:
             self.logger.error(e)
         try:
             for x in items:
+                if x[doc.fields.RemoteUrl] is None:
+                    x[doc.fields.StorageType] ="local"
+                else:
+                    x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
+
                 _a_thumbs = []
                 if x.AvailableThumbs is not None:
                     for url in x.AvailableThumbs:
@@ -456,9 +464,21 @@ class FileServices:
         :param upload_id:
         :return:
         """
-        upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+        collection = self.db_connect.db(app_name).doc(DocUploadRegister)
+        upload = collection.context @ upload_id
+
+
         if upload is None:
             return
+        if upload[collection.fields.StorageType] == "onedrive":
+            try:
+                self.onedrive_service.delete_upload(
+                    app_name=app_name,
+                    upload_id = upload_id
+                )
+            except FuckingWhoreMSApiCallException as e:
+                if e.status==404:
+                    pass
         delete_file_list = upload.AvailableThumbs or []
         delete_file_list_by_id = []
         if upload.MainFileId is not None: delete_file_list_by_id = [str(upload.MainFileId)]
@@ -471,7 +491,7 @@ class FileServices:
         doc = self.db_connect.db(app_name).doc(DocUploadRegister)
         ret = doc.context.delete(cy_docs.fields._id == upload_id)
 
-        return
+        return ret.deleted_count
 
     def do_copy(self, app_name, upload_id):
 

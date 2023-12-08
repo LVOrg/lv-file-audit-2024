@@ -1,6 +1,6 @@
 import requests
 import os
-token = "EwCIA8l6BAAUAOyDv0l6PcCVu89kmzvqZmkWABkAAb3RoHtCzsFR0Zj5thf4CGZKgUWG6iKvFbiEckIxyCxuHUY7pZ7pIT6hf6caqEJHz6XOP1GQWGUdc1bmoigiIDdY5xCg6Gzmw6Z5n7dGwQvSDqWfoWRq/dZT4XV0PTs3cMdmpwozoDGjPjEkCI6PiVag4ovSYbI7lfz9GND0VcJ0WqDxUbC1LcbH6bEtaS5hnmAQ0v1Zbj92viFHaiyhhW/+iuGqY5qtbIojf9yOUk1dmVrJcxxxFPEjsv1/ftUdnDa+VD8xQ4XX8vNejVOLIEBO0TOBVL0iFKRIG2mXa3PeTEbcuxE83I2JfoiU9MwoCssGsnk1v7IfRnqH4IaXRYsDZgAACIQKfJwnT1HbWALQjRY1/dwunPBuDNN50mFQ/Y3m5MGrJQv+TZ03anWW9FbnaZK8Y4D9kdKPGaBOV1z4LbwnnSiuj+9u0ajdNQyiDqtYCBKvovb0WhGSLdiNJH1oMdRtjigQsiPZiQCyp7HuUT20Gk3iE0tCcHzpgGl9v/DbW0XcIow8FGNY/5VUGi1Bu2UOQl61o0RUC53AJmptu2HtJH2qyLIgBA1FsrmZJTct+ciObsRGNMPoShFaalaJ1eyxvbEcmi95krWmZg3XWTp7kvi5/Ozt7M8vgwy0aYKFpsyR9xGVA8ERjAHWvnyqFeRTJ6Lvj/wTyK9KLyER0/+weRFsys6ERNtpzb1SGwNlzLb+xuChuVjVEkYKwRfp+dky+6brfVTo6oJcDo7ANSUS/wJbLVKXUPDhnmdp5WtA6fuU1Z3HDHm3zVJQxjKfUwLjrFNYMOOhcv7PaIekhyHepRPE3wjTOZBkszNOlnfOLMnCJnWQqgHd4+EZ6FHPjLx4pD8pG0X25WyJyd45NqzWD/iedi3f9aRGDpvUN3S95qp/q3edvUN4biIoddqNUGrWwCElO8P1Bps/tcoBAsOvWkFeOAfJQ6toNE4vZBl0Zi7bP6VUxUnzlI3hMVhUCvMDSN8wXzbJ9ez+lmg54Rj53xXGMTSlVs6CibmzViQ0lPZLnnIx+PFRc1cfUDOuuWZVkJtf12xTDQ7Y4CHblRvJ7fGqUshJrmtuH5/zf+BY366ufwKRLMS9KQoX2V62ibAYUzSTvSwXBK3bbksO1TJBKtdK31ypP16bkVsutZk4TTGpoimbAg=="
+token = "EwCQA8l6BAAUAOyDv0l6PcCVu89kmzvqZmkWABkAAXqyWKBK2C/wNCcGHc/nWO7qzrRsbEqt/E9Uls4Gg5xhzPyiEXhehg6/DkPgXXo2dz8RxC3PZSJOB8M3VpgyVei3dahK/3+A4YjL9ONHAG6AwNcaqA8FgF4+wiBQszqb+rf9P6kDKR9zg5Shvx6IqGJ9iIVGZ7ltJGzCzRnJCeCz23geOToKfDL9D8tYTQ5XPLwTunsk8l5ga7cDfalcN3Gu56JCJorF1zpcnSp0uP3GCgwNlIwx2BKVdAEz7ngciTI4BebcxNSGFYxGA+vnL/siaS7iXWTKajMqY+ck1qcULMNc0G52ybfTF8MTA4onId5FUgGcbl61qmDe0kJC+KQDZgAACAyqb7ou043fYAJ5lmHfbRXTB/b5706uPS76np9PlmsQWdYKRHjdJ1aw36hI5YEsNaJfn/eXXi9CHQgBzporOVHBrssBLLDRHDL8lkjkSRI/zzeTVZVcI7pv3Vjbytx7attgGbPWRR8TANR0yN6eyniEA0dBhIKHGbzOlPxOZ5FnFSMIbghcnU91sW6+hOL7qqxEq7Di2WaSgyjbMtxZTIdBr3bbM11Ckg/e/jFoRnmNRkgjX/vkTI4V1pWGKmnWp0Yg7+llZCmgntkgI9jZx/pqFMH8kV20AmCU0PhtuVTFuudF8/pGT6dA2h18Imenyp9CcCSDXhhg5TUeEdnIUIapzxd5gbb9OGLJywYcgR7oqoxLVjhQW+VvV+lyBGyLLoTRo1cDHo3q+Y0EFyzBO23yC0wR1UL3cQ1Nlo+fyR46T0ak6MlAZG1avBt+mRHIhL9E5/JkgAyTOgMAaqKjOsbaypoXqC5ZqXBhLs2/Dvk33s+yUXfKdRP4t+UDZsCGFLC0jJQxexsdOHx2Go23v0xqqG05wUY3WKTg5aoL8448oi7p5VsB0mIuGlsfndSlOLla3J9UofEszEYOJVL6q+ac+nklnT6ZloHfqaWRVXKWY1p+khYP9JQPxm+L3X5Ocv+fYEcvjBOlgELM16gcQDpxOOGt8MRbhBcD1Fzwnv+X3T/6QP2EUPZzUehSa9C0OHjRXVluqW2ymvyT/6R8YwZNUXK2zbMBqKXTzPxX6ViVMq0VLon7EZZrcntbHTj7OkOEJHZiIAol4wKuKB7Ncm+4zjfInmXZtwDOmJUpEbO8LWQGH3rxVpBy85sC"
 from cy_fucking_whore_microsoft.fwcking_ms.caller import call_ms_func
 def upload_file_chunked(file_path, drive_item_id, chunk_size=32768):
     file_name = os.path.basename(file_path)
@@ -11,7 +11,7 @@ def upload_file_chunked(file_path, drive_item_id, chunk_size=32768):
               "item": {
                 "@microsoft.graph.conflictBehavior": "rename"
               },
-              "deferCommit": False
+              "deferCommit": True
             },
         api_url= f"/me/drive/items/root:/{drive_item_id}/{file_name}:/createUploadSession",
         request_content_type="application/json",
@@ -59,12 +59,13 @@ def upload_file_chunked(file_path, drive_item_id, chunk_size=32768):
             start_index += chunk_size
 
     # Finalize upload
-    # res = requests.put(upload_url, headers={
-    #     'Content-Type': 'application/octet-stream',
-    #     'Content-Range': f'bytes {start_index}-{start_index + chunk_size - 1}/{file_size}'
-    # })
-    # r= res.json()
-    # print(r)
+    res = requests.put(upload_url, headers={
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': "0",
+        'Content-Range': f'bytes {file_size}-{file_size - 1}/{file_size}'
+    })
+    r= res.json()
+    print(r)
 
 upload_file_chunked(
     file_path=f"/home/vmadmin/python/cy-py/cy_fucking_whore_microsoft/check_upload.py",

@@ -61,18 +61,26 @@ def call_ms_func(method: str, api_url: str, token: str, body, return_type: T,
     else:
         response = http_method(URL + api_url, headers=HEADERS)
     if 200 <= response.status_code < 300:
-        response = json.loads(response.text)
-        if return_type == dict:
-            return response
-        ret = return_type()
-        for k, v in response.items():
-            ret.__dict__[k] = v
-        return ret
+        try:
+            response = json.loads(response.text or "{}")
+            if return_type == dict:
+                return response
+            ret = return_type()
+            for k, v in response.items():
+                ret.__dict__[k] = v
+            return ret
+        except Exception as e:
+            ex = FuckingWhoreMSApiCallException(
+                message=response.text,
+                code="unknown",
+                http_status=response.status_code
+            )
+            raise ex
     else:
         ex = Exception(f'Unknown error! See response for more details. {response.text}')
         try:
             error = json.loads(response.text)
-            error_message = error["error"].get("message")
+            error_message = f'{error["error"].get("message")}/n{api_url}/n{URL + api_url}'
             error_code = error["error"].get("code")
             ex = FuckingWhoreMSApiCallException(
                 message=error_message,

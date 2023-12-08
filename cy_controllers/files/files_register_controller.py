@@ -218,11 +218,18 @@ class FilesRegisterController(BaseController):
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
             return ret_data
+        except FuckingWhoreMSApiCallException as e:
+            ret_data = RegisterUploadInfoResult()
+            ret_data.Error = Error(
+                Code= e.code,
+                Message=e.message
+            )
+            return ret_data
         except Exception as ex:
             self.logger_service.error(ex)
             ret_data = RegisterUploadInfoResult()
             ret_data.Error = Error(
                 Code="system",
-                Message="Unknown error at server"
+                Message=str(ex)
             )
             return ret_data

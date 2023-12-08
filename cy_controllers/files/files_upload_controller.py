@@ -248,6 +248,25 @@ class FilesUploadController(BaseController):
                 app_name=app_name,
                 upload_id=UploadId
             )
+            if upload_item.StorageType=="onedrive":
+                from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+                try:
+                    res_upload = self.fucking_azure_onedrive_service.upload_content(
+                        session_url = upload_item.OnedriveSessionUrl,
+                        content = content_part,
+                        chunk_size = upload_item.ChunkSizeInBytes,
+                        file_size = upload_item.SizeInBytes,
+                        chunk_index = Index
+                    )
+                    print(res_upload)
+                except FuckingWhoreMSApiCallException as e:
+                    ret_error = UploadFilesChunkInfoResult()
+                    ret_error.Error =ErrorResult(
+                        Code=e.code,
+                        Message = e.message,
+                        Fields =["Error from microsoft onedrive"]
+                    )
+                    return ret_error
 
             if upload_item is None:
                 del FilePart
@@ -297,9 +316,6 @@ class FilesUploadController(BaseController):
                         upload_id=UploadId,
                         file_ext=upload_item[upload_register_doc.fields.FileExt]
                     )
-
-
-
             else:
                 fs = await self.file_storage_service.get_file_by_name_async(
                     app_name=app_name,
@@ -381,12 +397,34 @@ class FilesUploadController(BaseController):
             ret_data = ret.to_pydantic()
 
             if status == 1:
+                if upload_item.StorageType == "onedrive":
+                    try:
+                        url_download = self.fucking_azure_onedrive_service.get_url_content(
+                            app_name=app_name,
+                            upload_id=UploadId,
+                            client_file_name=upload_item.FileName
+
+                        )
+                        context = self.mongodb_service.db(app_name).get_document_context(DocUploadRegister)
+                        context.context.update(
+                            cy_docs.fields._id==UploadId,
+                            context.fields.RemoteUrl<<url_download
+                        )
+                        upload_item.RemoteUrl = url_download
+                        print(url_download)
+                    except FuckingWhoreMSApiCallException as e:
+                        ret = UploadFilesChunkInfoResult()
+                        ret.Error = ErrorResult()
+                        ret.Error.Code = e.code
+                        ret.Error.Message = e.message
+                        return ret
                 self.delete_cache_upload_register(
                     app_name=app_name,
                     upload_id=UploadId
                 )
 
             return ret_data
+
         except Exception as ex:
             self.logger_service.error(ex,more_info= dict(
                 app_name=app_name,

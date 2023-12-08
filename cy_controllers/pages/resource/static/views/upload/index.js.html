@@ -35,6 +35,12 @@
             </select>
         </div>
         <label>
+            {{$res("Chunk size (KB)")}}:
+        </label>
+        <div>
+            <input type="number" ng-model="uploadConfig.chunkSize">
+        </div>
+        <label>
             {{$res("File size")}}:
         </label>
         <label>

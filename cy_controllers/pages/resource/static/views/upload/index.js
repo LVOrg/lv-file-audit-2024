@@ -12,6 +12,9 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
         storageType:"local",
         onedriveScope:"anonymous"
     }
+    uploadConfig= {
+        chunkSize:1024*10
+    }
     meta_text = JSON.stringify({})
     Options = {}
     async init(){
@@ -25,7 +28,12 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
                 IsPublic:true,
                 storageType:"local",
                 onedriveScope:"anonymous"
-            }
+            };
+        }
+        if(!this.uploadConfig) {
+            this.uploadConfig = {
+                chunkSize:1024*10
+            };
         }
         this.appName = appName;
     }
@@ -41,7 +49,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
     }
     async doUploadFile() {
         debugger;
-
+        var me=this;
         var delay=(t)=>{
             return new Promise((r,x)=>{
                 setTimeout(()=>{
@@ -71,7 +79,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
                 Data: {
                     FileName: fileUpload.name,
                     FileSize: fileUpload.size,
-                    ChunkSizeInKB: 1024 * 10,
+                    ChunkSizeInKB: me.uploadConfig.chunkSize,
                     IsPublic: this.data.IsPublic||false,
                     ThumbConstraints:"700,350,200,120",
                     Privileges: this.data.tags,

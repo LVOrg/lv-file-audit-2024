@@ -45,7 +45,11 @@ import cyx.common.msg
 from cyx.common.file_storage_mongodb import (
     MongoDbFileService,MongoDbFileStorage
 )
-
+from fastapi import responses
+from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+from cy_controllers.models import (
+    files as controller_model_files
+)
 from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
 from cy_controllers.models.files import (
@@ -198,9 +202,30 @@ class FilesController(BaseController):
             )
 
     @controller.router.post("/api/{app_name}/files/delete")
-    def files_delete(self,app_name: str, UploadId: typing.Annotated[str,Body(embed=True)]):
-        self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
-        return {}
+    def files_delete(self,app_name: str, UploadId: typing.Annotated[str,Body(embed=True)])->controller_model_files.DeleteFileResult:
+        ret = controller_model_files.DeleteFileResult()
+        try:
+            self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
+            ret.AffectedCount =1
+            return ret
+        except FuckingWhoreMSApiCallException  as e:
+            ret.Error = controller_model_files.ErrorInfo()
+            ret.Error.Code = e.code,
+            ret.Error.Message = e.message
+            return ret
+        except Exception as e:
+            self.logger_service.error(e)
+            return responses.JSONResponse(
+                content= dict(
+                    Code="system",
+                    Message=str(e)
+
+                ),
+                status_code=500
+            )
+
+
+
 
     @controller.router.post("/api/{app_name}/content/save")
     def file_content_save(
