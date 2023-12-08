@@ -164,7 +164,10 @@ class OnedriveService:
             )
         return res_data
 
-    def get_url_content(self, app_name:str, upload_id:str, client_file_name: str):
+    def get_url_content(self,
+                        app_name:str,
+                        upload_id:str,
+                        client_file_name: str):
         """
         https://graph.microsoft.com/v1.0/drive/root:/553ae3ba-037a-4fc4-bd8e-368b06692c06/b9ba361b-1379-4829-a9c9-c764e46faf3b/xx.mp4
         :param app_name:
@@ -172,15 +175,34 @@ class OnedriveService:
         :param client_file_name:
         :return:
         """
+
+        #See link
+        #https://techcommunity.microsoft.com/t5/sharepoint/making-onedrive-links-last-longer-or-be-renewable/m-p/321025
         root_dir = self.get_root_folder(
             app_name=app_name
         )
         token = self.fucking_azure_account_service.acquire_token(
             app_name=app_name
         )
+
+        res_create_link = call_ms_func(
+            method="post",
+            api_url=f"drive/root:/{root_dir}/{upload_id}/{client_file_name}:/createLink",
+            token=token,
+            body={
+              "type": "view",
+              "scope": "anonymous",
+              # "retainInheritedPermissions": False
+            },
+            return_type=dict,
+            request_content_type="application/json"
+
+        )
+        share_id = res_create_link["shareId"]
+        #https://graph.microsoft.com/v1.0/shares/s!AhSDgZO1-y79gXMAavHFmnCU6Efy/driveItem
         res = call_ms_func(
             method="get",
-            api_url=f"drive/root:/{root_dir}/{upload_id}/{client_file_name}",
+            api_url=f"shares/{share_id}/driveItem",
             token=token,
             body=None,
             return_type=dict,

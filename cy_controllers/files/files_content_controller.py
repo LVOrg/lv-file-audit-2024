@@ -262,49 +262,7 @@ class FilesContentController(BaseController):
         ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
         return ret
 
-    @controller.router.post("/api/{app_name}/files/info")
-    def get_info(self, app_name: str, data: ParamFileGetInfo = Body(...)) -> UploadInfoResult:
-        """
-        APi này lay chi tiet thong tin cua Upload
-        :param app_name:
-        :return:
-        """
-        UploadId = data.UploadId
-        doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
-        upload_info = doc_context.context @ UploadId
-        if upload_info is None:
-            return None
-        upload_info.UploadId = upload_info._id
-        upload_info.HasOCR = upload_info.OCRFileId is not None
-        upload_info.RelUrl = f"api/{app_name}/file/{upload_info.UploadId}/{upload_info.FileName.lower()}"
-        upload_info.FullUrl = f"{cy_web.get_host_url()}/api/{app_name}/file/{upload_info.UploadId}/{upload_info.FileName.lower()}"
-        upload_info.HasThumb = upload_info.ThumbFileId is not None
-        available_thumbs = upload_info.AvailableThumbs or []
-        upload_info.AvailableThumbs = []
-        for x in available_thumbs:
-            upload_info.AvailableThumbs += [f"api/{app_name}/{x}"]
-        if upload_info.HasThumb:
-            """
-            http://172.16.7.25:8011/api/lv-docs/thumb/c4eade3a-63cb-428d-ac63-34aadd412f00/search.png.png
-            """
-            upload_info.RelUrlThumb = f"api/{app_name}/thumb/{upload_info.UploadId}/{upload_info.FileName.lower()}.webp"
-            upload_info.UrlThumb = f"{cy_web.get_host_url()}/api/{app_name}/thumb/{upload_info.UploadId}/{upload_info.FileName.lower()}.webp"
-        if upload_info.HasOCR:
-            """
-            http://172.16.7.25:8011/api/lv-docs/file-ocr/cc5728d0-c216-43f9-8475-72e84b6365fd/im-003.pdf
-            """
-            upload_info.RelUrlOCR = f"api/{app_name}/file-ocr/{upload_info.UploadId}/{upload_info.FileName.lower()}.pdf"
-            upload_info.UrlOCR = f"{cy_web.get_host_url()}/api/{app_name}/file-ocr/{upload_info.UploadId}/{upload_info.FileName.lower()}.pdf"
-        if upload_info.VideoResolutionWidth:
-            upload_info.VideoInfo = cy_docs.DocumentObject()
-            upload_info.VideoInfo.Width = upload_info.VideoResolutionWidth
-            upload_info.VideoInfo.Height = upload_info.VideoResolutionHeight
-            upload_info.VideoInfo.Duration = upload_info.VideoDuration
-        if upload_info.ClientPrivileges and not isinstance(upload_info.ClientPrivileges, list):
-            upload_info.ClientPrivileges = [upload_info.ClientPrivileges]
-        if upload_info.ClientPrivileges is None:
-            upload_info.ClientPrivileges = []
-        return upload_info.to_pydantic()
+
 
     @controller.router.post("/api/{app_name}/content/readable")
     def get_content_readable(
