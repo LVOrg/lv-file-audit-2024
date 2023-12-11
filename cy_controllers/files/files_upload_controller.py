@@ -34,14 +34,15 @@ from typing import Annotated
 from fastapi.requests import Request
 import traceback
 import humanize
-from  cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
+from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
+
 router = APIRouter()
 controller = Controller(router)
 import threading
 import cy_docs
 import cyx.common.msg
 from cyx.common.file_storage_mongodb import (
-    MongoDbFileService,MongoDbFileStorage
+    MongoDbFileService, MongoDbFileStorage
 )
 
 from cyx.cache_service.memcache_service import MemcacheServices
@@ -85,7 +86,7 @@ class FilesUploadController(BaseController):
         # del __cache__[key]
         pass
 
-    async def get_upload_register_async(self, app_name, upload_id)->cy_docs.DocumentObject:
+    async def get_upload_register_async(self, app_name, upload_id) -> cy_docs.DocumentObject:
         """
         This function use memcache
         :param app_name:
@@ -93,13 +94,14 @@ class FilesUploadController(BaseController):
         :return:
         """
 
-        return  self.file_service.get_upload_register(
-                app_name=app_name,
-                upload_id=upload_id
-            )
+        return self.file_service.get_upload_register(
+            app_name=app_name,
+            upload_id=upload_id
+        )
 
     async def push_file_to_temp_folder_async(self, app_name, content, upload_id, file_ext):
         st = datetime.datetime.utcnow()
+
         def pushing_file():
             self.temp_files.push(
                 app_name=app_name,
@@ -112,7 +114,7 @@ class FilesUploadController(BaseController):
         pushing_file_th = threading.Thread(target=pushing_file)
         pushing_file_th.start()
         pushing_file_th.join()
-        n= (datetime.datetime.utcnow()-st).total_seconds()
+        n = (datetime.datetime.utcnow() - st).total_seconds()
         print(f"push_file_to_temp_folder_async={n}")
 
     async def update_upload_status_async(self,
@@ -124,13 +126,11 @@ class FilesUploadController(BaseController):
                                          main_file_id):
         st = datetime.datetime.utcnow()
         upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
-        n=(datetime.datetime.utcnow()-st).total_seconds()
+        n = (datetime.datetime.utcnow() - st).total_seconds()
         print(f"self.file_service.db_connect.db(app_name).doc(DocUploadRegister)={n}")
         import bson
 
-
         def update_process():
-
             upload_register_doc.context.update(
                 upload_register_doc.fields.Id == upload_id,
                 upload_register_doc.fields.SizeUploaded << size_uploaded,
@@ -158,25 +158,25 @@ class FilesUploadController(BaseController):
         data["Status"] = status
         data["MainFileId"] = main_file_id
 
-        data_from_cache = self.file_service.get_upload_register_with_cache(app_name=app_name,upload_id=upload_id)
-        data_from_cache.SizeUploaded=size_uploaded
+        data_from_cache = self.file_service.get_upload_register_with_cache(app_name=app_name, upload_id=upload_id)
+        data_from_cache.SizeUploaded = size_uploaded
         data_from_cache.NumOfChunksCompleted = status
         data_from_cache.Status = num_of_chunks_complete
         data_from_cache.MainFileId = main_file_id
         data_from_cache.StoragePath = main_file_id
 
-
-    async def push_file_async(self,app_name:str,upload_id:str, fs:MongoDbFileStorage, content_part, Index):
+    async def push_file_async(self, app_name: str, upload_id: str, fs: MongoDbFileStorage, content_part, Index):
 
         st = datetime.datetime.utcnow()
+
         def pushing_file():
             fs.push(content_part, Index)
+
         th = threading.Thread(target=pushing_file)
         th.start()
         th.join()
         n = (datetime.datetime.utcnow() - st).total_seconds()
         print(f"push_file_async={n}")
-
 
     async def update_search_engine_async(self, app_name, id, content, data_item, update_meta):
         """
@@ -248,23 +248,23 @@ class FilesUploadController(BaseController):
                 app_name=app_name,
                 upload_id=UploadId
             )
-            if upload_item.StorageType=="onedrive":
+            if upload_item.StorageType == "onedrive":
                 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
                 try:
                     res_upload = self.fucking_azure_onedrive_service.upload_content(
-                        session_url = upload_item.OnedriveSessionUrl,
-                        content = content_part,
-                        chunk_size = upload_item.ChunkSizeInBytes,
-                        file_size = upload_item.SizeInBytes,
-                        chunk_index = Index
+                        session_url=upload_item.OnedriveSessionUrl,
+                        content=content_part,
+                        chunk_size=upload_item.ChunkSizeInBytes,
+                        file_size=upload_item.SizeInBytes,
+                        chunk_index=Index
                     )
                     print(res_upload)
                 except FuckingWhoreMSApiCallException as e:
                     ret_error = UploadFilesChunkInfoResult()
-                    ret_error.Error =ErrorResult(
+                    ret_error.Error = ErrorResult(
                         Code=e.code,
-                        Message = e.message,
-                        Fields =["Error from microsoft onedrive"]
+                        Message=e.message,
+                        Fields=["Error from microsoft onedrive"]
                     )
                     return ret_error
 
@@ -299,11 +299,11 @@ class FilesUploadController(BaseController):
                 )
 
                 await self.push_file_async(
-                    app_name = app_name,
-                    upload_id= UploadId,
-                    fs = fs,
-                    content_part = content_part,
-                    Index =Index
+                    app_name=app_name,
+                    upload_id=UploadId,
+                    fs=fs,
+                    content_part=content_part,
+                    Index=Index
                 )
 
                 upload_item.MainFileId = await get_main_file_id_async(fs)
@@ -323,11 +323,11 @@ class FilesUploadController(BaseController):
                 )
                 if not upload_item.MainFileId.startswith("local://"):
                     await self.push_file_async(
-                        app_name = app_name,
+                        app_name=app_name,
                         upload_id=UploadId,
-                        fs = fs,
-                        content_part = content_part,
-                        Index =Index
+                        fs=fs,
+                        content_part=content_part,
+                        Index=Index
                     )
                     await self.push_temp_file_async(
                         app_name=app_name,
@@ -344,9 +344,9 @@ class FilesUploadController(BaseController):
                 )
             if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
                 upload_item["Status"] = 1
-                if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"),dict) and (
-                    upload_item["SkipActions"].get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,False) == False and
-                    upload_item["SkipActions"].get("All", False) == False
+                if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"), dict) and (
+                        upload_item["SkipActions"].get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
+                        upload_item["SkipActions"].get("All", False) == False
                 )):
                     await self.update_search_engine_async(
                         app_name=app_name,
@@ -399,19 +399,26 @@ class FilesUploadController(BaseController):
             if status == 1:
                 if upload_item.StorageType == "onedrive":
                     try:
-                        url_download = self.fucking_azure_onedrive_service.get_url_content(
+                        share_info = self.fucking_azure_onedrive_service.get_share_info(
                             app_name=app_name,
                             upload_id=UploadId,
-                            client_file_name=upload_item.FileName
+                            client_file_name=upload_item.FileName,
+                            scope= upload_item.OnedriveScope,
+                            expiration = upload_item.OnedriveExpiration,
+                            password = upload_item.OnedrivePassword
 
                         )
                         context = self.mongodb_service.db(app_name).get_document_context(DocUploadRegister)
                         context.context.update(
-                            cy_docs.fields._id==UploadId,
-                            context.fields.RemoteUrl<<url_download
+                            cy_docs.fields._id == UploadId,
+                            context.fields.RemoteUrl << share_info.ContentUrl,
+                            context.fields.OnedriveWebUrl << share_info.WebUrl,
+                            context.fields.OnedriveShareId << share_info.ShareId,
+                            context.fields.OnedriveAccessItem << share_info.AccessItem,
+                            context.fields.OnedriveId << share_info.Id
                         )
-                        upload_item.RemoteUrl = url_download
-                        print(url_download)
+                        upload_item.RemoteUrl = share_info.ContentUrl
+
                     except FuckingWhoreMSApiCallException as e:
                         ret = UploadFilesChunkInfoResult()
                         ret.Error = ErrorResult()
@@ -426,21 +433,20 @@ class FilesUploadController(BaseController):
             return ret_data
 
         except Exception as ex:
-            self.logger_service.error(ex,more_info= dict(
+            self.logger_service.error(ex, more_info=dict(
                 app_name=app_name,
-                UploadId = UploadId,
-                Index = Index
+                UploadId=UploadId,
+                Index=Index
             ))
             import traceback
-            ret =  UploadFilesChunkInfoResult()
+            ret = UploadFilesChunkInfoResult()
             ret.Error = ErrorResult()
-            ret.Error.Code="System"
+            ret.Error.Code = "System"
             ret.Error.Message = str(type(ex))
             return ret
 
-
     async def push_temp_file_async(self, app_name, content, upload_id, file_ext):
-        st= datetime.datetime.utcnow()
+        st = datetime.datetime.utcnow()
         if self.temp_files.is_use:
             await self.temp_files.push_async(
                 app_name=app_name,
@@ -448,5 +454,5 @@ class FilesUploadController(BaseController):
                 upload_id=upload_id,
                 file_ext=file_ext
             )
-        n = (datetime.datetime.utcnow()-st).total_seconds()
+        n = (datetime.datetime.utcnow() - st).total_seconds()
         print(f"push_temp_file_async={n}")

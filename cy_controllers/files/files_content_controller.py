@@ -98,10 +98,18 @@ class FilesContentController(BaseController):
 
         upload_id = directory.split('/')[0]
         upload = self.file_service.get_upload_register_with_cache(app_name, upload_id)
+
         if upload is None:
             from fastapi import Response
             response = Response(content="Resource not found", status_code=404)
             return response
+        if upload.StorageType=="onedrive":
+            return self.fucking_azure_onedrive_service.get_content(
+                app_name = app_name,
+                upload_id = upload_id,
+                request = self.request,
+                client_file_name = upload.FileName
+            )
         if not upload.IsPublic:
             await self.auth_service.check_request(app_name, self.request)
 

@@ -1,9 +1,16 @@
+import datetime
 import json
+import typing
+
+import fastapi.requests
 
 import cy_kit
 from cy_fucking_whore_microsoft.services.account_services import AccountService
 from cy_fucking_whore_microsoft.fwcking_ms.caller import call_ms_func, FuckingWhoreMSApiCallException
-from cy_fucking_whore_microsoft.services.services_models.onedive_drive_info import DriverInfo
+from cy_fucking_whore_microsoft.services.services_models.onedive_drive_info import (
+    DriverInfo,
+    ShareInfo
+)
 from fastapi import UploadFile
 from cyx.common.mongo_db_services import MongodbService
 from cy_xdoc.models.apps import App
@@ -48,7 +55,9 @@ class OnedriveService:
         token = self.fucking_azure_account_service.acquire_token(
             app_name=app_name
         )
-
+    def clear_cache(self, app_name):
+        cache_key = f"{__file__}/{app_name}/get_root_folder"
+        self.memcache_service.remove(cache_key)
     def get_root_folder(self, app_name) -> str:
         cache_key = f"{__file__}/{app_name}/get_root_folder"
         ret_root_folder = self.memcache_service.get_str(cache_key)
@@ -164,10 +173,20 @@ class OnedriveService:
             )
         return res_data
 
-    def get_url_content(self,
+
+    def get_access_item(self, app_name:str, upload_id:str, client_file_name:str):
+        root_dir = self.get_root_folder(
+            app_name=app_name
+        )
+        ret=f":/{root_dir}/{upload_id}/{client_file_name}:"
+        return ret
+    def get_share_info(self,
                         app_name:str,
                         upload_id:str,
-                        client_file_name: str):
+                        scope:typing.Optional[str],
+                        expiration: typing.Optional[datetime.datetime],
+                        password: typing.Optional[str],
+                        client_file_name: str)->ShareInfo:
         """
         https://graph.microsoft.com/v1.0/drive/root:/553ae3ba-037a-4fc4-bd8e-368b06692c06/b9ba361b-1379-4829-a9c9-c764e46faf3b/xx.mp4
         :param app_name:
@@ -178,6 +197,8 @@ class OnedriveService:
 
         #See link
         #https://techcommunity.microsoft.com/t5/sharepoint/making-onedrive-links-last-longer-or-be-renewable/m-p/321025
+        scope = scope or "anonymous"
+        ret: ShareInfo = ShareInfo()
         root_dir = self.get_root_folder(
             app_name=app_name
         )
@@ -185,31 +206,48 @@ class OnedriveService:
             app_name=app_name
         )
 
+        ret.AccessItem = self.get_access_item(
+            app_name=app_name,
+            upload_id= upload_id,
+            client_file_name = client_file_name
+        )
+        # exprire_time = datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
+        create_link_body = {
+            "type": "view",
+            "scope": scope
+        }
+        if isinstance(expiration,datetime.datetime):
+            create_link_body["expirationDateTime"] = expiration.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if isinstance(password,str):
+            create_link_body["password"] = password
         res_create_link = call_ms_func(
             method="post",
-            api_url=f"drive/root:/{root_dir}/{upload_id}/{client_file_name}:/createLink",
+            api_url=f"drive/root{ret.AccessItem}/createLink",
             token=token,
-            body={
-              "type": "view",
-              "scope": "anonymous",
-              # "retainInheritedPermissions": False
-            },
+            body=create_link_body,
             return_type=dict,
             request_content_type="application/json"
 
         )
-        share_id = res_create_link["shareId"]
+        ret.ShareId = res_create_link["shareId"]
         #https://graph.microsoft.com/v1.0/shares/s!AhSDgZO1-y79gXMAavHFmnCU6Efy/driveItem
         res = call_ms_func(
             method="get",
-            api_url=f"shares/{share_id}/driveItem",
+            api_url=f"shares/{ret.ShareId}/driveItem",
             token=token,
             body=None,
             return_type=dict,
             request_content_type=None
 
         )
-        return res.get("@microsoft.graph.downloadUrl")
+        ret.ContentUrl =res.get("@microsoft.graph.downloadUrl")
+        ret.Id = res.get('id')
+        ret.WebUrl = res.get('webUrl')
+
+        return ret
+        from cy_fucking_whore_microsoft.fwcking_ms.caller import URL as grap_url
+        # return f"/shares/{share_id}:/{root_dir}/{upload_id}/{client_file_name}:/content"
+        # return f"{grap_url}/drive/root:/{root_dir}/{upload_id}/{client_file_name}:/content"
 
     def delete_upload(self, app_name:str, upload_id:str):
         root_dir = self.get_root_folder(
@@ -228,3 +266,61 @@ class OnedriveService:
 
         )
         return res
+
+    def get_content(self, app_name:str, upload_id:str,client_file_name:str, request:fastapi.requests.Request):
+        from fastapi.responses import StreamingResponse
+        import mimetypes
+        content_type,_ = mimetypes.guess_type(client_file_name)
+        # URL of the video content on the other website
+        content_url  = self.get_url_content(
+            app_name,
+            upload_id,
+            client_file_name
+        )
+        from requests import get
+        # Send a GET request to the video URL
+        token = self.fucking_azure_account_service.acquire_token(
+            app_name=app_name
+        )
+        HEADERS = {
+            'Authorization': 'Bearer ' + token,
+
+        }
+        if request.headers.get('range'):
+            HEADERS = {
+                'range': request.headers.get('range'),
+                'Authorization': 'Bearer ' + token
+
+            }
+
+        response = get(content_url, stream=True,headers=HEADERS)
+
+        # Set response headers for streaming
+        response.headers["Content-Type"] = content_type
+        response.headers["Accept-Ranges"] = "bytes"
+        # response.headers["Content-Range"] = request.headers.get('range')
+        if response.headers.get("Content-Disposition"):
+            del response.headers['Content-Disposition']
+        # Return StreamingResponse object
+        return StreamingResponse(
+            content=response.iter_content(chunk_size=1024),
+            headers=response.headers,
+            media_type=content_type,
+            status_code= response.status_code
+        )
+
+    def get_url_content(self, app_name, upload_id,client_file_name):
+        from cy_fucking_whore_microsoft.fwcking_ms.caller import URL
+        access_item = self.get_access_item(
+            app_name=app_name,
+            upload_id=upload_id,
+            client_file_name=client_file_name
+        )
+        ret= f"{URL}me/drive/root{access_item}/content"
+        return ret
+
+
+
+
+
+

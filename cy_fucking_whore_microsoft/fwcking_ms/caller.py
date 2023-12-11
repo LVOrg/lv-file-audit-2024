@@ -80,7 +80,7 @@ def call_ms_func(method: str, api_url: str, token: str, body, return_type: T,
         ex = Exception(f'Unknown error! See response for more details. {response.text}')
         try:
             error = json.loads(response.text)
-            error_message = f'{error["error"].get("message")}/n{api_url}/n{URL + api_url}'
+            error_message = f'{error["error"].get("message")}'
             error_code = error["error"].get("code")
             ex = FuckingWhoreMSApiCallException(
                 message=error_message,

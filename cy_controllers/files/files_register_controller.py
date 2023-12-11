@@ -1,3 +1,5 @@
+import datetime
+
 from cy_controllers.common.base_controller import (
     BaseController,
     Authenticate,
@@ -36,6 +38,8 @@ class RegisterUploadInfo(BaseModel):
     meta_data: typing.Optional[dict]
     storageType: typing.Optional[str]
     onedriveScope: typing.Optional[str]
+    onedriveExpiration: typing.Optional[datetime.datetime]
+    onedrivePassword: typing.Optional[str]
 
 
 class RegisterUploadResult(BaseModel):
@@ -213,7 +217,9 @@ class FilesRegisterController(BaseController):
                 meta_data=Data.meta_data,
                 skip_option=skip_option,
                 storage_type=Data.storageType,
-                onedriveScope=Data.onedriveScope
+                onedriveScope=Data.onedriveScope,
+                onedrive_password=Data.onedrivePassword,
+                onedrive_expiration=Data.onedriveExpiration
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())

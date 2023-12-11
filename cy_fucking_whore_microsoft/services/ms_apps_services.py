@@ -53,3 +53,6 @@ class FuckingWhoreMSAppService:
         auth_code_flow = app.initiate_auth_code_flow(scopes=__scope__, redirect_uri=redirect_uri)
         authorization_url = auth_code_flow["auth_uri"]
         return authorization_url
+
+
+

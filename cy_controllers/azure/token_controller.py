@@ -113,6 +113,12 @@ class AzureController(BaseController):
                     azure_token_id=_id_token,
                     azure_verify_code=verify_code
                 )
+                self.fucking_azure_account_service.clear_token_cache(
+                    app_name=app_name
+                )
+                self.fucking_azure_onedrive_service.clear_cache(
+                    app_name=app_name
+                )
 
                 # return app.to_pydantic()
                 from fastapi.responses import HTMLResponse

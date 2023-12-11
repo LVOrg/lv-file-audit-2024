@@ -106,7 +106,9 @@ class AccountService:
                 qr.fields.AppOnCloud.Azure.RefreshToken << data.get("refresh_token")
             )
         return data
-
+    def clear_token_cache(self, app_name):
+        cache_key = f"{__file__}/{app_name}/acquire_token"
+        self.memcache_service.remove(cache_key)
     def acquire_token(self, app_name: str) -> str:
         """
         This fucking function server for fucking Microsoft Azure Service such as : One drive Office  365.
@@ -286,3 +288,7 @@ class AccountService:
                 scopes=scopes.get_one_drive() + scopes.get_account(),
                 redirect_uri=self.get_handler_after_login_url(app_name)
             )
+
+
+
+

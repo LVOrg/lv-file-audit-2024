@@ -119,10 +119,10 @@ class FileServices:
             self.logger.error(e)
         try:
             for x in items:
-                if x[doc.fields.RemoteUrl] is None:
-                    x[doc.fields.StorageType] ="local"
-                else:
-                    x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
+                # if x[doc.fields.RemoteUrl] is None:
+                #     x[doc.fields.StorageType] ="local"
+                # else:
+                #     x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
 
                 _a_thumbs = []
                 if x.AvailableThumbs is not None:
@@ -196,8 +196,11 @@ class FileServices:
                                         privileges_type,
                                         storage_type:str,
                                         onedriveScope:str,
-                                        meta_data: dict = None,
-                                        skip_option: dict = None):
+                                        meta_data: typing.Optional[dict] = None,
+                                        skip_option: typing.Optional[dict] = None,
+                                        onedrive_password: typing.Optional[str] = None,
+                                        onedrive_expiration: typing.Optional[str]=None
+                                        ):
         return self.add_new_upload_info(
             app_name=app_name,
             client_file_name=client_file_name,
@@ -210,7 +213,10 @@ class FileServices:
             meta_data=meta_data,
             skip_option=skip_option,
             storage_type = storage_type,
-            onedriveScope = onedriveScope
+            onedriveScope = onedriveScope,
+            onedrive_password = onedrive_password,
+            onedrive_expiration = onedrive_expiration
+
         )
 
     def add_new_upload_info(self,
@@ -224,8 +230,10 @@ class FileServices:
                             privileges_type,
                             storage_type:str,
                             onedriveScope: str,
-                            meta_data: dict = None,
-                            skip_option: dict = None):
+                            meta_data: typing.Optional[dict] = None,
+                            skip_option: typing.Optional[dict] = None,
+                            onedrive_password: typing.Optional[str] = None,
+                            onedrive_expiration: typing.Optional[str] = None):
 
         server_file_name_only = ""
         for x in client_file_name:
@@ -244,18 +252,24 @@ class FileServices:
             privileges_type_from_client=privileges_type
         )
         fucking_session_url=None
+        fucking_onedrive_item = None
         if storage_type=="onedrive":
             fucking_session_url = self.onedrive_service.get_upload_session(
                 app_name=app_name,
                 upload_id= id,
                 client_file_name = client_file_name
             )
-
+            fucking_onedrive_item = self.onedrive_service.get_access_item(
+                app_name=app_name,
+                upload_id= id,
+                client_file_name=client_file_name
+            )
         def cahe_register():
             cache_doc = cy_docs.DocumentObject()
             cache_doc[doc.fields.id] = id
             cache_doc[doc.fields.FileName] = client_file_name
             cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
+
             cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
             if len(os.path.splitext(client_file_name)[1].split('.'))>1:
                 cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
@@ -298,6 +312,8 @@ class FileServices:
             cache_doc[doc.fields.SkipActions] = skip_option
             cache_doc[doc.fields.StorageType] = storage_type
             cache_doc[doc.fields.OnedriveScope] = onedriveScope
+            cache_doc[doc.fields.OnedrivePassword] = onedrive_password
+            cache_doc[doc.fields.OnedriveExpiration] = onedrive_expiration
             cache_doc[doc.fields.OnedriveSessionUrl] = fucking_session_url
             self.set_upload_register_to_cache(
                 app_name=app_name,
@@ -356,7 +372,9 @@ class FileServices:
                         doc.fields.SkipActions << skip_option,
                         doc.fields.StorageType << storage_type,
                         doc.fields.OnedriveScope << onedriveScope,
-                        doc.fields.OnedriveSessionUrl << fucking_session_url
+                        doc.fields.OnedriveSessionUrl << fucking_session_url,
+                        doc.fields.OnedrivePassword << onedrive_password,
+                        doc.fields.OnedriveExpiration << onedrive_expiration
                     )
                 except Exception as e:
                     time.sleep(0.1)

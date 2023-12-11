@@ -29,10 +29,16 @@
         </label>
         <div>
             <select ng-model="data.onedriveScope" ng-disabled="data.storageType!='onedrive'">
-                <option value="local">anonymous</option>
+                <option value="anonymous">anonymous</option>
                 <option value="organization">organization</option>
                 <option value="users">users</option>
             </select>
+        </div>
+        <label>
+            {{$res("Expire share link")}}:
+        </label>
+        <div>
+            <input type="date" ng-model="data.onedriveExpiration"  ng-disabled="data.storageType!='onedrive'">
         </div>
         <label>
             {{$res("Chunk size (KB)")}}:

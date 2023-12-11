@@ -379,8 +379,8 @@ class FilesController(BaseController):
             upload_info.ClientPrivileges = [upload_info.ClientPrivileges]
         if upload_info.ClientPrivileges is None:
             upload_info.ClientPrivileges = []
-        if upload_info[doc_context.fields.RemoteUrl]:
-            upload_info[cy_docs.fields.FullUrl] = upload_info[doc_context.fields.RemoteUrl]
+        # if upload_info[doc_context.fields.RemoteUrl]:
+        #     upload_info[cy_docs.fields.FullUrl] = upload_info[doc_context.fields.RemoteUrl]
         return upload_info.to_pydantic()
 
 

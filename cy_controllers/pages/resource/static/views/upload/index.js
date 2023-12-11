@@ -85,7 +85,8 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
                     Privileges: this.data.tags,
                     meta_data: meta_data,
                     storageType: this.data.storageType,
-                    onedriveScope: this.data.onedriveScope
+                    onedriveScope: this.data.onedriveScope,
+                    onedriveExpiration: this.data.onedriveExpiration
                 },
                 SkipOptions: this.Options
             });
@@ -110,7 +111,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
                     }, true);
                     await delay(10)
                     if (chunk.Error) {
-                        msgError(chunk.Error.message)
+                        msgError(chunk.Error.message||chunk.Error.Message)
                         return
                     }
                     this.info = chunk.Data;

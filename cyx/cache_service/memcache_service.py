@@ -12,6 +12,8 @@ T = TypeVar('T')
 
 
 class MemcacheServices:
+
+
     def __init__(self, logger=cy_kit.singleton(LoggerService)):
         self.server = config.cache_server
         self.client = Client(self.server.split(','))
@@ -21,7 +23,8 @@ class MemcacheServices:
         assert isinstance(data, dict), "data must be dict"
         ret = self.client.set(key, data, time=expiration)
         return ret
-
+    def remove(self,key:str):
+        self.client.delete(key)
     def set_object(self, key: str, data, expiration=60 * 60 * 4) -> bool:
         import cy_docs
         if isinstance(data,cy_docs.DocumentObject):
