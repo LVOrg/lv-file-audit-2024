@@ -303,7 +303,7 @@ class OnedriveService:
             del response.headers['Content-Disposition']
         # Return StreamingResponse object
         return StreamingResponse(
-            content=response.iter_content(chunk_size=1024),
+            content=response.iter_content(chunk_size=1024*4),
             headers=response.headers,
             media_type=content_type,
             status_code= response.status_code
