@@ -77,7 +77,7 @@ host_url__: https://test-oms.qtsc.com.vn/lvfile
 #host_url: http://172.16.13.72:8012/lvfile
 api_url__: http://172.16.13.72:8012/lvfile/api
 api_url_: http://172.16.1.210:801/api
-host_url: https://4ca1-113-161-108-37.ngrok-free.app/lvfile
+host_url: https://4997-113-161-108-37.ngrok-free.app/lvfile
 bind: 0.0.0.0:8012
 
 workers: 1

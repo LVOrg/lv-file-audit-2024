@@ -270,13 +270,18 @@ class OnedriveService:
     def get_content(self, app_name:str, upload_id:str,client_file_name:str, request:fastapi.requests.Request):
         from fastapi.responses import StreamingResponse
         import mimetypes
+        cache_key = f"{__file__}/{type(self).__name__}/get_content/{app_name}/{upload_id}"
+
         content_type,_ = mimetypes.guess_type(client_file_name)
         # URL of the video content on the other website
-        content_url  = self.get_url_content(
-            app_name,
-            upload_id,
-            client_file_name
-        )
+        content_url = self.memcache_service.get_str(cache_key)
+        if content_url is None:
+            content_url  = self.get_url_content(
+                app_name,
+                upload_id,
+                client_file_name
+            )
+
         from requests import get
         # Send a GET request to the video URL
         token = self.fucking_azure_account_service.acquire_token(
@@ -292,9 +297,10 @@ class OnedriveService:
                 'Authorization': 'Bearer ' + token
 
             }
-
+        expire_time = request.headers.get('Expires')
         response = get(content_url, stream=True,headers=HEADERS)
-
+        if response.headers.get('Content-Location'):
+            self.memcache_service.set_str(cache_key,response.headers.get('Content-Location'),11*30*24*60)
         # Set response headers for streaming
         response.headers["Content-Type"] = content_type
         response.headers["Accept-Ranges"] = "bytes"
