@@ -27,6 +27,7 @@
 #    ├── long.horn.namespace.yml             # Longhorn namespace.Till now, Longhorn is unofficially volume (pilot test)
 #    └── long.horn.yml                       # Longhorn claim
 config:
+  auto_ssl_redirect: off
   db:
     cnn__: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
     cnn: mongodb://192.168.18.36:27017

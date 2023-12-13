@@ -27,6 +27,7 @@
 #    ├── long.horn.namespace.yml             # Longhorn namespace.Till now, Longhorn is unofficially volume (pilot test)
 #    └── long.horn.yml                       # Longhorn claim
 config:
+  auto_ssl_redirect: off
   db:
     cnn: mongodb://admin:Lacviet#123@172.16.0.83:27017/admin
   # The clarefication of MongoDB or Mongos Routers

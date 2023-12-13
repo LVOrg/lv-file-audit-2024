@@ -182,7 +182,7 @@ class FilesRegisterController(BaseController):
         #         )
         #     request_user[self.request.client.host] = request_count + 1
         #     self.memcache_service.set_dict("request_user", request_user)
-
+        Data.storageType = Data.storageType or "local"
         if Data.storageType is None or Data.storageType not in ["onedrive", "local"]:
             ret_quit = RegisterUploadInfoResult()
             ret_quit.Error = Error()

@@ -66,6 +66,7 @@
 #            path: /data/share/xdoc-web-cache
 #            server: 10.200.16.15
 config:
+  auto_ssl_redirect: off
   db:
     cnn: mongodb://admin:Lacviet#123@10.200.16.15:27017/admin
     admin_db_name: 'hps-file-test'
