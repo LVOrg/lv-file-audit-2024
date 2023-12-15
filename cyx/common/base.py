@@ -21,11 +21,11 @@ def __create_client__(db) -> MongoClient:
     if isinstance(db, str):
         if __client__.get(db) is None:
             url_connection = urllib.parse.unquote(config.db)
-            if "connectTimeoutMS=" not in url_connection:
-                if "/?" in url_connection:
-                    url_connection += "&connectTimeoutMS=15000&socketTimeoutMS=15000"
-                else:
-                    url_connection += "/?connectTimeoutMS=15000&socketTimeoutMS=15000"
+            # if "connectTimeoutMS=" not in url_connection:
+            #     if "/?" in url_connection:
+            #         url_connection += "&connectTimeoutMS=15000&socketTimeoutMS=15000"
+            #     else:
+            #         url_connection += "/?connectTimeoutMS=15000&socketTimeoutMS=15000"
             __client__[db] = MongoClient(url_connection)
 
         return __client__[db]

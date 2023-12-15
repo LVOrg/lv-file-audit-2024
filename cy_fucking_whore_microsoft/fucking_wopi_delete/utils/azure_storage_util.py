@@ -1,0 +1,2 @@
+class AzureStorageUtil:
+    pass

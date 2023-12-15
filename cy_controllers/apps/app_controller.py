@@ -133,8 +133,8 @@ class AppsController(BaseController):
             )
             return ret
 
-    @controller.route.post("/api/admin/apps/get")
-    def get_info(self,AppName: typing.Optional[str]=Body(embed=True)) -> AppInfo:
+    @controller.route.post("/api/admin/apps/get/{app_name}")
+    def get_info(self,app_name: str) -> AppInfo:
         """
         get application info if not exist return { AppId:null}
         lấy thông tin ứng dụng nếu không tồn tại return { AppId: null}
@@ -143,8 +143,7 @@ class AppsController(BaseController):
         :return:
         """
         import cy_docs
-        app_name = "admin"
-        ret = self.service_app.get_item(app_name, app_get=AppName)
+        ret = self.service_app.get_item("admin", app_get=app_name)
         if ret:
             return ret.to_pydantic()
         else:

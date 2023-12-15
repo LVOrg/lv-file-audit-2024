@@ -26,19 +26,18 @@ class AppsCacheService:
 
 from cyx.common.base import DbCollection
 
-
+from cyx.cache_service.memcache_service import MemcacheServices
 class AppServices:
 
     def __init__(self,
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
-                 cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
+                 memcache_service=cy_kit.singleton(MemcacheServices),
                  fucking_whore_ms_app_service=cy_kit.singleton(FuckingWhoreMSAppService)
                  ):
         self.db_connect = db_connect
         self.config = cyx.common.config
         self.admin_db = self.config.admin_db_name
-        self.cacher = cacher
-        self.cache_type = f"{App.__module__}.{App.__name__}"
+        self.memcache_service = memcache_service
         self.fucking_whore_ms_app_service = fucking_whore_ms_app_service
 
     def get_queryable(self) -> DbCollection[App]:
@@ -88,20 +87,29 @@ class AppServices:
                 docs.fields.LoginUrl,
                 docs.fields.ReturnUrlAfterSignIn,
                 docs.fields.ReturnSegmentKey,
-                cy_docs.fields.Apps >> docs.fields.AppOnCloud
+                cy_docs.fields.Apps >> docs.fields.AppOnCloud,
+                docs.fields.AppOnCloud
 
             ).match(docs.fields.Name == app_get).first_item()
 
         return ret
 
     def get_item_with_cache(self, app_name):
-        ret = self.cacher.get_by_key(self.cache_type, app_name)
+        from cy_docs import DocumentObject
+        cache_key = f"{__file__}/{type(self).__name__}/get_item_with_cache/{app_name}"
+        ret = self.memcache_service.get_object(key=cache_key,cls=DocumentObject)
         if ret:
             return ret
         else:
-            ret = self.get_item(app_name='admin', app_get=app_name)
-            self.cacher.add_to_cache(self.cache_type, app_name, ret)
-            return ret
+            qr = self.get_queryable()
+            app = qr.context.find_one(
+                app_name=app_name
+            )
+            self.memcache_service.set_object(
+                key=cache_key,
+                data = app
+            )
+            return app
 
     def create(self,
                Name: str,
@@ -166,6 +174,8 @@ class AppServices:
             doc.AppOnCloud.Azure.AuthCode << azure_verify_code
 
         )
+        cache_key = f"{__file__}/{type(self).__name__}/get_item_with_cache/{app_name}"
+        self.memcache_service.remove(cache_key)
         return ret
 
     def update(self,
@@ -224,12 +234,21 @@ class AppServices:
             docs.fields.LoginUrl,
             docs.fields.ReturnUrlAfterSignIn,
             docs.fields.ReturnSegmentKey,
-            cy_docs.fields.Apps >> docs.fields.AppOnCloud
+            cy_docs.fields.Apps >> docs.fields.AppOnCloud,
+            docs.fields.AppOnCloud
 
         )
         ret_app = agg.match((doc.NameLower == Name.lower()) | (doc.Name == Name)).first_item()
         # if ret_app is None:
         #     ret_app = agg.match(docs.fields.Name == Name).first_item()
+        cache_key = f"{__file__}/{type(self).__name__}/get_item_with_cache/{Name}"
+        self.memcache_service.remove(cache_key)
+        from cy_fucking_whore_microsoft.services.account_services import AccountService
+        acc= cy_kit.singleton(AccountService)
+        acc.clear_token_cache(
+            app_name= Name
+        )
+
         return ret_app
 
     def create_default_app(self, domain: str, login_url: str, return_url_after_sign_in: str):

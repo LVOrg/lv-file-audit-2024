@@ -40,6 +40,8 @@ import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
 from cy_xdoc.services.apps import AppServices, AppsCacheService
 from cy_xdoc.services.search_engine import SearchEngine
+from cy_fucking_whore_microsoft.services.office_365_services import Office365Service
+from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import FuckingWopiService
 
 
 class BaseController:
@@ -57,10 +59,11 @@ class BaseController:
     config = cyx.common.config
     search_engine = cy_kit.singleton(SearchEngine)
     fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
-    fucking_azure_onedrive_service:ondrive_services.OnedriveService = cy_kit.singleton(ondrive_services.OnedriveService)
+    fucking_azure_onedrive_service: ondrive_services.OnedriveService = cy_kit.singleton(
+        ondrive_services.OnedriveService)
     mongodb_service = cy_kit.singleton(MongodbService)
-
-
+    fucking_office_365_service = cy_kit.singleton(Office365Service)
+    fucking_wopi_service = cy_kit.singleton(FuckingWopiService)
 
     def __init__(self, request: Request):
         self.request = request

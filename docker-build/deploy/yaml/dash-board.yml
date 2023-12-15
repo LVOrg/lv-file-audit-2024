@@ -1,4 +1,9 @@
 ---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: kubernetes-dashboard
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -131,7 +136,7 @@ spec:
     - protocol: TCP
       port: 8000
       targetPort: 8000
-      nodePort: 300038
+      nodePort: 30036
   selector:
     k8s-app: dashboard-metrics-scraper
   type: NodePort
@@ -148,7 +153,7 @@ spec:
     - protocol: TCP
       port: 443
       targetPort: 8443
-      nodePort: 30036
+      nodePort: 30037
   selector:
     k8s-app: kubernetes-dashboard
 
@@ -164,11 +169,3 @@ metadata:
 data:
   _global: >-
     {"clusterName":"","itemsPerPage":45,"labelsLimit":3,"logsAutoRefreshTimeInterval":5,"resourceAutoRefreshTimeInterval":5,"disableAccessDeniedNotifications":false,"defaultNamespace":"default","namespaceFallbackList":["default"]}
-
-
-
-
-
-
-
-

@@ -110,7 +110,7 @@ class MongoDbFileStorage:
         """
         some how to implement thy source here ...
         """
-        self.fs.close()
+        # self.fs.close()
         # pass
 
 

@@ -4,7 +4,7 @@
     {{ $data := .Files.Get $dataFile | fromYaml -}}
       {{ $fileJob := $data.fileJob -}}
       {{ $db := $data.config.db -}}
-      {{ $auto_ssl_redirect:=$data.config.auto_ssl_redirect}}
+      {{ $auto_ssl_redirect:=$data.config.auto_ssl_redirect -}}
       {{ $es := $data.config.elastic_search -}}
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
@@ -54,6 +54,6 @@ data:
   vn_suggest_url: vn-suggestion.{{$api.namespace}}:8000 #vn-suggestion.xdoc-web:8000 TCP
   tika_server: tika.{{$api.namespace}}:9998
   log_url: {{$globalVar.config.logs_url}}
-  auto_ssl_redirect: {{$auto_ssl_redirec}}
+  auto_ssl_redirect: 'off'
 ---
 {{end}}

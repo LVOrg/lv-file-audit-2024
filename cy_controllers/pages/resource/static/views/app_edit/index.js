@@ -15,8 +15,8 @@ var appEditView = await View(import.meta, class EditAppView extends BaseScope {
     async doEditApp(appName) {
         this.clientSecretInputType='password'
         var me=this;
-        me.app = await api.post(`admin/apps/get`, {
-            AppName: appName
+        me.app = await api.post(`admin/apps/get/${appName}`, {
+
         })
         if((!me.app.Apps)||(me.app.Apps==null)){
             me.app.Apps= {

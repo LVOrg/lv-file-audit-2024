@@ -95,7 +95,6 @@ class FilesContentController(BaseController):
     )
     async def get_content(self, app_name: str, directory: str):
         cache_dir = self.file_cacher_service.get_path(os.path.join(app_name, "images"))
-
         upload_id = directory.split('/')[0]
         upload = self.file_service.get_upload_register_with_cache(app_name, upload_id)
 

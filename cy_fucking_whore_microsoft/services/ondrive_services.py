@@ -271,7 +271,7 @@ class OnedriveService:
         from fastapi.responses import StreamingResponse
         import mimetypes
         cache_key = f"{__file__}/{type(self).__name__}/get_content/{app_name}/{upload_id}"
-
+        # self.memcache_service.remove(cache_key)
         content_type,_ = mimetypes.guess_type(client_file_name)
         # URL of the video content on the other website
         content_url = self.memcache_service.get_str(cache_key)
@@ -299,14 +299,27 @@ class OnedriveService:
             }
         expire_time = request.headers.get('Expires')
         response = get(content_url, stream=True,headers=HEADERS)
+
         if response.headers.get('Content-Location'):
-            self.memcache_service.set_str(cache_key,response.headers.get('Content-Location'),11*30*24*60)
+            self.memcache_service.set_str(cache_key,response.headers.get('Content-Location'),60)
+        if response.status_code==404:
+            self.memcache_service.remove(cache_key)
+            content_url = self.get_url_content(
+                app_name,
+                upload_id,
+                client_file_name
+            )
+            response = get(content_url, stream=True, headers=HEADERS)
+
+            if response.headers.get('Content-Location'):
+                self.memcache_service.set_str(cache_key, response.headers.get('Content-Location'), 60)
         # Set response headers for streaming
         response.headers["Content-Type"] = content_type
         response.headers["Accept-Ranges"] = "bytes"
         # response.headers["Content-Range"] = request.headers.get('range')
         if response.headers.get("Content-Disposition"):
             del response.headers['Content-Disposition']
+
         # Return StreamingResponse object
         return StreamingResponse(
             content=response.iter_content(chunk_size=1024*4),

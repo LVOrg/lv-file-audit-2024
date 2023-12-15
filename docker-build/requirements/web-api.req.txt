@@ -30,3 +30,8 @@ onedrivesdk
 msgraph-core
 azure-identity
 mistletoe
+xmltodict
+azure-identity
+azure-keyvault-secrets
+pyOpenSSL
+cryptography

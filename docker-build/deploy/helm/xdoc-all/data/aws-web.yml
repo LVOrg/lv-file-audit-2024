@@ -55,11 +55,15 @@ config:
     #Broker server
 #    temp_directory: 'app/share-storage'
     msg:
+storage_files:
+  server: 10.165.21.197
+  directory: /share-data/files
+  name: storage-files
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
-  server: 10.0.2.224
+  server: 10.165.21.197
   # Server where share directory locate
   directory: /share-data/xdoc-web
   # The full path to share-directory at storage server

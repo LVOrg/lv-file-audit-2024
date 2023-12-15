@@ -38,6 +38,7 @@ helm registry login -u codx docker.lacviet.vn
 helm cm-push ./xdoc-all xdoc
 helm cm-push ./deploy/helm/xdoc-all xdoc
 ssh -o StrictHostKeyChecking=no -i "lv_keyPair.pem" ec2-user@13.212.181.67
+helm --set name=aws-web-qc install aws-web-qc xdoc/xdoc-all
 helm --set name=lv-job upgrade --install ???? xdoc/xdoc-all
 helm --set name=lv-web upgrade --install ??? xdoc/xdoc-all
 helm --set name=dev-job-only upgrade --install xdoc-job-18 xdoc/xdoc-all
