@@ -10,6 +10,7 @@ from fastapi import (
     Body
 )
 
+import cy_web
 from cy_xdoc.auths import Authenticate
 import hashlib
 import base64
@@ -23,9 +24,9 @@ WOPI_FILE_DIR = pathlib.Path(__file__).parent.parent.parent.__str__()
 
 @controller.resource()
 class Office365Controller(BaseController):
-    dependencies = [
-        Depends(Authenticate)
-    ]
+    # dependencies = [
+    #     Depends(Authenticate)
+    # ]
     @controller.route.post(
         "/api/{app_name}/office365/get_embed_url", summary="Re run index search"
     )
@@ -52,16 +53,26 @@ class Office365Controller(BaseController):
         :param upload_id:
         :return:
         """
+        from cy_fucking_whore_microsoft.ssl_utils.fucking_utils import generate_access_token
+
         access_token= self.fucking_azure_account_service.acquire_token(
             app_name=app_name
+        )
+        wopi_access_token_info = generate_access_token(
+            issuer=  cy_web.get_host_url(),
+            audience = f"{cy_web.get_host_url()}/lvfile/api/{app_name}/wopi",
+            user="nttlong@lacviet.com.vn",
+            docid=upload_id,
+            pfx_password="dxwopi"
         )
         access_token = str(uuid.uuid4())
 
         access_token_ttl=""
         src = self.fucking_office_365_service.get_embed_iframe_url(app_name=app_name,upload_id=upload_id,include_token=False)
+        # wopi_access_token_info.access_token=access_token
         ret_html=(f'<form id="office_form" name="office_form" target="office_frame" action="{src}" method="post">'
-                  f'<!--<input name="access_token" value="{access_token}" type="hidden" />-->'
-                  f'<!--<input name="access_token_ttl" value="{access_token_ttl}" type="hidden"/>-->'
+                  f'<input name="access_token" value="{wopi_access_token_info.access_token}" type="hidden" />'
+                  f'<input name="access_token_ttl" value="{wopi_access_token_info.access_token_ttl}" type="hidden"/>'
                   f'</form>'
                   f'<span id="frameholder"></span>'
                   f'<script type="text/javascript">'
@@ -72,6 +83,8 @@ class Office365Controller(BaseController):
                   f'office_frame.title = "Office Online Frame";'
                   f'office_frame.setAttribute("allowfullscreen", "true");'
                   f'frameholder.appendChild(office_frame);'
+                  f'office_frame.width="100%";'
+                  f'office_frame.height="100%";'
                   f'document.getElementById("office_form").submit();'
                   f'</script>')
         res = responses.HTMLResponse(

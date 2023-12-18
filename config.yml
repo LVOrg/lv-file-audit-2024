@@ -73,11 +73,11 @@ static_dir: ./cy_controllers/pages/resource/static
 
 # Below setting is the real hostname when end user who'd like to reach UI of website
 # just serve for UI. For API the setting is not crucial
-host_url__: https://test-oms.qtsc.com.vn/lvfile
+host_url: http://172.16.13.72:8012/lvfile
 #host_url: http://172.16.13.72:8012/lvfile
 api_url__: http://172.16.13.72:8012/lvfile/api
 api_url_: http://172.16.1.210:801/api
-host_url:  https://2252-123-20-76-167.ngrok-free.app/lvfile
+host_url__:  https://fda4-115-79-200-101.ngrok-free.app/lvfile
 bind: 0.0.0.0:8012
 
 workers: 1

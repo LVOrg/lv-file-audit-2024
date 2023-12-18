@@ -126,6 +126,9 @@ Server-Timing: miss, db;dur=53, app;dur=47.2"""
 
 # cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
+from cyx.common.base import config
+from starlette.middleware.sessions import SessionMiddleware
+app.add_middleware(SessionMiddleware, secret_key=config.jwt.secret_key)
 GZipMiddleware(app)
 
 from cy_xdoc.load_controllers import load_controller

@@ -1421,11 +1421,14 @@ def __get_range_header__(range_header: str, file_size):
         h = range_header.replace("bytes=", "").split("-")
         start = int(h[0]) if h[0] != "" else 0
         end = int(h[1]) if h[1] != "" else file_size - 1
+        # if end ==1:
+        #     end = file_size-1
     except ValueError:
         raise _invalid_range()
 
     if start > end or start < 0 or end > file_size - 1:
         raise _invalid_range()
+
     return start, end
 
 
@@ -1597,15 +1600,12 @@ def __read_chunks_iter__(gfs, start: int, end: int):
         try:
             t = datetime.utcnow()
             data = cursor.next()["data"]
-            n=(datetime.utcnow()-t).total_seconds()*1000
-            print(f"start {start} {end} {n}")
             if size_read == 0 and remain > 0:
                 data = data[remain:]
 
             if size_read + data.__len__() > end - start + 1:
-                data = data[:end - size_read]
+                data = data[:end - size_read+1]
             size_read += data.__len__()
-            time.sleep(0.000001)
             yield data
 
         except StopIteration as e:

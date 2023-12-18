@@ -36,6 +36,9 @@ class WOPIController(BaseController):
     @controller.route.get(
         "/api/{app_name}/wopi/files/{fileid}", summary="Re run index search"
     )
+    @controller.route.get(
+        "/api/{app_name}/wopi/files/{fileid}", summary="Re run index search"
+    )
     def wopi_get_file(self, app_name:str,fileid:str) -> WopiFileInfo:
         """
         Get file info. Implements the CheckFileInfo WOPI call

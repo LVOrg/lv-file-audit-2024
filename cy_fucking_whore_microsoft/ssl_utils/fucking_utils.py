@@ -63,9 +63,11 @@ class FuckingAccessTokenInfo:
     """
     The fucking time to live of access token in millisecaccess_token_ttlond
     """
-    def __init__(self, access_token: str, access_token_ttl:int):
+
+    def __init__(self, access_token: str, access_token_ttl: int):
         self.access_token = access_token
         self.access_token_ttl = access_token_ttl
+
 
 def generate_fucking_token(
         issuer: str,
@@ -77,8 +79,8 @@ def generate_fucking_token(
     """
     The step is fucking to get private key from PFX file by calling get_fucking_private_key
     The fucking shit function return token for WOPI and expire time of token since 01/01/1970 in millisecond unit
-    :param issuer:
-    :param audience:
+    :param issuer: This fucking param is absolute URL of your fucking web site. Example: http://my-web-site.com
+    :param audience: This fucking param is absolute URL of your fucking web site and relative handler wopi. Example: http://my-web-site.com/my-tenant/wpoi
     :param unique_name:
     :param container:
     :param docid:
@@ -97,9 +99,59 @@ def generate_fucking_token(
 
     }
 
-    access_token = jwt.encode(claims, private_key, algorithm=ALGORITHM)
-    access_token_ttl = (expr-datetime(1970,1,1)).total_seconds()*1000
+    access_token = jwt.encode(claims, private_key, algorithm=ALGORITHM).decode('utf8')
+    access_token_ttl = (expr - datetime(1970, 1, 1)).total_seconds() * 1000
     return FuckingAccessTokenInfo(
         access_token_ttl=access_token_ttl,
-        access_token = access_token
+        access_token=access_token
+    )
+
+
+def generate_fucking_token_from_user(issuer: str,
+                                     audience: str,
+                                     user: str,
+                                     docid: str,
+                                     private_key) -> FuckingAccessTokenInfo:
+    """
+    The step is fucking to get private key from PFX file by calling get_fucking_private_key
+    The fucking shit function return token for WOPI and expire time of token since 01/01/1970 in millisecond unit
+    :param user: where to acquire user. In the most case. The user is the email of someone who register an application in Azure
+    :param issuer: This fucking param is absolute URL of your fucking web site. Example: http://my-web-site.com
+    :param audience: This fucking param is absolute URL of your fucking web site and relative handler wopi. Example: http://my-web-site.com/my-tenant/wpoi
+    :param docid:
+    :param private_key:
+    :return:
+    """
+    container = user.replace('@', '-').replace('.', '-')
+    unique_name = user.lower()
+    return generate_fucking_token(
+        issuer=issuer,
+        audience=audience,
+        unique_name=unique_name,
+        container=container,
+        docid=docid,
+        private_key=private_key
+    )
+
+
+def generate_access_token(issuer: str,
+                          audience: str,
+                          user: str,
+                          docid: str,
+                          pfx_password: str,
+                          encryptor_password: typing.Optional[str] = None,
+                          pfx_file_path: typing.Optional[str] = None
+                          ) -> FuckingAccessTokenInfo:
+    private_key = get_fucking_private_key(
+        pfx_password=pfx_password,
+        encryptor_password=encryptor_password,
+        pfx_file_path=pfx_file_path
+    )
+    return generate_fucking_token_from_user(
+        issuer=issuer,
+        audience=audience,
+        user=user,
+        docid = docid,
+        private_key =private_key
+
     )
