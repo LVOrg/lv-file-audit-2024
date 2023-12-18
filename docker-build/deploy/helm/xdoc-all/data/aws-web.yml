@@ -29,7 +29,7 @@
 config:
   db:
     cnn_: mongodb%3A%2F%2F10.0.2.140%3A27017%2C10.0.2.224%3A27017%2C10.0.2.65%3A27017%2F%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
-    cnn: mongodb://10.0.2.210:27017
+    cnn: mongodb://admin:Lacviet%23123%24abcdxyzHL789GetwayLisAnd%23RisUser%23112345@10.165.21.197:27017/admin
     admin_db_name: 'hps-file-test'
   # The clarefication of MongoDB or Mongos Routers
 

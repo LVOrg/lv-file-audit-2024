@@ -1,9 +1,28 @@
 #!/bin/bash
+rm -f office-core
 echo "
 FROM linuxserver/libreoffice
-RUN apk add py3-pip git
-COPY ./../docker-cy/templates/office.req.txt /app/office.req.txt
-RUN python3 -m pip install -r /app/office.req.txt
+RUN apk add py3-pip
+RUN apk add git
+RUN python3 -m pip install moviepy
+RUN python3 -m pip install python-memcached
+RUN python3 -m pip install passlib
+RUN python3 -m pip install humanize
+RUN python3 -m pip install uvicorn
+RUN python3 -m pip install python-jose
+RUN python3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git
+RUN python3 -m pip install tika
+RUN python3 -m pip install pdfplumber
+RUN python3 -m pip install PyPDF2
+RUN python3 -m pip install img2pdf
+RUN python3 -m pip install grpcio
+RUN python3 -m pip install grpcio-tools
+RUN python3 -m pip install slackclient
+RUN python3 -m pip install python-onedrive
+RUN python3 -m pip install microsoftgraph-python
+RUN python3 -m pip install msal
+#COPY ./../docker-cy/templates/office.req.txt /app/office.req.txt
+#RUN python3 -m pip install -r /app/office.req.txt
 ENTRYPOINT [\"/usr/bin/env\"]
 ">>office-core
 
@@ -19,12 +38,13 @@ platform=linux/amd64
 rm -f $job_core_office_file
 echo "
 FROM linuxserver/libreoffice
-RUN apk add py3-pip git
+RUN apk add py3-pip
+RUN apk add git
 COPY ./../docker-build/requirements/office.req.txt /app/office.req.txt
 RUN python3 -m pip install -r /app/office.req.txt --no-cache-dir
 ENTRYPOINT [\"/usr/bin/env\"]
 ">>$job_core_office_file
-job_core_office_tag=1
+job_core_office_tag=7
 job_core_office_build="fs.medium.core."$(tag $job_core_office_tag)
 job_core_office_image=$repository/$image_name:$job_core_office_build
 buildFunc $job_core_office_file $repository $image_name $job_core_office_build "docker.io/python:3.10.12-slim-bookworm" "debian"
@@ -63,7 +83,7 @@ COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
-COPY ./../cy_azure /app/cy_azure
+COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cyx /app/cyx">>$job_office_file
 job_office_tag=1
 job_office_tag_build="fs.medium."$(tag $job_core_office_tag).$job_office_tag

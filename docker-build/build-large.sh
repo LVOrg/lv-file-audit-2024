@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install tesseract-ocr-vie
 COPY ./../env_jobs/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
 ENTRYPOINT []
 ">>$ai_lib_file
-ai_lib_tag=1
+ai_lib_tag=7
 ai_lib_tag_build="fs.large.core."$(tag $ai_lib_tag)
 ai_lib_image=$repository/$image_name.$ai_lib_tag_build
 buildFunc $ai_lib_file $repository $image_name $ai_lib_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
@@ -51,7 +51,7 @@ COPY ./../cylibs /app/cylibs
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_plugins /app/cy_plugins
-COPY ./../cy_azure /app/cy_azure
+COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 #RUN pip cache purge
 ENTRYPOINT []
 ">>$ai_file
