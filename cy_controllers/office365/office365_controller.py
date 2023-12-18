@@ -71,7 +71,7 @@ class Office365Controller(BaseController):
         src = self.fucking_office_365_service.get_embed_iframe_url(app_name=app_name,upload_id=upload_id,include_token=False)
         # wopi_access_token_info.access_token=access_token
         ret_html=(f'<form id="office_form" name="office_form" target="office_frame" action="{src}" method="post">'
-                  f'<input name="access_token" value="{wopi_access_token_info.access_token}" type="hidden" />'
+                  f'<input name="access_token" value="{access_token}" type="hidden" />'
                   f'<input name="access_token_ttl" value="{wopi_access_token_info.access_token_ttl}" type="hidden"/>'
                   f'</form>'
                   f'<span id="frameholder"></span>'

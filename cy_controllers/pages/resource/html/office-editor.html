@@ -1,10 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>WOPI Example</title>
-<script src="https://apps.dev.microsoft.com/office/web/v1.0/embed.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
 </head>
-<body>
-<wopi-embed id="wopi-embed" allow editing="true"></wopi-embed>
+<body style="left:0;top;0;bottom:0;right:0;position:fix">
+<form id="office_form" name="office_form" target="office_frame" action='{{editor.wopi_urlsrc}}' method="post">
+    <input name="access_token" value='{{editor.access_token}}' type="hidden" />
+    <input name="access_token_ttl" value='{{editor.access_token_ttl}}' type="hidden" />
+</form>
+
+<span id="frameholder"></span>
+
+<script type="text/javascript">
+    var frameholder = document.getElementById("frameholder");
+    var office_frame = document.createElement("iframe");
+    office_frame.name = "office_frame";
+    office_frame.id ="office_frame";
+
+    // The title should be set for accessibility
+    office_frame.title = "Office Online Frame";
+
+    // This attribute allows true fullscreen mode in slideshow view
+    // when using PowerPoint Online's 'view' action.
+    //office_frame.setAttribute("allowfullscreen", "true");
+    office_frame.width="100%";
+    office_frame.height="100%";
+
+    frameholder.appendChild(office_frame);
+    document.getElementById("office_form").submit();
+</script>
+
 </body>
 </html>

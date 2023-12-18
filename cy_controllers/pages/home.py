@@ -1,3 +1,4 @@
+import fastapi.responses
 from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
@@ -54,11 +55,20 @@ def verify_auth(request:Request, credentials: HTTPBasicCredentials = Depends(sec
         )
 
     return credentials.username
-
+from cy_fucking_whore_microsoft.services.office_365_services import Office365Service
+from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import FuckingWopiService
 import cyx.common.basic_auth
+from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import FuckingWopiService
+from cy_fucking_whore_microsoft.services import (
+    account_services, ondrive_services
+)
 @controller.resource()
 class PagesController:
     # add class wide dependencies e.g. auth
+    fucking_office_365_service = cy_kit.singleton(Office365Service)
+    fucking_wopi_service = cy_kit.singleton(FuckingWopiService)
+    fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
+
     dependencies = [
         Depends(verify_auth)
     ]
@@ -77,7 +87,57 @@ class PagesController:
             render_data={"request": self.request, "app": get_meta_data()}
         )
 
+    @controller.route.get(
+        "/ms-action/{app_name}/{upload_id}", summary="Home page"
+    )
+    def ms_page(self, app_name: str, upload_id: str):
+        from cy_fucking_whore_microsoft.ssl_utils.fucking_utils import generate_access_token
+        from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+        editor = {
 
+        }
+        try:
+            data_browser = self.fucking_wopi_service.get_action(doc_type="docx",action="view")
+            access_token = self.fucking_azure_account_service.acquire_token(
+                app_name=app_name
+            )
+            wopi_access_token_info = generate_access_token(
+                issuer=cy_web.get_host_url(),
+                audience=f"{cy_web.get_host_url()}/lvfile/api/{app_name}/wopi",
+                user="nttlong@lacviet.com.vn",
+                docid=upload_id,
+                pfx_password="dxwopi"
+            )
+
+            access_token_ttl = ""
+            # src = self.fucking_office_365_service.get_embed_iframe_url(app_name=app_name, upload_id=upload_id,
+            #                                                            include_token=False)
+            wopi_src = f"{cy_web.get_host_url()}/api/{app_name}/wopi/{upload_id}.{'docx'}"
+            src = self.fucking_wopi_service.get_wopi_url_from_action(
+                doc_type="docx",
+                action="edit",
+                wopi_src=wopi_src
+            )
+            editor = dict(
+                wopi_urlsrc = src,
+                access_token_ttl = wopi_access_token_info.access_token_ttl,
+                access_token = wopi_access_token_info.access_token
+            )
+            return cy_web.render_template(
+                rel_path_to_template="office-editor.html",
+                render_data={"request": self.request, "editor":editor}
+            )
+        except FuckingWhoreMSApiCallException as e:
+            editor = dict(
+                error= dict(
+                    code=e.code,
+                    message=e.message
+                )
+            )
+            return cy_web.render_template(
+                rel_path_to_template="office-editor.html",
+                render_data={"request": self.request, "editor": editor}
+            )
     @controller.route.get(
         "{directory:path}", summary="Home page"
     )
@@ -105,3 +165,5 @@ class PagesController:
         res = cy_web.render_template("index.html", {"request": self.request, "app": get_meta_data()})
         token_service.set_cookie(res,token_service.generate_token(app=application,username=username))
         return res
+
+

@@ -11,6 +11,7 @@ from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_models import (
 )
 
 URL_DISCOVERY = "https://ffc-onenote.officeapps.live.com/hosting/discovery"
+URL_DISCOVERY = "https://onenote.officeapps.live.com/hosting/discovery"
 from xml.etree import ElementTree as ET
 
 
@@ -19,7 +20,7 @@ class FuckingWopiService:
         self.memcache_service = memcache_service
 
     def get_discovery_info(self) -> typing.List[WopiAction]:
-        cache_key = f"{__file__}/{type(self).__name__}/get_discovery_info"
+        cache_key = f"{__file__}/{type(self).__name__}/get_discovery_info/{URL_DISCOVERY}"
         ret: WopiActionContainer = self.memcache_service.get_object(cache_key, WopiActionContainer)
         ret_data = []
         if not isinstance(ret,WopiActionContainer):
@@ -45,3 +46,16 @@ class FuckingWopiService:
                 return ret_data
         else:
             return ret.items
+
+
+    def get_action(self, doc_type, action)->typing.Optional[WopiAction]:
+        data = self.get_discovery_info()
+        ret_action = next(x for x in data if x.ext==doc_type and x.name==action)
+        return ret_action
+    def get_wopi_url_from_action(self, doc_type, action,wopi_src:str)->str:
+        action = self.get_action(
+            doc_type=doc_type,
+            action=action
+        )
+        from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_utils import get_action_url
+        return get_action_url(action.urlsrc,wopi_src=wopi_src)

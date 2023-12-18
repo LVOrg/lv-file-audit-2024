@@ -100,7 +100,7 @@ def generate_fucking_token(
     }
 
     access_token = jwt.encode(claims, private_key, algorithm=ALGORITHM).decode('utf8')
-    access_token_ttl = (expr - datetime(1970, 1, 1)).total_seconds() * 1000
+    access_token_ttl = int((expr - datetime(1970, 1, 1)).total_seconds() * 1000)
     return FuckingAccessTokenInfo(
         access_token_ttl=access_token_ttl,
         access_token=access_token
@@ -122,6 +122,7 @@ def generate_fucking_token_from_user(issuer: str,
     :param private_key:
     :return:
     """
+    # audience="https://officewopi.azurewebsites.net"
     container = user.replace('@', '-').replace('.', '-')
     unique_name = user.lower()
     return generate_fucking_token(
