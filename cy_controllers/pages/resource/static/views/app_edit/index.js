@@ -59,7 +59,7 @@ var appEditView = await View(import.meta, class EditAppView extends BaseScope {
                     ReturnUrlAfterSignIn: me.app.ReturnUrlAfterSignIn,
                     Description: me.app.Description,
                     Domain: me.app.Domain,
-                    Apps: me.app.Apps
+                    AppOnCloud: me.app.AppOnCloud
                 }
             });
             if (ret.error) {
@@ -75,7 +75,7 @@ var appEditView = await View(import.meta, class EditAppView extends BaseScope {
                     ReturnUrlAfterSignIn: me.app.ReturnUrlAfterSignIn,
                     Description: me.app.Description,
                     Domain: me.app.Domain,
-                    Apps: me.app.Apps
+                    AppOnCloud: me.app.AppOnCloud
                 }
             });
             if (ret.error) {

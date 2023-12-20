@@ -1,4 +1,7 @@
+import base64
 import urllib.parse
+
+from rsa import asn1
 
 BUSINESS_USER = "<IsLicensedUser=BUSINESS_USER&>"
 DC_LLCC = "<rs=DC_LLCC&>"
@@ -12,10 +15,10 @@ RECORDING = "<rec=RECORDING&>"
 THEME_ID = "<thm=THEME_ID&>"
 UI_LLCC = "<ui=UI_LLCC&>"
 VALIDATOR_TEST_CATEGORY = "<testcategory=VALIDATOR_TEST_CATEGORY>"
-HOST_SESSION_ID= "<hid=HOST_SESSION_ID&>"
-SESSION_CONTEXT="<sc=SESSION_CONTEXT&>"
-WOPISRC="<wopisrc=WOPI_SOURCE&>"
-ACTIVITY_NAVIGATION_ID="<actnavid=ACTIVITY_NAVIGATION_ID&>"
+HOST_SESSION_ID = "<hid=HOST_SESSION_ID&>"
+SESSION_CONTEXT = "<sc=SESSION_CONTEXT&>"
+WOPISRC = "<wopisrc=WOPI_SOURCE&>"
+ACTIVITY_NAVIGATION_ID = "<actnavid=ACTIVITY_NAVIGATION_ID&>"
 placeholders = [
     BUSINESS_USER,
     DC_LLCC,
@@ -35,9 +38,10 @@ placeholders = [
     ACTIVITY_NAVIGATION_ID
 ]
 
-fect_dict= dict(
-    IsLicensedUser = "1"
+fect_dict = dict(
+    IsLicensedUser="1"
 )
+
 
 def get_placeholder_Value(placeholder):
     """
@@ -51,7 +55,7 @@ def get_placeholder_Value(placeholder):
   """
 
     # Extract the key from the placeholder.
-    key = placeholder[1:placeholder.index("=")+1]
+    key = placeholder[1:placeholder.index("=") + 1]
 
     # Initialize the result.
     result = ""
@@ -79,11 +83,11 @@ def get_placeholder_Value(placeholder):
         # No processing needed for PERFSTATS.
         pass
     elif placeholder == VALIDATOR_TEST_CATEGORY:
-        result = key + "OfficeOnline"  # Default value for test category
+        result = key + "all"  # Default value for test category
     return result
 
 
-def get_action_url(urlsrc:str, wopi_src:str):
+def get_action_url(urlsrc: str, wopi_src: str):
     """
   Generates a WOPI action URL based on the given action, file, and authority.
 
@@ -102,7 +106,7 @@ def get_action_url(urlsrc:str, wopi_src:str):
     ph_count = 0
     for placeholder in placeholders:
         if placeholder in urlsrc:
-            placeholder_value= ""
+            placeholder_value = ""
             # placeholder_value = get_placeholder_Value(placeholder)
             if placeholder_value:
                 urlsrc = urlsrc.replace(placeholder, f"{placeholder_value}&")
@@ -111,6 +115,29 @@ def get_action_url(urlsrc:str, wopi_src:str):
                 urlsrc = urlsrc.replace(placeholder, placeholder_value)
 
     # Add WOPISrc parameter to the end of the URL.
-    urlsrc += "" if ph_count==0 else f"?embed=1&wopisrc={urllib.parse.quote_plus(wopi_src)}"
+    if "?" in urlsrc:
+        urlsrc += f"wopisrc={urllib.parse.quote_plus(wopi_src)}"
+    else:
+        urlsrc += f"?wopisrc={urllib.parse.quote_plus(wopi_src)}"
 
     return urlsrc
+
+
+def generate_key(modulus_b64, exp_b64):
+    """
+    Generates an RSA public key given a base64-encoded modulus and exponent \n
+    The fucking code came from
+    https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/online/scenarios/proofkeys
+    :param modulus_b64: base64-encoded modulus
+    :param exp_b64: base64-encoded exponent
+    :return: an RSA public key
+    """
+    from Crypto.PublicKey import RSA
+
+    mod = int(base64.b64decode(modulus_b64).encode('hex'), 16)
+    exp = int(base64.b64decode(exp_b64).encode('hex'), 16)
+    seq = asn1.DerSequence()
+    seq.append(mod)
+    seq.append(exp)
+    der = seq.encode()
+    return RSA.importKey(der)

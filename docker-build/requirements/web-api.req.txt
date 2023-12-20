@@ -35,3 +35,4 @@ azure-identity
 azure-keyvault-secrets
 pyOpenSSL
 cryptography
+PyCrypto

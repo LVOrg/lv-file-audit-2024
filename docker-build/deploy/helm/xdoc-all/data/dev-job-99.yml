@@ -80,7 +80,7 @@ storage:
   # 1- The share directory is belonged no-one use chown comand to do that.
   # Example: chown nodbody:nobody  /var/nfs_share_dir_for_k8s so all PODs in other worker can access.
   # Thou may check by "stat /var/nfs_share_dir_for_k8s"
-  #
+  # mount -t nfs 192.168.18.36:/codx-file-storage/files /from-192-168-18-36
   name: xdoc-storage
 
 storage_files:

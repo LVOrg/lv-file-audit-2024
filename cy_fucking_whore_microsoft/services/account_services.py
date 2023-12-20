@@ -248,7 +248,7 @@ class AccountService:
         import cy_web
         return f"{cy_web.get_host_url()}/api/{app_name}/azure/after_login"
 
-    def get_login_url(self, app_name):
+    def get_login_url(self, app_name, is_business_account:bool=False):
         qr = self.app_service.get_queryable()
         app = qr.context.find_one(
             qr.fields.NameLower == app_name.lower()
@@ -276,6 +276,12 @@ class AccountService:
         from cy_fucking_whore_microsoft.fwcking_auth import urls_auth, scopes
         import cy_web
         # https://f297-115-79-200-101.ngrok-free.app/api/lv-docs/azure/after_login
+        if is_business_account:
+            return urls_auth.get_business_account_login_url(
+                client_id=fucking_ms_app_azure_id,
+                scopes=scopes.get_one_drive() + scopes.get_account(),
+                redirect_uri=self.get_handler_after_login_url(app_name)
+            )
         if fucking_ms_app_azure_is_personal:
             return urls_auth.get_personal_account_login_url(
                 client_id=fucking_ms_app_azure_id,

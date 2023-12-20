@@ -56,7 +56,9 @@ class AppServices:
             docs.fields.LatestAccess,
             docs.fields.AccessCount,
             docs.fields.RegisteredOn,
-            cy_docs.fields.AzureLoginUrl >> docs.fields.AppOnCloud.Azure.UrlLogin
+            cy_docs.fields.AzurePersonalAccountUrlLogin >> docs.fields.AppOnCloud.Azure.PersonalAccountUrlLogin,
+            cy_docs.fields.AzureBusinessAccountUrlLogin >> docs.fields.AppOnCloud.Azure.BusinessAccountUrlLogin,
+            docs.fields.AppOnCloud
 
         ).sort(
             docs.fields.LatestAccess.desc(),
@@ -189,24 +191,24 @@ class AppServices:
                azure_client_is_personal_acc: typing.Optional[bool] = False):
         docs = self.db_connect.db('admin').doc(App)
         doc = docs.fields
-        url_azure_login = None
+        # url_azure_login = None
+        url_azure_personal_account_login = None
+        url_azure_business_account_login = None
+
         if isinstance(azure_client_id, str):
 
             redirect_url = f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
-            if azure_client_is_personal_acc:
-                url_azure_login = urls_auth.get_personal_account_login_url(
-                    client_id=azure_client_id,
-                    scopes=scopes.get_one_drive(),
-                    redirect_uri=redirect_url
-                )
-            else:
-                url_azure_login = urls_auth.get_business_account_login_url(
-                    client_id=azure_client_id,
-                    tenant_id=azure_tenant_id,
-                    scopes=scopes.get_one_drive()+scopes.get_account(),
-                    redirect_uri=redirect_url
-                )
-
+            url_azure_personal_account_login = urls_auth.get_personal_account_login_url(
+                client_id=azure_client_id,
+                scopes=scopes.get_one_drive(),
+                redirect_uri=redirect_url
+            )
+            url_azure_business_account_login = urls_auth.get_business_account_login_url(
+                client_id=azure_client_id,
+                tenant_id=azure_tenant_id,
+                scopes=scopes.get_one_drive() + scopes.get_account(),
+                redirect_uri=redirect_url
+            )
             # url_azure_login = self.ms_app.get_login_url(
             #     client_id=azure_client_id,
             #     redirect_uri= f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
@@ -219,7 +221,8 @@ class AppServices:
             doc.AppOnCloud.Azure.Name << azure_app_name,
             doc.AppOnCloud.Azure.ClientId << azure_client_id,
             doc.AppOnCloud.Azure.TenantId << azure_tenant_id,
-            doc.AppOnCloud.Azure.UrlLogin << url_azure_login,
+            doc.AppOnCloud.Azure.PersonalAccountUrlLogin << url_azure_personal_account_login,
+            doc.AppOnCloud.Azure.BusinessAccountUrlLogin << url_azure_business_account_login,
             doc.AppOnCloud.Azure.ClientSecret << azure_client_secret,
             doc.AppOnCloud.Azure.IsPersonal << azure_client_is_personal_acc,
             doc.AppOnCloud.Azure.AuthCode << azure_auth_code,

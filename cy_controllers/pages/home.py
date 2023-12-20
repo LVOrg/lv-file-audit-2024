@@ -1,3 +1,5 @@
+import uuid
+
 import fastapi.responses
 from fastapi_router_controller import Controller
 from fastapi import (
@@ -69,9 +71,9 @@ class PagesController:
     fucking_wopi_service = cy_kit.singleton(FuckingWopiService)
     fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
 
-    dependencies = [
-        Depends(verify_auth)
-    ]
+    # dependencies = [
+    #     Depends(verify_auth)
+    # ]
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     # you can define in the Controller init some FastApi Dependency and them are automatically loaded in controller methods
     def __init__(self,request: Request):
@@ -103,25 +105,38 @@ class PagesController:
             )
             wopi_access_token_info = generate_access_token(
                 issuer=cy_web.get_host_url(),
-                audience=f"{cy_web.get_host_url()}/lvfile/api/{app_name}/wopi",
+                audience=f"{cy_web.get_host_url()}/api/{app_name}/wopi/{upload_id}.docx",
                 user="nttlong@lacviet.com.vn",
-                docid=upload_id,
+                docid=f"{upload_id}.docx",
                 pfx_password="dxwopi"
             )
 
             access_token_ttl = ""
             # src = self.fucking_office_365_service.get_embed_iframe_url(app_name=app_name, upload_id=upload_id,
             #                                                            include_token=False)
-            wopi_src = f"{cy_web.get_host_url()}/api/{app_name}/wopi/{upload_id}.{'docx'}"
+            wopi_src = f"{cy_web.get_host_url()}/api/{app_name}/wopi/files/{upload_id}.docx"
+            # wopi_src ='http://172.16.13.72:8012/lvfile/api/lv-docs/wopi/files/c638d1b1-a9de-4048-8619-8db2dcaabcd3?access_token=123'
+            # wopi_src = f"http://172.16.13.72:8012/api/{app_name}/wopi/files/{upload_id}.{'docx'}"
+            # wopi_src=f"https://1drv.ms/w/s!AhSDgZO1-y79glHQ1O0W0U3Wo14A?e=zU4kIT"
+            # wopi_src = f"{cy_web.get_host_url()}/wopi/files/test.docx"
+            # wopi_src = f"file:///C:/long/test.docx"
+            # wopi_src="https://FFC-onenote.officeapps-df.live.com/hosting/GetWopiTestInfo.ashx"
             src = self.fucking_wopi_service.get_wopi_url_from_action(
                 doc_type="docx",
-                action="edit",
-                wopi_src=wopi_src
+                action="view",
+                wopi_src=wopi_src+"?access_token=123"
             )
+            # src = self.fucking_wopi_service.get_wopi_url_from_action(
+            #     doc_type="wopitest",
+            #     action="view",
+            #     wopi_src=wopi_src
+            # )
+            test_acc= str(uuid.uuid4())
             editor = dict(
                 wopi_urlsrc = src,
-                access_token_ttl = wopi_access_token_info.access_token_ttl,
-                access_token = wopi_access_token_info.access_token
+                access_token_ttl =  wopi_access_token_info.access_token_ttl,
+                access_token = wopi_access_token_info.access_token, #wopi_access_token_info.access_token,
+                web_access_token = access_token
             )
             return cy_web.render_template(
                 rel_path_to_template="office-editor.html",

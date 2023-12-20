@@ -4,11 +4,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test</title>
+    <script type="text/javascript" src="https://c1-word-view-15.cdn.office.net/wv/s/App_Scripts/word.boot.js"></script>
+<!--    <script type="text/javascript" src="https://c1-word-view-15.cdn.office.net/wv/s/App_Scripts/word.boot.js"></script>-->
 </head>
 <body style="left:0;top;0;bottom:0;right:0;position:fix">
-<form id="office_form" name="office_form" target="office_frame" action='{{editor.wopi_urlsrc}}' method="post">
+<form id="office_form" name="office_form" target="office_frame" action='{{editor.wopi_urlsrc|safe}}' method="post">
     <input name="access_token" value='{{editor.access_token}}' type="hidden" />
     <input name="access_token_ttl" value='{{editor.access_token_ttl}}' type="hidden" />
+<!--    <input name="user_id" value="" type="hidden" />-->
+<!--    <input name="owner_id" value="" type="hidden" />-->
+<!--    <input name="client_id" value="9d16248e-41f1-4aea-b720-94fea8e335c2">-->
 </form>
 
 <span id="frameholder"></span>
@@ -26,7 +31,7 @@
     // when using PowerPoint Online's 'view' action.
     //office_frame.setAttribute("allowfullscreen", "true");
     office_frame.width="100%";
-    office_frame.height="100%";
+    office_frame.height="900px";
 
     frameholder.appendChild(office_frame);
     document.getElementById("office_form").submit();

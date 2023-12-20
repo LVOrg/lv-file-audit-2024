@@ -20,6 +20,8 @@ class AppMicrosoftAzure(BaseModel):
     RefreshToken: typing.Optional[str]
     TokenId: typing.Optional[str]
     AuthCode: typing.Optional[str]
+    PersonalAccountUrlLogin: typing.Optional[str]
+    BusinessAccountUrlLogin: typing.Optional[str]
 
 class AppsOnCloud(BaseModel):
     """
@@ -45,7 +47,7 @@ class AppInfo(BaseModel):
     RegisteredOn: typing.Optional[datetime.datetime]
     LatestAccess: typing.Optional[datetime.datetime]
     AccessCount: typing.Optional[int]
-    Apps: typing.Optional[AppsOnCloud]
+    AppOnCloud: typing.Optional[AppsOnCloud]
     AzureLoginUrl: typing.Optional[str]
 
 

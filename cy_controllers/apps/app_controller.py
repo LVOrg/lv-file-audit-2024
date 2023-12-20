@@ -1,12 +1,12 @@
 import datetime
 import typing
 
-from cy_controllers.models.apps import(
-        AppInfo,
-        AppInfoRegister,
-        AppInfoRegisterResult,
-        ErrorResult, AppInfoRegisterModel
-    )
+from cy_controllers.models.apps import (
+    AppInfo,
+    AppInfoRegister,
+    AppInfoRegisterResult,
+    ErrorResult, AppInfoRegisterModel
+)
 from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
@@ -23,12 +23,13 @@ router = APIRouter()
 controller = Controller(router)
 from cy_controllers.common.base_controller import BaseController
 import pymongo
+
+
 @controller.resource()
 class AppsController(BaseController):
     dependencies = [
         Depends(Authenticate)
     ]
-
 
     def __init__(self, request: Request):
         self.request = request
@@ -36,23 +37,22 @@ class AppsController(BaseController):
     @controller.route.post(
         "/api/apps/{app_name}/re_index", summary="Re run index search"
     )
-    def re_index(self,app_name:str)->str:
+    def re_index(self, app_name: str) -> str:
         import cyx.common.msg
         self.msg_service.emit(
-            app_name = app_name,
+            app_name=app_name,
             message_type=cyx.common.msg.MSG_APP_RE_INDEX_ALL,
-            data = dict(
-                app_name = app_name,
-                emit_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+            data=dict(
+                app_name=app_name,
+                emit_time=datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
             )
 
         )
         return app_name
 
     @controller.route.post("/api/admin/apps/register", summary="App register")
-    def app_register(self, app: AppInfoRegisterModel) -> AppInfoRegisterResult:
+    def app_register(self, Data: AppInfoRegister=Body(embed=True)) -> AppInfoRegisterResult:
         import cy_xdoc
-        Data = app.Data
         if not self.request.username or self.request.username != "root":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED
@@ -68,7 +68,7 @@ class AppsController(BaseController):
             }
             if data.get("RegisteredOn"):
                 del data["RegisteredOn"]
-            app =  self.service_app.create(**save_data)
+            app = self.service_app.create(**save_data)
             ret.Data = app.to_pydantic()
             self.apps_cache.clear_cache()
             return ret
@@ -88,13 +88,13 @@ class AppsController(BaseController):
             return ret
 
     @controller.route.post("/api/admin/apps/update/{app_name}", summary="update_app")
-    def app_update(self,app_name: str, app: AppInfoRegisterModel) -> AppInfoRegisterResult:
+    def app_update(self, app_name: str, Data: AppInfoRegister=Body(embed=True)) -> AppInfoRegisterResult:
 
         import cy_xdoc
-        Data = app.Data
+
         if not self.request.username or self.request.username != "root":
             raise HTTPException(
-                status_code= status.HTTP_401_UNAUTHORIZED
+                status_code=status.HTTP_401_UNAUTHORIZED
 
             )
 
@@ -102,11 +102,11 @@ class AppsController(BaseController):
             app = self.service_app.update(
                 Name=Data.Name,
                 Description=Data.Description,
-                azure_app_name=Data.Apps.Azure.Name if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.Name else None,
-                azure_client_id=Data.Apps.Azure.ClientId if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.ClientId else None,
-                azure_tenant_id=Data.Apps.Azure.TenantId if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.TenantId else None,
-                azure_client_secret=Data.Apps.Azure.ClientSecret if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.ClientSecret else None,
-                azure_client_is_personal_acc=Data.Apps.Azure.IsPersonal if Data.Apps and Data.Apps.Azure and Data.Apps.Azure.IsPersonal else False
+                azure_app_name=Data.AppOnCloud.Azure.Name if Data.AppOnCloud and Data.AppOnCloud.Azure and Data.AppOnCloud.Azure.Name else None,
+                azure_client_id=Data.AppOnCloud.Azure.ClientId if Data.AppOnCloud and Data.AppOnCloud.Azure and Data.AppOnCloud.Azure.ClientId else None,
+                azure_tenant_id=Data.AppOnCloud.Azure.TenantId if Data.AppOnCloud and Data.AppOnCloud.Azure and Data.AppOnCloud.Azure.TenantId else None,
+                azure_client_secret=Data.AppOnCloud.Azure.ClientSecret if Data.AppOnCloud and Data.AppOnCloud.Azure and Data.AppOnCloud.Azure.ClientSecret else None,
+                azure_client_is_personal_acc=Data.AppOnCloud.Azure.IsPersonal if Data.AppOnCloud and Data.AppOnCloud.Azure and Data.AppOnCloud.Azure.IsPersonal else False
 
             )
             ret = AppInfoRegisterResult()
@@ -134,7 +134,7 @@ class AppsController(BaseController):
             return ret
 
     @controller.route.post("/api/admin/apps/get/{app_name}")
-    def get_info(self,app_name: str) -> AppInfo:
+    def get_info(self, app_name: str) -> AppInfo:
         """
         get application info if not exist return { AppId:null}
         lấy thông tin ứng dụng nếu không tồn tại return { AppId: null}

@@ -344,3 +344,20 @@ class AzureController(BaseController):
                     message=e.message
                 )
             )
+
+    @controller.router.post(
+        path="/api/{app_name}/azure/get_login_url_with_business_account"
+    )
+    async def get_login_url(self, app_name: str) -> typing.Union[str, dict]:
+        try:
+            ret = self.fucking_azure_account_service.get_login_url(app_name,is_business_account=True)
+            return dict(
+                loginUrl=ret
+            )
+        except FuckingWhoreMSApiCallException as e:
+            return dict(
+                error=dict(
+                    code=e.code,
+                    message=e.message
+                )
+            )

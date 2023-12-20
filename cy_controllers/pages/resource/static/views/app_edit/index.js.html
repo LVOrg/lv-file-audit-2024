@@ -30,7 +30,7 @@
                 <div class="app-editor-frame">
                     <span>Skip Share Point Online License</span>
                     <div>
-                        <input type="checkbox" ng-model="app.Apps.Azure.IsPersonal"  />
+                        <input type="checkbox" ng-model="app.AppOnCloud.Azure.IsPersonal"  />
                         <span style="font-size:9pt">
                             The shit is really important! <br/>
                             Who do not have money and desire to use Microsoft One Drive.
@@ -41,22 +41,22 @@
                         </span>
                     </div>
                     <span>Name</span>
-                    <input type="text" ng-model="app.Apps.Azure.Name" class="form-control" />
+                    <input type="text" ng-model="app.AppOnCloud.Azure.Name" class="form-control" />
                     <span>Application (client) ID</span>
-                    <input type="text" ng-model="app.Apps.Azure.ClientId" class="form-control" />
-                    <span ng-if="!app.Apps.Azure.IsPersonal">Directory (tenant) ID</span>
-                    <input  ng-if="!app.Apps.Azure.IsPersonal" type="text" ng-model="app.Apps.Azure.TenantId" class="form-control" />
+                    <input type="text" ng-model="app.AppOnCloud.Azure.ClientId" class="form-control" />
+                    <span >Directory (tenant) ID</span>
+                    <input  type="text" ng-model="app.AppOnCloud.Azure.TenantId" class="form-control" />
                     <span>Client secrets</span>
                     <div class="input-group">
 
-                        <input type="{{clientSecretInputType}}" ng-model="app.Apps.Azure.ClientSecret" class="form-control" />
+                        <input type="{{clientSecretInputType}}" ng-model="app.AppOnCloud.Azure.ClientSecret" class="form-control" />
                         <button ng-click="clientSecretOnOff()"><span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span></button>
                     </div>
 
 
                 </div>
                 <div ng-if="app.Apps.Azure.UrlLogin">
-                    <a target="_blank" ng-href="{{app.Apps.Azure.UrlLogin}}">Login and get access token key</a>
+                    <a target="_blank" ng-href="{{app.AppOnCloud.Azure.UrlLogin}}">Login and get access token key</a>
                 </div>
             </fieldset>
         </div>

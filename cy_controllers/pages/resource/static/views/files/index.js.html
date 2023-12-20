@@ -168,9 +168,15 @@ img.mirror {
                     <a href="javascript:void(0);" ng-click="doEditAppFromFileExplorer(currentAppName).then()">
                         Link to MS One drive. How does that shit work?</a>
                 </p>
-                <p ng-if="currentApp.AzureLoginUrl"  style="text-align:right" >
-                    <a target="_blank"  ng-href="{{currentApp.AzureLoginUrl}}">Login to Microsoft Online</a>
-                    or
+
+                <p ng-if="currentApp.AppOnCloud.Azure"  style="text-align:right" >
+                    <span>Login to MS</span>
+                    <a target="_blank"  ng-href="{{currentApp.AppOnCloud.Azure.PersonalAccountUrlLogin}}">Personal</a>
+                    <span>&nbsp;</span>
+                    <span>or</span>
+                    <span>&nbsp;</span>
+                    <a target="_blank"  ng-href="{{currentApp.AppOnCloud.Azure.BusinessAccountUrlLogin}}">Business</a>
+                    <span>&nbsp;account&nbsp;</span>
                     <a href="javascript:void(0);" ng-click="doEditAppFromFileExplorer(currentAppName).then()">
                         Re-Config that shit!</a>
                 </p>
