@@ -71,9 +71,9 @@ class PagesController:
     fucking_wopi_service = cy_kit.singleton(FuckingWopiService)
     fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
 
-    # dependencies = [
-    #     Depends(verify_auth)
-    # ]
+    dependencies = [
+        Depends(verify_auth)
+    ]
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     # you can define in the Controller init some FastApi Dependency and them are automatically loaded in controller methods
     def __init__(self,request: Request):
@@ -123,7 +123,7 @@ class PagesController:
             # wopi_src="https://FFC-onenote.officeapps-df.live.com/hosting/GetWopiTestInfo.ashx"
             src = self.fucking_wopi_service.get_wopi_url_from_action(
                 doc_type="docx",
-                action="view",
+                action="edit",
                 wopi_src=wopi_src+"?access_token=123"
             )
             # src = self.fucking_wopi_service.get_wopi_url_from_action(

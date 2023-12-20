@@ -1229,9 +1229,13 @@ import starlette.requests
 
 def validate_token_in_request(self, request):
     token = None
-    if request.cookies.get('access_token_cookie') is not None:
+    if (hasattr(request,"cookies")
+            and isinstance(request.cookies,dict) and
+            request.cookies.get('access_token_cookie') is not None):
         token = request.cookies['access_token_cookie']
-    elif request.cookies.get('cy-files-token') is not None:
+    elif (hasattr(request,"cookies") and
+          isinstance(request.cookies,dict) and
+          request.cookies.get('cy-files-token') is not None):
         token = request.cookies['cy-files-token']
     else:
         authorization: str = request.headers.get("Authorization")
@@ -1251,10 +1255,16 @@ def validate_token_in_request(self, request):
 
         ret_data = jwt.decode(token, self.jwt_secret_key,
                               algorithms=[self.jwt_algorithm],
-                              options={"verify_signature": False},
+                              options={"verify_signature": True},
                               )
         username = ret_data.get("username", ret_data.get("sub"))
         application = ret_data.get("application")
+        if username is None or application is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Not authenticated",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         setattr(request, "username", username)
         setattr(request, "application", application)
         if self.validate(request, username, application):

@@ -1,7 +1,7 @@
 import base64
 import urllib.parse
 
-from rsa import asn1
+
 
 BUSINESS_USER = "<IsLicensedUser=BUSINESS_USER&>"
 DC_LLCC = "<rs=DC_LLCC&>"
@@ -133,7 +133,7 @@ def generate_key(modulus_b64, exp_b64):
     :return: an RSA public key
     """
     from Crypto.PublicKey import RSA
-
+    from rsa import asn1
     mod = int(base64.b64decode(modulus_b64).encode('hex'), 16)
     exp = int(base64.b64decode(exp_b64).encode('hex'), 16)
     seq = asn1.DerSequence()
