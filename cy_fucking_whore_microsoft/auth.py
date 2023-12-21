@@ -143,7 +143,7 @@ def get_verify_code(request: Request):
     return request.query_params.get("code")
 
 
-def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret)->AzureTokeResultInfo:
+def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret,is_business_account:bool=False)->AzureTokeResultInfo:
     """
     After get verify code.
     Call this fucking shit to get access token key
@@ -169,8 +169,13 @@ def get_auth_token(verify_code, redirect_uri,tenant,client_id,client_secret)->Az
     }
 
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    url_request= f"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+    if is_business_account:
+        if tenant is None:
+            raise Exception("tenant is require")
+        url_request = f"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token"
     #https://login.microsoftonline.com/13a53f39-4b4d-4268-8c5e-ae6260178923/oauth2/v2.0/token
-    response = requests.post(f"https://login.microsoftonline.com/common/oauth2/v2.0/token", data=data)
+    response = requests.post(url_request, data=data)
 
     if response.status_code == 200:
         response_data = json.loads(response.text)

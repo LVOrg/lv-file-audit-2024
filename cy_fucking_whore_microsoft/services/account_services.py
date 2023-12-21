@@ -292,7 +292,8 @@ class AccountService:
             return urls_auth.get_business_account_login_url(
                 client_id=fucking_ms_app_azure_id,
                 scopes=scopes.get_one_drive() + scopes.get_account(),
-                redirect_uri=self.get_handler_after_login_url(app_name)
+                redirect_uri=self.get_handler_after_login_url(app_name),
+                tenant_id = fucking_ms_app_azure_tenant_id
             )
 
 

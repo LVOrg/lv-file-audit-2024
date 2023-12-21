@@ -70,31 +70,23 @@ class AzureController(BaseController):
             from fastapi.responses import HTMLResponse
             ret = f"<html><head></head><body><textarea style='width:100%;min-height:300px'>{_access_token}</textarea></body></html>"
             return HTMLResponse(ret)
-        app = self.service_app.get_item(
-            app_name='admin',
-            app_get=app_name
+        qr = self.service_app.get_queryable()
+        app = qr.context.find_one(
+            qr.fields.NameLower==app_name.lower()
         )
+
         UrlLogin = None
-        if (app.Apps and
-                app.Apps.get("Azure") and
-                isinstance(app.Apps["Azure"], dict) and
-                app.Apps["Azure"].get("UrlLogin") and
-                isinstance(app.Apps["Azure"]["UrlLogin"], str)):
-            UrlLogin = app.Apps["Azure"]["UrlLogin"]
-            uri_login = urllib.parse.urlparse(UrlLogin)
-            t_data = dict(
-                [[x.split('=')[0], urllib.parse.unquote(x.split('=')[1])] for x in uri_login.query.split('&') if
-                 "=" in x])
-            UrlLogin = t_data["redirect_uri"]
 
-
+        if app[qr.fields.AppOnCloud.Azure] is not None:
             try:
                 access_token = auth.get_auth_token(
                     verify_code=verify_code,
                     redirect_uri= self.fucking_azure_account_service.get_handler_after_login_url(app_name),
-                    tenant=app.Apps["Azure"].get("TenantId"),
-                    client_id=app.Apps["Azure"].get("ClientId"),
-                    client_secret=app.Apps["Azure"].get("ClientSecret")
+                    tenant=app[qr.fields.AppOnCloud.Azure.TenantId],
+                    client_id=app[qr.fields.AppOnCloud.Azure.ClientId],
+                    client_secret=app[qr.fields.AppOnCloud.Azure.ClientSecret],
+                    is_business_account= not app[qr.fields.AppOnCloud.Azure.IsPersonal]
+
 
                 )
                 _access_token = None

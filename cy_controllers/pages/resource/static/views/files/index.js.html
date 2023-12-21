@@ -164,7 +164,7 @@ img.mirror {
         </div>
         <div>
             <div style="padding-right:20px">
-                <p ng-if="!currentApp.AzureLoginUrl" style="text-align:right">
+                <p ng-if="(!currentApp.AppOnCloud)||(!currentApp.AppOnCloud.Azure)" style="text-align:right">
                     <a href="javascript:void(0);" ng-click="doEditAppFromFileExplorer(currentAppName).then()">
                         Link to MS One drive. How does that shit work?</a>
                 </p>

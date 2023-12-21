@@ -26,34 +26,37 @@ class BasicAuth:
         self.app_services=app_services
 
     def raise_expr(self,ret_url:str=None, app_name:str=None):
-        if app_name is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                detail="Invalid credentials",
-                                headers={"WWW-Authenticate": 'Basic realm="simple"'})
-        else:
-            app = self.app_services.get_item_with_cache(app_name)
-            import cy_web
-            login_url= cy_web.get_host_url()+"/login"
-            location =login_url
-            ret_key = app.ReturnSegmentKey or "ret"
-            if app.LoginUrl is not  None and app.LoginUrl !="":
-                login_url=app.LoginUrl
-                if login_url[0:2]=='~/':
-                    login_url= cy_web.get_host_url()+"/"+login_url[2:]
-            if app.ReturnUrlAfterSignIn and app.ReturnUrlAfterSignIn !="" and ret_url is None:
-                import urllib.parse
-                r_url = app.ReturnUrlAfterSignIn
-                if r_url=='~/':
-                    r_url = cy_web.get_host_url()
-                elif r_url[0:2]=='~/':
-                    r_url = cy_web.get_host_url()+"/"+r_url[2:]
-                location = login_url+"?"+ret_key+"="+urllib.parse.quote(r_url.encode("utf-8"))
-            else:
-                import urllib.parse
-                location = login_url + "?"+ret_key+"=" + urllib.parse.quote(ret_url.encode("utf-8"))
-            raise HTTPException(status_code=status.HTTP_303_SEE_OTHER,
-                                detail="Invalid credentials",
-                                headers={"Location": location})
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Invalid credentials",
+                            headers={"WWW-Authenticate": 'Basic realm="simple"'})
+        # if app_name is None:
+        #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+        #                         detail="Invalid credentials",
+        #                         headers={"WWW-Authenticate": 'Basic realm="simple"'})
+        # else:
+        #     app = self.app_services.get_item_with_cache(app_name)
+        #     import cy_web
+        #     login_url= cy_web.get_host_url()+"/login"
+        #     location =login_url
+        #     ret_key = app.ReturnSegmentKey or "ret"
+        #     if app.LoginUrl is not  None and app.LoginUrl !="":
+        #         login_url=app.LoginUrl
+        #         if login_url[0:2]=='~/':
+        #             login_url= cy_web.get_host_url()+"/"+login_url[2:]
+        #     if app.ReturnUrlAfterSignIn and app.ReturnUrlAfterSignIn !="" and ret_url is None:
+        #         import urllib.parse
+        #         r_url = app.ReturnUrlAfterSignIn
+        #         if r_url=='~/':
+        #             r_url = cy_web.get_host_url()
+        #         elif r_url[0:2]=='~/':
+        #             r_url = cy_web.get_host_url()+"/"+r_url[2:]
+        #         location = login_url+"?"+ret_key+"="+urllib.parse.quote(r_url.encode("utf-8"))
+        #     else:
+        #         import urllib.parse
+        #         location = login_url + "?"+ret_key+"=" + urllib.parse.quote(ret_url.encode("utf-8"))
+        #     raise HTTPException(status_code=status.HTTP_303_SEE_OTHER,
+        #                         detail="Invalid credentials",
+        #                         headers={"Location": location})
 
     def get_auth_bearer(self, request: Request):
         from cyx.token_manager.token_service import FILE_SERVICE_COOKIE_KEY
@@ -78,34 +81,50 @@ class BasicAuth:
         from cy_xdoc.services.accounts import AccountService
         from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-        cr = await HTTPBasic()(request)
-        check_app,check_user = tuple(cr.username.split('/'))
-        check_password = cr.password
-        acc_svc = cy_kit.singleton(AccountService)
-        ok = acc_svc.validate(app_name=check_app,
-                              username=check_user,
+        if hasattr(request,"cookies") and isinstance(request.cookies,dict):
+            token = request.cookies.get("cy-files-token")
+            if token:
+                token_infor = self.token_verifier.verify(share_key=self.share_key, token=token)
+                if token_infor:
+                    setattr(request, 'token_infor', token_infor)
+                    return
 
-                              password=check_password)
-        if ok:
-            return
+
 
 
         scheme, token = self.get_auth_bearer(request)
-        print(scheme,token)
-        if token:
+
+        if token and scheme=="Bearer":
             token_infor = self.token_verifier.verify(share_key=self.share_key,token=token)
-            print(token_infor)
+
             if token_infor:
                 setattr(request,'token_infor',token_infor)
             else:
                 self.raise_expr(ret_url=request.url._url, app_name=app_name)
+
+        elif token and scheme=="Basic" :
+            cr = await HTTPBasic()(request)
+            check_app, check_user = tuple(cr.username.split('/'))
+            check_password = cr.password
+            acc_svc = cy_kit.singleton(AccountService)
+            ok = acc_svc.validate(app_name=check_app,
+                                  username=check_user,
+
+                                  password=check_password)
+            if ok:
+                return
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Incorrect auth",
+                    headers={"WWW-Authenticate": "Basic"},
+                )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect auth",
                 headers={"WWW-Authenticate": "Basic"},
             )
-
             # from cyx.token_manager.token_service import FILE_SERVICE_COOKIE_KEY
             # from cyx.token_manager.request_service import RequestService
             #

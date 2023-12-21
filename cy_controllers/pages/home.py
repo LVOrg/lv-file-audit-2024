@@ -135,7 +135,7 @@ class PagesController:
             editor = dict(
                 wopi_urlsrc = src,
                 access_token_ttl =  wopi_access_token_info.access_token_ttl,
-                access_token = wopi_access_token_info.access_token, #wopi_access_token_info.access_token,
+                access_token = access_token, #wopi_access_token_info.access_token,
                 web_access_token = access_token
             )
             return cy_web.render_template(

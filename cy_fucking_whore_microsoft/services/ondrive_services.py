@@ -298,7 +298,8 @@ class OnedriveService:
 
             }
         expire_time = request.headers.get('Expires')
-        response = get(content_url, stream=True,headers=HEADERS)
+        import requests
+        response = requests.get(content_url, stream=True,headers=HEADERS)
 
         if response.headers.get('Content-Location'):
             self.memcache_service.set_str(cache_key,response.headers.get('Content-Location'),60)
