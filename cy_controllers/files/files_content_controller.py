@@ -1,3 +1,5 @@
+import pathlib
+import sys
 import typing
 
 from fastapi_router_controller import Controller
@@ -89,7 +91,18 @@ class FilesContentController(BaseController):
                 )
             response = Response(content="Resource not found", status_code=404)
             return response
-
+    def get_full_path_of_local_from_cache(self, upload):
+        key = f"{self.config.file_storage_path}/{__file__}/{type(self).__name__}/get_full_path_of_local_from_cache/{upload.id}"
+        ret = self.memcache_service.get_str(key)
+        if ret is None:
+            full_path = os.path.join(self.config.file_storage_path, upload.MainFileId[len("local://"):])
+            full_path = os.path.join(pathlib.Path(full_path).parent.parent.__str__(), upload.FullFileNameLower)
+            if not os.path.isfile(full_path):
+                raise FileNotFoundError()
+            else:
+                self.memcache_service.set_str(key,full_path)
+                ret = full_path
+        return ret
     @controller.router.get(
         "/api/{app_name}/file/{directory:path}"
     )
@@ -116,22 +129,11 @@ class FilesContentController(BaseController):
         if mime_type.startswith('image/'):
             if upload.MainFileId.startswith("local://"):
                 if hasattr(self.config, "file_storage_path"):
-                    full_path = os.path.join(self.config.file_storage_path, upload.MainFileId[len("local://"):])
-                    if not os.path.isfile(full_path):
-                        from fastapi import Response
-                        return Response(content="Resource not found", status_code=404)
-                    if isinstance(mime_type,str):
-                        return FileResponse(path=full_path,media_type=mime_type)
+                    full_path = self.get_full_path_of_local_from_cache(upload)
+                    if isinstance(mime_type, str):
+                        return FileResponse(path=full_path, media_type=mime_type)
                     else:
                         return FileResponse(path=full_path)
-
-            file_cache = cy_web.cache_content_check(cache_dir, directory.replace('/', '_'))
-            if file_cache:
-                if isinstance(mime_type, str):
-                    return FileResponse(path=file_cache,media_type=mime_type)
-                else:
-                    return FileResponse(path=file_cache)
-
         runtime_file_reader = None
         # upload.IsPublic= False
 
@@ -143,14 +145,14 @@ class FilesContentController(BaseController):
 
         fs = self.file_service.get_main_file_of_upload_by_rel_file_path(
             app_name=app_name,
-            rel_file_path=directory,
+            rel_file_path=upload.FullFileNameLower,
             runtime_file_reader=runtime_file_reader
         )
-
         if fs is None:
+            rel_path = os.path.join(directory.split('/')[0], upload.FullFileNameLower.split('/')[-1])
             fs = self.file_service.get_main_file_of_upload(
                 app_name=app_name,
-                upload_id=upload_id
+                upload_id=rel_path
             )
 
         if fs is None:
@@ -303,4 +305,7 @@ class FilesContentController(BaseController):
             return dict(
                 content=doc.source.content
             )
+
+
+
 

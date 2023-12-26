@@ -53,7 +53,7 @@ def verify_auth(request:Request, credentials: HTTPBasicCredentials = Depends(sec
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect auth",
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": "Negotiate, Basic realm=\"Lacviet Realm\""},
         )
 
     return credentials.username
@@ -64,6 +64,7 @@ from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import Fuc
 from cy_fucking_whore_microsoft.services import (
     account_services, ondrive_services
 )
+from requests_kerberos import HTTPKerberosAuth
 @controller.resource()
 class PagesController:
     # add class wide dependencies e.g. auth
@@ -72,7 +73,8 @@ class PagesController:
     fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
 
     dependencies = [
-        Depends(verify_auth)
+        Depends(verify_auth),
+
     ]
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     # you can define in the Controller init some FastApi Dependency and them are automatically loaded in controller methods
@@ -83,10 +85,11 @@ class PagesController:
         "/", summary="Home page"
     )
     def home_page(self):
-
+        from starlette.datastructures import URL
+        app_data = get_meta_data(self.request)
         return cy_web.render_template(
             rel_path_to_template="index.html",
-            render_data={"request": self.request, "app": get_meta_data()}
+            render_data={"request": self.request, "app": app_data}
         )
 
     @controller.route.get(
@@ -177,7 +180,8 @@ class PagesController:
         /home/vmadmin/python/cy-py/cy_controllers/pages/resource/html/login.html
         /home/vmadmin/python/cy-py/cy_controllers/pages/resource/html/index.html
         """
-        res = cy_web.render_template("index.html", {"request": self.request, "app": get_meta_data()})
+        app_data = get_meta_data(self.request)
+        res = cy_web.render_template("index.html", {"request": self.request, "app": app_data})
         token_service.set_cookie(res,token_service.generate_token(app=application,username=username))
         return res
 

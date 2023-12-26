@@ -116,7 +116,7 @@ class FilesController(BaseController):
         try:
             items =self.file_service.get_list(
                 app_name=app_name,
-                root_url=cy_web.get_host_url(),
+                root_url=cy_web.get_host_url(self.request),
                 page_size=PageSize,
                 page_index=PageIndex,
                 field_search=FieldSearch,
@@ -352,7 +352,7 @@ class FilesController(BaseController):
         upload_info.UploadId = upload_info._id
         upload_info.HasOCR = upload_info.OCRFileId is not None
         upload_info.RelUrl = f"api/{app_name}/file/{upload_info.UploadId}/{upload_info.FileName.lower()}"
-        upload_info.FullUrl = f"{cy_web.get_host_url()}/api/{app_name}/file/{upload_info.UploadId}/{upload_info.FileName.lower()}"
+        upload_info.FullUrl = f"{cy_web.get_host_url(self.request)}/api/{app_name}/file/{upload_info.UploadId}/{upload_info.FileName.lower()}"
         upload_info.HasThumb = upload_info.ThumbFileId is not None
         available_thumbs = upload_info.AvailableThumbs or []
         upload_info.AvailableThumbs = []

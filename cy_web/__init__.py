@@ -84,9 +84,9 @@ def middleware():
 def add_cors(origins: List[str]):
     return cy_web_x.add_cors(origins)
 
-
-def get_host_url():
-    return cy_web_x.get_host_url()
+from starlette.requests import Request
+def get_host_url(request:Request):
+    return cy_web_x.get_host_url(request)
 
 
 def get_host_dir():

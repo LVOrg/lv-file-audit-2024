@@ -84,7 +84,7 @@ async def estimate_time(request: fastapi.Request, next):
 
         if not request.url.path.endswith("/api/healthz") and not request.url.path.endswith("/api/readyz"):
             logger.info(f"{request.url}  in {n}")
-        if request.url._url == cy_web.get_host_url() + "/api/accounts/token":
+        if request.url._url == cy_web.get_host_url(request) + "/api/accounts/token":
             response_body = [chunk async for chunk in res.body_iterator]
             res.body_iterator = iterate_in_threadpool(iter(response_body))
             if len(response_body) > 0:
@@ -122,10 +122,23 @@ async def estimate_time(request: fastapi.Request, next):
 Server-Timing: miss, db;dur=53, app;dur=47.2"""
     gc.collect()
     return res
-
+from fastapi import Request, Response
+from requests_kerberos import HTTPKerberosAuth
+import requests_kerberos.exceptions
+# @cy_web.middleware()
+# async def kerberos_auth_middleware(request: Request, call_next):
+#     try:
+#         auth = HTTPKerberosAuth()
+#         response = await call_next(request)
+#
+#         return response
+#     except requests_kerberos.exceptions.KerberosExchangeError as exc:
+#         return Response(status_code=401, content=f"Authentication failed: {exc}")
 
 # cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
+
+
 from cyx.common.base import config
 from starlette.middleware.sessions import SessionMiddleware
 app.add_middleware(SessionMiddleware, secret_key=config.jwt.secret_key)

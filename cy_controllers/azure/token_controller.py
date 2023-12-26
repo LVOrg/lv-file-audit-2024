@@ -81,7 +81,7 @@ class AzureController(BaseController):
             try:
                 access_token = auth.get_auth_token(
                     verify_code=verify_code,
-                    redirect_uri= self.fucking_azure_account_service.get_handler_after_login_url(app_name),
+                    redirect_uri= self.fucking_azure_account_service.get_handler_after_login_url(app_name,self.request),
                     tenant=app[qr.fields.AppOnCloud.Azure.TenantId],
                     client_id=app[qr.fields.AppOnCloud.Azure.ClientId],
                     client_secret=app[qr.fields.AppOnCloud.Azure.ClientSecret],
@@ -325,7 +325,10 @@ class AzureController(BaseController):
     )
     async def get_login_url(self,app_name:str)->typing.Union[str,dict]:
         try:
-            ret =self.fucking_azure_account_service.get_login_url(app_name)
+            ret =self.fucking_azure_account_service.get_login_url(
+                app_name,
+                request=self.request
+            )
             return dict(
                 loginUrl=ret
             )
@@ -342,7 +345,10 @@ class AzureController(BaseController):
     )
     async def get_login_url(self, app_name: str) -> typing.Union[str, dict]:
         try:
-            ret = self.fucking_azure_account_service.get_login_url(app_name,is_business_account=True)
+            ret = self.fucking_azure_account_service.get_login_url(
+                app_name,
+                self.request,
+                is_business_account=True)
             return dict(
                 loginUrl=ret
             )

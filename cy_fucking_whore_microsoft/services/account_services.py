@@ -244,11 +244,11 @@ class AccountService:
             )
         return fucking_ms_onedrive_dir
 
-    def get_handler_after_login_url(self, app_name: str):
+    def get_handler_after_login_url(self, app_name: str,request):
         import cy_web
-        return f"{cy_web.get_host_url()}/api/{app_name}/azure/after_login"
+        return f"{cy_web.get_host_url(request)}/api/{app_name}/azure/after_login"
 
-    def get_login_url(self, app_name, is_business_account:bool=False):
+    def get_login_url(self, app_name,request, is_business_account:bool=False):
         qr = self.app_service.get_queryable()
         app = qr.context.find_one(
             qr.fields.NameLower == app_name.lower()
@@ -280,19 +280,19 @@ class AccountService:
             return urls_auth.get_business_account_login_url(
                 client_id=fucking_ms_app_azure_id,
                 scopes=scopes.get_one_drive() + scopes.get_account(),
-                redirect_uri=self.get_handler_after_login_url(app_name)
+                redirect_uri=self.get_handler_after_login_url(app_name,request)
             )
         if fucking_ms_app_azure_is_personal:
             return urls_auth.get_personal_account_login_url(
                 client_id=fucking_ms_app_azure_id,
                 scopes=scopes.get_one_drive() + scopes.get_account(),
-                redirect_uri=self.get_handler_after_login_url(app_name)
+                redirect_uri=self.get_handler_after_login_url(app_name,request)
             )
         else:
             return urls_auth.get_business_account_login_url(
                 client_id=fucking_ms_app_azure_id,
                 scopes=scopes.get_one_drive() + scopes.get_account(),
-                redirect_uri=self.get_handler_after_login_url(app_name),
+                redirect_uri=self.get_handler_after_login_url(app_name,request),
                 tenant_id = fucking_ms_app_azure_tenant_id
             )
 

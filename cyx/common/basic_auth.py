@@ -80,7 +80,13 @@ class BasicAuth:
     async def check_request(self,app_name:str, request: Request):
         from cy_xdoc.services.accounts import AccountService
         from fastapi.security import HTTPBasic, HTTPBasicCredentials
-
+        if request.method=="GET":
+            token =  request.query_params.get("token")
+            if token:
+                token_infor = self.token_verifier.verify(share_key=self.share_key, token=token)
+                if token_infor:
+                    setattr(request, 'token_infor', token_infor)
+                    return
         if hasattr(request,"cookies") and isinstance(request.cookies,dict):
             token = request.cookies.get("cy-files-token")
             if token:
@@ -117,13 +123,13 @@ class BasicAuth:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Incorrect auth",
-                    headers={"WWW-Authenticate": "Basic"},
+                    headers={"WWW-Authenticate": 'Basic'},
                 )
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect auth",
-                headers={"WWW-Authenticate": "Basic"},
+                headers={"WWW-Authenticate":  'Basic'},
             )
             # from cyx.token_manager.token_service import FILE_SERVICE_COOKIE_KEY
             # from cyx.token_manager.request_service import RequestService

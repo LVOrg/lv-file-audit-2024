@@ -44,7 +44,7 @@ config:
     # When API-File and File-Service create new Tenant they also create new ElasticSearch
     # Index by concat 'prefix_index' and Tenant-Name.
     # Example Tenant-Name is qc, ElasticSearch Index Name is lv-codx_qc
-    server: 'http://10.0.2.140:9200'
+    server: 'http://10.165.23.47:9200'
     # In poor conditional, we have only one ElasticServer Node
     # if thee's system need more than one node this value will be a list of url separated by comma
   rabbitmq:
@@ -56,16 +56,16 @@ config:
 #    temp_directory: 'app/share-storage'
     msg:
 storage_files:
-  server: 10.165.21.197
-  directory: /share-data/files
+  server: 10.165.255.254
+  directory: /volumes/_nogroup/3a8279d9-63b5-42ef-ae3c-44340a2c19a4/0c406d28-2b8a-4592-aed0-d926e9c43180/lv_file/files
   name: storage-files
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
-  server: 10.165.21.197
+  server: 10.165.255.254
   # Server where share directory locate
-  directory: /share-data/xdoc-web
+  directory: /volumes/_nogroup/3a8279d9-63b5-42ef-ae3c-44340a2c19a4/0c406d28-2b8a-4592-aed0-d926e9c43180/lv_file/tmp
   # The full path to share-directory at storage server
   # Read below carefully before use share directory for K8S
   # 1- The share directory is belonged no-one use chown comand to do that.

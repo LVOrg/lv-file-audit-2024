@@ -1147,11 +1147,13 @@ def add_cors(origins: List[str]):
             allow_headers=["*"],
         )
 
-
-def get_host_url() -> str:
+from  starlette.requests import Request
+def get_host_url(request:Request) -> str:
     global web_application
     if isinstance(web_application, WebApp):
-        return web_application.host_url
+        scheme = request.headers.get("x-forwarded-proto", request.base_url.components.scheme)
+        netloc = request.base_url.components.netloc
+        return f"{scheme}://{netloc}{get_host_dir()}"
 
 
 def get_host_dir() -> str:

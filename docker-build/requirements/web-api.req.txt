@@ -36,3 +36,4 @@ azure-keyvault-secrets
 pyOpenSSL
 cryptography
 PyCrypto
+requests-kerberos

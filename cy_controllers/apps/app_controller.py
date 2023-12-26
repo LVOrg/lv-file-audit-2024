@@ -1,6 +1,6 @@
 import datetime
 import typing
-
+import cy_docs
 from cy_controllers.models.apps import (
     AppInfo,
     AppInfoRegister,
@@ -142,7 +142,7 @@ class AppsController(BaseController):
         :param token:
         :return:
         """
-        import cy_docs
+
         ret = self.service_app.get_item("admin", app_get=app_name)
         if ret:
             return ret.to_pydantic()
