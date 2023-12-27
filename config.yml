@@ -91,7 +91,7 @@ server_type_: unvicorn
 server_type: hypercorn
 h2_max_concurrent_streams: 100
 vn_suggest_url: http://172.16.7.99:30444
-tika_server: http://172.16.7.91:32532
+tika_server: http://172.16.7.99:30255
 jwt:
   secret_key: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
   algorithm: HS256
@@ -161,10 +161,10 @@ rabbitmq__:
 rabbitmq:
   port_: 31674
 #  server: 172.16.7.99
-  server: 172.16.7.91
-  port: 31674
+  server: 172.16.7.99
+  port: 30672
 #  msg: v99-dev
-  msg: v2
+  msg: v99-dev
 broker:
   is_use: true
   servers: 172.16.7.99:30992

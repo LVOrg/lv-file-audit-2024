@@ -38,8 +38,14 @@ class RabitmqMsg:
 
         :return:
         """
-
+        self.__channel__:pika.BlockingChannel =None
         try:
+            if isinstance(self.__channel__,pika.BlockingConnection):
+                try:
+                    self.__channel__.close()
+                    self.__channel__ = None
+                except:
+                    pass
             if not self.__channel__ or not self.__channel__.connection.is_open:
                 self.__credentials__ = pika.PlainCredentials(self.__username__, self.__password__)
 
@@ -48,7 +54,8 @@ class RabitmqMsg:
                     port=self.__port__,
                     virtual_host='/',
                     credentials=self.__credentials__,
-                    heartbeat=30
+                    heartbeat=30,
+                    retry_delay=10
                 )
                 self.__connection__ = pika.BlockingConnection(self.__parameters__)
                 self.__channel__ = self.__connection__.channel()
@@ -113,11 +120,11 @@ class RabitmqMsg:
             except Exception as e:
                 logs.exception(e)
                 msg.tags = None
-                self.re_emit(msg)
+                # self.re_emit(msg)
+            #self.delete(msg)
 
         if not self.__is_declare__:
             while self.__channel__ is None:
-
                 self.__try_connect__()
                 time.sleep(10)
             self.__channel__.queue_declare(queue=self.get_real_msg(msg_type), auto_delete=False)
@@ -137,7 +144,7 @@ class RabitmqMsg:
             print(f"re-connect {self.__server__}")
             ok = False
             count = 0
-            while not ok and count < 10:
+            while not ok and count < 10000:
                 """
                 Try reconnect ten times, time after time is 5 seconds
                 Thử kết nối lại mười lần, hết lần này đến lần khác là 5 giây
@@ -148,6 +155,7 @@ class RabitmqMsg:
                 self.__channel__ = None
                 self.__try_connect__()
                 try:
+
                     self.__channel__.queue_declare(queue=msg_type, auto_delete=False)
                     self.__channel__.start_consuming()
                     ok = True
@@ -155,38 +163,7 @@ class RabitmqMsg:
                     ok = False
                     time.sleep(5)
                     print(f"re-connect {self.__server__}")
-        except AttributeError as e:
-            time.sleep(1)
-            print(f"re-connect {self.__server__}")
-            ok = False
-            count = 0
-            while not ok and count < 10:
-                count += 1
-                self.__channel__ = None
-                self.__try_connect__()
-                try:
-                    self.__channel__.queue_declare(queue=msg_type, auto_delete=False)
-                    self.__channel__.start_consuming()
-                    ok = True
-                except pika.exceptions.ConnectionWrongStateError as e:
-                    ok = False
-                    time.sleep(5)
-                    print(f"re-connect {self.__server__}")
-        except pika.exceptions.ConnectionWrongStateError as e:
-            time.sleep(1)
-            print(f"re-connect {self.__server__}")
-            ok = False
-            while not ok:
-                self.__channel__ = None
-                self.__try_connect__()
-                try:
-                    self.__channel__.queue_declare(queue=msg_type, auto_delete=False)
-                    self.__channel__.start_consuming()
-                    ok = True
-                except pika.exceptions.ConnectionWrongStateError as e:
-                    ok = False
-                    time.sleep(5)
-                    print(f"re-connect {self.__server__}")
+
 
     def get_message(self, message_type: str, max_items: int) -> typing.List[cyx.common.msg.MessageInfo]:
         """

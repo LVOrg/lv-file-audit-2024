@@ -1,14 +1,16 @@
 ---
 {{ $info := $.Values.name -}}
     {{ $dataFile := join "" (list "data/" $info ".yml") -}}
+
     {{ $data := .Files.Get $dataFile | fromYaml -}}
+
     {{ $storage_files := $data.storage_files -}}
       {{ $fileJob := $data.fileJob -}}
       {{ $db := $data.config.db -}}
       {{ $es := $data.config.elastic_search -}}
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
-      {{ $storage := $data.storage}}
+      {{ $storage := $data.storage -}}
   {{ $globalVar := .Files.Get "global/data.yml" | fromYaml -}}
 
   {{ $jobsList:= fromYaml ((include "jobs-apps-data" $globalVar ))  -}}
@@ -39,7 +41,7 @@ spec:
           server: {{$storage.server}}
           path: {{$storage.directory}}
         {{end}}
-        { { if $storage_files } }
+        {{ if $storage_files }}
         - name: {{$storage_files.name}}
           nfs:
             server: {{$storage_files.server}}
@@ -74,12 +76,12 @@ spec:
           volumeMounts:
             - mountPath: {{$fileJob.mountPath}}
               name: {{$storage.name}}
-            { { if $storage_files } }
+            {{ if $storage_files }}
             - mountPath: /mnt/files
               name: {{$storage_files.name}}
             {{end}}
       restartPolicy: Never
   backoffLimit: 4
-{{end}}
+{{- end}}
 {{end}}
 {{end}}

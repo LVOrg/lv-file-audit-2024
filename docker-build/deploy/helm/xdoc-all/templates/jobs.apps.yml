@@ -10,7 +10,7 @@
       {{ $es := $data.config.elastic_search -}}
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
-      {{ $storage := $data.storage}}
+      {{ $storage := $data.storage -}}
   {{ $globalVar := .Files.Get "global/data.yml" | fromYaml -}}
 
   {{ $jobsList:= fromYaml ((include "jobs-apps-data" $globalVar ))  -}}
