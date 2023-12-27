@@ -100,6 +100,7 @@ class AppsController(BaseController):
 
         try:
             app = self.service_app.update(
+                request = self.request,
                 Name=Data.Name,
                 Description=Data.Description,
                 azure_app_name=Data.AppOnCloud.Azure.Name if Data.AppOnCloud and Data.AppOnCloud.Azure and Data.AppOnCloud.Azure.Name else None,
@@ -159,4 +160,5 @@ class AppsController(BaseController):
         """
         app_name = "admin"
         for app in self.service_app.get_list(app_name):
+
             yield app.to_pydantic()

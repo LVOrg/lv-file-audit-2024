@@ -65,6 +65,7 @@ class App:
     Stat of app
     """
     AppOnCloud: typing.Optional[AppsOnCloudModle]
+    SizeInGB: typing.Optional[float]
 
 
 class AppStatsDimension:

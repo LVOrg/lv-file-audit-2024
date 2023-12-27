@@ -107,8 +107,8 @@ class PagesController:
                 app_name=app_name
             )
             wopi_access_token_info = generate_access_token(
-                issuer=cy_web.get_host_url(),
-                audience=f"{cy_web.get_host_url()}/api/{app_name}/wopi/{upload_id}.docx",
+                issuer=cy_web.get_host_url(self.request),
+                audience=f"{cy_web.get_host_url(self.request)}/api/{app_name}/wopi/{upload_id}.docx",
                 user="nttlong@lacviet.com.vn",
                 docid=f"{upload_id}.docx",
                 pfx_password="dxwopi"
@@ -117,7 +117,7 @@ class PagesController:
             access_token_ttl = ""
             # src = self.fucking_office_365_service.get_embed_iframe_url(app_name=app_name, upload_id=upload_id,
             #                                                            include_token=False)
-            wopi_src = f"{cy_web.get_host_url()}/api/{app_name}/wopi/files/{upload_id}.docx"
+            wopi_src = f"{cy_web.get_host_url(self.request)}/api/{app_name}/wopi/files/{upload_id}.docx"
             # wopi_src ='http://172.16.13.72:8012/lvfile/api/lv-docs/wopi/files/c638d1b1-a9de-4048-8619-8db2dcaabcd3?access_token=123'
             # wopi_src = f"http://172.16.13.72:8012/api/{app_name}/wopi/files/{upload_id}.{'docx'}"
             # wopi_src=f"https://1drv.ms/w/s!AhSDgZO1-y79glHQ1O0W0U3Wo14A?e=zU4kIT"

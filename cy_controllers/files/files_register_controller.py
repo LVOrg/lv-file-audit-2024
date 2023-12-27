@@ -212,7 +212,7 @@ class FilesRegisterController(BaseController):
                 client_file_name=Data.FileName,
                 is_public=Data.IsPublic,
                 thumbs_support=Data.ThumbConstraints,
-                web_host_root_url=cy_web.get_host_url(),
+                web_host_root_url=cy_web.get_host_url(self.request),
                 privileges_type=privileges,
                 meta_data=Data.meta_data,
                 skip_option=skip_option,

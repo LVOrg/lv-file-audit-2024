@@ -49,6 +49,7 @@ class AppInfo(BaseModel):
     AccessCount: typing.Optional[int]
     AppOnCloud: typing.Optional[AppsOnCloud]
     AzureLoginUrl: typing.Optional[str]
+    SizeInGB: typing.Optional[float]
 
 
 from pydantic import Field

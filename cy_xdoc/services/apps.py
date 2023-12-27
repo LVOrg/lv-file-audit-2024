@@ -58,7 +58,8 @@ class AppServices:
             docs.fields.RegisteredOn,
             cy_docs.fields.AzurePersonalAccountUrlLogin >> docs.fields.AppOnCloud.Azure.PersonalAccountUrlLogin,
             cy_docs.fields.AzureBusinessAccountUrlLogin >> docs.fields.AppOnCloud.Azure.BusinessAccountUrlLogin,
-            docs.fields.AppOnCloud
+            docs.fields.AppOnCloud,
+            docs.fields.SizeInGB
 
         ).sort(
             docs.fields.LatestAccess.desc(),
@@ -77,7 +78,8 @@ class AppServices:
             docs.fields.LoginUrl,
             docs.fields.ReturnUrlAfterSignIn,
             docs.fields.ReturnSegmentKey,
-            cy_docs.fields.Apps >> docs.fields.AppOnCloud
+            cy_docs.fields.Apps >> docs.fields.AppOnCloud,
+            docs.fields.SizeInGB
 
         ).match(docs.fields.NameLower == app_get.lower()).first_item()
         if ret is None:
@@ -90,7 +92,8 @@ class AppServices:
                 docs.fields.ReturnUrlAfterSignIn,
                 docs.fields.ReturnSegmentKey,
                 cy_docs.fields.Apps >> docs.fields.AppOnCloud,
-                docs.fields.AppOnCloud
+                docs.fields.AppOnCloud,
+                docs.fields.SizeInGB
 
             ).match(docs.fields.Name == app_get).first_item()
 
@@ -161,6 +164,7 @@ class AppServices:
         return ret
 
     def save_azure_access_token(self,
+                                request,
                                 app_name: str,
                                 azure_access_token: str,
                                 azure_refresh_token: str,
@@ -181,6 +185,7 @@ class AppServices:
         return ret
 
     def update(self,
+               request,
                Name: str,
                Description: typing.Optional[str] = None,
                azure_app_name: typing.Optional[str] = None,
@@ -197,7 +202,7 @@ class AppServices:
 
         if isinstance(azure_client_id, str):
 
-            redirect_url = f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
+            redirect_url = f"{cy_web.get_host_url(request)}/api/{Name}/azure/after_login"
             url_azure_personal_account_login = urls_auth.get_personal_account_login_url(
                 client_id=azure_client_id,
                 scopes=scopes.get_one_drive(),

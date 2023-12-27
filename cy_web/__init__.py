@@ -65,10 +65,10 @@ def load_controller_from_dir(prefix, path):
 
 
 def start_with_uvicorn(worker=4):
-    print(cy_web.get_host_url())
+
     cy_web_x.start_with_uvicorn(worker)
 def start_with_guicorn(worker=4):
-    print(cy_web.get_host_url())
+
     cy_web_x.start_with_guicorn(worker)
 
 def middleware():

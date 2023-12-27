@@ -511,7 +511,7 @@ class FileServices:
 
         return ret.deleted_count
 
-    def do_copy(self, app_name, upload_id):
+    def do_copy(self, app_name, upload_id,request):
 
         document_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         item = document_context.context @ upload_id
@@ -553,12 +553,12 @@ class FileServices:
                     )
                     item.ThumbFileId = bson.ObjectId(thumb_fsg.get_id())
                     item.RelUrlThumb = f"api/{app_name}/thumb/{item.UploadId}/{item.FileName.lower()}.webp"
-                    item.UrlThumb = f"{cy_web.get_host_url()}/{item.RelUrlThumb}"
+                    item.UrlThumb = f"{cy_web.get_host_url(request)}/{item.RelUrlThumb}"
             if item.HasOCR:
                 ocr_file_id = item.OCRFileId
                 if ocr_file_id:
                     item.RelUrlOCR = f"api/{app_name}/file-ocr/{item.UploadId}/{item.FileName.lower()}.pdf"
-                    item.UrlOCR = f"{cy_web.get_host_url()}/api/{item.RelUrlOCR}"
+                    item.UrlOCR = f"{cy_web.get_host_url(request)}/api/{item.RelUrlOCR}"
                     rel_path_to_ocr = f"file-ocr/{item.UploadId}/{item.FileName.lower()}.pdf"
                     ocr_fsg = self.file_storage_service.copy_by_id(
                         app_name=app_name,
@@ -569,7 +569,7 @@ class FileServices:
                     )
                     item.OCRFileId = bson.ObjectId(ocr_fsg.get_id())
         item.RelUrl = f"api/{app_name}/{item.id}/{item.FileName.lower()}"
-        item.FullUrl = f"{cy_web.get_host_url()}/api/{app_name}/{item.UploadId}/{item.FileName.lower()}"
+        item.FullUrl = f"{cy_web.get_host_url(request)}/api/{app_name}/{item.UploadId}/{item.FileName.lower()}"
         @cy_kit.thread_makeup()
         def copy_thumbs(app_name: str, to_id: str, thumbs_list: typing.List[str]):
             for x in thumbs_list:
@@ -591,7 +591,13 @@ class FileServices:
         if data_insert.get("FileExt"):
             ext_path = data_insert.FileExt[0:3]
         relocate_path = f"local://{app_name}/{data_insert.RegisterOn.year}/{data_insert.RegisterOn.month:02}/{data_insert.RegisterOn.day:02}/{ext_path}/{item.id}"
-        data_insert.MainFileId = relocate_path
+        file_name_only = pathlib.Path(item.MainFileId).stem
+        file_ext_with_dot = pathlib.Path(item.MainFileId).suffix
+        if file_ext_with_dot !="":
+            data_insert.MainFileId = f"{relocate_path}/{file_name_only}{file_ext_with_dot}"
+        else:
+            data_insert.MainFileId = f"{relocate_path}/{file_name_only}"
+
 
 
         if not new_fsg.get_id().startswith("local://"):

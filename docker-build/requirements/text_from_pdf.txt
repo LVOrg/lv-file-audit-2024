@@ -18,3 +18,4 @@ moviepy
 pillow-avif-plugin
 easyocr
 PyMuPDF
+tqdm

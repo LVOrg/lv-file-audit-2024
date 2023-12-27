@@ -28,8 +28,6 @@ import pydantic
 from datetime import datetime
 
 
-
-
 def get_version() -> str:
     import os
     return f"0.0.4{os.path.splitext(__file__)[1]}"
@@ -46,7 +44,6 @@ import inspect
 import re
 import pymongo.mongo_client
 import gridfs
-
 
 
 def get_mongodb_text(data):
@@ -168,8 +165,10 @@ class __BaseField__:
             self.__name__ = init_value
         elif isinstance(init_value, dict):
             self.__data__ = init_value
+        elif isinstance(init_value, Field):
+            self.__data__ = init_value.to_mongo_db()
         else:
-            raise Exception("init_value must be str or ditc")
+            raise Exception("init_value must be str or dict")
         self.__check_map__module__ = None
         self.__check_map__name__ = None
         self.__check_constraint__ = {}
@@ -760,7 +759,7 @@ class Field(__BaseField__):
         # init_data = self.__field_name__
         init_data = other
         import cy_docs
-        if isinstance(other, Field) or isinstance(other,cy_docs.cy_docs_x.Field):
+        if isinstance(other, Field) or isinstance(other, cy_docs.cy_docs_x.Field):
             _expr = other.to_mongo_db_expr()
 
             if isinstance(_expr, dict):
@@ -819,6 +818,14 @@ class Field(__BaseField__):
         ret = self == re.compile(value, re.IGNORECASE)
         return ret
 
+    def startswith(self, value: str):
+        ret = self == re.compile(f"^{value}", re.IGNORECASE)
+        return ret
+
+    def endswith(self, value: str):
+        ret = self == re.compile(f"{value}^", re.IGNORECASE)
+        return ret
+
     def desc(self):
         init_data = self.__name__
         if self.__name__ is None:
@@ -827,7 +834,27 @@ class Field(__BaseField__):
         ret.__sort__ = -1
         return ret
 
+    def __to_expr__(self):
+        ret_data = {"$expr": self.__data__}
+        ret = Field(ret_data)
+        return ret
+
+    def __is_type_of__(self, mongodb_type_name: str):
+
+        if self.__name__ is None:
+            raise Exception("You can not get type pf expression")
+        init_data = {
+            self.__name__: {
+                "$type": mongodb_type_name
+            }
+        }
+        ret = Field(init_data)
+        return ret
+
+
 __FIELD__ = Field
+
+
 def to_json_convertable(data, predict_content_handler=None):
     if isinstance(data, dict):
         ret = {}
@@ -1221,14 +1248,15 @@ class AggregateDocument:
             else:
                 raise Exception(f"Thous can not use project stage with {args}")
         elif isinstance(args, tuple) or isinstance(args, list):
-            agg_fields = [x for x in args if (isinstance(x, Field) or isinstance(x,cy_docs.cy_docs_x.Field)) and x.__agg__function_call__]
+            agg_fields = [x for x in args if
+                          (isinstance(x, Field) or isinstance(x, cy_docs.cy_docs_x.Field)) and x.__agg__function_call__]
             if len(agg_fields) > 0:
                 return self.group(*args)
             else:
                 import cy_docs
 
                 for x in args:
-                    if isinstance(x, Field) or isinstance(x,cy_docs.cy_docs_x.Field):
+                    if isinstance(x, Field) or isinstance(x, cy_docs.cy_docs_x.Field):
                         if x.__alias__ is not None:
                             stage[x.__alias__] = x.to_mongo_db_expr()
                         elif x.__name__ is not None:
@@ -1471,8 +1499,10 @@ class Document:
         self.indexes = indexes
         self.unique_keys = unique_keys
         self.__majority_concern__ = None
+
     def set_majority_concern(self):
         self.__majority_concern__ = True
+
     def __getitem__(self, item):
         from pymongo.read_concern import ReadConcern
         from pymongo.write_concern import WriteConcern
@@ -1492,11 +1522,12 @@ class Document:
             coll = self.client.get_database(item).get_collection(
                 self.collection_name
             )
+
         def run_create_index():
             for x in self.unique_keys:
                 key = f"{item}.{self.collection_name}.{x}"
                 if __cache_unique__.get(key) is None:
-                    #__lock__.acquire()
+                    # __lock__.acquire()
                     try:
                         fx = coll.index_information()
                         indexes = []
@@ -1505,7 +1536,7 @@ class Document:
                                 indexes.append(
                                     (y, pymongo.ASCENDING)
                                 )
-                        if len(indexes)>0:
+                        if len(indexes) > 0:
                             coll.create_index(
                                 indexes,
                                 background=True,
@@ -1515,12 +1546,12 @@ class Document:
                     except Exception as e:
                         pass
                     finally:
-                        #__lock__.release()
+                        # __lock__.release()
                         __cache_unique__[key] = key
             for x in self.indexes:
                 key = f"{item}.{self.collection_name}.{x}"
                 if __cache_index__.get(key) is None:
-                    #__lock__.acquire()
+                    # __lock__.acquire()
                     try:
                         indexes = []
                         for y in x.split(','):
@@ -1534,7 +1565,7 @@ class Document:
                     except Exception as e:
                         pass
                     finally:
-                        #__lock__.release()
+                        # __lock__.release()
                         __cache_index__[key] = key
 
         thread = threading.Thread(target=run_create_index)
@@ -1683,7 +1714,7 @@ def document_define(name: str, indexes: List[str], unique_keys: List[str]):
     return wrapper
 
 
-def context(client, cls,majority=False):
+def context(client, cls, majority=False):
     ret = Document(
         collection_name=cls.__document_name__,
         indexes=cls.__document_indexes__,
@@ -1781,8 +1812,9 @@ from pymongo import InsertOne, ReadPreference
 import pymongo.errors
 
 
-def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes,index_chunk:int=0):
-    files_context = context(client, __fs_files__,majority=True)[db_name]
+def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.ObjectId, data: bytes,
+                    index_chunk: int = 0):
+    files_context = context(client, __fs_files__, majority=True)[db_name]
 
     fs = files_context.find_one(
         {
@@ -1794,15 +1826,13 @@ def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.Obj
     # db_context = context(client, __fs_files_chunks__)[db_name]
     num_of_chunks, m = divmod(len(data), fs.chunkSize)
     if m > 0: num_of_chunks += 1
-    if index_chunk>0:
+    if index_chunk > 0:
         index_chunk = index_chunk * num_of_chunks
     start_chunk_index = fs.get("currentChunkIndex") or 0
     files_context.update(
         fields._id == file_id,
         fields.currentChunkIndex << (start_chunk_index + num_of_chunks)
     )
-
-
 
     remain = len(data)
     start = 0
@@ -1829,11 +1859,6 @@ def file_add_chunks(client: pymongo.MongoClient, db_name: str, file_id: bson.Obj
         ordered=True,
         bypass_document_validation=True
     )
-
-
-
-
-
 
 
 def file_get_iter_contents(client, db_name, files_id, from_chunk_index_index, num_of_chunks):

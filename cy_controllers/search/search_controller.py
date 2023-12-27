@@ -220,7 +220,7 @@ class SearchController(BaseController):
         )
 
         ret_items = self.pack_list(
-            url=cy_web.get_host_url() + "/api",
+            url=cy_web.get_host_url(self.request) + "/api",
             app_name=app_name,
             items=search_result.items
         )

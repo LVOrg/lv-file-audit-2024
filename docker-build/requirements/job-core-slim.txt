@@ -26,3 +26,4 @@ pillow-avif-plugin
 python-onedrive
 microsoftgraph-python
 msal
+tqdm

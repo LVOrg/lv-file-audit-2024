@@ -63,5 +63,10 @@ data:
 #  - name: files-fix-data-search
 #    endpoint: files_fix_data_search.py
 #    image: {{.images.jobs.slim}}
+crons:
+  - name: files-move-from-db-to-disk
+    endpoint: files_move_from_db_to_disk.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.slim}}
 ---
 {{- end -}}

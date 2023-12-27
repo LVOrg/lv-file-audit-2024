@@ -67,12 +67,12 @@ async def get_sso_token(request:Request,  token: str = Depends(Authenticate)):
     if app_name is None:
         return Response(status_code=401)
 
-    ret_url = cy_web.get_host_url()
+    ret_url = cy_web.get_host_url(request)
     account_service = cy_kit.inject(cy_xdoc.services.accounts.AccountService)
     app_service = cy_kit.inject(cy_xdoc.services.apps.AppServices)
     if app_name!='admin':
         app_item = app_service.get_item('admin',app_name)
-        ret_url = app_item.get("ReturnUrlAfterSignIn",cy_web.get_host_url())
+        ret_url = app_item.get("ReturnUrlAfterSignIn",cy_web.get_host_url(request))
     ret= account_service.create_sso_id(
         app_name='admin',
         token=token['token'],

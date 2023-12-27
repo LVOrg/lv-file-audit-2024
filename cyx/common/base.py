@@ -90,10 +90,17 @@ class DbConnect:
         def run():
             from cy_xdoc.models.apps import App
             db = DB(client=self.client, db_name=self.admin_db_name)
+            db_stats = dict()
+            try:
+                db_stats = db.__client__.get_database(app_name).command("dbStats")
+                print(db_stats.get("storageSize"))
+            except:
+                pass
             db_context = db.doc(App)
-
+            storage_size = db_stats.get("storageSize",0)
             db_context.context.update(
                 db_context.fields.Name == app_name,
+                db_context.fields.SizeInGB<<storage_size/(1024**3),
                 {
                     "$inc": {
                         "AccessCount": 1
@@ -101,9 +108,8 @@ class DbConnect:
                     "LatestAccess": datetime.datetime.utcnow()
                 }
             )
-
-        # threading.Thread(target=run,args=()).start()
-        pass
+        if self.__tracking__:
+            threading.Thread(target=run,args=()).start()
 
 
 class __DbContext__:

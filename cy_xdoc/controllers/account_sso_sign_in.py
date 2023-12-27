@@ -29,7 +29,7 @@ async def do_sign_in(SSOID: str, request: Request):
 
     ret_url = sso_info.ReturnUrlAfterSignIn
     if ret_url is None:
-        return cy_web.get_host_url()
+        return cy_web.get_host_url(request)
 
     ret_url = request.query_params.get('ret', ret_url)
 

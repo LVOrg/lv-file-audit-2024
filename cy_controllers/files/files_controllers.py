@@ -14,7 +14,7 @@ from fastapi import (
     Request,
     Response,
     UploadFile,
-    Form, File,Body
+    Form, File, Body
 )
 from cy_xdoc.auths import Authenticate
 import cy_xdoc.models.files
@@ -43,7 +43,7 @@ import threading
 import cy_docs
 import cyx.common.msg
 from cyx.common.file_storage_mongodb import (
-    MongoDbFileService,MongoDbFileStorage
+    MongoDbFileService, MongoDbFileStorage
 )
 from fastapi import responses
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
@@ -66,13 +66,17 @@ from cy_controllers.models.files import (
 )
 
 import cy_web
+
+
 @controller.resource()
 class FilesController(BaseController):
     dependencies = [
         Depends(Authenticate)
     ]
+
     @controller.router.post("/api/{app_name}/files/mark_delete")
-    async def mark_delete(self,app_name: str, UploadId:typing.Optional[str]=Body(...), IsDelete: typing.Optional[bool]=Body(...)):
+    async def mark_delete(self, app_name: str, UploadId: typing.Optional[str] = Body(...),
+                          IsDelete: typing.Optional[bool] = Body(...)):
         """
         Danh dau xoa
         :param app_name:
@@ -86,7 +90,7 @@ class FilesController(BaseController):
         # file_services: cy_xdoc.services.files.FileServices = cy_kit.singleton(cy_xdoc.services.files.FileServices)
         # search_services: cy_xdoc.services.search_engine.SearchEngine = cy_kit.singleton(
         #     cy_xdoc.services.search_engine.SearchEngine)
-        doc_context =  self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
+        doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
         delete_item = doc_context.context @ UploadId
         if delete_item is None:
             return {}
@@ -102,7 +106,6 @@ class FilesController(BaseController):
         # search_engine.get_client().delete(index=fasty.configuration.search_engine.index, id=es_id)
         return dict()
 
-
     @controller.router.post("/api/{app_name}/files")
     async def get_list(
             self,
@@ -114,7 +117,7 @@ class FilesController(BaseController):
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
         try:
-            items =self.file_service.get_list(
+            items = self.file_service.get_list(
                 app_name=app_name,
                 root_url=cy_web.get_host_url(self.request),
                 page_size=PageSize,
@@ -128,11 +131,9 @@ class FilesController(BaseController):
             self.logger_service.error(e)
             return []
 
-
-
     @controller.router.post("/api/admin/files/move_tenant")
-    def move_tenant(self,data:typing.Optional[DataMoveTanentParam] = Body(...)):
-        Data=data.Data
+    def move_tenant(self, data: typing.Optional[DataMoveTanentParam] = Body(...)):
+        Data = data.Data
         if not self.app_service.get_item(
                 app_name='admin',
                 app_get=Data.FromAppName
@@ -181,11 +182,13 @@ class FilesController(BaseController):
     @controller.router.post("/api/{app_name}/files/clone")
     def clone_to_new(self,
                      app_name: str,
-                     UploadId: typing.Annotated[str,Body(embed=True)]) -> CloneFileResult:
+                     UploadId: typing.Annotated[str, Body(embed=True)]) -> CloneFileResult:
 
-
-
-        item = self.file_service.do_copy(app_name=app_name, upload_id=UploadId)
+        item = self.file_service.do_copy(
+            app_name=app_name,
+            upload_id=UploadId,
+            request=self.request
+        )
 
         if item is None:
             return CloneFileResult(
@@ -202,13 +205,14 @@ class FilesController(BaseController):
             )
 
     @controller.router.post("/api/{app_name}/files/delete")
-    def files_delete(self,app_name: str, UploadId: typing.Annotated[str,Body(embed=True)])->controller_model_files.DeleteFileResult:
+    def files_delete(self, app_name: str,
+                     UploadId: typing.Annotated[str, Body(embed=True)]) -> controller_model_files.DeleteFileResult:
         ret = controller_model_files.DeleteFileResult()
         try:
             self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
-            ret.AffectedCount =1
+            ret.AffectedCount = 1
             return ret
-        except FuckingWhoreMSApiCallException  as e:
+        except FuckingWhoreMSApiCallException as e:
             ret.Error = controller_model_files.ErrorInfo()
             ret.Error.Code = e.code,
             ret.Error.Message = e.message
@@ -216,16 +220,13 @@ class FilesController(BaseController):
         except Exception as e:
             self.logger_service.error(e)
             return responses.JSONResponse(
-                content= dict(
+                content=dict(
                     Code="system",
                     Message=str(e)
 
                 ),
                 status_code=500
             )
-
-
-
 
     @controller.router.post("/api/{app_name}/content/save")
     def file_content_save(
@@ -247,7 +248,7 @@ class FilesController(BaseController):
         if not data.DocId or data.DocId == "":
             data.DocId = str(uuid.uuid4())
 
-        data_item =self.file_service.get_upload_register(
+        data_item = self.file_service.get_upload_register(
             app_name=app_name,
             upload_id=data.DocId,
 
@@ -305,7 +306,7 @@ class FilesController(BaseController):
     def file_content_re_process(
             self,
             app_name: str,
-            UploadIds: typing.List[str]= Body(embed=True)):
+            UploadIds: typing.List[str] = Body(embed=True)):
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
         ret = []
@@ -338,7 +339,7 @@ class FilesController(BaseController):
         return ret
 
     @controller.router.post("/api/{app_name}/files/info")
-    def get_info(self, app_name: str, UploadId:str=Body(embed=True)) -> controller_model_files.UploadInfoResult:
+    def get_info(self, app_name: str, UploadId: str = Body(embed=True)) -> controller_model_files.UploadInfoResult:
         """
         APi này lay chi tiet thong tin cua Upload
         :param app_name:
@@ -363,13 +364,13 @@ class FilesController(BaseController):
             http://172.16.7.25:8011/api/lv-docs/thumb/c4eade3a-63cb-428d-ac63-34aadd412f00/search.png.png
             """
             upload_info.RelUrlThumb = f"api/{app_name}/thumb/{upload_info.UploadId}/{upload_info.FileName.lower()}.webp"
-            upload_info.UrlThumb = f"{cy_web.get_host_url()}/api/{app_name}/thumb/{upload_info.UploadId}/{upload_info.FileName.lower()}.webp"
+            upload_info.UrlThumb = f"{cy_web.get_host_url(self.request)}/api/{app_name}/thumb/{upload_info.UploadId}/{upload_info.FileName.lower()}.webp"
         if upload_info.HasOCR:
             """
             http://172.16.7.25:8011/api/lv-docs/file-ocr/cc5728d0-c216-43f9-8475-72e84b6365fd/im-003.pdf
             """
             upload_info.RelUrlOCR = f"api/{app_name}/file-ocr/{upload_info.UploadId}/{upload_info.FileName.lower()}.pdf"
-            upload_info.UrlOCR = f"{cy_web.get_host_url()}/api/{app_name}/file-ocr/{upload_info.UploadId}/{upload_info.FileName.lower()}.pdf"
+            upload_info.UrlOCR = f"{cy_web.get_host_url(self.request)}/api/{app_name}/file-ocr/{upload_info.UploadId}/{upload_info.FileName.lower()}.pdf"
         if upload_info.VideoResolutionWidth:
             upload_info.VideoInfo = cy_docs.DocumentObject()
             upload_info.VideoInfo.Width = upload_info.VideoResolutionWidth
@@ -382,5 +383,3 @@ class FilesController(BaseController):
         # if upload_info[doc_context.fields.RemoteUrl]:
         #     upload_info[cy_docs.fields.FullUrl] = upload_info[doc_context.fields.RemoteUrl]
         return upload_info.to_pydantic()
-
-

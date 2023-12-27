@@ -14,6 +14,8 @@ T = TypeVar('T')
 class MemcacheServices:
 
 
+
+
     def __init__(self, logger=cy_kit.singleton(LoggerService)):
         self.server = config.cache_server
         self.client = Client(self.server.split(','))
@@ -94,3 +96,7 @@ class MemcacheServices:
                     return run_check()
 
         return run_check()
+
+
+    def clear_all(self):
+        self.client.flush_all()

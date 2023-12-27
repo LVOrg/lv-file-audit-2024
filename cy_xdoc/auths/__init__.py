@@ -31,9 +31,9 @@ class Authenticate:
             return cache_value
         if __is_the_first_time__ is None:
             app_service.create_default_app(
-                login_url=cy_web.get_host_url() + "/login",
-                domain=cy_web.get_host_url(),
-                return_url_after_sign_in=cy_web.get_host_url()
+                login_url=cy_web.get_host_url(request) + "/login",
+                domain=cy_web.get_host_url(request),
+                return_url_after_sign_in=cy_web.get_host_url(request)
             )
             account_service.create_default_user()
         __is_the_first_time__ = True

@@ -37,3 +37,4 @@ pyOpenSSL
 cryptography
 PyCrypto
 requests-kerberos
+tqdm

@@ -29,35 +29,6 @@ class BasicAuth:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Invalid credentials",
                             headers={"WWW-Authenticate": 'Basic realm="simple"'})
-        # if app_name is None:
-        #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-        #                         detail="Invalid credentials",
-        #                         headers={"WWW-Authenticate": 'Basic realm="simple"'})
-        # else:
-        #     app = self.app_services.get_item_with_cache(app_name)
-        #     import cy_web
-        #     login_url= cy_web.get_host_url()+"/login"
-        #     location =login_url
-        #     ret_key = app.ReturnSegmentKey or "ret"
-        #     if app.LoginUrl is not  None and app.LoginUrl !="":
-        #         login_url=app.LoginUrl
-        #         if login_url[0:2]=='~/':
-        #             login_url= cy_web.get_host_url()+"/"+login_url[2:]
-        #     if app.ReturnUrlAfterSignIn and app.ReturnUrlAfterSignIn !="" and ret_url is None:
-        #         import urllib.parse
-        #         r_url = app.ReturnUrlAfterSignIn
-        #         if r_url=='~/':
-        #             r_url = cy_web.get_host_url()
-        #         elif r_url[0:2]=='~/':
-        #             r_url = cy_web.get_host_url()+"/"+r_url[2:]
-        #         location = login_url+"?"+ret_key+"="+urllib.parse.quote(r_url.encode("utf-8"))
-        #     else:
-        #         import urllib.parse
-        #         location = login_url + "?"+ret_key+"=" + urllib.parse.quote(ret_url.encode("utf-8"))
-        #     raise HTTPException(status_code=status.HTTP_303_SEE_OTHER,
-        #                         detail="Invalid credentials",
-        #                         headers={"Location": location})
-
     def get_auth_bearer(self, request: Request):
         from cyx.token_manager.token_service import FILE_SERVICE_COOKIE_KEY
         try:

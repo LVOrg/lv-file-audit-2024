@@ -59,8 +59,8 @@ class Office365Controller(BaseController):
             app_name=app_name
         )
         wopi_access_token_info = generate_access_token(
-            issuer=  cy_web.get_host_url(),
-            audience = f"{cy_web.get_host_url()}/lvfile/api/{app_name}/wopi",
+            issuer=  cy_web.get_host_url(self.request),
+            audience = f"{cy_web.get_host_url(self.request)}/lvfile/api/{app_name}/wopi",
             user="nttlong@lacviet.com.vn",
             docid=upload_id,
             pfx_password="dxwopi"

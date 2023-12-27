@@ -18,3 +18,4 @@ slackclient
 python-onedrive
 microsoftgraph-python
 msal
+tqdm

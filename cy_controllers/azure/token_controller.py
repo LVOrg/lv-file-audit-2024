@@ -99,6 +99,7 @@ class AzureController(BaseController):
                 if hasattr(access_token, "id_token"):
                     _id_token = access_token.id_token
                 self.service_app.save_azure_access_token(
+                    request = self.request,
                     app_name=app_name,
                     azure_access_token=_access_token,
                     azure_refresh_token=_refresh_token,

@@ -230,8 +230,8 @@ class DocUploadRegister:
     Nếu sau này có nhu cầu Resume Upload (Tức là upload tiếp các nội dung chưa xong)
     Resume Upload phía Client sẽ dựa vào thông tin này để đọc file và Upload tiếp
     """
-    MainFileId: bson.ObjectId
-    ThumbFileId: bson.ObjectId
+    MainFileId: bson.ObjectId|str
+    ThumbFileId: bson.ObjectId|str
     """
     Id ảnh Thumb của file này.
     Mỗi một file trên server nếu có ảnh Thumb, ảnh thumb sẽ lưu trong GridFS với một Id.
