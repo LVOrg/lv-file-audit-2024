@@ -13,6 +13,7 @@
       {{ $storage := $data.storage -}}
   {{ $globalVar := .Files.Get "global/data.yml" | fromYaml -}}
 
+
   {{ $jobsList:= fromYaml ((include "jobs-apps-data" $globalVar ))  -}}
 ---
 {{ if not $api}}
@@ -91,15 +92,6 @@ spec:
             - services=""
             {{end}}
           image: {{$value.image}}
-          {{ if $value.cpu_requests }}
-          resources:
-            requests:
-              cpu: {{$value.cpu_requests}} # Request 500 milli-CPU (0.5 CPU core)
-              memory: {{$value.mem_requests}}  # Request 1 GiB of memory
-            limits:
-              cpu: {{$value.cpu_limits}}   # Limit to 1 CPU core
-              memory: {{$value.mem_limits}}  # Limit to 2 GiB of memory
-          {{end}}
           envFrom:
             - configMapRef:
                 name: {{$fileJob.configMapName}}

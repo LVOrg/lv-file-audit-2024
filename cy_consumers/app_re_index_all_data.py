@@ -17,7 +17,7 @@ from cyx.common.msg import (
 from cyx.loggers import LoggerService
 from cy_xdoc.services.files import FileServices
 import cy_docs
-
+from cyx.common import config
 @broker(message=MSG_APP_RE_INDEX_ALL)
 class Consumer:
     def __init__(self,
@@ -39,16 +39,42 @@ class Consumer:
                 process_time = datetime.datetime.utcnow()
                 process_field= f"{process_time.year}_{process_time.month: 02}_{process_time.day :02}_{process_time.minute: 02}"
 
-                fileter_reindex = cy_docs.not_exists(getattr(cy_docs.fields.ReIndexInfo,process_field))
+                # fileter_reindex = cy_docs.not_exists(getattr(cy_docs.fields.ReIndexInfo,process_field))
+                fileter_reindex = (
+                        (qr.fields.HasThumb == False) |
+                        (cy_docs.not_exists(qr.fields.HasThumb))
+                )
+                fileter_thumb_able = (
+                        (qr.fields.ThumbnailsAble == True) |
+                        (cy_docs.not_exists(qr.fields.ThumbnailsAble))
+                )
+                filter = (fileter_reindex | fileter_thumb_able) & (qr.fields.ThumbFileId == None) & (qr.fields.Status==1)
                 try:
                     items = qr.context.aggregate().match(
-                        filer_file|fileter_reindex
+                        filter
                     ).sort(
                         qr.fields.RegisterOn.desc()
                     ).limit(100)
                     items_list = list(items)
                     is_continue = len(items_list)>0
                     for x in items:
+                        ext: str = x[qr.fields.FileExt]
+                        mime_type:str = x[qr.fields.MimeType]
+                        if mime_type is None:
+                            qr.context.update(
+                                qr.fields.id == x.id,
+                                qr.fields.ThumbnailsAble<<True
+                            )
+                        if ext is None:
+                            qr.context.update(
+                                qr.fields.id == x.id,
+                                qr.fields.ThumbnailsAble << True
+                            )
+                        is_ok = ext.lower() in config.ext_office_file
+                        is_ok = is_ok or (mime_type.startswith("image/"))
+                        is_ok = is_ok or (mime_type.startswith("video/"))
+                        if not  is_ok:
+                            continue
                         txt_msg = f"{msg_info.AppName}\t{x[qr.fields.FileName]} re-index content with {MSG_FILE_UPLOAD}"
                         try:
 
@@ -60,7 +86,7 @@ class Consumer:
                             )
                             qr.context.update(
                                 qr.fields.id == x.id,
-                                getattr(cy_docs.fields.ReIndexInfo,process_field)<<True
+                                qr.fields.ThumbnailsAble << True
                             )
                             msg_broker.delete(msg_info)
                         except Exception as e:

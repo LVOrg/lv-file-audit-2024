@@ -102,5 +102,8 @@ class Process:
             pass
         else:
             os.remove(full_file)
+        self.logger.info(msg_info.Data)
+        msg.delete(msg_info)
+
 
 

@@ -75,10 +75,10 @@ config:
   # Broker message. All PODs will use Broker-Message to communicating togethers
     port: '5672'
     #Port
-    server: 'rabitmq-service.lv-broker'
+    server: rabbitmq.rabbitmq-dev
     #Broker server
 #    temp_directory: /app/share-storage
-    msg: v99-dev
+    msg: xzad
   workers: auto
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
@@ -142,9 +142,9 @@ ingress:
   path: /lvfile/(.*)
   servicename: xdoc
   host_ip: 172.16.7.99
-msg:
-  name: rabbit-dev
-  namespace: file-msg
+#msg:
+#  name: rabbit-dev
+#  namespace: file-msg
 cache:
   name: file-cache
   namespace: file-cache

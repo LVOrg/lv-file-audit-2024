@@ -61,13 +61,13 @@ config:
     # In poor conditional, we have only one ElasticServer Node
     # if thee's system need more than one node this value will be a list of url separated by comma
   rabbitmq:
-  # Broker message. All PODs will use Broker-Message to communicating togethers
+    # Broker message. All PODs will use Broker-Message to communicating togethers
     port: '5672'
     #Port
-    server: 'rabitmq-service.lv-broker'
+    server: rabbitmq.rabbitmq-dev
     #Broker server
-#    temp_directory: /app/share-storage
-    msg: v99-dev
+    #    temp_directory: /app/share-storage
+    msg: xzad
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
@@ -96,6 +96,7 @@ storage_longhorn:
   className: longhorn-storage-delete
   namespace: xdoc-storage
 
+
 fileJob:
   namespace: xdoc-job-v10
   configMapName: xdoc-job-config
@@ -107,9 +108,9 @@ fileJob:
   vn_suggest_url: vn-suggestion.xdoc-web:8000
   tika_server: http://tika.xdoc-web:9998
   web_api_url: http://172.16.7.99/lvfile
-msg:
-  name: rabbit-dev
-  namespace: file-msg
+#msg:
+#  name: rabbit-dev
+#  namespace: file-msg
 cache:
   name: file-cache
   namespace: file-cache

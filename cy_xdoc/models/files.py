@@ -357,3 +357,4 @@ class DocUploadRegister:
     OnedriveId: typing.Optional[str]
 
     RemoteUrl: typing.Optional[str]
+    ThumbnailsAble :typing.Optional[bool]

@@ -19,10 +19,6 @@ data:
     endpoint: files_generate_image_from_video.py
     image: {{.images.jobs.slim}}
     replicas: {{.images.jobs.replicas}}
-    cpu_requests: {{.images.jobs.cpu_requests}}
-    cpu_limits: {{.images.jobs.cpu_limits}}
-    mem_requests: {{.images.jobs.mem_requests}}
-    mem_limits: {{.images.jobs.mem_limits}}
 #  - name: files-ocr-pdf
 #    endpoint: files_ocr_pdf.py
 #    image: {{.images.jobs.large}}
@@ -42,10 +38,6 @@ data:
     endpoint: files_text_from_pdf.py
     image: {{.images.jobs.large}}
     replicas: {{.images.jobs.replicas}}
-    cpu_requests: {{.images.jobs.cpu_requests}}
-    cpu_limits: {{.images.jobs.cpu_limits}}
-    mem_requests: {{.images.jobs.mem_requests}}
-    mem_limits: {{.images.jobs.mem_limits}}
 #  - name: files-save-orc-pdf-file
 #    endpoint: files_save_orc_pdf_file.py
 #    image: {{.images.jobs.slim}}
@@ -57,10 +49,6 @@ data:
     endpoint: files_extrac_text_from_image.py
     image: {{.images.jobs.large}}
     replicas: {{.images.jobs.replicas}}
-    cpu_requests: {{.images.jobs.cpu_requests}}
-    cpu_limits: {{.images.jobs.cpu_limits}}
-    mem_requests: {{.images.jobs.mem_requests}}
-    mem_limits: {{.images.jobs.mem_limits}}
   - name: files-clean-up
     endpoint: files_clean_up.py
     replicas: 1

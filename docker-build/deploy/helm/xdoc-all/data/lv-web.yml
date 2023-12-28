@@ -29,7 +29,7 @@
 config:
   auto_ssl_redirect: off
   db:
-    cnn: mongodb://admin:Lacviet#123@172.16.0.83:27017/admin
+    cnn: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
   # The clarefication of MongoDB or Mongos Routers
     admin_db_name: 'lv-docs'
 
@@ -47,20 +47,20 @@ config:
     server: 'http://172.16.0.83:9200'
     # In poor conditional, we have only one ElasticServer Node
     # if thee's system need more than one node this value will be a list of url separated by comma
-  rabbitmq:
+  rabbitmq___:
     port: 31674
     server: 172.16.7.91
     msg: codx-lv
-  rabbitmq__:
+  rabbitmq:
   # Broker message. All PODs will use Broker-Message to communicating togethers
     port: '5672'
     #Port
     server: 'rabbitmq.rabbitmq-dev.svc.cluster.local'
     #Broker server
 
-    msg: lv_files
+    msg: file-codx
 
-storage:
+storage___:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
   # when the PODs need create, update or delete file, the PODs will use this location to do that
@@ -74,7 +74,26 @@ storage:
   # Thou may check by "stat /var/nfs_share_dir_for_k8s"
   #
   name: xdoc-storage
+#172.16.0.85/data/share-data/lv-file
+storage:
+  # This configuration  describes how and where all Pods in all deployments use shared-files
+  # when Pods need to process of file or,
+  # when the PODs need create, update or delete file, the PODs will use this location to do that
+  server: 172.16.0.85
+  # Server where share directory locate
+  directory: /data/share-data/lv-file/tmp
+  # The full path to share-directory at storage server
+  # Read below carefully before use share directory for K8S
+  # 1- The share directory is belonged no-one use chown comand to do that.
+  # Example: chown nodbody:nobody  /var/nfs_share_dir_for_k8s so all PODs in other worker can access.
+  # Thou may check by "stat /var/nfs_share_dir_for_k8s"
+  # mount -t nfs 192.168.18.36:/codx-file-storage/files /from-192-168-18-36
+  name: xdoc-storage
 
+storage_files:
+  server: 172.16.0.85
+  directory: /data/share-data/lv-file/files
+  name: storage-files
 storage_longhorn:
   # If thou would like to use longhorn-storage change storage_longhorn into storage.
   size: 30Gi

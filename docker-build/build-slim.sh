@@ -15,7 +15,7 @@ FROM docker.io/python:3.10.12-slim-bookworm
 COPY  ./../env_jobs_slim/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 RUN   apt update && apt install python3-opencv -y
 ">>$job_core_file
-job_core_tag=9
+job_core_tag=10
 job_core_tag_build="fs.slim.core."$(tag $job_core_tag)
 job_core_image=$repository/$image_name:$job_core_tag_build
 buildFunc $job_core_file $repository $image_name $job_core_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
@@ -55,7 +55,7 @@ COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cyx /app/cyx">>$job_slim_file
-job_slim_tag=1
+job_slim_tag=9
 job_slim_tag_build="fs.slim."$(tag $job_core_tag).$job_slim_tag
 job_slim_image=$repository/$image_name.$web_api_core_tag_build
 buildFunc $job_slim_file $repository $image_name $job_slim_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"

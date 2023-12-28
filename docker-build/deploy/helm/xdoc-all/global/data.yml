@@ -1,10 +1,14 @@
 images:
-  web: nttlong/fs:fs.tiny.amd.9.2
+  web: nttlong/fs:fs.tiny.amd.10.1
   jobs:
-    slim: nttlong/fs:fs.slim.amd.9.1
-    medium: nttlong/fs:fs.medium.amd.7.1
-    large: nttlong/fs:fs.large.amd.7.1
-
+    slim: nttlong/fs:fs.slim.amd.10.8
+    medium: nttlong/fs:fs.medium.amd.10.1
+    large: nttlong/fs:fs.large.amd.10.1
+    replicas: 2
+    cpu_requests: 0.5
+    mem_requests: 2Gi
+    cpu_limits: 1
+    mem_limits: 2Gi
 config:
   logs_url: https://hooks.slack.com/services/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
 

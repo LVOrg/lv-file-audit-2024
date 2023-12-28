@@ -60,7 +60,7 @@ config:
   # Broker message. All PODs will use Broker-Message to communicating togethers
     port: '5672'
     #Port
-    server: 'rabitmq-service.lv-broker'
+    server: 'rabbitmq.rabbitmq-dev'
     #Broker server
 #    temp_directory: /app/share-storage
     msg: v2

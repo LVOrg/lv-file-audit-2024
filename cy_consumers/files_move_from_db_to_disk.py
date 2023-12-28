@@ -3,6 +3,7 @@ import math
 import os.path
 import pathlib
 import sys
+sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 from typing import TypeVar
 
 import bson
@@ -11,7 +12,7 @@ import pymongo.database
 import gridfs.errors
 from tqdm import tqdm
 T = TypeVar('T')
-sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
+
 import cy_docs
 from cyx.common import config
 from cyx.common.mongo_db_services import MongodbService
@@ -107,6 +108,8 @@ def move_data(app_name: str):
             file_name = x[file_context.fields.FullFileNameLower]
             if not file_name:
                 file_name = x[file_context.fields.FullFileName]
+            if file_name.lower().split('/').__len__()<2:
+                continue
             file_name = file_name.lower().split('/')[1]
             file_ext = x[file_context.fields.FileExt]
             upload_id = x.id
@@ -191,8 +194,24 @@ def do_move_all(app_name: str):
 db_names = mongodb_service.db("admin").client.list_database_names()
 app_qr = mongodb_service.db("admin").get_document_context(App)
 apps = mongodb_service.db("admin").get_document_context(App).context.find(
-    app_qr.fields.NameLower!="default"
+    app_qr.fields.NameLower!="_"
 )
+qr = mongodb_service.db("qtscdemo").get_document_context(DocUploadRegister)
+item = qr.context.find_one(
+    qr.fields.Id=="5dadcf76-d70d-400c-a695-737ee382cef9"
+)
+data = qr.__client__.get_database(mongodb_service.db("qtscdemo").db_name).drop_collection("SYS_AdminLoggers")
+# fileter_reindex = ((qr.fields.HasThumb == False) | (cy_docs.not_exists(qr.fields.HasThumb)))
+# fileter_thumb_able = ((qr.fields.ThumbnailsAble == True) | (cy_docs.not_exists(qr.fields.ThumbnailsAble)))
+# filter = (fileter_reindex|fileter_thumb_able)&(qr.fields.ThumbFileId==None)
+# filter = filter & (qr.fields.FileExt=="docx")
+# item = qr.context.find(
+#     filter,linmit=10
+# )
+# mime_type:str = item[qr.fields.MimeType]
+
+
 for x in apps:
-    do_move_all(x[app_qr.fields.NameLower])
+    app_name = x[app_qr.fields.NameLower] or x[app_qr.fields.Name]
+    do_move_all(app_name)
 
