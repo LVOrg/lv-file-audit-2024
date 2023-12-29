@@ -428,13 +428,13 @@ def search(client: Elasticsearch,
     elif highlight:
         body["highlight"] = highlight
     _sort_fields_ = []
-    if len(script_fields)==0:
-        _sort_fields_+=[
-            {"_score":"desc"}
+    if len(script_fields) == 0:
+        _sort_fields_ += [
+            {"_score": "desc"}
         ]
     else:
 
-        _sort_fields_ +=[
+        _sort_fields_ += [
             {
                 "_script": {
                     "type": 'number',
@@ -469,20 +469,20 @@ def search(client: Elasticsearch,
     #         }
     # }
     try:
-        if len(script_fields)>0:
+        if len(script_fields) > 0:
             body["script_fields"] = {
-                script_fields[0].name:{
-                    "script":{
+                script_fields[0].name: {
+                    "script": {
                         "lang": "painless",
                         "source": script_fields[0].source,
                         "params": {
-                            "text_search":script_fields[0].params
+                            "text_search": script_fields[0].params
                         },
 
                     }
                 }
             }
-        body["sort"]=_sort_fields_
+        body["sort"] = _sort_fields_
         ret = client.search(index=index, doc_type=doc_type, body=body)
         return SearchResult(ret)
     except elasticsearch.exceptions.RequestError as e:
@@ -709,7 +709,8 @@ def create_doc(client: Elasticsearch, index: str, body: typing.Optional[typing.U
         pass
 
 
-def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type: str = "_doc",force_replace:bool=False):
+def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type: str = "_doc",
+                     force_replace: bool = False):
     data_update = data
     if isinstance(data, DocumentFields):
         if data.__has_set_value__ is None:
@@ -737,28 +738,20 @@ def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type:
         data=data_update
     )
     wildcard_fields, wildcard_data = cy_es_manager.get_fields_text(data_update)
-    if len(wildcard_data.keys())>0:
+    if len(wildcard_data.keys()) > 0:
         data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
         data_update[f'{cy_es_manager.FIELD_RAW_TEXT}_SUPPORT'] = True
     try:
         es_data = data_update
         if force_replace:
             es_data = dict([(k, v) for k, v in data_update.items() if v is not None])
-            for k,v in es_data.items():
+            for k, v in es_data.items():
                 script = {
                     "source": "ctx._source.%s = params.new_object" % k,
                     "lang": "painless",  # Specify the scripting language
                     "params": {"new_object": v}
                 }
-                source = client.get_source(
-                    index=index,
-                    id = id,
-                    doc_type= doc_type
-                )
-                client.update(index=index, id=id, body={"script": script},doc_type=doc_type)
-
-
-
+                client.update(index=index, id=id, body={"script": script}, doc_type=doc_type)
         else:
             es_data = dict([(k, v) for k, v in data_update.items() if v is not None])
             ret_update = client.update(
@@ -766,7 +759,7 @@ def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type:
                 id=id,
                 doc_type=doc_type,
                 body=dict(
-                    doc= es_data
+                    doc=es_data
                 )
 
             )
@@ -793,6 +786,92 @@ def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type:
             except Exception as e:
                 continue
         return data_update
+
+
+def update_object_field(client: Elasticsearch, index: str, id: str, data, doc_type: str = "_doc"):
+    data_update = data
+    if isinstance(data, DocumentFields):
+        if data.__has_set_value__ is None:
+            raise Exception(
+                f"Hey!\n what the fu**king that?\n.thous should call {data.__name__} << {{your value}} ")
+        data_update = {
+            data.__name__: data.__value__
+        }
+    if isinstance(data, dict):
+        data_update = data
+    elif isinstance(data, tuple):
+        data_update = {}
+
+        for x in data:
+            if isinstance(x, DocumentFields):
+                if x.__has_set_value__ is None:
+                    raise Exception(
+                        f"Hey!\n what the fu**king that?\n.thous should call {x.__name__} << {{your value}} ")
+                data_update[x.__name__] = x.__value__
+    from cy_es import cy_es_manager
+    # data_update["data_item"]["FileName"] = "http://www.codx.vn CV-127/123/12 BU-1234/FX-234"
+    cy_es_manager.update_mapping(
+        client=client,
+        index=index,
+        data=data_update
+    )
+    wildcard_fields, wildcard_data = cy_es_manager.get_fields_text(data_update)
+    if len(wildcard_data.keys()) > 0:
+        data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
+        data_update[f'{cy_es_manager.FIELD_RAW_TEXT}_SUPPORT'] = True
+    es_data = dict([(k, v) for k, v in data_update.items() if v is not None])
+    ret_update = client.update(
+        index=index,
+        id=id,
+        doc_type=doc_type,
+        body=dict(
+            doc=es_data
+        )
+
+    )
+    return data_update
+
+
+def replace_entire_object_field(client: Elasticsearch, index: str, id: str, data, doc_type: str = "_doc"):
+    data_update = data
+    if isinstance(data, DocumentFields):
+        if data.__has_set_value__ is None:
+            raise Exception(
+                f"Hey!\n what the fu**king that?\n.thous should call {data.__name__} << {{your value}} ")
+        data_update = {
+            data.__name__: data.__value__
+        }
+    if isinstance(data, dict):
+        data_update = data
+    elif isinstance(data, tuple):
+        data_update = {}
+
+        for x in data:
+            if isinstance(x, DocumentFields):
+                if x.__has_set_value__ is None:
+                    raise Exception(
+                        f"Hey!\n what the fu**king that?\n.thous should call {x.__name__} << {{your value}} ")
+                data_update[x.__name__] = x.__value__
+    from cy_es import cy_es_manager
+    # data_update["data_item"]["FileName"] = "http://www.codx.vn CV-127/123/12 BU-1234/FX-234"
+    cy_es_manager.update_mapping(
+        client=client,
+        index=index,
+        data=data_update
+    )
+    wildcard_fields, wildcard_data = cy_es_manager.get_fields_text(data_update)
+    if len(wildcard_data.keys()) > 0:
+        data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
+        data_update[f'{cy_es_manager.FIELD_RAW_TEXT}_SUPPORT'] = True
+    es_data = dict([(k, v) for k, v in data_update.items() if v is not None])
+    for k, v in es_data.items():
+        script = {
+            "source": "ctx._source.%s = params.new_object" % k,
+            "lang": "painless",  # Specify the scripting language
+            "params": {"new_object": v}
+        }
+
+        client.update(index=index, id=id, body={"script": script}, doc_type=doc_type)
 
 
 def create_index(client: Elasticsearch, index: str, body: typing.Union[dict, type]):
@@ -1860,15 +1939,15 @@ def update_by_conditional(
     """
     _data_update = to_json_convertable(data_update)
     body = {}
-    from  cy_es import cy_es_manager
+    from cy_es import cy_es_manager
     fields, _data_update_with_wild_card = cy_es_manager.update_mapping(
         client=client,
         index=index,
-        data= _data_update
+        data=_data_update
 
     )
     wild_card_data = {cy_es_manager.FIELD_RAW_TEXT: _data_update_with_wild_card}
-    _data_update = {**data_update,**wild_card_data}
+    _data_update = {**data_update, **wild_card_data}
     if isinstance(conditional, DocumentFields):
         body = conditional.__get_expr__()
     if isinstance(conditional, dict):

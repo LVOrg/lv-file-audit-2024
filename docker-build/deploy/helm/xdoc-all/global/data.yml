@@ -1,9 +1,9 @@
 images:
-  web: nttlong/fs:fs.tiny.amd.10.1
+  web: nttlong/fs:fs.tiny.amd.10.10
   jobs:
-    slim: nttlong/fs:fs.slim.amd.10.9
-    medium: nttlong/fs:fs.medium.amd.10.1
-    large: nttlong/fs:fs.large.amd.10.1
+    slim: nttlong/fs:fs.slim.amd.10.10
+    medium: nttlong/fs:fs.medium.amd.10.10
+    large: nttlong/fs:fs.large.amd.10.10
     replicas: 2
     cpu_requests: 0.5
     mem_requests: 2Gi

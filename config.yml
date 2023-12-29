@@ -165,7 +165,7 @@ rabbitmq:
   server: 172.16.7.99
   port: 30672
 #  msg: v99-dev
-  msg: v99-dev-v01
+  msg: xzad
 broker:
   is_use: true
   servers: 172.16.7.99:30992

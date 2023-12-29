@@ -12,7 +12,7 @@ from fastapi import (
     Body
 
 )
-
+import gridfs.errors
 import cyx.common.msg
 from cy_controllers.models.file_contents import (
     UploadInfoResult, ParamFileGetInfo,ReadableParam
@@ -54,6 +54,8 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
+        upload_id = None
+        is_file_not_found = False
         try:
             thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
             cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
@@ -78,19 +80,25 @@ class FilesContentController(BaseController):
             mime_type, _ = mimetypes.guess_type(directory)
             ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
             return ret
+        except gridfs.errors.NoFile as e:
+            is_file_not_found = True
+
         except FileNotFoundError as e:
-            data_info = self.file_service.get_upload_register(
+            is_file_not_found = True
+        if is_file_not_found:
+            data_info = await self.file_service.get_upload_register_async(
                 app_name=app_name,
                 upload_id=upload_id
             )
-            if data_info is not None:
+            if data_info is not None and data_info.Status==1:
                 self.msg_service.emit(
                     app_name=app_name,
-                    message_type= cyx.common.msg.MSG_FILE_UPLOAD,
-                    data= data_info
+                    message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                    data=data_info
                 )
             response = Response(content="Resource not found", status_code=404)
             return response
+
     def get_full_path_of_local_from_cache(self, upload):
         key = f"{self.config.file_storage_path}/{__file__}/{type(self).__name__}/get_full_path_of_local_from_cache/{upload.id}"
         ret = self.memcache_service.get_str(key)
@@ -224,8 +232,25 @@ class FilesContentController(BaseController):
                 app_name=app_name,
                 rel_file_path=f"thumbs/{directory}"
             )
-        except FileNotFoundError:
-            return Response(status_code=404,content="Resource was not found")
+        except gridfs.errors.NoFile as e:
+            is_file_not_found = True
+
+        except FileNotFoundError as e:
+            is_file_not_found = True
+        if is_file_not_found:
+            upload_id = directory.split('/')[0]
+            data_info = await self.file_service.get_upload_register_async(
+                app_name=app_name,
+                upload_id=upload_id
+            )
+            if data_info is not None and data_info.Status == 1:
+                self.msg_service.emit(
+                    app_name=app_name,
+                    message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                    data=data_info
+                )
+            response = Response(content="Resource not found", status_code=404)
+            return response
 
         if hasattr(fs,"full_path") and os.path.isfile(fs.full_path):
             return FileResponse(fs.full_path)
