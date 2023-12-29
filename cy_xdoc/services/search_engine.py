@@ -499,7 +499,9 @@ class SearchEngine:
 
     def create_or_update_privileges(
             self,
-            app_name, upload_id, data_item: typing.Union[dict, cy_docs.DocumentObject], privileges,
+            app_name, upload_id,
+            data_item: typing.Union[dict, cy_docs.DocumentObject,None],
+            privileges,
             meta_info: dict = None):
         """
         Create or update privileges tag
@@ -515,15 +517,29 @@ class SearchEngine:
         is_exist = self.is_exist(app_name, id=upload_id)
 
         if is_exist:
-            return cy_es.update_doc_by_id(
-                client=self.client,
-                index=self.get_index(app_name),
-                id=upload_id,
-                data=(
-                    cy_es.buiders.privileges << privileges,
-                    cy_es.buiders.meta_info << meta_info
+            if data_item:
+                self.make_index_content(
+                    app_name=app_name,
+                    privileges=privileges,
+                    upload_id=upload_id,
+                    data_item=cy_es.convert_to_vn_predict_seg(
+                        data_item,
+                        segment_handler=self.vn.parse_word_segment,
+                        handler=self.vn_predictor.get_text,
+                        clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
+                    ),
+                    meta_info=meta_info
                 )
-            )
+            else:
+                return cy_es.update_doc_by_id(
+                    client=self.client,
+                    index=self.get_index(app_name),
+                    id=upload_id,
+                    data=(
+                        cy_es.buiders.privileges << privileges,
+                        cy_es.buiders.meta_info << meta_info
+                    )
+                )
         else:
             if data_item:
                 self.make_index_content(

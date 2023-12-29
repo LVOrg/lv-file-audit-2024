@@ -31,6 +31,8 @@ from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 from cyx.common import config
 from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+
+
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
@@ -44,7 +46,7 @@ class FileServices:
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
                  logger=cy_kit.singleton(LoggerService),
                  memcache_service=cy_kit.singleton(MemcacheServices),
-                 onedrive_service = cy_kit.singleton(OnedriveService)):
+                 onedrive_service=cy_kit.singleton(OnedriveService)):
         self.onedrive_service = onedrive_service
         self.file_storage_service = file_storage_service
         self.search_engine = search_engine
@@ -176,10 +178,8 @@ class FileServices:
     async def get_main_main_thumb_file_async(self, app_name: str, upload_id: str):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
 
-
         if upload is None:
             return None
-
 
         ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=upload.ThumbFileId)
         # self.get_file(app_name, upload.ThumbFileId)
@@ -194,12 +194,12 @@ class FileServices:
                                         thumbs_support: str,
                                         web_host_root_url: str,
                                         privileges_type,
-                                        storage_type:str,
-                                        onedriveScope:str,
+                                        storage_type: str,
+                                        onedriveScope: str,
                                         meta_data: typing.Optional[dict] = None,
                                         skip_option: typing.Optional[dict] = None,
                                         onedrive_password: typing.Optional[str] = None,
-                                        onedrive_expiration: typing.Optional[str]=None
+                                        onedrive_expiration: typing.Optional[str] = None
                                         ):
         return self.add_new_upload_info(
             app_name=app_name,
@@ -212,10 +212,10 @@ class FileServices:
             privileges_type=privileges_type,
             meta_data=meta_data,
             skip_option=skip_option,
-            storage_type = storage_type,
-            onedriveScope = onedriveScope,
-            onedrive_password = onedrive_password,
-            onedrive_expiration = onedrive_expiration
+            storage_type=storage_type,
+            onedriveScope=onedriveScope,
+            onedrive_password=onedrive_password,
+            onedrive_expiration=onedrive_expiration
 
         )
 
@@ -228,7 +228,7 @@ class FileServices:
                             thumbs_support: str,
                             web_host_root_url: str,
                             privileges_type,
-                            storage_type:str,
+                            storage_type: str,
                             onedriveScope: str,
                             meta_data: typing.Optional[dict] = None,
                             skip_option: typing.Optional[dict] = None,
@@ -251,19 +251,20 @@ class FileServices:
             app_name=app_name,
             privileges_type_from_client=privileges_type
         )
-        fucking_session_url=None
+        fucking_session_url = None
         fucking_onedrive_item = None
-        if storage_type=="onedrive":
+        if storage_type == "onedrive":
             fucking_session_url = self.onedrive_service.get_upload_session(
                 app_name=app_name,
-                upload_id= id,
-                client_file_name = client_file_name
+                upload_id=id,
+                client_file_name=client_file_name
             )
             fucking_onedrive_item = self.onedrive_service.get_access_item(
                 app_name=app_name,
-                upload_id= id,
+                upload_id=id,
                 client_file_name=client_file_name
             )
+
         def cahe_register():
             cache_doc = cy_docs.DocumentObject()
             cache_doc[doc.fields.id] = id
@@ -271,7 +272,7 @@ class FileServices:
             cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
 
             cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
-            if len(os.path.splitext(client_file_name)[1].split('.'))>1:
+            if len(os.path.splitext(client_file_name)[1].split('.')) > 1:
                 cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
 
             cache_doc[doc.fields.FullFileName] = f"{id}/{server_file_name_only}"
@@ -279,8 +280,9 @@ class FileServices:
             cache_doc[doc.fields.FullFileNameWithoutExtenstion] = f"{id}/{pathlib.Path(server_file_name_only).stem}"
             cache_doc[
                 doc.fields.FullFileNameWithoutExtenstionLower] = f"{id}/{pathlib.Path(server_file_name_only).stem}".lower()
-            if len(os.path.splitext(server_file_name_only)[1].split('.'))>1:
-                cache_doc[doc.fields.ServerFileName] = f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
+            if len(os.path.splitext(server_file_name_only)[1].split('.')) > 1:
+                cache_doc[
+                    doc.fields.ServerFileName] = f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
             else:
                 cache_doc[
                     doc.fields.ServerFileName] = f"{id}"
@@ -318,7 +320,7 @@ class FileServices:
             self.set_upload_register_to_cache(
                 app_name=app_name,
                 upload_id=id,
-                data= cache_doc
+                data=cache_doc
             )
 
         cahe_register()
@@ -326,8 +328,7 @@ class FileServices:
         def insert_register():
             server_file_name = id
             file_ext = None
-            if len(os.path.splitext(server_file_name_only)[1].split('.'))>1:
-
+            if len(os.path.splitext(server_file_name_only)[1].split('.')) > 1:
                 file_ext = os.path.splitext(client_file_name)[1].split('.')[1]
                 server_file_name = f"{id}.{file_ext}"
             retry_count = 0
@@ -381,8 +382,8 @@ class FileServices:
                     retry_count += 1
                     if retry_count > 10:
                         self.logger.error(e)
-        insert_register()
 
+        insert_register()
 
         def search_engine_create_or_update_privileges():
             re_try_count = 0
@@ -445,31 +446,34 @@ class FileServices:
             SearchEngineInsertTimeInSecond=(datetime.datetime.utcnow() - st).total_seconds()
         )
 
-    def get_upload_register(self, app_name: str, upload_id: str)->typing.Union[DocUploadRegister,cy_docs.DocumentObject]:
+    def get_upload_register(self, app_name: str, upload_id: str) -> typing.Union[
+        DocUploadRegister, cy_docs.DocumentObject]:
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
 
     def get_find_upload_register_by_link_file_id(self, app_name: str, file_id: str):
         context = self.db_connect.db(app_name).doc(DocUploadRegister).context
         fields = self.db_connect.db(app_name).doc(DocUploadRegister).fields
-        id=bson.ObjectId(file_id)
+        id = bson.ObjectId(file_id)
         ret = context.find_one(
-            (fields.MainFileId == id) | (fields.ThumbFileId == id) | (fields.OCRFileId==id)
+            (fields.MainFileId == id) | (fields.ThumbFileId == id) | (fields.OCRFileId == id)
         )
 
         return ret
+
     async def get_upload_register_async(self, app_name: str, upload_id: str):
         return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
 
     def get_upload_register_with_cache(self, app_name, upload_id):
         key = f"{self.cache_type}/{app_name}/{upload_id}"
-        ret = self.memcache_service.get_object(key,cy_docs.DocumentObject)
+        ret = self.memcache_service.get_object(key, cy_docs.DocumentObject)
         if not ret:
             ret = self.get_upload_register(app_name, upload_id)
             self.memcache_service.set_object(key, ret)
         return ret
-    def set_upload_register_to_cache(self, app_name, upload_id,data):
+
+    def set_upload_register_to_cache(self, app_name, upload_id, data):
         key = f"{self.cache_type}/{app_name}/{upload_id}"
-        self.memcache_service.set_object(key,data)
+        self.memcache_service.set_object(key, data)
 
     def remove_upload(self, app_name, upload_id):
         """
@@ -485,17 +489,16 @@ class FileServices:
         collection = self.db_connect.db(app_name).doc(DocUploadRegister)
         upload = collection.context @ upload_id
 
-
         if upload is None:
             return
         if upload[collection.fields.StorageType] == "onedrive":
             try:
                 self.onedrive_service.delete_upload(
                     app_name=app_name,
-                    upload_id = upload_id
+                    upload_id=upload_id
                 )
             except FuckingWhoreMSApiCallException as e:
-                if e.status==404:
+                if e.status == 404:
                     pass
         delete_file_list = upload.AvailableThumbs or []
         delete_file_list_by_id = []
@@ -511,7 +514,7 @@ class FileServices:
 
         return ret.deleted_count
 
-    def do_copy(self, app_name, upload_id,request):
+    def do_copy(self, app_name, upload_id, request):
 
         document_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         item = document_context.context @ upload_id
@@ -570,6 +573,7 @@ class FileServices:
                     item.OCRFileId = bson.ObjectId(ocr_fsg.get_id())
         item.RelUrl = f"api/{app_name}/{item.id}/{item.FileName.lower()}"
         item.FullUrl = f"{cy_web.get_host_url(request)}/api/{app_name}/{item.UploadId}/{item.FileName.lower()}"
+
         @cy_kit.thread_makeup()
         def copy_thumbs(app_name: str, to_id: str, thumbs_list: typing.List[str]):
             for x in thumbs_list:
@@ -593,23 +597,21 @@ class FileServices:
         relocate_path = f"local://{app_name}/{data_insert.RegisterOn.year}/{data_insert.RegisterOn.month:02}/{data_insert.RegisterOn.day:02}/{ext_path}/{item.id}"
         file_name_only = pathlib.Path(item.MainFileId).stem
         file_ext_with_dot = pathlib.Path(item.MainFileId).suffix
-        if file_ext_with_dot !="":
+        if file_ext_with_dot != "":
             data_insert.MainFileId = f"{relocate_path}/{file_name_only}{file_ext_with_dot}"
         else:
             data_insert.MainFileId = f"{relocate_path}/{file_name_only}"
-
-
 
         if not new_fsg.get_id().startswith("local://"):
             item.ThumbId = None
             copy_thumbs(app_name=app_name, to_id=data_insert._id, thumbs_list=item.AvailableThumbs or []).start()
         else:
-            if isinstance(item.OCRFileId,str):
+            if isinstance(item.OCRFileId, str):
                 data_insert.OCRFileId = item.OCRFileId.replace(f"/{upload_id}/", f"/{item.id}/")
-            if isinstance(item.ThumbFileId,str):
+            if isinstance(item.ThumbFileId, str):
                 data_insert.ThumbFileId = f"{relocate_path}/{os.path.split(item.ThumbFileId)[1]}"
-            if isinstance(item.AvailableThumbs,list):
-                data_insert.AvailableThumbs=[
+            if isinstance(item.AvailableThumbs, list):
+                data_insert.AvailableThumbs = [
                     x.replace(f"/{upload_id}/", f"/{item.id}/") for x in item.AvailableThumbs
                 ]
 
@@ -696,6 +698,55 @@ class FileServices:
             app_name=app_name
         )
 
+    async def remove_privileges_async(self, app_name, upload_id, privileges):
+        """
+                Re
+                :param app_name:
+                :param upload_id:
+                :param privileges:
+                :return:
+                """
+        upload = await self.get_upload_register_async(
+            app_name=app_name,
+            upload_id=upload_id
+        )
+        if upload is None:
+            return
+        doc_context = self.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
+
+        server_privileges, client_privileges = self.create_privileges(
+            app_name=app_name,
+            privileges_type_from_client=privileges
+        )
+
+        db_privileges = upload.Privileges or {}
+        server_privileges_update = {}
+        client_privileges_update = []
+        for x in server_privileges.keys():
+
+            values = list(set(db_privileges.get(x, [])).difference(server_privileges.get(x, [])))
+            if len(values) > 0:
+                server_privileges_update[x] = values
+            if db_privileges.get(x):
+                db_privileges.__delitem__(x)
+
+        server_privileges_update = {**db_privileges, **server_privileges_update}
+        for k, v in server_privileges_update.items():
+            client_privileges_update += [{
+                k: ",".join(v)
+            }]
+        await doc_context.context.update_async(
+            doc_context.fields.id == upload_id,
+            doc_context.fields.Privileges << server_privileges_update,
+            doc_context.fields.ClientPrivileges << client_privileges_update
+        )
+        self.search_engine.create_or_update_privileges(
+            privileges=server_privileges_update,
+            upload_id=upload_id,
+            app_name=app_name,
+            data_item = None
+        )
+
     def create_privileges(self, app_name, privileges_type_from_client):
         """
         Chuyen doi danh sach cac dac quyen do nguoi dung tao sang dang luu tru trong mongodb va elastic search
@@ -747,10 +798,13 @@ class FileServices:
                                 """
                                 Neu chua co
                                 """
-                                privilege_value_context.context.insert_one(
-                                    privilege_value_context.fields.Value << v,
-                                    privilege_value_context.fields.Name << x.Type.lower().lower().strip()
-                                )
+                                try:
+                                    privilege_value_context.context.insert_one(
+                                        privilege_value_context.fields.Value << v,
+                                        privilege_value_context.fields.Name << x.Type.lower().lower().strip()
+                                    )
+                                except:
+                                    pass
 
                         threading.Thread(target=running).start()
                     privileges_server[x.Type.lower()] = [v.strip() for v in x.Values.lower().split(',')]
@@ -796,17 +850,16 @@ class FileServices:
                 upload_info = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
                 if upload_info is None:
                     raise Exception(f"Upload with ID {upload_id}  was not found or deleted")
-                register_on= upload_info.RegisterOn
+                register_on = upload_info.RegisterOn
                 file_ext = upload_info.FileExt
 
-
-                if isinstance(register_on,datetime.datetime) \
+                if isinstance(register_on, datetime.datetime) \
                         and isinstance(file_ext, str) \
-                        and hasattr(self.config,"file_storage_path") and \
-                        isinstance(self.config.file_storage_path,str):
+                        and hasattr(self.config, "file_storage_path") and \
+                        isinstance(self.config.file_storage_path, str):
                     file_ext = file_ext[0:3]
                     dir_path = os.path.join(
-                        app_name,f"{register_on.year}",
+                        app_name, f"{register_on.year}",
                         f"{register_on.month:02}",
                         f"{register_on.day:02}",
                         file_ext,
@@ -814,13 +867,12 @@ class FileServices:
                         "ocr"
 
                     )
-                    full_dir_path = os.path.join(self.config.file_storage_path,dir_path)
+                    full_dir_path = os.path.join(self.config.file_storage_path, dir_path)
 
                     if not os.path.isdir(full_dir_path):
-                        os.makedirs(full_dir_path,exist_ok=True)
-                        shutil.move(ocr_file_id,full_dir_path)
-                        ocr_file_id = "local://"+os.path.join(dir_path,pathlib.Path(ocr_file_id).stem)+".pdf"
-
+                        os.makedirs(full_dir_path, exist_ok=True)
+                        shutil.move(ocr_file_id, full_dir_path)
+                        ocr_file_id = "local://" + os.path.join(dir_path, pathlib.Path(ocr_file_id).stem) + ".pdf"
 
         doc_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         doc_context.context.update(

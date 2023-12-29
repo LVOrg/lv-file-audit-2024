@@ -147,3 +147,4 @@ class UploadInfoResult(BaseModel):
     MarkDelete: typing.Optional[bool]
     Privileges: typing.Optional[dict]
     ClientPrivileges: typing.Optional[typing.List[dict]]
+    ThumbnailAble: typing.Optional[bool]

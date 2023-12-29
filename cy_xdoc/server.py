@@ -84,7 +84,8 @@ async def estimate_time(request: fastapi.Request, next):
 
         if not request.url.path.endswith("/api/healthz") and not request.url.path.endswith("/api/readyz"):
             logger.info(f"{request.url}  in {n}")
-        if request.url._url == cy_web.get_host_url(request) + "/api/accounts/token":
+        if ((request.url._url == cy_web.get_host_url(request) + "/api/accounts/token")
+                or (request.url._url == cy_web.get_host_url(request) + "/lvfile/api/accounts/token")):
             response_body = [chunk async for chunk in res.body_iterator]
             res.body_iterator = iterate_in_threadpool(iter(response_body))
             if len(response_body) > 0:

@@ -850,7 +850,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from datetime import datetime, timedelta
 from typing import Union
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
+from  fastapi.responses import JSONResponse
 
 def create_access_token(data: dict, expires_delta=None, SECRET_KEY=None, ALGORITHM=None):
     to_encode = data.copy()
@@ -861,7 +861,6 @@ def create_access_token(data: dict, expires_delta=None, SECRET_KEY=None, ALGORIT
     to_encode.update({"exp": None})
     encoded_jwt = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
 
 def login_for_access_token(request: fastapi.Request, form_data: OAuth2PasswordRequestForm = Depends()):
     global web_application
@@ -892,7 +891,9 @@ def login_for_access_token(request: fastapi.Request, form_data: OAuth2PasswordRe
         SECRET_KEY=web_application.jwt_secret_key,
         ALGORITHM=web_application.jwt_algorithm
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    ret = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
+    ret.set_cookie("cy-files-token",access_token)
+    return ret
 
 
 class WebApp(BaseWebApp):
@@ -994,9 +995,10 @@ class WebApp(BaseWebApp):
                 self.controller_dirs += [x]
         for x in self.controller_dirs:
             self.load_controller_from_dir(x)
-        if self.host_dir is not None and self.host_dir != "":
-            self.url_get_token = self.host_dir + "/" + self.url_get_token
+        # if self.host_dir is not None and self.host_dir != "":
+        #     self.url_get_token = self.host_dir + "/" + self.url_get_token
         self.url_get_token = self.url_get_token.lstrip('/')
+        print(f"Login url {self.url_get_token}")
         self.app.post("/" + self.url_get_token)(login_for_access_token)
 
     def gunicorn_start(self, start_path):

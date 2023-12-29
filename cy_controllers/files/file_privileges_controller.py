@@ -113,7 +113,7 @@ class FilesPrivilegesController(BaseController):
         return AddPrivilegesResult(is_ok=True)
 
     @controller.router.post("/api/{app_name}/files/remove_privileges")
-    def remove_privileges(
+    async def remove_privileges(
             self,
             app_name: str,
             Data: typing.List[PrivilegesType] = Body(),
@@ -151,7 +151,7 @@ class FilesPrivilegesController(BaseController):
         :return:
         """
         for upload_id in UploadIds:
-            ret = self.file_service.remove_privileges(
+            ret = await self.file_service.remove_privileges_async(
                 app_name=app_name,
                 upload_id=upload_id,
                 privileges=[cy_docs.DocumentObject(x) for x in Data]
@@ -162,7 +162,7 @@ class FilesPrivilegesController(BaseController):
     @controller.router.post("/api/files/update_privileges")
     def update_privileges(
             self,
-            app_name: str,
+            app_name: typing.Optional[str]=Body(default=None),
             Data: typing.List[PrivilegesType] = Body(),
             UploadIds: typing.List[str] = Body()) -> AddPrivilegesResult:
         """
@@ -196,6 +196,8 @@ class FilesPrivilegesController(BaseController):
             :param token:
             :return:
             """
+        if not app_name:
+            app_name = self.request.query_params.get("app_name")
         for upload_id in UploadIds:
             ret = self.file_service.update_privileges(
                 app_name=app_name,
