@@ -644,15 +644,17 @@ class FileServices:
             self.search_engine.create_or_update_privileges(
                 privileges=server_privileges,
                 upload_id=upload_id,
-                data_item=(doc_context.context @ upload_id).to_json_convertable(),
-                app_name=app_name
+                data_item=upload.to_json_convertable(),
+                app_name=app_name,
+                force_replace=True
             )
         else:
             self.search_engine.create_or_update_privileges(
                 privileges=server_privileges,
                 upload_id=upload_id,
                 data_item=None,
-                app_name=app_name
+                app_name=app_name,
+                force_replace=True
             )
 
     def add_privileges(self, app_name, upload_id, privileges):
@@ -694,10 +696,54 @@ class FileServices:
         self.search_engine.create_or_update_privileges(
             privileges=server_privileges,
             upload_id=upload_id,
-            data_item=(doc_context.context @ upload_id).to_json_convertable(),
-            app_name=app_name
+            data_item=None,
+            app_name=app_name,
+            force_replace=False
+        )
+    async def add_privileges_async(self, app_name, upload_id, privileges):
+        """
+        Add new if not exist
+        :param app_name:
+        :param upload_id:
+        :param privileges:
+        :return:
+        """
+        server_privileges, client_privileges = self.create_privileges(
+            app_name=app_name,
+            privileges_type_from_client=privileges
         )
 
+        doc_context = self.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
+        upload = await doc_context.context.find_one_async(
+            doc_context.fields.id==upload_id
+        )
+        old_server_privileges = upload[doc_context.fields.Privileges] or {}
+        old_client_privileges = upload[doc_context.fields.ClientPrivileges] or {}
+        for k, v in old_server_privileges.items():
+
+            if server_privileges.get(k):
+                server_privileges[k] = list(set(server_privileges[k] + v))
+
+            else:
+                server_privileges[k] = v
+
+        client_privileges = []
+        for k, v in server_privileges.items():
+            client_privileges += [{
+                k: ",".join(v)
+            }]
+
+        await doc_context.context.update_async(
+            doc_context.fields.id == upload_id,
+            doc_context.fields.Privileges << server_privileges,
+            doc_context.fields.ClientPrivileges << client_privileges
+        )
+        self.search_engine.create_or_update_privileges(
+            privileges=server_privileges,
+            upload_id=upload_id,
+            data_item= None,
+            app_name=app_name
+        )
     async def remove_privileges_async(self, app_name, upload_id, privileges):
         """
                 Re
@@ -744,7 +790,8 @@ class FileServices:
             privileges=server_privileges_update,
             upload_id=upload_id,
             app_name=app_name,
-            data_item = None
+            data_item = None,
+            force_replace=False
         )
 
     def create_privileges(self, app_name, privileges_type_from_client):

@@ -339,7 +339,7 @@ class FilesController(BaseController):
         return ret
 
     @controller.router.post("/api/{app_name}/files/info")
-    def get_info(self, app_name: str, UploadId: str = Body(embed=True)) -> controller_model_files.UploadInfoResult:
+    async def get_info_async(self, app_name: str, UploadId: str = Body(embed=True)) -> controller_model_files.UploadInfoResult:
         """
         APi này lay chi tiet thong tin cua Upload
         :param app_name:
@@ -347,7 +347,9 @@ class FilesController(BaseController):
         """
 
         doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
-        upload_info = doc_context.context @ UploadId
+        upload_info = await doc_context.context.find_one_async(
+            doc_context.fields.id==UploadId
+        )
         if upload_info is None:
             return None
         upload_info.UploadId = upload_info._id
@@ -382,4 +384,16 @@ class FilesController(BaseController):
             upload_info.ClientPrivileges = []
         # if upload_info[doc_context.fields.RemoteUrl]:
         #     upload_info[cy_docs.fields.FullUrl] = upload_info[doc_context.fields.RemoteUrl]
+        data = await self.search_engine.get_doc_async(
+            app_name=app_name,
+            id = UploadId
+        )
+        search = {}
+        if data:
+            if data.source and data.source.data_item:
+                search["FileName"] = data.source.data_item.FileName
+            if data.source and data.source.privileges:
+                search["Privileges"] = data.source.privileges
+        upload_info.Search = search
+
         return upload_info.to_pydantic()

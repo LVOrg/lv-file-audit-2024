@@ -502,7 +502,9 @@ class SearchEngine:
             app_name, upload_id,
             data_item: typing.Union[dict, cy_docs.DocumentObject,None],
             privileges,
-            meta_info: dict = None):
+            meta_info: dict = None,
+            force_replace:bool=False
+    ):
         """
         Create or update privileges tag
         if set upload_id the method will find and update else the method will automatically create new document \n
@@ -518,17 +520,15 @@ class SearchEngine:
 
         if is_exist:
             if data_item:
-                self.make_index_content(
-                    app_name=app_name,
-                    privileges=privileges,
-                    upload_id=upload_id,
-                    data_item=cy_es.convert_to_vn_predict_seg(
-                        data_item,
-                        segment_handler=self.vn.parse_word_segment,
-                        handler=self.vn_predictor.get_text,
-                        clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
+                return cy_es.update_doc_by_id(
+                    client=self.client,
+                    index=self.get_index(app_name),
+                    id=upload_id,
+                    data=(
+                        cy_es.buiders.privileges << privileges,
+                        cy_es.buiders.meta_info << meta_info
                     ),
-                    meta_info=meta_info
+                    force_replace=force_replace
                 )
             else:
                 return cy_es.update_doc_by_id(
@@ -538,7 +538,8 @@ class SearchEngine:
                     data=(
                         cy_es.buiders.privileges << privileges,
                         cy_es.buiders.meta_info << meta_info
-                    )
+                    ),
+                    force_replace=force_replace
                 )
         else:
             if data_item:
@@ -560,7 +561,8 @@ class SearchEngine:
                     privileges=privileges,
                     upload_id=upload_id,
                     data_item=None,
-                    meta_info=meta_info
+                    meta_info=meta_info,
+                    force_replace=force_replace
                 )
 
     def is_exist(self, app_name: str, id: str) -> bool:

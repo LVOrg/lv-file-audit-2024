@@ -148,3 +148,4 @@ class UploadInfoResult(BaseModel):
     Privileges: typing.Optional[dict]
     ClientPrivileges: typing.Optional[typing.List[dict]]
     ThumbnailAble: typing.Optional[bool]
+    Search: typing.Optional[dict]

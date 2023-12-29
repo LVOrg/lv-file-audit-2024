@@ -709,7 +709,7 @@ def create_doc(client: Elasticsearch, index: str, body: typing.Optional[typing.U
         pass
 
 
-def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type: str = "_doc"):
+def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type: str = "_doc",force_replace:bool=False):
     data_update = data
     if isinstance(data, DocumentFields):
         if data.__has_set_value__ is None:
@@ -737,23 +737,47 @@ def update_doc_by_id(client: Elasticsearch, index: str, id: str, data, doc_type:
         data=data_update
     )
     wildcard_fields, wildcard_data = cy_es_manager.get_fields_text(data_update)
-    data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
-    data_update[f'{cy_es_manager.FIELD_RAW_TEXT}_SUPPORT'] = True
+    if len(wildcard_data.keys())>0:
+        data_update[cy_es_manager.FIELD_RAW_TEXT] = wildcard_data
+        data_update[f'{cy_es_manager.FIELD_RAW_TEXT}_SUPPORT'] = True
     try:
-        ret_update = client.update(
-            index=index,
-            id=id,
-            doc_type=doc_type,
-            body=dict(
-                doc=data_update
-            )
+        es_data = data_update
+        if force_replace:
+            es_data = dict([(k, v) for k, v in data_update.items() if v is not None])
+            for k,v in es_data.items():
+                script = {
+                    "source": "ctx._source.%s = params.new_object" % k,
+                    "lang": "painless",  # Specify the scripting language
+                    "params": {"new_object": v}
+                }
+                source = client.get_source(
+                    index=index,
+                    id = id,
+                    doc_type= doc_type
+                )
+                client.update(index=index, id=id, body={"script": script},doc_type=doc_type)
 
-        )
-        return data_update
+
+
+        else:
+            es_data = dict([(k, v) for k, v in data_update.items() if v is not None])
+            ret_update = client.update(
+                index=index,
+                id=id,
+                doc_type=doc_type,
+                body=dict(
+                    doc= es_data
+                )
+
+            )
+            return data_update
     except elasticsearch.exceptions.NotFoundError as e:
         return None
     except Exception as e:
         for k in list(data_update.keys()):
+            if data_update.get(k) is None:
+                if not force_replace:
+                    continue
             try:
                 client.update(
                     index=index,
