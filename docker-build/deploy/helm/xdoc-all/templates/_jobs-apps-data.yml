@@ -59,8 +59,8 @@ data:
     replicas: {{.images.jobs.replicas}}
     cpu_requests: {{.images.jobs.cpu_requests}}
     cpu_limits: {{.images.jobs.cpu_limits}}
-    mem_requests: {{.images.jobs.mem_requests}}
-    mem_limits: {{.images.jobs.mem_limits}}
+    mem_requests: 4Gi
+    mem_limits: 4Gi
   - name: files-clean-up
     endpoint: files_clean_up.py
     replicas: 1

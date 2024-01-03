@@ -31,7 +31,7 @@ from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 from cyx.common import config
 from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
-
+from cyx.common.rabitmq_message import RabitmqMsg
 
 class FileServices:
     """
@@ -46,7 +46,8 @@ class FileServices:
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
                  logger=cy_kit.singleton(LoggerService),
                  memcache_service=cy_kit.singleton(MemcacheServices),
-                 onedrive_service=cy_kit.singleton(OnedriveService)):
+                 onedrive_service=cy_kit.singleton(OnedriveService),
+                 broker: RabitmqMsg = cy_kit.singleton(RabitmqMsg)):
         self.onedrive_service = onedrive_service
         self.file_storage_service = file_storage_service
         self.search_engine = search_engine
@@ -56,6 +57,7 @@ class FileServices:
         self.logger = logger
         self.memcache_service = memcache_service
         self.config = config
+        self.broker = broker
 
     def get_queryable_doc(self, app_name: str) -> cyx.common.base.DbCollection[DocUploadRegister]:
         """
@@ -119,6 +121,32 @@ class FileServices:
         except Exception as e:
             self.logger.info("Get list of files is error")
             self.logger.error(e)
+        msh_cache_key = f"{__file__}/{type(self).__name__}/check_thumbs/{cyx.common.msg.MSG_FILE_UPLOAD}"
+
+        def check_thumbs(item):
+            from cyx.common.content_marterial_utils import check_is_thumbnails_able
+            if check_is_thumbnails_able(item):
+                if not item.HasThumb:
+                    if not item.ThumbnailsAble:
+                        doc.context.update(
+                            doc.fields.id==item.id,
+                            doc.fields.ThumbnailsAble<<True
+                        )
+                    print(item)
+                    data_check = self.memcache_service.get_dict(msh_cache_key)
+                    if data_check is None:
+                        data_check = {}
+                    if data_check.get(item.id) is None:
+                        self.broker.emit(
+                            app_name=app_name,
+                            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+                            data=item
+                        )
+                        data_check[item.id]=item.id
+                        self.memcache_service.set_dict(msh_cache_key,data_check)
+                        print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD} is ok")
+
+
         try:
             for x in items:
                 # if x[doc.fields.RemoteUrl] is None:
@@ -127,6 +155,9 @@ class FileServices:
                 #     x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
 
                 _a_thumbs = []
+                if not x.HasThumb:
+                    th= threading.Thread(target=check_thumbs, args=(x,))
+                    th.start()
                 if x.AvailableThumbs is not None:
                     for url in x.AvailableThumbs:
                         _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
@@ -176,14 +207,39 @@ class FileServices:
             return None
 
     async def get_main_main_thumb_file_async(self, app_name: str, upload_id: str):
-        upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+        doc_context =self.db_connect.db(app_name).doc(DocUploadRegister)
+        upload = await doc_context.context.find_one_async(
+            doc_context.fields.id==upload_id
+        )
 
         if upload is None:
             return None
+        try:
+            ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=upload.ThumbFileId)
+            # self.get_file(app_name, upload.ThumbFileId)
+            return ret
+        except gridfs.errors.NoFile as e:
+            file_name_lower = upload[doc_context.fields.FileNameLower]
+            if '/' in file_name_lower:
+                _dir_, _file_ = os.path.split(upload[doc_context.fields.FileNameLower])
+                directory = _dir_ + ".webp"
+            else:
+                directory = file_name_lower +".webp"
+            register_date : datetime.datetime = upload[doc_context.fields.RegisterOn]
+            file_ext = upload[doc_context.fields.FileExt]
+            if file_ext is None:
+                file_ext ="unknown"
+            else:
+                file_ext = file_ext[0:3]
 
-        ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=upload.ThumbFileId)
-        # self.get_file(app_name, upload.ThumbFileId)
-        return ret
+            directory = f"{app_name}/{register_date.year}/{register_date.month:02d}/{register_date.day:02d}/{file_ext}/{upload_id}/{directory}"
+            await doc_context.context.update_async(
+                doc_context.fields.id == upload_id,
+                doc_context.fields.ThumbFileId<<f"local://{directory}"
+            )
+            ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=directory)
+            # self.get_file(app_name, upload.ThumbFileId)
+            return ret
 
     async def add_new_upload_info_async(self,
                                         app_name: str,
@@ -334,6 +390,9 @@ class FileServices:
             retry_count = 0
             while retry_count < 10:
                 try:
+                    require_msg_process = cyx.common.msg.MSG_MATRIX.get(
+                        (file_ext or "").lower()
+                    )
                     doc.context.insert_one(
                         doc.fields.id << id,
                         doc.fields.FileName << client_file_name,
@@ -375,7 +434,8 @@ class FileServices:
                         doc.fields.OnedriveScope << onedriveScope,
                         doc.fields.OnedriveSessionUrl << fucking_session_url,
                         doc.fields.OnedrivePassword << onedrive_password,
-                        doc.fields.OnedriveExpiration << onedrive_expiration
+                        doc.fields.OnedriveExpiration << onedrive_expiration,
+                        doc.fields.MsgRequires << require_msg_process
                     )
                 except Exception as e:
                     time.sleep(0.1)

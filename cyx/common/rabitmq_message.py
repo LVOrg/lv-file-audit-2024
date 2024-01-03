@@ -107,21 +107,23 @@ class RabitmqMsg:
         def callback(ch, method, properties, body: bytes):
             txt_json = body.decode('utf-8')
             logs.info(txt_json)
-            data = json.loads(txt_json)
+            data = dict()
+            try:
+                data = json.loads(txt_json)
+            except:
+                if isinstance(self.__channel__,pika.adapters.blocking_connection.BlockingChannel):
+                    if self.__channel__.is_open:
+                        self.__channel__.basic_ack(delivery_tag=method.delivery_tag)
+                return
+
 
             msg = MessageInfo()
             msg.Data = data.get('data')
             msg.MsgType = msg_type
             msg.AppName = data.get('app_name')
             msg.tags = dict(method=method, ch=ch, properties=properties)
-            try:
-                handler(msg)
-                logs.info(f"{txt_json} was complete")
-            except Exception as e:
-                logs.exception(e)
-                msg.tags = None
-                # self.re_emit(msg)
-            #self.delete(msg)
+            handler(msg)
+            logs.info(f"{txt_json} was complete")
 
         if not self.__is_declare__:
             while self.__channel__ is None:
@@ -129,7 +131,7 @@ class RabitmqMsg:
                 time.sleep(10)
             self.__channel__.queue_declare(queue=self.get_real_msg(msg_type), auto_delete=False)
             self.__is_declare__ = True
-        self.__channel__.basic_consume(queue=self.get_real_msg(msg_type), on_message_callback=callback, auto_ack=False)
+        self.__channel__.basic_consume(queue=self.get_real_msg(msg_type), on_message_callback=callback)
 
 
         try:
@@ -140,6 +142,36 @@ class RabitmqMsg:
             Đôi khi RabbitMQ bị lỗi mà không rõ lý do. Chức năng sẽ kết nối lại
 
             """
+
+            time.sleep(1)
+            print(f"re-connect {self.__server__}")
+            ok = False
+            count = 0
+            while not ok and count < 10000:
+                """
+                Try reconnect ten times, time after time is 5 seconds
+                Thử kết nối lại mười lần, hết lần này đến lần khác là 5 giây
+
+
+                """
+                count += 1
+                self.__channel__ = None
+                self.__try_connect__()
+                try:
+
+                    self.__channel__.queue_declare(queue=msg_type, auto_delete=False)
+                    self.__channel__.start_consuming()
+                    ok = True
+                except pika.exceptions.ConnectionWrongStateError as e:
+                    ok = False
+                    time.sleep(5)
+                    print(f"re-connect {self.__server__}")
+        except pika.exceptions.StreamLostError as e:
+            """
+                        Sometime RabbitMQ was fail with unknown reason. The function will re-connect
+                        Đôi khi RabbitMQ bị lỗi mà không rõ lý do. Chức năng sẽ kết nối lại
+
+                        """
             time.sleep(1)
             print(f"re-connect {self.__server__}")
             ok = False
@@ -164,7 +196,6 @@ class RabitmqMsg:
                     time.sleep(5)
                     print(f"re-connect {self.__server__}")
 
-
     def get_message(self, message_type: str, max_items: int) -> typing.List[cyx.common.msg.MessageInfo]:
         """
         somehow to implement thy source here ...
@@ -173,7 +204,7 @@ class RabitmqMsg:
         def callback(ch, method, properties, body):
             print(" [x] Received %r" % body)
 
-        self.channel.basic_consume(queue=f"{self.__msg__}.{message_type}", on_message_callback=callback, auto_ack=True)
+        self.channel.basic_consume(queue=f"{self.__msg__}.{message_type}", on_message_callback=callback, auto_ack=False)
         # fx= self.channel.basic_consume(queue=message_type, auto_ack=True)
         # print(' [*] Waiting for messages. To exit press CTRL+C')
         self.channel.start_consuming()
@@ -207,12 +238,24 @@ class RabitmqMsg:
         """
 
         try:
-            print(f"delete msg {item}")
-            if item.tags['ch'].is_open:
+            key_check = f'{item.Data.get("_id")}/{item.tags["method"].delivery_tag}'
+            print(f"delete msg {key_check}")
+            from pika.adapters.blocking_connection import BlockingChannel,BlockingConnection
+            # fx= Channel()
+            # fx.open()
+            chanel = item.tags['ch']
+            if isinstance(chanel,BlockingChannel):
+                if chanel.is_open:
+                    # chanel.basic_nack(delivery_tag=item.tags['method'].delivery_tag)
+                    chanel.basic_ack(delivery_tag=item.tags['method'].delivery_tag)
 
-                item.tags['ch'].basic_ack(delivery_tag=item.tags['method'].delivery_tag)
-            else:
-                pass
+
+            # if item.tags['ch'].is_open:
+            #
+            #     item.tags['ch'].basic_ack(delivery_tag=item.tags['method'].delivery_tag)
+            # else:
+            #     item.tags['ch'].open()
+            #     item.tags['ch'].basic_ack(delivery_tag=item.tags['method'].delivery_tag)
         except pika.exceptions.StreamLostError as e:
             return
         except pika.exceptions.ChannelWrongStateError as e:
@@ -238,15 +281,17 @@ class RabitmqMsg:
             )
         )
         try:
-            print(f"msg to {self.__server__}:{self.__port__}\nmsg={message_type} in app={app_name}")
+            print(f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name}")
             if not self.__is_declare__:
                 if self.__channel__:
-                    self.__channel__.queue_declare(queue=self.get_real_msg(message_type))
+                    self.__channel__.queue_declare(queue=self.get_real_msg(message_type),auto_delete=False)
                     self.__is_declare__ = True
                 else:
                     self.__try_connect__()
 
             self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
+            print(
+                f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name} is OK")
         except pika.exceptions.StreamLostError as e:
             print("Error:")
             print(e)
@@ -307,4 +352,4 @@ class RabitmqMsg:
             return ret
         else:
             print(f"msg will raise {msg_type}")
-            return msg_type
+

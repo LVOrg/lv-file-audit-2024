@@ -59,7 +59,7 @@ class ImageExtractorService:
             return self.libre_office_service.get_image(file_path)
         return None
 
-    def create_thumb(self, image_file_path, size: int):
+    def create_thumb(self, image_file_path, size: int,out_put_dir:str=None):
         try:
             if os.path.splitext(image_file_path)[1] == ".avif":
                 new_file_path = os.path.splitext(image_file_path)[0] + ".jpg"
@@ -68,7 +68,15 @@ class ImageExtractorService:
                     img.save(new_file_path)
                     image_file_path = new_file_path
             filename_only = pathlib.Path(image_file_path).stem
-            thumb_file_path = os.path.join(self.processing_folder, f"thumbnail_{filename_only}_{size}.webp")
+
+
+            path_id= pathlib.Path(image_file_path).parent.name
+            dir_path = os.path.join(self.processing_folder,path_id)
+            if not os.path.isdir(dir_path):
+                os.makedirs(dir_path,exist_ok=True)
+            thumb_file_path = os.path.join(dir_path, f"t{filename_only}_{size}.webp")
+            if os.path.isfile(thumb_file_path):
+                return thumb_file_path
             if os.path.isfile(thumb_file_path):
                 return thumb_file_path
             self.graphics_service.scale(
@@ -79,7 +87,6 @@ class ImageExtractorService:
 
             return thumb_file_path
         except Exception as e:
-            self.logs.exception(e)
             raise e
 
     def convert_to_pdf(self, file_path, file_ext=None):

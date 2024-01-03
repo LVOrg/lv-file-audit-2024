@@ -124,8 +124,8 @@ Server-Timing: miss, db;dur=53, app;dur=47.2"""
     gc.collect()
     return res
 from fastapi import Request, Response
-from requests_kerberos import HTTPKerberosAuth
-import requests_kerberos.exceptions
+# from requests_kerberos import HTTPKerberosAuth
+# import requests_kerberos.exceptions
 # @cy_web.middleware()
 # async def kerberos_auth_middleware(request: Request, call_next):
 #     try:

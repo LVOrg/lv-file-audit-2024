@@ -995,11 +995,10 @@ class WebApp(BaseWebApp):
                 self.controller_dirs += [x]
         for x in self.controller_dirs:
             self.load_controller_from_dir(x)
-        # if self.host_dir is not None and self.host_dir != "":
-        #     self.url_get_token = self.host_dir + "/" + self.url_get_token
-        self.url_get_token = self.url_get_token.lstrip('/')
+
         print(f"Login url {self.url_get_token}")
         self.app.post("/" + self.url_get_token)(login_for_access_token)
+        self.app.post( self.host_dir + "/" + self.url_get_token)(login_for_access_token)
 
     def gunicorn_start(self, start_path):
         global web_application

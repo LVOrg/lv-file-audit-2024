@@ -358,3 +358,5 @@ class DocUploadRegister:
 
     RemoteUrl: typing.Optional[str]
     ThumbnailsAble :typing.Optional[bool]
+    MsgRequires: typing.Optional[dict]
+    MsgCheckList: typing.Optional[dict]

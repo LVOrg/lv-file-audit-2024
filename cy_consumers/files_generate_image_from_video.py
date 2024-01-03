@@ -44,7 +44,7 @@ class Process:
 
         full_file = msg_info.Data.get("processing_file")
         try_count = 5
-        while try_count > 0:
+        while try_count > 0 and not os.path.isfile(full_file):
             self.logger.info(
                 f'Try pull file {msg_info.Data["_id"]},{msg_info.Data["FileExt"]} in {msg_info.AppName}')
             full_file = self.temp_file.get_path(
@@ -69,35 +69,35 @@ class Process:
             self.logger.error(e, msg_info=msg_info.Data)
             msg.delete(msg_info)
             return
-        ret = temp_file.move_file(
-            from_file=img_file,
-            app_name=msg_info.AppName,
-            sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO
-        )
+        # ret = temp_file.move_file(
+        #     from_file=img_file,
+        #     app_name=msg_info.AppName,
+        #     sub_dir=f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO}/{pathlib.Path(full_file).parent.name}"
+        # )
 
-        self.logger.info(f"Generate image from {full_file} was complete at:\n {ret}")
-        msg_info.Data["processing_file"] = ret
+        self.logger.info(f"Generate image from {img_file} was complete")
+        msg_info.Data["processing_file"] = img_file
         msg.emit(
             app_name=msg_info.AppName,
             message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
             data=msg_info.Data
         )
 
-        self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n{ret}\nOriginal file:\n{full_file}")
+        # self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_THUMBS}\n{ret}\nOriginal file:\n{full_file}")
 
-        pdf_file = self.video_service.get_pdf(full_file, num_of_segment=60)
-        pdf_file = temp_file.move_file(
-            from_file=pdf_file,
-            app_name=msg_info.AppName,
-            sub_dir=cyx.common.msg.MSG_FILE_OCR_CONTENT
-        )
-        msg_info.Data["processing_file"] = pdf_file
-        msg.emit(
-            app_name=msg_info.AppName,
-            message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT,
-            data=msg_info.Data
-        )
-        self.logger.info(f"{cyx.common.msg.MSG_FILE_OCR_CONTENT}\n{ret}\nOriginal file:\n{full_file}")
+        # pdf_file = self.video_service.get_pdf(full_file, num_of_segment=60)
+        # pdf_file = temp_file.move_file(
+        #     from_file=pdf_file,
+        #     app_name=msg_info.AppName,
+        #     sub_dir=cyx.common.msg.MSG_FILE_OCR_CONTENT
+        # )
+        # msg_info.Data["processing_file"] = pdf_file
+        # msg.emit(
+        #     app_name=msg_info.AppName,
+        #     message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT,
+        #     data=msg_info.Data
+        # )
+        # self.logger.info(f"{cyx.common.msg.MSG_FILE_OCR_CONTENT}\n{ret}\nOriginal file:\n{full_file}")
         if isinstance(msg_info.Data.get("MainFileId"), str) and msg_info.Data["MainFileId"].startswith("local://"):
             pass
         else:

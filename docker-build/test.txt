@@ -1,0 +1,23 @@
+kubectl delete pod files-save-custom-thumb-7f4499d9df-tfrch \
+files-save-custom-thumb-7f4499d9df-kwlz4 \
+files-save-custom-thumb-7f4499d9df-gcdzj \
+files-save-custom-thumb-7f4499d9df-jvfj6 \
+files-save-custom-thumb-7f4499d9df-vkv6f \
+files-save-custom-thumb-7f4499d9df-vd7dx \
+files-save-custom-thumb-7f4499d9df-v7xlc \
+files-save-custom-thumb-7f4499d9df-rd7qs \
+files-save-custom-thumb-7f4499d9df-p49m4 \
+files-save-custom-thumb-7f4499d9df-n27md \
+files-save-custom-thumb-7f4499d9df-mxkpk \
+files-save-custom-thumb-7f4499d9df-mb5kf \
+files-save-custom-thumb-7f4499d9df-k8bkf \
+files-save-custom-thumb-7f4499d9df-kptj9 \
+files-save-custom-thumb-7f4499d9df-22rzn \
+files-save-custom-thumb-7f4499d9df-2t9js \
+files-save-custom-thumb-7f4499d9df-2w7pt \
+files-save-custom-thumb-7f4499d9df-8kz5w \
+files-save-custom-thumb-7f4499d9df-b5db5 \
+files-save-custom-thumb-7f4499d9df-bgpgn \
+files-save-custom-thumb-7f4499d9df-bpphx \
+files-save-custom-thumb-7f4499d9df-g2gbq \
+files-save-custom-thumb-7f4499d9df-kd62m -n xdoc-job-v10 --force

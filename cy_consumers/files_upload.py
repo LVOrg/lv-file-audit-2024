@@ -127,7 +127,7 @@ class Process:
             """
             self.logger.info(f"msg={self.message_type}, upload_file={full_file_path},file was not found")
             return
-
+        msg_info.Data["processing_file"] = full_file_path
         print(f"{full_file_path} was receive")
 
         if not os.path.isfile(full_file_path):
@@ -151,6 +151,7 @@ class Process:
         file_ext = msg_info.Data.get("FileExt")
         import mimetypes
         mime_type, _ = mimetypes.guess_type(msg_info.Data['FullFileName'])
+        msg_info.Data[cyx.common.msg.PROCESSING_FILE] = full_file_path
         msg.emit(
             app_name=msg_info.AppName,
             message_type=cyx.common.msg.MSG_FILE_DOC_LAYOUT_ANALYSIS,
@@ -198,7 +199,7 @@ class Process:
             print(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
             self.logger.info(f"{cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE}\n{full_file_path}")
 
-            msg_info.Data["processing_file"] = full_file_path
+
             msg.emit(
                 app_name=msg_info.AppName,
                 message_type=cyx.common.msg.MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE,

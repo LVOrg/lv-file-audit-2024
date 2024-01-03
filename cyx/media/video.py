@@ -90,8 +90,10 @@ class VideoServices:
         # bytes_of_image = io.BytesIO(img_byte_arr)
 
         image_file_name_only = pathlib.Path(file_path).stem
-
-        ret_file = os.path.join(self.processing_folder, f"{image_file_name_only}.png")
+        unique_folder = os.path.join(self.processing_folder,pathlib.Path(file_path).parent.name)
+        if not os.path.isfile(unique_folder):
+            os.makedirs(unique_folder,exist_ok=True)
+        ret_file = os.path.join(unique_folder, f"{image_file_name_only}.png")
         with open(ret_file, 'wb') as f:  ## Excel File
             f.write(img_byte_arr)
         del img_byte_arr

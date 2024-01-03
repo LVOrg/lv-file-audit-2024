@@ -29,7 +29,11 @@ class HybridFileStorage:
             self.full_dir = os.path.join(
                 self.file_storage_path, self.id
             )
-            self.filename = self.__well_form__(os.path.split(rel_file_path)[1])
+            _dir_,_file_ = os.path.split(rel_file_path)
+            if '/' not in _dir_:
+                self.filename = self.__well_form__(_file_)
+            else:
+                self.filename = self.__well_form__(os.path.split(_dir_)[1])
             self.full_path = os.path.join(self.full_dir, self.filename)
             if not os.path.isdir(self.full_dir):
                 os.makedirs(self.full_dir, exist_ok=True)

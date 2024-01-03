@@ -57,6 +57,7 @@ class FilesContentController(BaseController):
         upload_id = None
         is_file_not_found = False
         try:
+
             thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
             cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
             if cache_thumb_path and os.path.isfile(cache_thumb_path):
@@ -86,6 +87,15 @@ class FilesContentController(BaseController):
         except FileNotFoundError as e:
             is_file_not_found = True
         if is_file_not_found:
+            from cy_xdoc.models.files import DocUploadRegister
+            db_context = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
+            data_info = await db_context.context.find_one_async(
+                db_context.fields.id== upload_id
+            )
+            if data_info:
+                process_content_status = data_info[db_context.fields.ProcessContentStatus] or {}
+
+
             data_info = await self.file_service.get_upload_register_async(
                 app_name=app_name,
                 upload_id=upload_id
@@ -115,6 +125,8 @@ class FilesContentController(BaseController):
         "/api/{app_name}/file/{directory:path}"
     )
     async def get_content(self, app_name: str, directory: str):
+        # if len(directory.split('/'))>2:
+        #     directory = directory.split('/')[0]+"/"+directory.split('/')[1]
         cache_dir = self.file_cacher_service.get_path(os.path.join(app_name, "images"))
         upload_id = directory.split('/')[0]
         upload = self.file_service.get_upload_register_with_cache(app_name, upload_id)

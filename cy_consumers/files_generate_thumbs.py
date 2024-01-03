@@ -30,6 +30,7 @@ from cyx.common.share_storage import ShareStorageService
 from cy_xdoc.services.files import FileServices
 import PIL
 from cyx.loggers import  LoggerService
+__check_id__ ={}
 @broker(message=cyx.common.msg.MSG_FILE_GENERATE_THUMBS)
 class Process:
     def __init__(self,
@@ -40,21 +41,43 @@ class Process:
         self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        processing_file = msg_info.Data.get("processing_file")
 
-        full_file = msg_info.Data.get("processing_file", temp_file.get_path(
-            app_name=msg_info.AppName,
-            upload_id=msg_info.Data["_id"],
-            file_ext=msg_info.Data["FileExt"],
-            file_id=msg_info.Data.get("MainFileId")
+        if  processing_file is None:
+            processing_file = msg_info.Data.get(cyx.common.msg.PROCESSING_FILE)
+        if not processing_file:
+            file_ext = msg_info.Data.get("FileExt")
+            if file_ext is None:
+                file_ext = pathlib.Path(msg_info.Data["FileName"]).suffix
+            if file_ext:
+                file_ext=file_ext[1:]
+            full_file = msg_info.Data.get("processing_file", temp_file.get_path(
+                app_name=msg_info.AppName,
+                upload_id=msg_info.Data.get("_id","UploadID"),
+                file_ext=file_ext,
+                file_id=msg_info.Data.get("MainFileId")
 
-        ))
-        if not os.path.isfile(full_file):
+            ))
+            if os.path.isfile(full_file):
+                processing_file = full_file
+        if processing_file is None:
             msg.delete(msg_info)
             return
-        self.logger.info(full_file)
+
+        key_check = f'{msg_info.Data["_id"]}/{msg_info.tags["method"].delivery_tag}'
+        # key_check = msg_info.Data["_id"]
+        print(key_check)
+        if __check_id__.get(key_check):
+            raise Exception("stop")
+        if not os.path.isfile(processing_file):
+            msg.delete(msg_info)
+            __check_id__[key_check]=msg_info.Data["_id"]
+            return
+        self.logger.info(processing_file)
         default_thumb = None
+
         default_thumb = image_extractor_service.create_thumb(
-            image_file_path=full_file,
+            image_file_path=processing_file,
             size=700
 
         )
@@ -62,7 +85,7 @@ class Process:
         default_thumb_path = temp_file.move_file(
             from_file=default_thumb,
             app_name=msg_info.AppName,
-            sub_dir="default_thumb"
+            sub_dir=f"default_thumb/{msg_info.Data['_id']}"
         )
         msg_info.Data["processing_file"] = default_thumb_path
         msg.emit(
@@ -75,16 +98,17 @@ class Process:
             sizes = [int(x) for x in msg_info.Data.get("AvailableThumbSize").split(',') if x.isnumeric()]
             for x in sizes:
                 custome_thumb = image_extractor_service.create_thumb(
-                    image_file_path=full_file,
+                    image_file_path=processing_file,
                     size=x
 
                 )
                 custome_thumb_path = temp_file.move_file(
                     from_file=custome_thumb,
                     app_name=msg_info.AppName,
-                    sub_dir=f"thumb_{x}"
+                    sub_dir=f"thumb_{x}/{msg_info.Data['_id']}"
                 )
                 msg_info.Data["processing_file"] = custome_thumb_path
+                msg.delete(msg_info)
                 msg.emit(
                     app_name=msg_info.AppName,
                     message_type=cyx.common.msg.MSG_FILE_SAVE_CUSTOM_THUMB,
@@ -98,4 +122,3 @@ class Process:
                 available_thumbs=available_thumbs
 
             )
-        msg.delete(msg_info)

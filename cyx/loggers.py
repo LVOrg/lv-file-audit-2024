@@ -144,6 +144,9 @@ class LoggerService:
             self.__logger__.error(ex)
 
     def write_to_mongodb(self, created_on, log_type, content):
+        if not isinstance(content,str):
+            print(content)
+            return
         def running():
             try:
                 context = self.get_mongo_db().context
@@ -156,6 +159,7 @@ class LoggerService:
                     fields.PodName << self.get_name_of_pod()
                 )
             except Exception as e:
+                print(content)
                 print(traceback.format_exc())
 
         threading.Thread(target=running, args=()).start()

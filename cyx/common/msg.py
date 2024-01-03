@@ -100,10 +100,68 @@ MSG_FILE_EXTRACT_AUDIO_FROM_VIDEO = "files.upload.extract.audio.from.video"
 MSG_APP_RE_INDEX_ALL = "apps.re-index.all"
 MSG_LIBRE_OFFICE_CONVERT_TO_IMAGE = "libre.office.convert.process"
 MSG_LIBRE_OFFICE_CONVERT_TO_IMAGE_FINISH = "libre.office.convert.finish"
+MSG_EXTRACT_TEXT_FROM_OFFICE_FILE = ""
 import datetime
 from typing import List
+from cyx.common import config
+
+ext_office_file = config.ext_office_file
+ext_video_file = config.ext_video_file
+ext_image_file = config.ext_image_file
+MSG_MATRIX = {}
+from enum import Enum
+
+PROCESSING_FILE = "PROCESSING_FILE"
+class MsgEnum(Enum):
+    EXTRACT_TEXT_FROM_VIDEO = "EXTRACT_TEXT_FROM_VIDEO"
+    GEN_IMAGE_FROM_VIDEO = "GEN_IMAGE_FROM_VIDEO"
+    GEN_IMAGE_FROM_OFFICE = "GEN_IMAGE_FROM_OFFICE"
+    EXTRACT_TEXT_FROM_IMAGE = "EXTRACT_TEXT_FROM_IMAGE"
+    UPDATE_TEXT_TO_SEARCH_ENGINE = "UPDATE_TEXT_TO_SEARCH_ENGINE"
+    EXTRACT_TEXT_FROM_OFFICE = "EXTRACT_TEXT_FROM_OFFICE"
+    UPDATE_CUSTOM_THUMB = "UPDATE_CUSTOM_THUMB"
+    UPDATE_DEFAULT_THUMB = "UPDATE_DEFAULT_THUMB"
+    GEN_THUMB = "GEN_THUMB"
+    UPLOAD = "UPLOAD"
 
 
+__MSG_MATRIX_IMAGE_FILE__ = {
+    MsgEnum.GEN_THUMB.name: {
+        MsgEnum.UPDATE_DEFAULT_THUMB.name: {},
+        MsgEnum.UPDATE_CUSTOM_THUMB.name: {}
+    },
+    MsgEnum.EXTRACT_TEXT_FROM_IMAGE.name: {
+        MsgEnum.UPDATE_TEXT_TO_SEARCH_ENGINE.name: {}
+    }
+}
+__MSG_MATRIX_OFFICE_FILE__ = {
+    MsgEnum.EXTRACT_TEXT_FROM_OFFICE.name: {
+        MsgEnum.UPDATE_TEXT_TO_SEARCH_ENGINE.name: {}
+    },
+    MsgEnum.GEN_IMAGE_FROM_OFFICE.name: {
+        MsgEnum.GEN_THUMB.name: {
+            MsgEnum.UPDATE_DEFAULT_THUMB.name: {},
+            MsgEnum.UPDATE_CUSTOM_THUMB.name: {}
+        }
+    }
+}
+__MSG_MATRIX_VIDEO_FILE__ = {
+    MsgEnum.GEN_IMAGE_FROM_VIDEO.name: {
+        MsgEnum.UPDATE_DEFAULT_THUMB.name: {},
+        MsgEnum.UPDATE_CUSTOM_THUMB.name: {}
+    },
+    MsgEnum.EXTRACT_TEXT_FROM_VIDEO.name: {
+        MsgEnum.UPDATE_TEXT_TO_SEARCH_ENGINE.name: {}
+    }
+}
+import copy
+
+for x in ext_image_file:
+    MSG_MATRIX[x] = copy.deepcopy(__MSG_MATRIX_IMAGE_FILE__)
+for x in ext_office_file:
+    MSG_MATRIX[x] = copy.deepcopy(__MSG_MATRIX_OFFICE_FILE__)
+for x in ext_video_file:
+    MSG_MATRIX[x] = copy.deepcopy(__MSG_MATRIX_VIDEO_FILE__)
 class MessageInfo:
     def __init__(self):
         self.MsgType: str = None
@@ -171,7 +229,7 @@ def broker(message: str):
     db_connect = cy_kit.singleton(cyx.common.base.DbConnect)
 
     @define(name="SYS_DelayMessage",
-            indexes=["AppName","UploadID","MessageType"],
+            indexes=["AppName", "UploadID", "MessageType"],
             uniques=["AppName,UploadID,MessageType"]
             )
     class SYS_DelayMessage:
@@ -182,6 +240,7 @@ def broker(message: str):
         ModifiedOn: typing.Optional[datetime.datetime]
         ResumeCount: typing.Optional[int]
         MessageBody: typing.Optional[dict]
+
     sys_delay_message_docs = db_connect.db("admin").doc(SYS_DelayMessage)
 
     def __wrapper__(cls):
@@ -191,16 +250,20 @@ def broker(message: str):
         fx = getattr(cls, "on_receive_msg")
         if not callable(fx):
             raise Exception(f"on_receive_msg in {cls.__module__}.{cls.__name__} must be a function")
-        if len(fx.__annotations__.keys())<2:
+        if len(fx.__annotations__.keys()) < 2:
             raise Exception(f"on_receive_msg in {cls.__module__}.{cls.__name__} must be a 2 args")
         if fx.__annotations__.get("msg_info") is None:
             raise Exception(f"The first arg of on_receive_msg in {cls.__module__}.{cls.__name__} must name 'msg_info'")
         if fx.__annotations__.get("msg_broker") is None:
-            raise Exception(f"The second arg of on_receive_msg in {cls.__module__}.{cls.__name__} must name 'msg_broker'")
+            raise Exception(
+                f"The second arg of on_receive_msg in {cls.__module__}.{cls.__name__} must name 'msg_broker'")
         if fx.__annotations__["msg_info"] != MessageInfo:
-            raise Exception(f"msg_info arg of on_receive_msg in {cls.__module__}.{cls.__name__} must be {MessageInfo.__module__} {MessageInfo.__name__}")
+            raise Exception(
+                f"msg_info arg of on_receive_msg in {cls.__module__}.{cls.__name__} must be {MessageInfo.__module__} {MessageInfo.__name__}")
         if fx.__annotations__["msg_broker"] != MessageService:
-            raise Exception(f"msg_broker arg of on_receive_msg in {cls.__module__}.{cls.__name__} must be {MessageService.__module__} {MessageService.__name__}")
+            raise Exception(
+                f"msg_broker arg of on_receive_msg in {cls.__module__}.{cls.__name__} must be {MessageService.__module__} {MessageService.__name__}")
+
         def __set_msg__(owner, str_msg: str):
             owner.message_type = message
             return owner
@@ -215,13 +278,19 @@ def broker(message: str):
         from cyx.loggers import LoggerService
         logger = cy_kit.singleton(LoggerService)
         setattr(ins, "__msg_broker__", msg)
+
         def on_receive_msg(msg_info: MessageInfo):
-            ins.__msg_process_fail_count__ =0
-            is_ok= False
-            while ins.__msg_process_fail_count__ <3:
+            ins.on_receive_msg(msg_info, msg)
+            ins.__msg_process_fail_count__ = 4
+            is_ok = True
+
+        def on_receive_msg_(msg_info: MessageInfo):
+            ins.__msg_process_fail_count__ = 0
+            is_ok = False
+            while ins.__msg_process_fail_count__ < 3:
                 try:
-                    ins.on_receive_msg(msg_info,msg)
-                    ins.__msg_process_fail_count__=4
+                    ins.on_receive_msg(msg_info, msg)
+                    ins.__msg_process_fail_count__ = 4
                     is_ok = True
                 except pika.exceptions.ChannelClosedByBroker as e:
                     ins.__msg_process_fail_count__ += 1
@@ -234,41 +303,41 @@ def broker(message: str):
                     ))
 
                 except Exception as e:
-                    ins.__msg_process_fail_count__ +=1
-                    print(f"{ins.message_type} fail. Re try {ins.__msg_process_fail_count__ }")
+                    ins.__msg_process_fail_count__ += 1
+                    print(f"{ins.message_type} fail. Re try {ins.__msg_process_fail_count__}")
                     time.sleep(0.5)
-                    logger.error(e,msg_info=dict(
+                    logger.error(e, msg_info=dict(
                         msg=f"Fail process {ins.message_type}",
-                        msg_body = msg_info.Data,
-                        app_name = msg_info.AppName
+                        msg_body=msg_info.Data,
+                        app_name=msg_info.AppName
                     ))
             if not is_ok:
-                filter = ((sys_delay_message_docs.fields.UploadId==msg_info.Data["UploadId"]) &
-                          (sys_delay_message_docs.fields.AppName==msg_info.AppName) &
+                filter = ((sys_delay_message_docs.fields.UploadId == msg_info.Data["UploadId"]) &
+                          (sys_delay_message_docs.fields.AppName == msg_info.AppName) &
                           (sys_delay_message_docs.fields.MessageType == ins.message_type))
                 data_item = sys_delay_message_docs.context.find_one(filter)
                 if data_item:
                     data_item[sys_delay_message_docs.fields.ResumeCount] += 1
                     data_item[sys_delay_message_docs.fields.ModifiedOn] = datetime.datetime.utcnow()
                     sys_delay_message_docs.context.update(
-                        sys_delay_message_docs.fields.Id==data_item["_id"],
-                        sys_delay_message_docs.fields.ModifiedOn <<datetime.datetime.utcnow(),
-                        sys_delay_message_docs.fields.ResumeCount << data_item[sys_delay_message_docs.fields.ResumeCount]
+                        sys_delay_message_docs.fields.Id == data_item["_id"],
+                        sys_delay_message_docs.fields.ModifiedOn << datetime.datetime.utcnow(),
+                        sys_delay_message_docs.fields.ResumeCount << data_item[
+                            sys_delay_message_docs.fields.ResumeCount]
                     )
                 else:
                     sys_delay_message_docs.context.insert_one(
-                        sys_delay_message_docs.fields.Id<<str(uuid.uuid4()),
-                        sys_delay_message_docs.fields.ResumeCount<<0,
-                        sys_delay_message_docs.fields.MessageType<< ins.message_type,
-                        sys_delay_message_docs.fields.AppName<<msg_info.AppName,
-                        sys_delay_message_docs.fields.UploadId<<msg_info.Data["UploadID"],
-                        sys_delay_message_docs.fields.MessageBody<<msg_info.Data
+                        sys_delay_message_docs.fields.Id << str(uuid.uuid4()),
+                        sys_delay_message_docs.fields.ResumeCount << 0,
+                        sys_delay_message_docs.fields.MessageType << ins.message_type,
+                        sys_delay_message_docs.fields.AppName << msg_info.AppName,
+                        sys_delay_message_docs.fields.UploadId << msg_info.Data["UploadID"],
+                        sys_delay_message_docs.fields.MessageBody << msg_info.Data
                     )
             # if msg_info.tags and hasattr(msg_info.tags.get('ch',{}),"basic_ack"):
             #     msg_info.tags['ch'].basic_ack()
 
             msg.delete(msg_info)
-
 
         msg.consume(
             msg_type=ins.message_type,

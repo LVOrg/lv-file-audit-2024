@@ -209,19 +209,22 @@ class FilesUploadController(BaseController):
         upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
 
         def post_msg_upload():
-            print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD}")
+            if data[upload_register_doc.fields.FileExt] is None:
+                return
+            if cyx.common.msg.MSG_MATRIX.get(data[upload_register_doc.fields.FileExt].lower()) is None:
+                return
+
+
+
             try:
                 self.broker.emit(
                     app_name=app_name,
                     message_type=cyx.common.msg.MSG_FILE_UPLOAD,
                     data=data
                 )
-                print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD} is ok")
 
-                upload_register_doc.context.update(
-                    upload_register_doc.fields.Id == upload_id,
-                    upload_register_doc.fields.BrokerMsgUploadIsOk << True
-                )
+
+
             except Exception as e:
                 traceback_string = traceback.format_exc()
                 upload_register_doc.context.update(

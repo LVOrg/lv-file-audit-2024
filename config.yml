@@ -140,6 +140,11 @@ ext_office_file: [
                     std,sti,stw,sxc,sxg,sxi,sxm,uof,uop,uos,uot
                     vsd,vsdx,wdb,wps,wri,xls,xlsx,pem,yaml,ym,toml,json,jsx,ts,tsx,cs,csx,rdl,html
 ]
+ext_video_file : [mp4,mov,avi,wmv,flv,mkv,webm,mpg,mpeg]
+ext_image_file: [
+  jpg, jpeg,gif,webp,tiff,tif,psd,raw,arw,cr2,etc,svg,
+  eps,ai,pdf,heif,heic,ind,indd,jp2, j2k, jpf
+]
 libre_office_path: /usr/bin/soffice
 fs_crawler_path: ./fscrawler
 media_plugins:

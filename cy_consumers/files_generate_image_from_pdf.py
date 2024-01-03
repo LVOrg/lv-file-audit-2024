@@ -33,21 +33,28 @@ class Process:
         self.logger = logger
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        full_file = temp_file.get_path(
-            app_name=msg_info.AppName,
-            file_ext=msg_info.Data["FileExt"],
-            upload_id=msg_info.Data["_id"],
-            file_id=msg_info.Data.get("MainFileId")
+        try:
+            full_file = msg_info.Data.get(cyx.common.msg.PROCESSING_FILE)
+            if full_file is None:
+                full_file = temp_file.get_path(
+                    app_name=msg_info.AppName,
+                    file_ext=msg_info.Data["FileExt"],
+                    upload_id=msg_info.Data["_id"],
+                    file_id=msg_info.Data.get("MainFileId")
 
-        )
-        self.logger.info(f"Generate image form {full_file}")
-        img_file = pdf_file_service.get_image(full_file)
-        ret = temp_file.move_file(
-            from_file=img_file,
-            app_name=msg_info.AppName,
-            sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
-        )
-        msg_info.Data["processing_file"] = ret
+                )
+            self.logger.info(f"Generate image form {full_file}")
+            img_file = pdf_file_service.get_image(full_file)
+            ret = temp_file.move_file(
+                from_file=img_file,
+                app_name=msg_info.AppName,
+                sub_dir=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF
+            )
+            msg_info.Data["processing_file"] = ret
+        except Exception as e:
+            self.logger.error(e)
+            msg.delete(msg_info)
+            return
         msg.emit(
             app_name=msg_info.AppName,
             message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
