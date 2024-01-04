@@ -28,8 +28,7 @@
         或者創建 config.yml 文件，然後添加帶有完整路徑的“temp_directory”屬性
         根“temp_directory”
 """
-
-
+import asyncio
 import os
 import pathlib
 import shutil
@@ -196,7 +195,11 @@ class TempFiles:
                 )
                 if fs is not None:
                     with open(ret, 'wb') as f:
-                        data = fs.read(fs.get_size())
+                        import inspect
+                        if inspect.iscoroutinefunction(fs.read):
+                            data = asyncio.run(fs.read(fs.get_size()))
+                        else:
+                            data = fs.read(fs.get_size())
                         f.write(data)
             except gridfs.errors.CorruptGridFile as e:
                 self.logger.info(f"try sync {ret} from server was fail")

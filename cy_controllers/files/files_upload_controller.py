@@ -376,6 +376,7 @@ class FilesUploadController(BaseController):
             ret.Data.NumOfChunksCompleted = num_of_chunks_complete
             ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
 
+
             status = 0
             if num_of_chunks_complete == nun_of_chunks:
                 status = 1
@@ -397,6 +398,7 @@ class FilesUploadController(BaseController):
                 upload_id=UploadId,
                 data=upload_item
             )
+
             ret_data = ret.to_pydantic()
 
             if status == 1:

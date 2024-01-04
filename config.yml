@@ -170,7 +170,7 @@ rabbitmq:
   server: 172.16.7.99
   port: 30672
 #  msg: v99-dev
-  msg: xzad
+  msg: xyz-2024
 broker:
   is_use: true
   servers: 172.16.7.99:30992

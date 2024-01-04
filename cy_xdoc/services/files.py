@@ -123,9 +123,9 @@ class FileServices:
             self.logger.info("Get list of files is error")
             self.logger.error(e)
         msh_cache_key = f"{__file__}/{type(self).__name__}/check_thumbs/{cyx.common.msg.MSG_FILE_UPLOAD}"
-
+        from cyx.common.content_marterial_utils import check_is_thumbnails_able
         def check_thumbs(item):
-            from cyx.common.content_marterial_utils import check_is_thumbnails_able
+
             if check_is_thumbnails_able(item):
                 if not item.HasThumb:
                     if not item.ThumbnailsAble:
@@ -155,15 +155,17 @@ class FileServices:
                 #     x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
 
                 _a_thumbs = []
-                # if not x.HasThumb:
-                #     th= threading.Thread(target=check_thumbs, args=(x,))
-                #     th.start()
+                if not x.HasThumb:
+                    th= threading.Thread(target=check_thumbs, args=(x,))
+                    th.start()
                 if x.AvailableThumbs is not None:
                     for url in x.AvailableThumbs:
                         _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
                     x["AvailableThumbs"] = _a_thumbs
                 if x.OCRFileId:
                     x["OcrContentUrl"] = f"{root_url}/api/{app_name}/file-ocr/{x.UploadID}/{x.FileNameOnly.lower()}.pdf"
+                if check_is_thumbnails_able(x):
+                    x["HasThumb"] = True
                 yield x
         except Exception as e:
             self.logger.error(e)
@@ -290,6 +292,11 @@ class FileServices:
                             skip_option: typing.Optional[dict] = None,
                             onedrive_password: typing.Optional[str] = None,
                             onedrive_expiration: typing.Optional[str] = None):
+        _has_thumb_ = False
+        file_ext = pathlib.Path(client_file_name).suffix
+        mt,_ = mimetypes.guess_type(client_file_name)
+        if "video/" in mt or 'image/' in mt:
+            _has_thumb_ = True
 
         server_file_name_only = ""
         for x in client_file_name:
@@ -361,7 +368,7 @@ class FileServices:
             cache_doc[doc.fields.RegisterOnMinutes] = datetime.datetime.utcnow().minute
             cache_doc[doc.fields.RegisterOnSeconds] = datetime.datetime.utcnow().second
             cache_doc[doc.fields.RegisteredBy] = app_name
-            cache_doc[doc.fields.HasThumb] = False
+            cache_doc[doc.fields.HasThumb] = _has_thumb_
             cache_doc[doc.fields.LastModifiedOn] = datetime.datetime.utcnow()
             cache_doc[doc.fields.SizeInBytes] = file_size
             cache_doc[doc.fields.Privileges] = privileges_server
@@ -388,6 +395,7 @@ class FileServices:
                 file_ext = os.path.splitext(client_file_name)[1].split('.')[1]
                 server_file_name = f"{id}.{file_ext}"
             retry_count = 0
+
             while retry_count < 10:
                 try:
                     require_msg_process = cyx.common.msg.MSG_MATRIX.get(
@@ -423,7 +431,7 @@ class FileServices:
                         doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
                         doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
                         doc.fields.RegisteredBy << app_name,
-                        doc.fields.HasThumb << False,
+                        doc.fields.HasThumb << _has_thumb_,
                         doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
                         doc.fields.SizeInBytes << file_size,
                         doc.fields.Privileges << privileges_server,

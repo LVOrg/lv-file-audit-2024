@@ -89,7 +89,7 @@ class FilesContentController(BaseController):
         if is_file_not_found:
             from cyx.common import config
             from cy_xdoc.models.files import DocUploadRegister
-            from fastapi.responses import StreamingResponse
+
 
 
             db_context = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)

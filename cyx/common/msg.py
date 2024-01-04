@@ -223,7 +223,7 @@ class MessageService:
         pass
 
 
-def broker(message: str,allow_resume=False,auto_ack=False):
+def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=True):
     from cy_docs import define, get_doc
     import cyx.common.base
     import cy_kit
@@ -284,7 +284,7 @@ def broker(message: str,allow_resume=False,auto_ack=False):
             ins.__msg_process_fail_count__ = 4
             is_ok = True
 
-        def on_receive_msg(msg_info: MessageInfo):
+        def on_receive_msg__(msg_info: MessageInfo):
             ins.__msg_process_fail_count__ = 0
             is_ok = False
             msg_id = msg_info.Data.get("_id") or msg_info.Data.get("UploadId")
@@ -324,6 +324,16 @@ def broker(message: str,allow_resume=False,auto_ack=False):
                 ))
 
             msg.delete(msg_info)
+        def on_recive_msg(msg_info: MessageInfo):
+            if auto_proctect_error:
+                try:
+                    on_receive_msg__(msg_info)
+                except Exception as e:
+                    print(e)
+                    logger.error(e)
+            else:
+                on_receive_msg__(msg_info)
+
         def do_resume():
             time.sleep(5)
             remain_agg = sys_delay_message_docs.context.aggregate().match(
