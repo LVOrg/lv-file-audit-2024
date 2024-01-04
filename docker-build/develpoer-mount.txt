@@ -1,0 +1,7 @@
+mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/files
+mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/files
+'/app/share-storage/tmp-file-processing/sync/lv-docs/thumb_700/fecddda9-8bd4-4dea-a99a-e751d816dcd5/t100 - elv00767_700.webp'
+mkdir -p /app/share-storage
+
+mount -t nfs 192.168.18.36:/codx-file-storage/tmp /app/share-storage
+

@@ -33,6 +33,7 @@ from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
 from cyx.common.rabitmq_message import RabitmqMsg
 
+
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
@@ -129,8 +130,8 @@ class FileServices:
                 if not item.HasThumb:
                     if not item.ThumbnailsAble:
                         doc.context.update(
-                            doc.fields.id==item.id,
-                            doc.fields.ThumbnailsAble<<True
+                            doc.fields.id == item.id,
+                            doc.fields.ThumbnailsAble << True
                         )
                     print(item)
                     data_check = self.memcache_service.get_dict(msh_cache_key)
@@ -139,13 +140,12 @@ class FileServices:
                     if data_check.get(item.id) is None:
                         self.broker.emit(
                             app_name=app_name,
-                            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
                             data=item
                         )
-                        data_check[item.id]=item.id
-                        self.memcache_service.set_dict(msh_cache_key,data_check)
+                        data_check[item.id] = item.id
+                        self.memcache_service.set_dict(msh_cache_key, data_check)
                         print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD} is ok")
-
 
         try:
             for x in items:
@@ -155,9 +155,9 @@ class FileServices:
                 #     x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
 
                 _a_thumbs = []
-                if not x.HasThumb:
-                    th= threading.Thread(target=check_thumbs, args=(x,))
-                    th.start()
+                # if not x.HasThumb:
+                #     th= threading.Thread(target=check_thumbs, args=(x,))
+                #     th.start()
                 if x.AvailableThumbs is not None:
                     for url in x.AvailableThumbs:
                         _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
@@ -207,9 +207,9 @@ class FileServices:
             return None
 
     async def get_main_main_thumb_file_async(self, app_name: str, upload_id: str):
-        doc_context =self.db_connect.db(app_name).doc(DocUploadRegister)
+        doc_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         upload = await doc_context.context.find_one_async(
-            doc_context.fields.id==upload_id
+            doc_context.fields.id == upload_id
         )
 
         if upload is None:
@@ -224,18 +224,18 @@ class FileServices:
                 _dir_, _file_ = os.path.split(upload[doc_context.fields.FileNameLower])
                 directory = _dir_ + ".webp"
             else:
-                directory = file_name_lower +".webp"
-            register_date : datetime.datetime = upload[doc_context.fields.RegisterOn]
+                directory = file_name_lower + ".webp"
+            register_date: datetime.datetime = upload[doc_context.fields.RegisterOn]
             file_ext = upload[doc_context.fields.FileExt]
             if file_ext is None:
-                file_ext ="unknown"
+                file_ext = "unknown"
             else:
                 file_ext = file_ext[0:3]
 
             directory = f"{app_name}/{register_date.year}/{register_date.month:02d}/{register_date.day:02d}/{file_ext}/{upload_id}/{directory}"
             await doc_context.context.update_async(
                 doc_context.fields.id == upload_id,
-                doc_context.fields.ThumbFileId<<f"local://{directory}"
+                doc_context.fields.ThumbFileId << f"local://{directory}"
             )
             ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=directory)
             # self.get_file(app_name, upload.ThumbFileId)
@@ -760,6 +760,7 @@ class FileServices:
             app_name=app_name,
             force_replace=False
         )
+
     async def add_privileges_async(self, app_name, upload_id, privileges):
         """
         Add new if not exist
@@ -775,7 +776,7 @@ class FileServices:
 
         doc_context = self.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
         upload = await doc_context.context.find_one_async(
-            doc_context.fields.id==upload_id
+            doc_context.fields.id == upload_id
         )
         old_server_privileges = upload[doc_context.fields.Privileges] or {}
         old_client_privileges = upload[doc_context.fields.ClientPrivileges] or {}
@@ -801,9 +802,10 @@ class FileServices:
         self.search_engine.create_or_update_privileges(
             privileges=server_privileges,
             upload_id=upload_id,
-            data_item= None,
+            data_item=None,
             app_name=app_name
         )
+
     async def remove_privileges_async(self, app_name, upload_id, privileges):
         """
                 Re
@@ -850,7 +852,7 @@ class FileServices:
             privileges=server_privileges_update,
             upload_id=upload_id,
             app_name=app_name,
-            data_item = None,
+            data_item=None,
             force_replace=False
         )
 
@@ -999,3 +1001,37 @@ class FileServices:
             return None
         ret_doc = cy_docs.DocumentObject(ret)
         return ret_doc
+
+    def update_msg_check_list(self, app_name, upload_id, key: str, value):
+        chk_key= f"check_list_{app_name}/{key}"
+        def run():
+            doc = self.db_connect.db(app_name).doc(DocUploadRegister)
+            doc.context.update(
+                doc.fields.id == upload_id,
+                getattr(doc.fields.MsgCheckList, key.replace(".", "_")) << value
+            )
+        chk = self.memcache_service.get_dict(chk_key) or {}
+        if chk is None:
+            chk[key.replace(".", "_")] = value
+            threading.Thread(target=run).start()
+
+
+    def get_msg_check_list(self, app_name, upload_id, key:str)->typing.Optional[int]:
+        if upload_id is None:
+            return -1
+        chk_key = f"check_list_{app_name}/{key}"
+        chk_cache = self.memcache_service.get_dict(chk_key)
+        if chk_cache is None:
+            doc = self.db_connect.db(app_name).doc(DocUploadRegister)
+            data_item = doc.context.find_one(
+                doc.fields.id == upload_id
+            )
+            if data_item is None:
+                return -1
+            else:
+                chk = data_item[doc.fields.MsgCheckList] or {}
+                self.memcache_service.set_dict(chk_key,dict([(k,v) for k,v in chk.items()]))
+                chk_cache = chk
+
+        return  chk_cache.get(key.replace(".","_")) or 0
+

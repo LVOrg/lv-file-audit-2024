@@ -2,6 +2,7 @@ import datetime
 import os.path
 import pathlib
 import typing
+import uuid
 
 import cy_kit
 from cy_xdoc.services.files import FileServices
@@ -62,9 +63,29 @@ class HybridFileStorage:
                     if os.path.isfile(filepath) and filename.lower().endswith(f'_{self.filename}'):
                         self.full_path = filepath
                         break
+                import re
+
+                def is_guid(string):
+                    """Checks if a string is a valid GUID (Globally Unique Identifier).
+
+                    Args:
+                        string: The string to check.
+
+                    Returns:
+                        True if the string is a valid GUID, False otherwise.
+                    """
+
+                    guid_regex = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                    return bool(re.match(guid_regex, string))
                 if not os.path.isfile(self.full_path):
                     data_search = [ dict(images_size= int(x.split('_')[-1].split('.')[0]),image_path=x) for x in lst_files if x.endswith(".webp") and x.split('_')[-1].split('.')[0].isdigit()]
-                    data_search += [dict(images_size= int(pathlib.Path(self.full_path).stem),image_path=self.full_path)]
+                    try:
+                        data_search += [dict(images_size= int(pathlib.Path(self.full_path).stem),image_path=self.full_path)]
+                    except:
+                        if is_guid(pathlib.Path(self.full_path).stem):
+                            data_search += [
+                                dict(images_size=int(pathlib.Path(rel_file_path).stem), image_path=self.full_path)]
+
                     sorted_data = sorted(data_search, key=lambda x: x['images_size'], reverse=True)
                     index_of_return_image = 0
                     for item in sorted_data:

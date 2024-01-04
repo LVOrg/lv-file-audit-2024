@@ -1,6 +1,8 @@
 import mimetypes
 import os.path
 import pathlib
+import typing
+
 from PIL import Image
 import img2pdf
 import cy_kit
@@ -59,7 +61,7 @@ class ImageExtractorService:
             return self.libre_office_service.get_image(file_path)
         return None
 
-    def create_thumb(self, image_file_path, size: int,out_put_dir:str=None):
+    def create_thumb(self, image_file_path, size: int,out_put_dir:typing.Optional[str]=None,id: typing.Optional[str]=None):
         try:
             if os.path.splitext(image_file_path)[1] == ".avif":
                 new_file_path = os.path.splitext(image_file_path)[0] + ".jpg"
@@ -69,8 +71,9 @@ class ImageExtractorService:
                     image_file_path = new_file_path
             filename_only = pathlib.Path(image_file_path).stem
 
-
-            path_id= pathlib.Path(image_file_path).parent.name
+            path_id=id
+            if not path_id:
+                path_id= pathlib.Path(image_file_path).parent.name
             dir_path = os.path.join(self.processing_folder,path_id)
             if not os.path.isdir(dir_path):
                 os.makedirs(dir_path,exist_ok=True)

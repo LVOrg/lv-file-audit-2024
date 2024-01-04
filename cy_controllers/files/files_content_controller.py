@@ -87,25 +87,24 @@ class FilesContentController(BaseController):
         except FileNotFoundError as e:
             is_file_not_found = True
         if is_file_not_found:
-            from cy_xdoc.models.files import DocUploadRegister
-            db_context = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
-            data_info = await db_context.context.find_one_async(
-                db_context.fields.id== upload_id
-            )
-            if data_info:
-                process_content_status = data_info[db_context.fields.ProcessContentStatus] or {}
-
-
-            data_info = await self.file_service.get_upload_register_async(
-                app_name=app_name,
-                upload_id=upload_id
-            )
-            if data_info is not None and data_info.Status==1:
-                self.msg_service.emit(
-                    app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                    data=data_info
-                )
+            # from cy_xdoc.models.files import DocUploadRegister
+            # db_context = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
+            # data_info = await db_context.context.find_one_async(
+            #     db_context.fields.id== upload_id
+            # )
+            #
+            #
+            #
+            # data_info = await self.file_service.get_upload_register_async(
+            #     app_name=app_name,
+            #     upload_id=upload_id
+            # )
+            # if data_info is not None and data_info.Status==1:
+            #     self.msg_service.emit(
+            #         app_name=app_name,
+            #         message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+            #         data=data_info
+            #     )
             response = Response(content="Resource not found", status_code=404)
             return response
 
@@ -250,17 +249,17 @@ class FilesContentController(BaseController):
         except FileNotFoundError as e:
             is_file_not_found = True
         if is_file_not_found:
-            upload_id = directory.split('/')[0]
-            data_info = await self.file_service.get_upload_register_async(
-                app_name=app_name,
-                upload_id=upload_id
-            )
-            if data_info is not None and data_info.Status == 1:
-                self.msg_service.emit(
-                    app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                    data=data_info
-                )
+            # upload_id = directory.split('/')[0]
+            # data_info = await self.file_service.get_upload_register_async(
+            #     app_name=app_name,
+            #     upload_id=upload_id
+            # )
+            # if data_info is not None and data_info.Status == 1:
+            #     self.msg_service.emit(
+            #         app_name=app_name,
+            #         message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+            #         data=data_info
+            #     )
             response = Response(content="Resource not found", status_code=404)
             return response
 

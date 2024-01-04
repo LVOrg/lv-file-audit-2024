@@ -55,7 +55,7 @@ COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 #RUN pip cache purge
 ENTRYPOINT []
 ">>$ai_file
-ai_tag=15
+ai_tag=20
 ai_tag_build="fs.large."$(tag $ai_lib_tag).$ai_tag
 ai_image=$repository/$image_name:$ai_tag_build
 buildFunc $ai_file $repository $image_name $ai_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"

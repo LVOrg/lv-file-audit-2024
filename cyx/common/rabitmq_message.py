@@ -96,7 +96,7 @@ class RabitmqMsg:
                 """
         return "RabbitMQ"
 
-    def consume(self, handler, msg_type: str):
+    def consume(self, handler, msg_type: str,auto_ack=False):
         """
         Start RabbitMQ consumer.
         """
@@ -123,15 +123,24 @@ class RabitmqMsg:
             msg.AppName = data.get('app_name')
             msg.tags = dict(method=method, ch=ch, properties=properties)
             handler(msg)
-            logs.info(f"{txt_json} was complete")
 
+        import pika.adapters.blocking_connection
         if not self.__is_declare__:
             while self.__channel__ is None:
                 self.__try_connect__()
                 time.sleep(10)
-            self.__channel__.queue_declare(queue=self.get_real_msg(msg_type), auto_delete=False)
+            assert isinstance(self.__channel__,pika.adapters.blocking_connection.BlockingChannel)
+            self.__channel__.queue_declare(queue=self.get_real_msg(msg_type), auto_delete=auto_ack)
             self.__is_declare__ = True
-        self.__channel__.basic_consume(queue=self.get_real_msg(msg_type), on_message_callback=callback)
+        assert isinstance(self.__channel__, pika.adapters.blocking_connection.BlockingChannel)
+        def on_cancel(*args,**kwargs):
+            print(args)
+        def on_return(*args,**kwargs):
+            print(args)
+        self.__channel__.add_on_cancel_callback(on_cancel)
+        self.__channel__.add_on_return_callback(on_return)
+        self.__channel__.basic_consume(queue=self.get_real_msg(msg_type), on_message_callback=callback,auto_ack=auto_ack)
+
 
 
         try:
@@ -159,7 +168,7 @@ class RabitmqMsg:
                 self.__try_connect__()
                 try:
 
-                    self.__channel__.queue_declare(queue=msg_type, auto_delete=False)
+                    self.__channel__.queue_declare(queue=msg_type, auto_delete=True)
                     self.__channel__.start_consuming()
                     ok = True
                 except pika.exceptions.ConnectionWrongStateError as e:
@@ -231,11 +240,11 @@ class RabitmqMsg:
         if item.deleted is None or item.deleted==False:
             self.delete_msg(item)
             item.deleted=True
-
-    def delete_msg(self, item: MessageInfo):
-        """
-        somehow to implement thy source here ...
-        """
+    def reject(self, item: MessageInfo):
+        if item.deleted is None or item.deleted==False:
+            self.reject_msg(item)
+            item.deleted=True
+    def reject_msg(self, item):
 
         try:
             key_check = f'{item.Data.get("_id")}/{item.tags["method"].delivery_tag}'
@@ -247,7 +256,7 @@ class RabitmqMsg:
             if isinstance(chanel,BlockingChannel):
                 if chanel.is_open:
                     # chanel.basic_nack(delivery_tag=item.tags['method'].delivery_tag)
-                    chanel.basic_ack(delivery_tag=item.tags['method'].delivery_tag)
+                    chanel.basic_reject(delivery_tag=item.tags['method'].delivery_tag)
 
 
             # if item.tags['ch'].is_open:
@@ -262,6 +271,45 @@ class RabitmqMsg:
             print(e)
             print(f"delete msg {item} error")
 
+        except Exception as e:
+            print(e)
+            print(f"delete msg {item} error")
+            raise e
+    def delete_msg(self, item: MessageInfo):
+        """
+        somehow to implement thy source here ...
+        """
+
+        try:
+            key_check = f'{item.Data.get("_id")}/{item.tags["method"].delivery_tag}'
+            print(f"delete msg {key_check}")
+            from pika.adapters.blocking_connection import BlockingChannel,BlockingConnection
+            # fx= Channel()
+            # fx.open()
+            channel = item.tags['ch']
+            if isinstance(channel,BlockingChannel):
+                if channel.is_open:
+                    # chanel.basic_nack(delivery_tag=item.tags['method'].delivery_tag)
+                    # channel.basic_nack(delivery_tag=item.tags['method'].delivery_tag,multiple=True)
+                    channel.basic_reject(item.tags['method'].delivery_tag, requeue=True)
+
+
+
+            # if item.tags['ch'].is_open:
+            #
+            #     item.tags['ch'].basic_ack(delivery_tag=item.tags['method'].delivery_tag)
+            # else:
+            #     item.tags['ch'].open()
+            #     item.tags['ch'].basic_ack(delivery_tag=item.tags['method'].delivery_tag)
+        except pika.exceptions.StreamLostError as e:
+            return
+        except pika.exceptions.ChannelWrongStateError as e:
+            print(e)
+            print(f"delete msg {item} error")
+        except pika.exceptions.ChannelClosedByBroker as e:
+            print(e)
+            print(f"delete msg {item} error")
+            pass
         except Exception as e:
             print(e)
             print(f"delete msg {item} error")
@@ -352,4 +400,6 @@ class RabitmqMsg:
             return ret
         else:
             print(f"msg will raise {msg_type}")
+
+
 

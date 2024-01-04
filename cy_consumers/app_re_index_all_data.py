@@ -18,7 +18,7 @@ from cyx.loggers import LoggerService
 from cy_xdoc.services.files import FileServices
 import cy_docs
 from cyx.common import config
-@broker(message=MSG_APP_RE_INDEX_ALL)
+@broker(message=MSG_APP_RE_INDEX_ALL,allow_resume=True)
 class Consumer:
     def __init__(self,
                  logger=cy_kit.singleton(LoggerService),
@@ -30,6 +30,7 @@ class Consumer:
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         try:
+            msg_broker.delete(msg_info)
             txt_msg = f"{MSG_APP_RE_INDEX_ALL} receive message from app {msg_info.AppName} at time {msg_info.CreatedOn}"
             self.logger.info(txt_msg)
             qr = self.files_service.get_queryable_doc(msg_info.AppName)
@@ -45,7 +46,7 @@ class Consumer:
                         (cy_docs.not_exists(qr.fields.HasThumb))
                 )
                 fileter_thumb_able = (
-                        (qr.fields.ThumbnailsAble == True) |
+                        (qr.fields.ThumbnailsAble == False) |
                         (cy_docs.not_exists(qr.fields.ThumbnailsAble))
                 )
                 filter = (fileter_reindex | fileter_thumb_able) & (qr.fields.ThumbFileId == None) & (qr.fields.Status==1)
@@ -59,16 +60,22 @@ class Consumer:
                     is_continue = len(items_list)>0
                     for x in items:
                         ext: str = x[qr.fields.FileExt]
+                        if ext is None:
+                            ext = pathlib.Path(x[qr.fields.FileName]).suffix
+                            if ext:
+                                ext=ext[1:]
+                        if ext is None:
+                            continue
                         mime_type:str = x[qr.fields.MimeType]
                         if mime_type is None:
                             qr.context.update(
                                 qr.fields.id == x.id,
-                                qr.fields.ThumbnailsAble<<True
+                                qr.fields.ThumbnailsAble<<False
                             )
                         if ext is None:
                             qr.context.update(
                                 qr.fields.id == x.id,
-                                qr.fields.ThumbnailsAble << True
+                                qr.fields.ThumbnailsAble << False
                             )
                         is_ok = ext.lower() in config.ext_office_file
                         is_ok = is_ok or (mime_type.startswith("image/"))
@@ -93,6 +100,7 @@ class Consumer:
                             self.logger.error(e)
                 except Exception as e:
                     self.logger.error(e)
+
             print("Run")
         except Exception as e:
             self.logger.error(e)

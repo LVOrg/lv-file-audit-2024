@@ -92,7 +92,7 @@ print(get_scree())
 from cyx.loggers import LoggerService
 
 
-@broker(message=cyx.common.msg.MSG_FILE_UPLOAD)
+@broker(message=cyx.common.msg.MSG_FILE_UPLOAD,allow_resume=True)
 class Process:
     def __init__(self,
                  shared_storage_service=cy_kit.singleton(ShareStorageService),
@@ -105,12 +105,34 @@ class Process:
         self.output_dir = shared_storage_service.get_temp_dir(self.__class__)
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        full_file_path = temp_file.get_path(
-            app_name=msg_info.AppName,
-            file_ext=msg_info.Data["FileExt"],
-            upload_id=msg_info.Data["_id"],
-            file_id=msg_info.Data.get("MainFileId")
-        )
+        full_file_path = None
+        file_ext = msg_info.Data.get("FileExt")
+        local_file = msg_info.Data.get("StoragePath")
+        if isinstance(local_file,str) and "://" in local_file:
+            local_file = os.path.join(config.file_storage_path,local_file.split("://")[1])
+            if os.path.isfile(local_file):
+                full_file_path = local_file
+
+        if file_ext is None:
+            file_ext = pathlib.Path(msg_info.Data.get("FileName")).suffix
+            if file_ext:
+                file_ext=file_ext[1:]
+        if not full_file_path:
+            try:
+                full_file_path = temp_file.get_path(
+                    app_name=msg_info.AppName,
+                    file_ext=file_ext,
+                    upload_id=msg_info.Data.get("_id") or msg_info.Data.get("UploadId") ,
+                    file_id=msg_info.Data.get("MainFileId")
+                )
+            except FileNotFoundError:
+                msg.delete(msg_info)
+                """
+                Eliminate message never occur again
+                Loại bỏ tin nhắn không bao giờ xảy ra nữa
+                """
+                self.logger.info(f"msg={self.message_type}, upload_file={full_file_path},file was not found")
+                return
         self.logger.info(f"msg={self.message_type}, upload_file={full_file_path}")
         """
         Get file from message
@@ -148,7 +170,7 @@ class Process:
             Ai đó cố gắng can thiệp trực tiếp vào Hệ thống Broker tạo thông báo không hợp lệ, bỏ qua trong trường hợp này
             """
             raise Exception(f"msg param must be MessageInfo")
-        file_ext = msg_info.Data.get("FileExt")
+
         import mimetypes
         mime_type, _ = mimetypes.guess_type(msg_info.Data['FullFileName'])
         msg_info.Data[cyx.common.msg.PROCESSING_FILE] = full_file_path

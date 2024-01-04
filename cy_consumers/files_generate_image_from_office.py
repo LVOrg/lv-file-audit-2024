@@ -36,7 +36,12 @@ class Process:
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         from cyx.media.libre_office import LibreOfficeService
         libre_office_service = cy_kit.singleton(LibreOfficeService)
-        if msg_info.Data["FileExt"] == "pdf":
+        ext_file = msg_info.Data.get("FileExt")
+        if ext_file is None:
+            ext_file = pathlib.Path(msg_info.Data["FileName"]).suffix
+            if ext_file:
+                ext_file = ext_file[1:].lower()
+        if ext_file == "pdf":
             msg.delete(msg_info)
             return
         full_file = msg_info.Data.get("processing_file")
