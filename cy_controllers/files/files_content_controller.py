@@ -87,24 +87,43 @@ class FilesContentController(BaseController):
         except FileNotFoundError as e:
             is_file_not_found = True
         if is_file_not_found:
-            # from cy_xdoc.models.files import DocUploadRegister
-            # db_context = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
-            # data_info = await db_context.context.find_one_async(
-            #     db_context.fields.id== upload_id
-            # )
-            #
-            #
-            #
-            # data_info = await self.file_service.get_upload_register_async(
-            #     app_name=app_name,
-            #     upload_id=upload_id
-            # )
-            # if data_info is not None and data_info.Status==1:
-            #     self.msg_service.emit(
-            #         app_name=app_name,
-            #         message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-            #         data=data_info
-            #     )
+            from cyx.common import config
+            from cy_xdoc.models.files import DocUploadRegister
+            from fastapi.responses import StreamingResponse
+
+
+            db_context = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
+            data_info = await db_context.context.find_one_async(
+                db_context.fields.id== upload_id
+            )
+
+            if data_info is not None and data_info.Status==1:
+                file_name = data_info[db_context.fields.FileName]
+                file_ext = data_info[db_context.fields.FileExt]
+                main_file_id= data_info[db_context.fields.MainFileId]
+                real_file_path = None
+                if "://" in main_file_id:
+                    real_file_path = os.path.join(config.file_storage_path,main_file_id.split("://")[1])
+                media_type= None
+                if real_file_path:
+                    media_type, _ = mimetypes.guess_type(real_file_path)
+                if media_type.startswith("image/"):
+
+                    self.msg_service.emit(
+                        app_name=app_name,
+                        message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+                        data=data_info
+                    )
+                    if real_file_path and os.path.isfile(real_file_path):
+                        return FileResponse(
+                            real_file_path
+                        )
+                elif file_ext:
+                    self.msg_service.emit(
+                        app_name=app_name,
+                        message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                        data=data_info
+                    )
             response = Response(content="Resource not found", status_code=404)
             return response
 
