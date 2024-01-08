@@ -9,13 +9,15 @@ os.makedirs(tmp_dir,exist_ok=True)
 import uuid
 os.environ["GRADIO_TEMP_DIR"] = tmp_dir
 import gradio as gr
-import cy_kit
+
 import webp
 libre_office_path = f"/bin/soffice"
 uno = f"Negotiate=0,ForceSynchronous=1;"
 user_profile_dir = "/tmp/tmp-libre-office-user-profile"
 if not os.path.isfile(libre_office_path):
-    raise Exception(f"{libre_office_path} was not found")
+    libre_office_path = f"/usr/bin/soffice"
+    if not os.path.isfile(libre_office_path):
+        raise Exception(f"{libre_office_path} was not found")
 from PIL import Image
 
 def scale_image(image_path, new_width:int, new_height:int)->str:
