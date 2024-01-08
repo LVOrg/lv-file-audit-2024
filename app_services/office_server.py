@@ -2,6 +2,9 @@ import os.path
 import pathlib
 import shutil
 import subprocess
+import threading
+from datetime import datetime
+
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 package_working_dir = pathlib.Path(__file__).parent.__str__()
 tmp_dir = os.path.join(package_working_dir,"tmp")
@@ -19,6 +22,19 @@ if not os.path.isfile(libre_office_path):
     if not os.path.isfile(libre_office_path):
         raise Exception(f"{libre_office_path} was not found")
 from PIL import Image
+from datetime import timedelta
+def delete_old_subdirs(folder_path):
+    today = datetime.now()
+    cutoff_date = today - timedelta(days=2)  # Calculate cutoff date
+
+    for root, dirs, files in os.walk(folder_path):
+        for subdir in dirs:
+            subdir_path = os.path.join(root, subdir)
+            subdir_ctime = datetime.fromtimestamp(os.path.getctime(subdir_path))
+
+            if subdir_ctime < cutoff_date:
+                print(f"Deleting subdirectory: {subdir_path}")
+                shutil.rmtree(subdir_path)  # Use shutil.rmtree for safe removal
 
 def scale_image(image_path, new_width:int, new_height:int)->str:
     """Scales an image while maintaining its aspect ratio.
@@ -44,7 +60,9 @@ def scale_image(image_path, new_width:int, new_height:int)->str:
 
         return ret_image_path
 def convert_office_file_to_image(file_path: str):
+
     tmp_dir = pathlib.Path(file_path).parent.__str__()
+    threading.Thread(target=delete_old_subdirs,args=(tmp_dir,)).start()
     full_user_profile_path = os.path.join(tmp_dir, "user-profiles")
     output_unique_dir = os.path.join(tmp_dir, "result")
     output_file_name = pathlib.Path(file_path).stem + ".png"
@@ -77,7 +95,10 @@ async def generate_image_from_office(file_path: str,scale:str,request:gr.Request
     ret_list = []
     for x in scales:
         img = scale_image(ret,x,x)
-        ret_list+=[request.headers['origin']+"/file="+ img]
+        try:
+            ret_list+=[request.headers['origin']+"/file="+ img]
+        except:
+            ret_list += [img]
     os.remove(file_path)
     return ret_list
 
@@ -90,6 +111,11 @@ gr = gr.Interface(fn=generate_image_from_office,
                     outputs=[
                         "textbox"
                     ])
+import sys
+if sys.platform == "linux":
+    import signal
+
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 gr.launch(
 
     share=True,

@@ -1,7 +1,7 @@
 #!/bin/bash
 source build-func.sh
 image_name="fs"
-job_core_office_file="server-app-office"
+job_core_office_file="gradio-office-thumbs"
 
 #nttlong/file-svc
 repository="docker.io/nttlong"
@@ -23,8 +23,8 @@ COPY ./../app_services /app/app_services
 RUN python3 /app/app_services/office_server_check.py
 ENTRYPOINT [\"/usr/bin/env\"]
 ">>$job_core_office_file
-job_core_office_tag=1
-job_core_office_build="fs.app.office."$(tag $job_core_office_tag)
+job_core_office_tag=3
+job_core_office_build="gradio.office.thumbs."$(tag $job_core_office_tag)
 job_core_office_image=$repository/$image_name:$job_core_office_build
 buildFunc $job_core_office_file $repository $image_name $job_core_office_build "docker.io/python:3.10.12-slim-bookworm" "debian"
 #mount -t nfs 172.16.13.72:/home/vmadmin/python/cy-py //from-172-16-13-72-cy-py
@@ -36,3 +36,4 @@ echo "python3 /app/cy_consumers/files_save_custom_thumb.py"
 echo "python3 /app/cy_consumers/files_generate_pdf_from_image.py"
 echo "python3 /app/cy_consumers/files_clean_up.py"
 echo "python3 /app/cy_consumers/files_generate_image_from_pdf.py"
+#docker run -it -p 8014:8014 nttlong/fs:gradio.office.thumbs.amd.1  python3 /app/app_services/office_server.py
