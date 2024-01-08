@@ -330,13 +330,11 @@ class RabitmqMsg:
         )
         try:
             print(f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name}")
-            if not self.__is_declare__:
-                if self.__channel__:
-                    self.__channel__.queue_declare(queue=self.get_real_msg(message_type),auto_delete=False)
-                    self.__is_declare__ = True
-                else:
-                    self.__try_connect__()
-
+            if self.__channel__:
+                self.__channel__.queue_declare(queue=self.get_real_msg(message_type), auto_delete=False)
+            else:
+                self.__try_connect__()
+                self.__channel__.queue_declare(queue=self.get_real_msg(message_type), auto_delete=False)
             self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
             print(
                 f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name} is OK")

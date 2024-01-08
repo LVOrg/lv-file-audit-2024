@@ -291,8 +291,9 @@ class FileStorageService:
         return self.get_file_by_name(app_name=app_name,rel_file_path=rel_file_path)
 
 
-    def get_file_by_id(self, app_name: str, id: str) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
+    def get_file_by_id(self, app_name: str, id: typing.Optional[str]) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
         # storage_info = self.__get_storage_type_by_app_and_id__(app_name,id)
+        assert isinstance(id,str)
         if isinstance(id,str) and id.startswith("local://"):
             ret = HybridFileStorage(
                 file_storage_path=self.file_storage_path,
@@ -316,6 +317,7 @@ class FileStorageService:
         raise NotImplemented
 
     async def get_file_by_id_async(self, app_name: str, id: str) ->typing.Union[HybridFileStorage,MongoDbFileStorage]:
+        assert isinstance(id,str)
         return self.get_file_by_id(app_name,id)
 
     def get_reader_of_file(self, app_name: str, from_chunk, id) -> HybridReader:

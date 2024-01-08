@@ -348,43 +348,15 @@ class FilesController(BaseController):
         from cyx.common.content_marterial_utils import check_is_thumbnails_able
 
         doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
-        msh_cache_key = f"{__file__}/{type(self).__name__}/check_thumbs/{cyx.common.msg.MSG_FILE_UPLOAD}"
-        from cyx.common.content_marterial_utils import check_is_thumbnails_able
-        def check_thumbs(item):
-            doc = doc_context
-            if check_is_thumbnails_able(item):
-                if not item.HasThumb:
-                    if not item.ThumbnailsAble:
-                        doc.context.update(
-                            doc.fields.id == item.id,
-                            doc.fields.ThumbnailsAble << True
-                        )
-                    print(item)
-                    data_check = self.memcache_service.get_dict(msh_cache_key)
-                    if data_check is None:
-                        data_check = {}
-                    if data_check.get(item.id) is None:
-                        self.broker.emit(
-                            app_name=app_name,
-                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                            data=item
-                        )
-                        data_check[item.id] = item.id
-                        self.memcache_service.set_dict(msh_cache_key, data_check)
-                        print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD} is ok")
         upload_info = await doc_context.context.find_one_async(
             doc_context.fields.id==UploadId
         )
-        if not upload_info.HasThumb and upload_info[doc_context.fields.Status]==1:
-            th = threading.Thread(target=check_thumbs, args=(upload_info,))
-            th.start()
         if upload_info is None:
             return None
         mt,_ = mimetypes.guess_type(upload_info[doc_context.fields.FileName])
         _thumb_ = False
         if isinstance(mt,str) and  (mt.startswith("image/") or mt.startswith("video/")):
             _thumb_ = True
-
         upload_info.UploadId = upload_info._id
         upload_info.HasOCR = upload_info.OCRFileId is not None
         upload_info.RelUrl = f"api/{app_name}/file/{upload_info.UploadId}/{upload_info.FileName.lower()}"

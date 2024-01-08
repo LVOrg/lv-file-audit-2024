@@ -360,3 +360,4 @@ class DocUploadRegister:
     ThumbnailsAble :typing.Optional[bool]
     MsgRequires: typing.Optional[dict]
     MsgCheckList: typing.Optional[dict]
+    ReIndex: typing.Optional[bool]

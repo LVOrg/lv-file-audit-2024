@@ -124,29 +124,6 @@ class FileServices:
             self.logger.error(e)
         msh_cache_key = f"{__file__}/{type(self).__name__}/check_thumbs/{cyx.common.msg.MSG_FILE_UPLOAD}"
         from cyx.common.content_marterial_utils import check_is_thumbnails_able
-        def check_thumbs(item):
-
-            if check_is_thumbnails_able(item):
-                if not item.HasThumb:
-                    if not item.ThumbnailsAble:
-                        doc.context.update(
-                            doc.fields.id == item.id,
-                            doc.fields.ThumbnailsAble << True
-                        )
-                    print(item)
-                    data_check = self.memcache_service.get_dict(msh_cache_key)
-                    if data_check is None:
-                        data_check = {}
-                    if data_check.get(item.id) is None:
-                        self.broker.emit(
-                            app_name=app_name,
-                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                            data=item
-                        )
-                        data_check[item.id] = item.id
-                        self.memcache_service.set_dict(msh_cache_key, data_check)
-                        print(f"raise msg {cyx.common.msg.MSG_FILE_UPLOAD} is ok")
-
         try:
             for x in items:
                 # if x[doc.fields.RemoteUrl] is None:
@@ -155,9 +132,6 @@ class FileServices:
                 #     x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
 
                 _a_thumbs = []
-                if not x.HasThumb:
-                    th= threading.Thread(target=check_thumbs, args=(x,))
-                    th.start()
                 if x.AvailableThumbs is not None:
                     for url in x.AvailableThumbs:
                         _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
@@ -217,6 +191,8 @@ class FileServices:
         if upload is None:
             return None
         try:
+            if upload.ThumbFileId is None:
+                upload.ThumbFileId = upload.MainFileId+".webp"
             ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=upload.ThumbFileId)
             # self.get_file(app_name, upload.ThumbFileId)
             return ret
@@ -292,9 +268,19 @@ class FileServices:
                             skip_option: typing.Optional[dict] = None,
                             onedrive_password: typing.Optional[str] = None,
                             onedrive_expiration: typing.Optional[str] = None):
+        __registerde_on__ = datetime.datetime.utcnow()
+        id = str(uuid.uuid4())
         _has_thumb_ = False
         file_ext = pathlib.Path(client_file_name).suffix
-        mt,_ = mimetypes.guess_type(client_file_name)
+        local_path_dir:str = self.make_local_path(
+            register_on = __registerde_on__,
+            file_ext = file_ext,
+            app_name=app_name,
+            upload_id=id
+        )
+        thumbs_size= [ int(x) for x in (thumbs_support or "").split(",") if x.isnumeric()]
+        mt,_ = mimetypes.guess_type(client_file_name
+                                    )
         if "video/" in mt or 'image/' in mt:
             _has_thumb_ = True
 
@@ -305,7 +291,7 @@ class FileServices:
             else:
                 server_file_name_only += x
         doc = self.db_connect.db(app_name).doc(DocUploadRegister)
-        id = str(uuid.uuid4())
+
         mime_type, _ = mimetypes.guess_type(client_file_name)
         num_of_chunks, tail = divmod(file_size, chunk_size)
         if tail > 0:
@@ -380,6 +366,7 @@ class FileServices:
             cache_doc[doc.fields.OnedrivePassword] = onedrive_password
             cache_doc[doc.fields.OnedriveExpiration] = onedrive_expiration
             cache_doc[doc.fields.OnedriveSessionUrl] = fucking_session_url
+
             self.set_upload_register_to_cache(
                 app_name=app_name,
                 upload_id=id,
@@ -401,6 +388,8 @@ class FileServices:
                     require_msg_process = cyx.common.msg.MSG_MATRIX.get(
                         (file_ext or "").lower()
                     )
+                    main_thumb_file = f"{local_path_dir}/{client_file_name}.webp"
+
                     doc.context.insert_one(
                         doc.fields.id << id,
                         doc.fields.FileName << client_file_name,
@@ -443,7 +432,9 @@ class FileServices:
                         doc.fields.OnedriveSessionUrl << fucking_session_url,
                         doc.fields.OnedrivePassword << onedrive_password,
                         doc.fields.OnedriveExpiration << onedrive_expiration,
-                        doc.fields.MsgRequires << require_msg_process
+                        doc.fields.MsgRequires << require_msg_process,
+                        doc.fields.MainFileId<<f"{local_path_dir}/{client_file_name}",
+                        doc.fields.ThumbFileId <<main_thumb_file
                     )
                 except Exception as e:
                     time.sleep(0.1)
@@ -952,12 +943,21 @@ class FileServices:
             doc_context.fields.HasThumb << True
         )
 
-    def update_available_thumbs(self, upload_id: str, app_name: str, available_thumbs: typing.List[str]):
+    def update_available_thumbs(self, upload_id: str, app_name: str, available_thumbs: typing.List[str],thumb_file_path=None):
         doc_context = self.db_connect.db(app_name).doc(DocUploadRegister)
-        doc_context.context.update(
-            doc_context.fields.id == upload_id,
-            doc_context.fields.AvailableThumbs << available_thumbs
-        )
+        if thumb_file_path is not None:
+            doc_context.context.update(
+                doc_context.fields.id == upload_id,
+                doc_context.fields.AvailableThumbs << available_thumbs,
+                doc_context.fields.HasThumb<< True,
+                doc_context.fields.ThumbFileId<<thumb_file_path
+            )
+        else:
+            doc_context.context.update(
+                doc_context.fields.id == upload_id,
+                doc_context.fields.AvailableThumbs << available_thumbs,
+                doc_context.fields.HasThumb << True
+            )
 
     def update_ocr_info(self, app_name: str, upload_id: str, ocr_file_id: typing.Union[str, bson.ObjectId]):
         if isinstance(ocr_file_id, str):
@@ -1042,4 +1042,11 @@ class FileServices:
                 chk_cache = chk
 
         return  chk_cache.get(key.replace(".","_")) or 0
+
+    def make_local_path(self,app_name:str,upload_id:str, register_on:datetime.datetime, file_ext:typing.Optional[str]):
+        ext = file_ext or "unknown"
+        if ext.startswith(".") and ext!="unknown":
+            ext = ext[1:][0:3]
+        return f"local://{app_name.lower()}/{register_on.year}/{register_on.month:02d}/{register_on.day:02d}/{ext}/{upload_id}"
+
 

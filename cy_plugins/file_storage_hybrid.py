@@ -31,7 +31,7 @@ class HybridFileStorage:
                 self.file_storage_path, self.id
             )
             _dir_,_file_ = os.path.split(rel_file_path)
-            if '/' not in _dir_:
+            if '/' not in _dir_ or rel_file_path.startswith("thumb/") or rel_file_path.startswith("thumbs/") :
                 self.filename = self.__well_form__(_file_)
             else:
                 self.filename = self.__well_form__(os.path.split(_dir_)[1])

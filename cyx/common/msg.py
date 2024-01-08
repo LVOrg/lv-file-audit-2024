@@ -30,7 +30,7 @@ import threading
 import time
 import typing
 import uuid
-
+import traceback
 MSG_FILE_UPLOAD = "files.upload"
 """
 Whenever file was uploaded, the message would be raised
@@ -137,6 +137,7 @@ __MSG_MATRIX_IMAGE_FILE__ = {
 }
 __MSG_MATRIX_OFFICE_FILE__ = {
     MsgEnum.EXTRACT_TEXT_FROM_OFFICE.name: {
+        MsgEnum.UPDATE_TEXT_TO_SEARCH_ENGINE.name: {},
         MsgEnum.UPDATE_TEXT_TO_SEARCH_ENGINE.name: {}
     },
     MsgEnum.GEN_IMAGE_FROM_OFFICE.name: {
@@ -276,7 +277,7 @@ def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=Tr
         setattr(ins, "__msg_process_fail_count__", 0)
         msg = cy_kit.singleton(RabitmqMsg)
         from cyx.loggers import LoggerService
-        logger = cy_kit.singleton(LoggerService)
+        __logger__ = cy_kit.singleton(LoggerService)
         setattr(ins, "__msg_broker__", msg)
 
         def on_receive_msg_(msg_info: MessageInfo):
@@ -314,23 +315,16 @@ def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=Tr
                 if allow_resume and auto_ack:
                     threading.Thread(target=__run_stop__).start()
             except Exception as e:
-                ins.__msg_process_fail_count__ += 1
-                print(f"{ins.message_type} fail. Re try {ins.__msg_process_fail_count__}")
-                time.sleep(0.5)
-                logger.error(e, msg_info=dict(
-                    msg=f"Fail process {ins.message_type}",
-                    msg_body=msg_info.Data,
-                    app_name=msg_info.AppName
-                ))
-
+                err_content = traceback.format_exc()
+                print(err_content)
             msg.delete(msg_info)
-        def on_recive_msg(msg_info: MessageInfo):
+        def on_receive_msg(msg_info: MessageInfo):
             if auto_proctect_error:
                 try:
                     on_receive_msg__(msg_info)
                 except Exception as e:
-                    print(e)
-                    logger.error(e)
+                    err_content = traceback.format_exc()
+                    print(err_content)
             else:
                 on_receive_msg__(msg_info)
 

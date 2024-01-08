@@ -30,7 +30,8 @@ class LibreOfficeService:
         :return:
         """
         filename_only = pathlib.Path(file_path).stem
-        ret_file = os.path.join(self.output_dir, f"{filename_only}.png")
+        unique_dir = pathlib.Path(file_path).parent.name
+        ret_file = os.path.join(self.output_dir,unique_dir, f"{filename_only}.png")
         if os.path.isfile(ret_file):
             return ret_file
 
@@ -40,7 +41,8 @@ class LibreOfficeService:
         user_profile_id = str(uuid.uuid4())  # Tạo user profile giả, nếu kg có điều này LibreOffice chỉ tạo 1 instance,
         # kg xử lý song song được
         full_user_profile_path = os.path.join(self.user_profile_dir, user_profile_id)
-
+        output_unique_dir = os.path.join(self.output_dir,unique_dir)
+        os.makedirs(output_unique_dir,exist_ok=True)
         pid = subprocess.Popen(
             [
                 self.libre_office_path,
@@ -49,7 +51,7 @@ class LibreOfficeService:
                 f"--accept={uno}",
                 f"-env:UserInstallation=file://{full_user_profile_path.replace(os.sep, '/')}",
                 '--outdir',
-                self.output_dir, file_path
+                output_unique_dir, file_path
             ],
             shell=False,
             start_new_session=True

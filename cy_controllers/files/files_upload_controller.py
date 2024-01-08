@@ -211,11 +211,6 @@ class FilesUploadController(BaseController):
         def post_msg_upload():
             if data[upload_register_doc.fields.FileExt] is None:
                 return
-            if cyx.common.msg.MSG_MATRIX.get(data[upload_register_doc.fields.FileExt].lower()) is None:
-                return
-
-
-
             try:
                 self.broker.emit(
                     app_name=app_name,

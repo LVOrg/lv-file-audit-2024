@@ -92,7 +92,7 @@ print(get_scree())
 from cyx.loggers import LoggerService
 
 
-@broker(message=cyx.common.msg.MSG_FILE_UPLOAD,allow_resume=True)
+@broker(message=cyx.common.msg.MSG_FILE_UPLOAD)
 class Process:
     def __init__(self,
                  shared_storage_service=cy_kit.singleton(ShareStorageService),

@@ -46,6 +46,11 @@ class Process:
             return
         full_file = msg_info.Data.get("processing_file")
         if not full_file:
+            if isinstance(msg_info.Data.get("MainFileId"),str):
+                full_file = os.path.join(cyx.common.config.file_storage_path, msg_info.Data.get("MainFileId").split("://")[1])
+                if not os.path.isfile(full_file):
+                    full_file = None
+        if not full_file:
             full_file = temp_file.get_path(
                 app_name=msg_info.AppName,
                 file_ext=msg_info.Data["FileExt"],
