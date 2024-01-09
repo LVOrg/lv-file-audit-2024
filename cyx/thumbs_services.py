@@ -99,9 +99,12 @@ class ThumbService:
                 Returns:
                     Image: The scaled image.
                 """
+
         ret_image_path = os.path.join(pathlib.Path(main_file_path).parent.__str__(), f"{size}.webp")
         with Image.open(main_file_path) as img:
             original_width, original_height = img.size
+            if size > max(original_width, original_height):
+                size = int(max(original_width, original_height))
             rate = size / original_width
             w, h = size, int(original_height * rate)
             if original_height > original_width:
@@ -111,3 +114,23 @@ class ThumbService:
             webp.save_image(scaled_img, ret_image_path, lossless=True)  # Set lossless=False for lossy compression
 
             return ret_image_path
+
+    async def get_customize_async(self, app_name, directory):
+        cache_key = f"{self.cache_group}/{app_name}/{directory}/get_customize_async".replace(" ", "_")
+        ret = self.memcache_services.get_str(cache_key)
+        if isinstance(ret,str) and os.path.isfile(ret):
+            return ret
+        name_only = pathlib.Path(directory).stem
+        if name_only.isnumeric():
+            return await self.get_async(
+                app_name=app_name,
+                directory=directory,
+                size=int(name_only)
+            )
+        else:
+            return await self.get_async(
+                app_name=app_name,
+                directory=directory,
+                size=700
+            )
+
