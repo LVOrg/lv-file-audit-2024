@@ -78,7 +78,7 @@ config:
     server: rabbitmq.rabbitmq-dev
     #Broker server
 #    temp_directory: /app/share-storage
-    msg: xyz-2024
+    msg: xyzdsc-2024
   workers: auto
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files

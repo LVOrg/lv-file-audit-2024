@@ -91,6 +91,7 @@ spec:
             - vn_suggest_url=$(vn_suggest_url)
             - tika_server=$(tika_server)
             - file_storage_path=/mnt/files
+            - server_thumb_office=http://xdoc-office-thumbs.xdoc-web:8014
             {{if not $storage_files}}
             - services=""
             {{end}}

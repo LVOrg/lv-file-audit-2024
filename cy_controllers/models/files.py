@@ -105,6 +105,8 @@ list_of_attrs=[
     MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
     MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 ]
+import pydantic
+pydantic.__version__
 from pydantic.fields import ModelField
 SkipFileProcessingOptions = SkipFileProcessingOptionVirtual
 skip_all_field = SkipFileProcessingOptionVirtual.__dict__["__fields__"]["All"]

@@ -4,7 +4,7 @@ import shutil
 import subprocess
 import threading
 from datetime import datetime
-
+__version__ = "0.0"
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 package_working_dir = pathlib.Path(__file__).parent.__str__()
 tmp_dir = os.path.join(package_working_dir,"tmp")
@@ -99,7 +99,11 @@ async def generate_image_from_office(file_path: str,scale:str,request:gr.Request
             ret_list+=[request.headers['origin']+"/file="+ img]
         except:
             ret_list += [img]
-    os.remove(file_path)
+    try:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    except:
+        pass
     return ret_list
 
 

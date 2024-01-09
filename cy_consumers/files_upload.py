@@ -90,21 +90,25 @@ def get_scree():
 print(get_scree())
 
 from cyx.loggers import LoggerService
-
+from cyx.content_services import ContentService
 
 @broker(message=cyx.common.msg.MSG_FILE_UPLOAD)
 class Process:
     def __init__(self,
                  shared_storage_service=cy_kit.singleton(ShareStorageService),
+                 content_service= cy_kit.singleton(ContentService),
                  logger=cy_kit.singleton(LoggerService)
                  ):
         self.logger = logger
+        self.content_service = content_service
         self.logger.info(f"consumer {cyx.common.msg.MSG_FILE_UPLOAD} init")
         self.temp_file = temp_file
 
         self.output_dir = shared_storage_service.get_temp_dir(self.__class__)
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        content_type = self.content_service.get_type(data= msg_info.Data)
+    def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         full_file_path = None
         file_ext = msg_info.Data.get("FileExt")
         local_file = msg_info.Data.get("StoragePath")

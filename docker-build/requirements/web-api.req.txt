@@ -38,3 +38,5 @@ cryptography
 PyCrypto
 requests-kerberos
 tqdm
+webp
+pillow

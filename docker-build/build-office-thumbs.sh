@@ -23,7 +23,7 @@ COPY ./../app_services /app/app_services
 RUN python3 /app/app_services/office_server_check.py
 ENTRYPOINT [\"/usr/bin/env\"]
 ">>$job_core_office_file
-job_core_office_tag=3
+job_core_office_tag=4
 job_core_office_build="gradio.office.thumbs."$(tag $job_core_office_tag)
 job_core_office_image=$repository/$image_name:$job_core_office_build
 buildFunc $job_core_office_file $repository $image_name $job_core_office_build "docker.io/python:3.10.12-slim-bookworm" "debian"
