@@ -90,7 +90,7 @@ def get_scree():
 print(get_scree())
 
 from cyx.loggers import LoggerService
-from cyx.content_services import ContentService
+from cyx.content_services import ContentService,ContentTypeEnum
 
 @broker(message=cyx.common.msg.MSG_FILE_UPLOAD)
 class Process:
@@ -107,7 +107,87 @@ class Process:
         self.output_dir = shared_storage_service.get_temp_dir(self.__class__)
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        content_type = self.content_service.get_type(data= msg_info.Data)
+        content_type = self.content_service.get_type(msg_data= msg_info.Data)
+        upload_id = msg_info.Data.get("_id") or msg_info.Data.get("UploadId")
+        resource = self.content_service.get_resource(msg_info=msg_info)
+        if content_type== ContentTypeEnum.Office:
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type= cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE,
+                parent_msg= msg_info.MsgType,
+                parent_tag= msg_info.tags['method'].delivery_tag,
+                require_tracking= True,
+                data=msg_info.Data
+
+            )
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT_FROM_OFFICE,
+                parent_msg=msg_info.MsgType,
+                parent_tag=msg_info.tags['method'].delivery_tag,
+                require_tracking=True,
+                data=msg_info.Data
+
+            )
+        if content_type== ContentTypeEnum.Image:
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type= cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+                parent_msg= msg_info.MsgType,
+                parent_tag= msg_info.tags['method'].delivery_tag,
+                require_tracking= True,
+                data=msg_info.Data
+
+            )
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT_FROM_IMAGE,
+                parent_msg=msg_info.MsgType,
+                parent_tag=msg_info.tags['method'].delivery_tag,
+                require_tracking=True,
+                data=msg_info.Data
+
+            )
+        if content_type== ContentTypeEnum.Pdf:
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type= cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF,
+                parent_msg= msg_info.MsgType,
+                parent_tag= msg_info.tags['method'].delivery_tag,
+                require_tracking= True,
+                data=msg_info.Data
+
+            )
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT_FROM_PDF,
+                parent_msg=msg_info.MsgType,
+                parent_tag=msg_info.tags['method'].delivery_tag,
+                require_tracking=True,
+                data=msg_info.Data
+
+            )
+        if content_type== ContentTypeEnum.Video:
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type= cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO,
+                parent_msg= msg_info.MsgType,
+                parent_tag= msg_info.tags['method'].delivery_tag,
+                require_tracking= True,
+                data=msg_info.Data
+
+            )
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT_FROM_VIDEO,
+                parent_msg=msg_info.MsgType,
+                parent_tag=msg_info.tags['method'].delivery_tag,
+                require_tracking=True,
+                data=msg_info.Data
+
+            )
+        else:
+            return
     def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         full_file_path = None
         file_ext = msg_info.Data.get("FileExt")

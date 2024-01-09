@@ -24,7 +24,8 @@ logs = cy_kit.create_logs(
     name=pathlib.Path(__file__).stem
 )
 
-
+from cyx.cache_service.memcache_service import MemcacheServices
+memcache_service = cy_kit.singleton(MemcacheServices)
 class RabitmqMsg:
     """
     Definition RabbitMQ Producer and Consumer \n
@@ -110,6 +111,20 @@ class RabitmqMsg:
             data = dict()
             try:
                 data = json.loads(txt_json)
+                resource = data.get("resource")
+                parent_msg = data.get("parent_msg")
+                parent_tag =data.get("parent_tag")
+                require_tracking =data.get("require_tracking") or False
+                msg = MessageInfo()
+                msg.Data = data.get('data')
+                msg.MsgType = msg_type
+                msg.AppName = data.get('app_name')
+                msg.tags = dict(method=method, ch=ch, properties=properties)
+                msg.resource= resource
+                msg.parent_msg = parent_msg
+                msg.parent_tag = parent_tag
+                msg.require_tracking = require_tracking
+                handler(msg)
             except:
                 if isinstance(self.__channel__,pika.adapters.blocking_connection.BlockingChannel):
                     if self.__channel__.is_open:
@@ -117,12 +132,7 @@ class RabitmqMsg:
                 return
 
 
-            msg = MessageInfo()
-            msg.Data = data.get('data')
-            msg.MsgType = msg_type
-            msg.AppName = data.get('app_name')
-            msg.tags = dict(method=method, ch=ch, properties=properties)
-            handler(msg)
+
 
         import pika.adapters.blocking_connection
         if not self.__is_declare__:
@@ -236,7 +246,13 @@ class RabitmqMsg:
         """
         raise NotImplemented
 
-    def delete(self, item: MessageInfo):
+    def delete(self, item: MessageInfo,is_error_reason=False):
+        data = item.Data
+        if isinstance(data,cy_docs.DocumentObject):
+            data=data.to_json_convertable()
+        id = data.get("_id")
+        cache_key = f"{type(self).__module__}/{self.get_real_msg(item.MsgType)}/{item.AppName}/{id}"
+        memcache_service.delete_key(cache_key)
         if item.deleted is None or item.deleted==False:
             self.delete_msg(item)
             item.deleted=True
@@ -281,17 +297,13 @@ class RabitmqMsg:
         """
 
         try:
-            key_check = f'{item.Data.get("_id")}/{item.tags["method"].delivery_tag}'
-            print(f"delete msg {key_check}")
             from pika.adapters.blocking_connection import BlockingChannel,BlockingConnection
-            # fx= Channel()
-            # fx.open()
             channel = item.tags['ch']
             if isinstance(channel,BlockingChannel):
                 if channel.is_open:
                     # chanel.basic_nack(delivery_tag=item.tags['method'].delivery_tag)
                     # channel.basic_nack(delivery_tag=item.tags['method'].delivery_tag,multiple=True)
-                    channel.basic_reject(item.tags['method'].delivery_tag, requeue=True)
+                    channel.basic_ack(item.tags['method'].delivery_tag)
 
 
 
@@ -315,19 +327,46 @@ class RabitmqMsg:
             print(f"delete msg {item} error")
             raise e
 
-    def emit(self, app_name: str, message_type: str, data: typing.Optional[typing.Union[dict,cy_docs.DocumentObject]]):
+    def emit(
+            self,
+            app_name: str,
+            message_type: str,
+            data: typing.Optional[typing.Union[dict,cy_docs.DocumentObject]],
+            parent_msg=None,
+            parent_tag=None,
+            resource=None,
+            require_tracking: bool=False
+    ):
         """
         somehow to implement thy source here ...
         """
         # self.channel.exchange_declare(exchange='logs', exchange_type=message_type)
+        id = data.get("_id")
+        cache_key = f"{type(self).__module__}/{self.get_real_msg(message_type)}/{app_name}/{id}"
+        if memcache_service.get_str(cache_key):
+            return
         self.__try_connect__()
-
-        msg = cy_kit.to_json(
-            dict(
-                app_name=app_name,
-                data=data
+        if require_tracking:
+            msg = cy_kit.to_json(
+                dict(
+                    app_name=app_name,
+                    data=data,
+                    is_process=True,
+                    parent_msg = parent_msg,
+                    parent_tag = parent_tag,
+                    resource  = resource
+                )
             )
-        )
+        else:
+            msg = cy_kit.to_json(
+                dict(
+                    app_name=app_name,
+                    data=data,
+                    parent_msg = parent_msg,
+                    parent_tag = parent_tag,
+                    resource  = resource
+                )
+            )
         try:
             print(f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name}")
             if self.__channel__:
@@ -336,8 +375,10 @@ class RabitmqMsg:
                 self.__try_connect__()
                 self.__channel__.queue_declare(queue=self.get_real_msg(message_type), auto_delete=False)
             self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
-            print(
-                f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name} is OK")
+            memcache_service.set_str(cache_key,cache_key)
+            print(f"{resource} {message_type}")
+            # print(
+            #     f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name} is OK")
         except pika.exceptions.StreamLostError as e:
             print("Error:")
             print(e)

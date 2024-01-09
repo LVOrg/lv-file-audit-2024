@@ -77,7 +77,7 @@ class ImageExtractorService:
             dir_path = os.path.join(self.processing_folder,path_id)
             if not os.path.isdir(dir_path):
                 os.makedirs(dir_path,exist_ok=True)
-            thumb_file_path = os.path.join(dir_path, f"t{filename_only}_{size}.webp")
+            thumb_file_path = os.path.join(dir_path, f"{size}.webp")
             if os.path.isfile(thumb_file_path):
                 return thumb_file_path
             if os.path.isfile(thumb_file_path):

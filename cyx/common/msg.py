@@ -31,6 +31,7 @@ import time
 import typing
 import uuid
 import traceback
+
 MSG_FILE_UPLOAD = "files.upload"
 """
 Whenever file was uploaded, the message would be raised
@@ -50,6 +51,10 @@ Phát hiện khung trong tệp video nếu khung đó chứa văn bản có th�
 Sử dụng văn bản có thể đọc được cho Tìm kiếm Nội dung
 """
 MSG_FILE_GENERATE_IMAGE_FROM_OFFICE = "files.upload.generate.image.from.office"
+MSG_FILE_GENERATE_CONTENT_FROM_OFFICE = "files.upload.generate.content.from.office"
+MSG_FILE_GENERATE_CONTENT_FROM_IMAGE = "files.upload.generate.content.from.image"
+MSG_FILE_GENERATE_CONTENT_FROM_PDF = "files.upload.generate.content.from.pdf"
+MSG_FILE_GENERATE_CONTENT_FROM_VIDEO = "files.upload.generate.content.from.video"
 """
     Tell Consumer generate an image file from Office file or Office file readable or Office file compatibility format \n
     tạo tệp hình ảnh từ tệp Office hoặc tệp Office có thể đọc được hoặc định dạng tương thích với tệp Office
@@ -113,6 +118,8 @@ MSG_MATRIX = {}
 from enum import Enum
 
 PROCESSING_FILE = "PROCESSING_FILE"
+
+
 class MsgEnum(Enum):
     EXTRACT_TEXT_FROM_VIDEO = "EXTRACT_TEXT_FROM_VIDEO"
     GEN_IMAGE_FROM_VIDEO = "GEN_IMAGE_FROM_VIDEO"
@@ -156,6 +163,7 @@ __MSG_MATRIX_VIDEO_FILE__ = {
         MsgEnum.UPDATE_TEXT_TO_SEARCH_ENGINE.name: {}
     }
 }
+
 import copy
 
 for x in ext_image_file:
@@ -164,6 +172,8 @@ for x in ext_office_file:
     MSG_MATRIX[x] = copy.deepcopy(__MSG_MATRIX_OFFICE_FILE__)
 for x in ext_video_file:
     MSG_MATRIX[x] = copy.deepcopy(__MSG_MATRIX_VIDEO_FILE__)
+
+
 class MessageInfo:
     def __init__(self):
         self.MsgType: str = None
@@ -173,6 +183,13 @@ class MessageInfo:
         self.Id: str = None
         self.tags = None
         self.deleted = False
+        self.resource = None
+        self.parent_msg = None
+        self.parent_tag = None
+        self.require_tracking = False
+
+    def __repr__(self):
+        return f"{self.AppName} \n {self.resource or '..'}\n {self.MsgType}"
 
 
 class MessageService:
@@ -224,7 +241,7 @@ class MessageService:
         pass
 
 
-def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=True):
+def broker(message: str, allow_resume=False, auto_ack=False, auto_proctect_error=True):
     from cy_docs import define, get_doc
     import cyx.common.base
     import cy_kit
@@ -289,6 +306,7 @@ def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=Tr
             ins.__msg_process_fail_count__ = 0
             is_ok = False
             msg_id = msg_info.Data.get("_id") or msg_info.Data.get("UploadId")
+
             def __run__():
                 try:
                     sys_delay_message_docs.context.insert_one(
@@ -305,9 +323,10 @@ def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=Tr
 
             def __run_stop__():
                 try:
-                    sys_delay_message_docs.context.delete(sys_delay_message_docs.fields.id<<msg_id)
+                    sys_delay_message_docs.context.delete(sys_delay_message_docs.fields.id << msg_id)
                 except:
                     pass
+
             if allow_resume and auto_ack:
                 threading.Thread(target=__run__).start()
             try:
@@ -317,7 +336,8 @@ def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=Tr
             except Exception as e:
                 err_content = traceback.format_exc()
                 print(err_content)
-            msg.delete(msg_info)
+                msg.delete(msg_info)
+
         def on_receive_msg(msg_info: MessageInfo):
             if auto_proctect_error:
                 try:
@@ -331,7 +351,7 @@ def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=Tr
         def do_resume():
             time.sleep(5)
             remain_agg = sys_delay_message_docs.context.aggregate().match(
-                sys_delay_message_docs.fields.MessageType==message
+                sys_delay_message_docs.fields.MessageType == message
             ).sort(
                 sys_delay_message_docs.fields.CreatedOn.desc()
             ).limit(10)
@@ -349,9 +369,9 @@ def broker(message: str,allow_resume=False,auto_ack=False,auto_proctect_error=Tr
                     sys_delay_message_docs.fields.CreatedOn.desc()
                 ).limit(10)
                 remain_list = list(remain_agg)
-        if allow_resume and  auto_ack:
-            threading.Thread(target=do_resume).start()
 
+        if allow_resume and auto_ack:
+            threading.Thread(target=do_resume).start()
 
         msg.consume(
             msg_type=ins.message_type,

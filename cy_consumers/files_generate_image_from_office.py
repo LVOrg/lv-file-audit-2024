@@ -24,16 +24,40 @@ if sys.platform == "linux":
 
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
-
-
+from cyx.content_services import ContentService,ContentTypeEnum
+from cyx.media.libre_office import LibreOfficeService
 @broker(message=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE)
 class Process:
     def __init__(self,
-                 logger=cy_kit.singleton(LoggerService)
+                 logger=cy_kit.singleton(LoggerService),
+                 content_service= cy_kit.singleton(ContentService),
+                 libre_office_service=cy_kit.singleton(LibreOfficeService)
                  ):
         self.logger = logger
+        self.content_service=content_service
+        self.libre_office_service=libre_office_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        resource = self.content_service.get_resource(msg_info)
+        if resource is None:
+            raise Exception("No")
+        print(f"{msg_info.MsgType} of {resource}")
+        img_file = self.libre_office_service.get_image(file_path=resource)
+
+        msg.emit(
+            app_name=msg_info.AppName,
+            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+            data= msg_info.Data,
+            parent_msg=msg_info.MsgType,
+            parent_tag=msg_info.tags["method"].delivery_tag,
+            resource=img_file,
+            require_tracking=True
+
+        )
+        msg.delete(msg_info)
+
+
+    def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         from cyx.media.libre_office import LibreOfficeService
         libre_office_service = cy_kit.singleton(LibreOfficeService)
         ext_file = msg_info.Data.get("FileExt")

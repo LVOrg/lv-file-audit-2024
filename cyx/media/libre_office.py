@@ -58,6 +58,11 @@ class LibreOfficeService:
             # creationflags=16
         )
         ret = pid.wait()  # Đợi
+        try:
+            shutil.rmtree(full_user_profile_path)
+        except:
+            pass
+
 
         return ret_file
 
