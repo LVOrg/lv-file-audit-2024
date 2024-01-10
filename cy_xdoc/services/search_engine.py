@@ -810,3 +810,15 @@ class SearchEngine:
                 field_path= k,
                 field_value= v
             )
+
+    def replace_content(self, app_name, id,field_path:str, field_value:str):
+        cy_es.replace_content(
+            index=self.get_index(app_name),
+            id=id,
+            field_path=field_path,
+            field_value=field_value,
+            client=self.client
+
+        )
+        print(app_name)
+        pass

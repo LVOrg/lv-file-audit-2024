@@ -15,7 +15,7 @@ pika
 python-jose
 pdfplumber
 img2pdf
-PyMuPDF
+PyMuPDF==1.19.3
 moviepy
 opencv-python==4.5.5.64
 grpcio-tools

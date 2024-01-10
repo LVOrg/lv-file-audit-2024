@@ -13,7 +13,7 @@ import pathlib
 import cy_kit
 import cyx.common.msg
 from cyx.common.msg import MessageService, MessageInfo
-from cyx.common.rabitmq_message import RabitmqMsg
+
 from cyx.common.brokers import Broker
 from cyx.common import config
 from cyx.common.temp_file import TempFiles
@@ -24,13 +24,14 @@ import json
 
 temp_file = cy_kit.singleton(TempFiles)
 pdf_file_service = cy_kit.singleton(PDFService)
-
+from cyx.common.rabitmq_message import RabitmqMsg
 msg = cy_kit.singleton(RabitmqMsg)
 from cyx.common.msg import broker
 from cyx.common.share_storage import ShareStorageService
-from cy_xdoc.services.files import FileServices
+
 import PIL
 from cyx.loggers import  LoggerService
+from cy_xdoc.services.files import FileServices
 from cyx.content_services import ContentService,ContentTypeEnum
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
@@ -51,29 +52,86 @@ class Process:
         self.mongodb_service= mongodb_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        print(msg_info)
+        master_resource = self.content_service.get_master_resource(msg_info)
+        print(master_resource)
         doc_context= self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
 
         resource = self.content_service.get_resource(msg_info)
+        print(resource)
         delivery_tag= msg_info.tags["method"].delivery_tag
         parent_msg = msg_info.parent_msg
         unique_dir = pathlib.Path(resource).parent.name
         try:
+            import mimetypes
+            mt,_ = mimetypes.guess_type(resource)
+            if not mt.startswith("image/"):
+                _doc_context = self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
+                _upload_item = _doc_context.context.find_one(
+                    doc_context.fields.id == unique_dir
+                )
+                if _upload_item is None:
+                    msg.delete(msg_info)
+                    return
+                master_resource = self.content_service.get_master_resource(msg_info)
+                if not master_resource:
+                    msg.delete(msg_info)
+                    return
+
+                if not os.path.isfile(master_resource):
+                    msg.delete(msg_info)
+                    return
+                msg.emit(
+                    app_name=msg_info.AppName,
+                    message_type=cyx.common.msg.MSG_FILE_SAVE_DEFAULT_THUMB,
+                    data=msg_info.Data,
+                    parent_msg=parent_msg,
+                    parent_tag=delivery_tag,
+                    resource=master_resource
+
+                )
+
+                msg.delete(msg_info)
+                return
             default_thumbs = self.image_extractor_service.create_thumb(
                 image_file_path=resource,
                 size=700,
                 id=unique_dir
 
             )
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_SAVE_DEFAULT_THUMB,
-                data=msg_info.Data,
-                parent_msg=parent_msg,
-                parent_tag=delivery_tag,
-                resource=default_thumbs
+            try:
+                shutil.move(default_thumbs,os.path.join(pathlib.Path(master_resource).parent.__str__(),os.path.split(default_thumbs)[1]))
+            except:
+                pass
 
+            doc_context = self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
+            upload_item = doc_context.context.find_one(
+                doc_context.fields.id== unique_dir
             )
-            print(msg_info)
+            if upload_item is None:
+                msg.delete(msg_info)
+                return
+            thumbs = upload_item[doc_context.fields.AvailableThumbSize]
+            if isinstance(thumbs,str):
+                sizes = [int(x) for  x in thumbs.split(',') if x.lstrip(" ").rstrip(" ").isnumeric()]
+                for x in sizes:
+                    default_thumbs = self.image_extractor_service.create_thumb(
+                        image_file_path=resource,
+                        size=x,
+                        id=unique_dir
+
+                    )
+                    try:
+                        shutil.move(default_thumbs, os.path.join(pathlib.Path(master_resource).parent.__str__(),
+                                                                 os.path.split(default_thumbs)[1]))
+                    except:
+                        pass
+            doc_context.context.update(
+                doc_context.fields.id == unique_dir,
+                doc_context.fields.ThumbnailsAble<<True,
+                doc_context.fields.HasThumb<<True
+            )
+            msg.delete(msg_info)
         except FileNotFoundError as e:
             master_resource= self.content_service.get_master_resource(msg_info)
             if master_resource is None:

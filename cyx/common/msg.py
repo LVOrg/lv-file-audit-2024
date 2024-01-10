@@ -55,6 +55,7 @@ MSG_FILE_GENERATE_CONTENT_FROM_OFFICE = "files.upload.generate.content.from.offi
 MSG_FILE_GENERATE_CONTENT_FROM_IMAGE = "files.upload.generate.content.from.image"
 MSG_FILE_GENERATE_CONTENT_FROM_PDF = "files.upload.generate.content.from.pdf"
 MSG_FILE_GENERATE_CONTENT_FROM_VIDEO = "files.upload.generate.content.from.video"
+MSG_FILE_SAVE_SEARCH_CONTENT="file.save.search.content"
 """
     Tell Consumer generate an image file from Office file or Office file readable or Office file compatibility format \n
     tạo tệp hình ảnh từ tệp Office hoặc tệp Office có thể đọc được hoặc định dạng tương thích với tệp Office

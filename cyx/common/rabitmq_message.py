@@ -247,12 +247,6 @@ class RabitmqMsg:
         raise NotImplemented
 
     def delete(self, item: MessageInfo,is_error_reason=False):
-        data = item.Data
-        if isinstance(data,cy_docs.DocumentObject):
-            data=data.to_json_convertable()
-        id = data.get("_id")
-        cache_key = f"{type(self).__module__}/{self.get_real_msg(item.MsgType)}/{item.AppName}/{id}"
-        memcache_service.delete_key(cache_key)
         if item.deleted is None or item.deleted==False:
             self.delete_msg(item)
             item.deleted=True
@@ -341,10 +335,6 @@ class RabitmqMsg:
         somehow to implement thy source here ...
         """
         # self.channel.exchange_declare(exchange='logs', exchange_type=message_type)
-        id = data.get("_id")
-        cache_key = f"{type(self).__module__}/{self.get_real_msg(message_type)}/{app_name}/{id}"
-        if memcache_service.get_str(cache_key):
-            return
         self.__try_connect__()
         if require_tracking:
             msg = cy_kit.to_json(
@@ -375,7 +365,6 @@ class RabitmqMsg:
                 self.__try_connect__()
                 self.__channel__.queue_declare(queue=self.get_real_msg(message_type), auto_delete=False)
             self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
-            memcache_service.set_str(cache_key,cache_key)
             print(f"{resource} {message_type}")
             # print(
             #     f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name} is OK")
@@ -404,7 +393,15 @@ class RabitmqMsg:
             raise e
 
         # message = ' '.join(sys.argv[1:]) or "info: Hello World!"
-
+    def emit_child_message(self, parent_message:MessageInfo, message_type:str, resource:str):
+        self.emit(
+            app_name=parent_message.AppName,
+            data=parent_message.Data,
+            parent_msg=parent_message.MsgType,
+            parent_tag=parent_message.tags["method"].delivery_tag,
+            resource=resource,
+            message_type= message_type
+        )
     def re_emit(self, msg: MessageInfo):
         """
         somehow to implement thy source here ...
@@ -439,6 +436,8 @@ class RabitmqMsg:
             return ret
         else:
             print(f"msg will raise {msg_type}")
+
+
 
 
 

@@ -107,6 +107,7 @@ class Process:
         self.output_dir = shared_storage_service.get_temp_dir(self.__class__)
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        print(msg_info)
         content_type = self.content_service.get_type(msg_data= msg_info.Data)
         upload_id = msg_info.Data.get("_id") or msg_info.Data.get("UploadId")
         resource = self.content_service.get_resource(msg_info=msg_info)
@@ -129,6 +130,7 @@ class Process:
                 data=msg_info.Data
 
             )
+            msg.delete(msg_info)
         if content_type== ContentTypeEnum.Image:
             msg.emit(
                 app_name=msg_info.AppName,
@@ -148,6 +150,7 @@ class Process:
                 data=msg_info.Data
 
             )
+            msg.delete(msg_info)
         if content_type== ContentTypeEnum.Pdf:
             msg.emit(
                 app_name=msg_info.AppName,
@@ -167,6 +170,7 @@ class Process:
                 data=msg_info.Data
 
             )
+            msg.delete(msg_info)
         if content_type== ContentTypeEnum.Video:
             msg.emit(
                 app_name=msg_info.AppName,
@@ -186,6 +190,7 @@ class Process:
                 data=msg_info.Data
 
             )
+            msg.delete(msg_info)
         else:
             return
     def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):

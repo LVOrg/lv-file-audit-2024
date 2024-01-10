@@ -23,6 +23,10 @@ from cyx.common import config
 class ContentService:
     def __init__(self):
         self.file_storage_path = config.file_storage_path
+        self.s1 = u'ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ'
+        self.s0 = u'AAAAEEEIIOOOOUUYaaaaeeeiioooouuyAaDdIiUuOoUuAaAaAaAaAaAaAaAaAaAaAaAaEeEeEeEeEeEeEeEeIiIiOoOoOoOoOoOoOoOoOoOoOoOoUuUuUuUuUuUuUuYyYyYyYy'
+        self.rdrsegment = None  # RDRSegmenter.RDRSegmenter()
+        self.tokenizer = None  # Tokenizer.Tokenizer()
 
     def get_type(self, msg_data: typing.Union[dict, cy_docs.DocumentObject]) -> ContentTypeEnum:
         data = msg_data
@@ -89,3 +93,37 @@ class ContentService:
             real_file_path = os.path.join(self.file_storage_path, rel_path)
             return real_file_path
         return None
+
+    def well_form_text(self, text):
+        if isinstance(text, str):
+            ret = text.replace('\\n', ' ').replace('\\t', ' ').replace('\\r', ' ').replace('\n', ' ').replace('\t',
+                                                                                                              ' ').replace(
+                '\r', ' ').replace("  ", ' ').rstrip(' ').lstrip(' ')
+            ret_remove_accents = self.remove_accents(ret)
+            # self.rdrsegment.segmentRawSentences(self.tokenizer, ret)
+            return ret + " " + ret_remove_accents
+        return ""
+
+    def remove_accents(self, input_str):
+        if not isinstance(input_str, str):
+            return ""
+
+        s = ''
+        for c in input_str:
+            if c in self.s1:
+                s += self.s0[self.s1.index(c)]
+            else:
+                s += c
+        return s
+
+    def create_content_file(self, master_resource, content: str):
+        if not os.path.isfile(master_resource):
+            return None
+        content_dir_path = os.path.join(pathlib.Path(master_resource).parent.__str__(), "content")
+        os.makedirs(content_dir_path, exist_ok=True)
+        content_file_path = os.path.join(content_dir_path, "context.txt")
+        if os.path.isfile(content_file_path):
+            return content_file_path
+        with open(content_file_path, "wb") as fs:
+            fs.write(content.encode('utf8'))
+        return content_file_path

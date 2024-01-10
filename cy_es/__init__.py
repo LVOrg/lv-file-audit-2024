@@ -268,3 +268,59 @@ def parse_expr(expr: str, suggest_handler=None) -> DocumentFields:
 delete_index = cy_es_objective.delete_index
 async def get_doc_async(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc"):
     return get_doc(client, index, id, doc_type)
+def __to_dict__(key,value):
+    k=key.split('.')[0]
+    m=".".join(key.split('.')[1:])
+    if m=="":
+        return {k:value}
+    else:
+        v=__to_dict__(m,value)
+        return {k:v}
+
+def replace_content(client:Elasticsearch, index:str, id:str, field_path, field_value):
+    from cy_es.cy_es_manager import FIELD_RAW_TEXT,update_mapping
+    data_raw_mapping_update = __to_dict__(f"{FIELD_RAW_TEXT}.{field_path}", field_value)
+    data_mapping_update = __to_dict__(f"{field_path}", field_value)
+    data_update = {**data_mapping_update,**data_raw_mapping_update}
+    update_mapping(
+        client=client,
+        index=index,
+        data=data_update
+    )
+
+    update_body_like = {
+        "script": {
+                "source": f"ctx._source.{FIELD_RAW_TEXT}.{field_path} = params.new_value",
+                "params": {
+                    "new_value": field_value
+                },
+            "lang": "painless",
+            },
+
+    }
+    update_body = {
+        "script": {
+            "source": f"ctx._source.{field_path} = params.new_value",
+            "params": {
+                "new_value": field_value
+            }
+        },
+
+    }
+    try:
+        response = client.update(index=index, id=id, body=update_body_like,doc_type="_doc")
+    except Exception as e:
+
+        update_body_like = {
+            "doc": data_raw_mapping_update
+        }
+        response = client.update(index=index, id=id, body=update_body_like, doc_type="_doc")
+    try:
+        response = client.update(index=index, id=id, body=update_body, doc_type="_doc")
+    except Exception as e:
+        data_update = __to_dict__(field_path, field_value)
+        update_body = {
+            "doc": data_mapping_update
+        }
+        response = client.update(index=index, id=id, body=update_body, doc_type="_doc")
+    return True

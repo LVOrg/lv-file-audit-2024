@@ -3,25 +3,34 @@ import pathlib
 import threading
 
 import cy_kit
+import cyx.common.msg
 from cyx.cache_service.memcache_service import MemcacheServices
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
 from cyx.common import config
+
 __version__ = "0.5"
+
 import webp
 from PIL import Image
+from cyx.common.rabitmq_message import RabitmqMsg
+
+
 class ThumbService:
     def __init__(
             self,
             memcache_services=cy_kit.singleton(MemcacheServices),
             mongodb_service=cy_kit.singleton(MongodbService),
+            msg=cy_kit.singleton(RabitmqMsg)
     ):
         self.memcache_services: MemcacheServices = memcache_services
         self.cache_group = f"/{__version__}/{config.file_storage_path}/{__file__}/{type(self).__name__}/thumb"
         self.mongodb_service = mongodb_service
-
+        self.msg = msg
 
     def get_thumb_type(self, ext_file) -> str:
+        if ext_file.lower() == "pdf":
+            return "pdf"
         if ext_file.lower() in config.ext_office_file:
             return "office"
         else:
@@ -34,16 +43,16 @@ class ThumbService:
         return ext_file
 
     async def get_async(self, app_name: str, directory: str, size: int):
-        cache_key = f"{self.cache_group}/{app_name}/{directory}".replace(" ","_")
+        cache_key = f"{self.cache_group}/{app_name}/{directory}".replace(" ", "_")
         ret = self.memcache_services.get_str(cache_key)
 
         if ret == "":
             return None
         if ret is not None and os.path.isfile(ret):
-            if os.stat(ret).st_size==0:
+            if os.stat(ret).st_size == 0:
                 os.remove(ret)
                 self.memcache_services.remove(cache_key)
-                ret=None
+                ret = None
         if ret is not None and not os.path.isfile(ret):
             self.memcache_services.remove(cache_key)
             ret = None
@@ -61,6 +70,10 @@ class ThumbService:
             if isinstance(main_file_id, str) and "://" in main_file_id:
                 real_file_path = os.path.join(config.file_storage_path, main_file_id.split("://")[1])
                 real_dir_path = pathlib.Path(real_file_path).parent.__str__()
+                thumn_file = os.path.join(real_dir_path,f"{size}.webp")
+                if os.path.isfile(thumn_file):
+                    self.memcache_services.set_str(cache_key,thumn_file)
+                    return thumn_file
                 if os.path.isdir(real_dir_path):
                     ext_file = upload[doc_context.fields.FileExt]
                     if ext_file is None:
@@ -73,8 +86,30 @@ class ThumbService:
 
                     thumb_type = self.get_thumb_type(ext_file)
                     if thumb_type == "office":
+                        if upload.get("ThumbnailsAble")==False:
+                            return None
+                        key= f"{type(self).__module__}/{__file__}/raise_from_web/{app_name}/{real_file_path}"
+                        self.msg.emit(
+                            app_name=app_name,
+                            data=upload,
+                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                            resource=real_file_path
+                        )
+                        return None
+                    if thumb_type == "pdf":
+                        if upload.get("ThumbnailsAble") == False:
+                            return None
+                        key = f"{type(self).__module__}/{__file__}/raise_from_web/{app_name}/{real_file_path}"
+                        self.msg.emit(
+                            app_name=app_name,
+                            data=upload,
+                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                            resource=real_file_path
+                        )
                         return None
                     elif thumb_type == "image":
+                        if upload.get("ThumbnailsAble") == False:
+                            return None
                         thumb_file_path = self.get_thumb_path_from_image(
                             in_path=real_dir_path,
                             size=size,
@@ -82,12 +117,23 @@ class ThumbService:
                         )
                         self.memcache_services.set_str(cache_key, thumb_file_path)
                         return thumb_file_path
-                    elif thumb_type=="video":
+                    elif thumb_type == "video":
+                        if upload.get("ThumbnailsAble")==False:
+                            return None
+                        key = f"{type(self).__module__}/{__file__}/raise_from_web/{app_name}/{real_file_path}"
+                        self.msg.emit(
+                            app_name=app_name,
+                            data=upload,
+                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                            resource=real_file_path
+                        )
                         return None
+
                     else:
                         return None
 
         return ret
+
     def get_thumb_path_from_image(self, in_path, size, main_file_path):
         """Scales an image while maintaining its aspect ratio.
 
@@ -118,7 +164,7 @@ class ThumbService:
     async def get_customize_async(self, app_name, directory):
         cache_key = f"{self.cache_group}/{app_name}/{directory}/get_customize_async".replace(" ", "_")
         ret = self.memcache_services.get_str(cache_key)
-        if isinstance(ret,str) and os.path.isfile(ret):
+        if isinstance(ret, str) and os.path.isfile(ret):
             return ret
         name_only = pathlib.Path(directory).stem
         if name_only.isnumeric():
@@ -133,4 +179,3 @@ class ThumbService:
                 directory=directory,
                 size=700
             )
-

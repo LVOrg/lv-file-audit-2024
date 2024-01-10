@@ -6,30 +6,35 @@ data:
     description: watch all upload from lv-doc-service
     image: {{.images.jobs.slim}}
     replicate: 1
+  - name: files-extract-text-from-office
+    endpoint: files_extract_text_from_office.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.slim}}
+    replicate: 2
   - name: generate-image-from-office
     endpoint: files_generate_image_from_office.py
     description: Generate image from any office file, replicate number should be number of worker
     image: {{.images.jobs.medium}}
     replicas: {{.images.jobs.replicas}}
-#  - name: files-generate-image-from-pdf
-#    endpoint: files_generate_image_from_pdf.py
-#    image: {{.images.jobs.slim}}
-#    replicas: {{.images.jobs.replicas}}
-#  - name: files-generate-image-from-video
-#    endpoint: files_generate_image_from_video.py
-#    image: {{.images.jobs.slim}}
-#    replicas: {{.images.jobs.replicas}}
-#    cpu_requests: {{.images.jobs.cpu_requests}}
-#    cpu_limits: {{.images.jobs.cpu_limits}}
-#    mem_requests: {{.images.jobs.mem_requests}}
-#    mem_limits: {{.images.jobs.mem_limits}}
+  - name: files-generate-image-from-pdf
+    endpoint: files_generate_image_from_pdf.py
+    image: {{.images.jobs.slim}}
+    replicas: {{.images.jobs.replicas}}
+  - name: files-generate-image-from-video
+    endpoint: files_generate_image_from_video.py
+    image: {{.images.jobs.slim}}
+    replicas: {{.images.jobs.replicas}}
+    cpu_requests: {{.images.jobs.cpu_requests}}
+    cpu_limits: {{.images.jobs.cpu_limits}}
+    mem_requests: {{.images.jobs.mem_requests}}
+    mem_limits: {{.images.jobs.mem_limits}}
 ##  - name: files-ocr-pdf
 ##    endpoint: files_ocr_pdf.py
 ##    image: {{.images.jobs.large}}
-#  - name: files-generate-thumbs
-#    endpoint: files_generate_thumbs.py
-#    image: {{.images.jobs.slim}}
-#    replicas: {{.images.jobs.replicas}}
+  - name: files-generate-thumbs
+    endpoint: files_generate_thumbs.py
+    image: {{.images.jobs.slim}}
+    replicas: {{.images.jobs.replicas}}
 #  - name: files-save-custom-thumb
 #    endpoint: files_save_custom_thumb.py
 #    image: {{.images.jobs.slim}}

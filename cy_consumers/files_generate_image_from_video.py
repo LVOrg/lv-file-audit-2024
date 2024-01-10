@@ -28,18 +28,52 @@ pdf_file_service = cy_kit.singleton(PDFService)
 msg = cy_kit.singleton(RabitmqMsg)
 from cyx.loggers import LoggerService
 from cyx.common.msg import broker
+from cyx.content_services import ContentService,ContentTypeEnum
+from cy_xdoc.models.files import DocUploadRegister
+from cyx.common.mongo_db_services import MongodbService
 @broker(cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO)
 class Process:
     def __init__(self,
                  logger=cy_kit.singleton(LoggerService),
                  temp_file=cy_kit.singleton(TempFiles),
-                 video_service=cy_kit.singleton(VideoServices)
+                 video_service=cy_kit.singleton(VideoServices),
+                 content_service=cy_kit.singleton(ContentService),
+                 mongodb_service=cy_kit.singleton(MongodbService),
                  ):
         self.logger = logger
         self.temp_file=temp_file
         self.video_service = video_service
+        self.content_service=content_service
+        self.mongodb_service=mongodb_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        resource = self.content_service.get_resource(msg_info)
+        docs = self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
+        if resource is None:
+            msg.delete(msg_info)
+            return
+        if not os.path.isfile(resource):
+            docs.context.update(
+                docs.fields.id==msg_info.Data["_id"],
+                docs.fields.ThumbnailsAble<<False
+            )
+            msg.delete(msg_info)
+            return
+        img_file = self.video_service.get_image(resource)
+        msg.emit(
+            app_name=msg_info.AppName,
+            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+            data=msg_info.Data,
+            parent_msg=msg_info.MsgType,
+            parent_tag=msg_info.tags["method"].delivery_tag,
+            resource=img_file,
+            require_tracking=True
+
+        )
+        msg.delete(msg_info)
+
+        print(msg_info)
+    def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         from cyx.common.temp_file import TempFiles
 
         full_file = msg_info.Data.get("processing_file")
