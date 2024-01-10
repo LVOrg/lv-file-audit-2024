@@ -1,5 +1,6 @@
 import datetime
 import inspect
+import math
 import time
 import typing
 from datetime import date
@@ -412,6 +413,7 @@ def search(client: Elasticsearch,
                 if isinstance(x.__name__, __ScriptField__):
                     continue
                 fields[x.__name__] = {}
+        fields = dict([(k, v) for k, v in fields.items() if not k.endswith("_bm25_seg") or k.startswith("content.") ])
         __highlight = {
             "require_field_match": False,
             "pre_tags": ["<em>"],
@@ -483,9 +485,21 @@ def search(client: Elasticsearch,
                 }
             }
         body["sort"] = _sort_fields_
-        ret = client.search(index=index, doc_type=doc_type, body=body)
+        ret = client.search(index=index, doc_type=doc_type, body=body,request_timeout=30)
         return SearchResult(ret)
     except elasticsearch.exceptions.RequestError as e:
+        import cy_es.cy_es_manager
+        max_analyzed_offset= cy_es.cy_es_manager.get_max_analyzed_offset(e)
+        if max_analyzed_offset>-1:
+            if not ret.isnumeric():
+                settings = {
+                    "settings": {
+                        "index.highlight.max_analyzed_offset": max_analyzed_offset+int(math.floor(max_analyzed_offset/10))
+                    }
+                }
+                client.indices.create(index=index, body=settings)
+                ret = client.search(index=index, doc_type=doc_type, body=body, request_timeout=30)
+                return SearchResult(ret)
         print(body['query'])
         print(e.error)
         raise e

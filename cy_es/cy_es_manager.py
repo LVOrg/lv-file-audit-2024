@@ -435,3 +435,30 @@ def clean_up(data: typing.Optional[typing.Dict],
                 ret[k] = v
 
     return ret
+
+
+def get_max_analyzed_offset(e):
+    if not hasattr(e,"info") or not isinstance(e.info,dict):
+        return  -1
+    if  not isinstance(e.info.get("error"),dict):
+        return -1
+    if  not isinstance(e.info.get("error").get("root_cause"),list):
+        return -1
+    if  len(e.info.get("error").get("root_cause"))<1:
+        return -1
+    if not isinstance(e.info['error']['root_cause'][0],dict):
+        return -1
+
+    txt = e.info['error']['root_cause'][0].get('reason')
+    if not isinstance(txt,str):
+        return -1
+    if "exceeds the [index.highlight.max_analyzed_offset]" in txt:
+        return -1
+    if not txt.startswith("The length ["):
+        return -1
+    ret= txt.split("The length [")[1].split(']')
+    if len(ret)<1:
+        return -1
+    ret=ret[1]
+
+    return int(ret)

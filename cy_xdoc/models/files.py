@@ -361,3 +361,4 @@ class DocUploadRegister:
     MsgRequires: typing.Optional[dict]
     MsgCheckList: typing.Optional[dict]
     ReIndex: typing.Optional[bool]
+    HasSearchContent: typing.Optional[bool]

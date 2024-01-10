@@ -270,20 +270,20 @@ def __make_wild_card__(field_name, content, boost_score):
     import re
     from  cy_es.cy_es_manager import FIELD_RAW_TEXT
     __content__ = re.escape(content)
-    ret_keyword.__es_expr__ = {
-        "must": {
-            "wildcard": {
-                f"{field_name}.keyword": {
-                    "value": "*"+content+"*",
-                    "boost": max(boost_score - 250,boost_score)
-                }
-            }
-
-        },
-        # "score_mode": "max"
-    }
-    ret_keyword.__is_bool__ = True
-    ret_keyword.__highlight_fields__ = [field_name,f"{field_name}.keyword"]
+    # ret_keyword.__es_expr__ = {
+    #     "must": {
+    #         "wildcard": {
+    #             f"{field_name}.keyword": {
+    #                 "value": "*"+content+"*",
+    #                 "boost": max(boost_score - 250,boost_score)
+    #             }
+    #         }
+    #
+    #     },
+    #     # "score_mode": "max"
+    # }
+    # ret_keyword.__is_bool__ = True
+    # ret_keyword.__highlight_fields__ = [field_name,f"{field_name}.keyword"]
     ret_field = DocumentFields()
     ret_field.__es_expr__ = {
         "must": {
@@ -299,7 +299,7 @@ def __make_wild_card__(field_name, content, boost_score):
     }
     ret_field.__is_bool__ = True
     ret= ret_field
-    ret.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword"]
+    ret.__highlight_fields__=[f"{field_name}"]
     return ret
 def __make_pharse_edgeNGram__(field_name, content, boost_score):
     """
@@ -602,56 +602,12 @@ def __make_like__(field_name, content, boost_score):
     :return:
     """
     from cy_es import cy_es_manager
-    # from cy_es.cy_es_docs import DocumentFields
-    # ret = DocumentFields()
-    # score_source = ("if(@field.size()==0){\n"
-    #                 "return 0;"
-    #                 "}\n"
-    #                 "else{\n"
-    #                 "if(@field.value.toLowerCase().contains(params.text_search)){"
-    #                 "return 1000;"
-    #                 "}\n"
-    #                 "else{\n"
-    #                 "return 0;"
-    #                 "}"
-    #                 "}")
-    # ret.__es_expr__ = {
-    #     "must": {
-    #         "script_score": {
-    #             "query": {
-    #                 "match":{
-    #                     field_name: __well_form__(content)
-    #                 }
-    #             },
-    #             "script": {
-    #                 "source": score_source.replace("@field",f"doc['{field_name}.keyword']"),
-    #                 "params": {
-    #                     "text_search": content
-    #                 }
-    #             }
-    #
-    #     },
-    #     # "score_mode": "max"
-    #     }}
-    # ret.__is_bool__ = True
-    # ret.__highlight_fields__=[field_name]
-    from cy_es.cy_es_manager import FIELD_RAW_TEXT
-    # ret_contains = __make_script_contains__(field_name=field_name,content=content,boost_score=0)
-    ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
-    # ret_macth_pharse_script = __make_macth_pharse_script_score__(field_name=field_name,content=content,boost_score=0)
-
-    # ret_script_score = __make_query_string_script_score__(field_name=field_name, content=content, boost_score=0)
-    # ret_match_phrase = __make_pharse_edgeNGram__(field_name=field_name, content=content, boost_score=0)
-    ret_re = __make_regexp__(field_name=f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}", content=content, boost_score=0)
-    # ret = ret_query | ret_wild_card | ret_re
-    # ret_m = __make_match__(field_name=f"{field_name}", content=content,escape_list='" / \\')
+    # ret_query = __make_query_string__(field_name=field_name,content=content,boost_score=0)
+    # ret_re = __make_regexp__(field_name=f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}", content=content, boost_score=0)
     ret_m_1 = __make_match__(field_name=f"{field_name}", content=content, escape_list=None)
-
     ret_wild_card = __make_wild_card__(field_name=f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}", content=content, boost_score=1000)
     ret_query = ret_wild_card|ret_m_1
-    ret_wild_card.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}"]
-    ret_query.__highlight_fields__=[f"{field_name}",f"{field_name}.keyword",f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}"]
-    ret_test = __make_query_string__(field_name=f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}",content=content,boost_score=0)
+    ret_query.__highlight_fields__= [field_name,f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}"]
     return ret_query
 
 

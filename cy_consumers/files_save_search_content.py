@@ -46,6 +46,7 @@ class Process:
         self.search_engine = search_engine
         self.file_services = mongodb_service
         self.content_service = content_service
+        self.mongodb_service=mongodb_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         resource = self.content_service.get_resource(msg_info)
@@ -59,6 +60,11 @@ class Process:
                 id= msg_info.Data.get("_id"),
                 field_value= content,
                 field_path="content"
+            )
+            doc_context= self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
+            doc_context.context.update(
+                doc_context.fields.id==msg_info.Data.get("_id"),
+                doc_context.fields.HasSearchContent<<True
             )
             msg.delete(msg_info)
         except FileNotFoundError:

@@ -6,6 +6,12 @@ data:
     description: watch all upload from lv-doc-service
     image: {{.images.jobs.slim}}
     replicate: 1
+    #files_save_search_content.py
+  - name: files-save-search-content
+    endpoint: ffiles_save_search_content.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.slim}}
+    replicate: 1
   - name: files-extract-text-from-office
     endpoint: files_extract_text_from_office.py
     description: watch all upload from lv-doc-service

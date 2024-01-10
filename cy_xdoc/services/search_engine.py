@@ -54,7 +54,8 @@ class SearchEngine:
         self.logger = logger
         self.config = cyx.common.config
         self.client = elasticsearch.Elasticsearch(
-            cyx.common.config.elastic_search.server
+            hosts= cyx.common.config.elastic_search.server,
+             request_timeout = 30
         )
         self.prefix_index = cyx.common.config.elastic_search.prefix_index
         self.text_process_service = text_process_service
