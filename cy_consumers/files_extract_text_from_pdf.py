@@ -11,9 +11,6 @@ import cy_kit
 import cyx.common.msg
 from cyx.common.msg import MessageService, MessageInfo
 from cyx.common import config
-from cyx.media.pdf import PDFService
-from cyx.media.image_extractor import ImageExtractorService
-
 from cyx.common.rabitmq_message import RabitmqMsg
 msg = cy_kit.singleton(RabitmqMsg)
 from cyx.common.msg import broker
