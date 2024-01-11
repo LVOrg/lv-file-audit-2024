@@ -86,6 +86,10 @@ def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRe
                     field_path="content"
                 )
             except elasticsearch.exceptions.ReadTimeoutError as e:
+                print(e)
+                return
+            except elasticsearch.exceptions.T as e:
+                print(e)
                 return
             doc_context.context.update(
                 doc_context.fields.id == doc.id,

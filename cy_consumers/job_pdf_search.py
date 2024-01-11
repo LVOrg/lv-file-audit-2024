@@ -44,7 +44,7 @@ def get_content(resource):
     with open(resource, "rb") as fs:
         content = fs.read()
         return content.decode('utf8')
-def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRegister], doc:cy_docs.DocumentObject, app_name):
+def process_pdf_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRegister], doc:cy_docs.DocumentObject, app_name):
     m=doc[doc_context.fields.MainFileId]
     if isinstance(m,str) and "://" in m:
         file_path = os.path.join(config.file_storage_path,m.split("://")[1])
@@ -105,7 +105,14 @@ def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRe
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
                 doc_context.fields.HasSearchContent << True,
-                doc_context.fields.DocType<<"Office"
+                doc_context.fields.DocType<<"Pdf",
+                doc_context.fields.IsRequireOCR<<True
+            )
+            msg.emit(
+                app_name= app_name,
+                message_type= cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF,
+                data= doc.to_json_convertable(),
+                resource=file_path
             )
             time.sleep(0.3)
         except Exception as e:
@@ -202,7 +209,7 @@ while True:
             filter = (cy_docs.not_exists(doc_context.fields.DocType))
             filter = filter | ((doc_context.fields.DocType == "Pdf") & (
                     (doc_context.fields.HasSearchContent == False) | (
-                cy_docs.not_exists(doc_context.fields.HasSearchContent))
+                cy_docs.not_exists(doc_context.fields.HasSearchContent)|(doc_context.fields.HasSearchContent==False))
             ))
 
             filter= filter & (doc_context.fields.Status==1)
@@ -220,13 +227,40 @@ while True:
                         file_path = os.path.join(config.file_storage_path, m.split("://")[1])
                         print(file_path)
                         fx = content_service.get_type(doc.to_json_convertable())
-                        if fx == ContentTypeEnum.Office:
+                        if fx == ContentTypeEnum.Pdf:
                             try:
-                                process_office_content(doc_context=doc_context, doc=doc, app_name=app.Name.lower())
+                                process_pdf_content(doc_context=doc_context, doc=doc, app_name=app.Name.lower())
                             except Exception as e:
                                 print(e)
                                 continue
-
+                        if fx == ContentTypeEnum.Unknown:
+                            doc_context.context.update(
+                                doc_context.fields.id == doc.id,
+                                doc_context.fields.SearchContentAble << False,
+                                doc_context.fields.DocType << "Unknown"
+                            )
+                            continue
+                        if fx == ContentTypeEnum.Office:
+                            doc_context.context.update(
+                                doc_context.fields.id == doc.id,
+                                doc_context.fields.SearchContentAble << True,
+                                doc_context.fields.DocType << "Office"
+                            )
+                            continue
+                        if fx == ContentTypeEnum.Video:
+                            doc_context.context.update(
+                                doc_context.fields.id == doc.id,
+                                doc_context.fields.SearchContentAble << True,
+                                doc_context.fields.DocType << "Video"
+                            )
+                            continue
+                        if fx == ContentTypeEnum.Image:
+                            doc_context.context.update(
+                                doc_context.fields.id == doc.id,
+                                doc_context.fields.SearchContentAble << True,
+                                doc_context.fields.DocType << "Image"
+                            )
+                            continue
                         print(doc[doc_context.fields.MainFileId])
 
 
