@@ -208,8 +208,13 @@ class FileServices:
         if upload is None:
             return None
         try:
+            path_str = pathlib.Path(upload.MainFileId).parent.__str__()
+            path_str = path_str.replace("local:/", "local://") + "/700.webp"
             if upload.ThumbFileId is None:
-                upload.ThumbFileId = upload.MainFileId + ".webp"
+
+                upload.ThumbFileId = path_str
+
+            rela_file_path= os.path.join(config.file_storage_path,path_str.split("://")[1])
             ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=upload.ThumbFileId)
             # self.get_file(app_name, upload.ThumbFileId)
             return ret

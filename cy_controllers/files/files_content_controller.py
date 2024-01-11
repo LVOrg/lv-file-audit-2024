@@ -92,6 +92,7 @@ class FilesContentController(BaseController):
         except FileNotFoundError as e:
             is_file_not_found = True
         if is_file_not_found:
+
             response = Response(content="Resource not found", status_code=404)
             return response
 
