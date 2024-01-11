@@ -27,7 +27,7 @@
     <div class="dock full" style="padding:10px;margin-bottom:40px">
          <div rcmpct-lazy-scroll source="listOfApps" item-var="p" class="row" on-request-data="getListOfApps" page-size="20">
             <rcmpct-template>
-                <rcmpct-grid cols="(,700,100%)(700,,50% 50%)"  class="goldilocks box" file-id="{{p.id}}">
+                <rcmpct-grid cols="(,700,100%)(700,,25% 25% 25% 25%)"  class="goldilocks box" file-id="{{p.id}}">
                     <rcmpct-grid cols="50% 50%">
                             <div class="app-label">Name :</div> <b>{{p.Name}}<i class="bi bi-pen"></i></b>
                             <div class="app-label">Created on :</div> <span>{{p.RegisteredOn|date:'dd-MM-yyyy'}}</span>
