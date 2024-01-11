@@ -277,7 +277,7 @@ def __to_dict__(key,value):
         v=__to_dict__(m,value)
         return {k:v}
 
-def replace_content(client:Elasticsearch, index:str, id:str, field_path, field_value):
+def replace_content(client:Elasticsearch, index:str, id:str, field_path, field_value,timeout="60s"):
     from cy_es.cy_es_manager import FIELD_RAW_TEXT,update_mapping
     data_raw_mapping_update = __to_dict__(f"{FIELD_RAW_TEXT}.{field_path}", field_value)
     data_mapping_update = __to_dict__(f"{field_path}", field_value)
@@ -308,19 +308,19 @@ def replace_content(client:Elasticsearch, index:str, id:str, field_path, field_v
 
     }
     try:
-        response = client.update(index=index, id=id, body=update_body_like,doc_type="_doc")
+        response = client.update(index=index, id=id, body=update_body_like,doc_type="_doc",timeout=timeout)
     except Exception as e:
 
         update_body_like = {
             "doc": data_raw_mapping_update
         }
-        response = client.update(index=index, id=id, body=update_body_like, doc_type="_doc")
+        response = client.update(index=index, id=id, body=update_body_like, doc_type="_doc",timeout=timeout)
     try:
-        response = client.update(index=index, id=id, body=update_body, doc_type="_doc")
+        response = client.update(index=index, id=id, body=update_body, doc_type="_doc",timeout=timeout)
     except Exception as e:
         data_update = __to_dict__(field_path, field_value)
         update_body = {
             "doc": data_mapping_update
         }
-        response = client.update(index=index, id=id, body=update_body, doc_type="_doc")
+        response = client.update(index=index, id=id, body=update_body, doc_type="_doc",timeout=timeout)
     return True

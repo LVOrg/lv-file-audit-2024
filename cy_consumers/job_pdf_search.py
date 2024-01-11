@@ -67,8 +67,7 @@ def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRe
                     app_name=app_name,
                     id=doc.id,
                     field_value=get_content(file_content_txt),
-                    field_path="content",
-                    timeout="30s"
+                    field_path="content"
                 )
             except elasticsearch.exceptions.NotFoundError as e:
                 search_engine.make_index_content(
@@ -85,8 +84,6 @@ def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRe
                     field_value=get_content(file_content_txt),
                     field_path="content"
                 )
-            except elasticsearch.exceptions.ReadTimeoutError as e:
-                return
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
                 doc_context.fields.HasSearchContent << True,
@@ -122,10 +119,15 @@ def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRe
 
 
 def do_update_doc_type(doc_context: cy_docs.DbQueryableCollection[DocUploadRegister]):
-    docs = doc_context.context.find(
-        (cy_docs.not_exists(doc_context.fields.DocType)),
-        linmit=10
-    )
+    filter = (cy_docs.not_exists(doc_context.fields.DocType))
+    filter = filter | ((doc_context.fields.DocType=="Pdf") & (
+        (doc_context.fields.HasSearchContent==False)|(cy_docs.not_exists(doc_context.fields.HasSearchContent))
+    ))
+    docs = doc_context.context.aggregate().sort(
+        doc_context.fields.RegisterOn.desc()
+    ).match(
+        filter
+    ).limit(10)
     list_docs = list(docs)
     print(f"found {len(list_docs)}")
     while len(list_docs) > 0:
@@ -185,7 +187,7 @@ def do_update_doc_type_al_apps():
         do_update_doc_type(doc_context)
 
 
-threading.Thread(target=do_update_doc_type_al_apps).start()
+# threading.Thread(target=do_update_doc_type_al_apps).start()
 apps = app_admin_context.context.aggregate().sort(
     app_admin_context.fields.AccessCount.desc(),
     app_admin_context.fields.LatestAccess.desc()
@@ -197,10 +199,11 @@ while True:
     for app in apps:
         try:
             doc_context = mongodb_service.db(app.Name.lower()).get_document_context(DocUploadRegister)
-            filter = ((doc_context.fields.DocType=="Office")&
-                      (cy_docs.not_exists(doc_context.fields.HasSearchContent) |
-                       (doc_context.fields.HasSearchContent==False)))
-            filter = filter & ((doc_context.fields.SearchContentAble==True)|(cy_docs.not_exists(doc_context.fields.SearchContentAble)))
+            filter = (cy_docs.not_exists(doc_context.fields.DocType))
+            filter = filter | ((doc_context.fields.DocType == "Pdf") & (
+                    (doc_context.fields.HasSearchContent == False) | (
+                cy_docs.not_exists(doc_context.fields.HasSearchContent))
+            ))
 
             filter= filter & (doc_context.fields.Status==1)
             docs = doc_context.context.aggregate().sort(

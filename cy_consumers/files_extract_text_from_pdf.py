@@ -55,11 +55,7 @@ class Process:
                 docs.fields.SearchContentAble<<True,
                 docs.fields.HasSearchContent<<False
             )
-            msg.emit_child_message(
-                parent_message=msg_info,
-                message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF,
-                resource=resource
-            )
+
             msg.delete(msg_info)
         else:
             child_resource = self.content_service.create_content_file(master_resource=resource, content=text)
@@ -69,6 +65,9 @@ class Process:
                 resource=child_resource
             )
             msg.delete(msg_info)
-
-
+        msg.emit_child_message(
+            parent_message=msg_info,
+            message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF,
+            resource=resource
+        )
 

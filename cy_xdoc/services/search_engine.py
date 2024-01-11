@@ -55,7 +55,8 @@ class SearchEngine:
         self.config = cyx.common.config
         self.client = elasticsearch.Elasticsearch(
             hosts= cyx.common.config.elastic_search.server,
-             request_timeout = 30
+            timeout = 30,
+            sniff_timeout = 30
         )
         self.prefix_index = cyx.common.config.elastic_search.prefix_index
         self.text_process_service = text_process_service
@@ -804,13 +805,14 @@ class SearchEngine:
                 field_value= v
             )
 
-    def replace_content(self, app_name, id,field_path:str, field_value:str):
+    def replace_content(self, app_name, id,field_path:str, field_value:str,timeout="60s"):
         cy_es.replace_content(
             index=self.get_index(app_name),
             id=id,
             field_path=field_path,
             field_value=field_value,
-            client=self.client
+            client=self.client,
+            timeout=timeout
 
         )
         print(app_name)

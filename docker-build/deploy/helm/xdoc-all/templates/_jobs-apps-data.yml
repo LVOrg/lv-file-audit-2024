@@ -1,6 +1,11 @@
 {{- define "jobs-apps-data"  -}}
 ---
 data:
+  #files_extract_text_from_pdf.py
+  - name: files-extract-text-from-pdf
+    endpoint: files_extract_text_from_pdf.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.slim}}
   - name: job-office-search
     endpoint: job_office_search.py
     description: watch all upload from lv-doc-service
