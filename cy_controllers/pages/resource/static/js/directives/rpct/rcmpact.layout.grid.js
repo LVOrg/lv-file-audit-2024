@@ -1,11 +1,11 @@
 import rcmpactModule from "./rcmpt.js"
 
-rcmpactModule.directive("rcmpctGrid", [() => {
+rcmpactModule.directive("rcmpctGrid", ["$compile",($compile) => {
     return {
         restrict: "E",
         replace: true,
         transclude: true,
-        template: `<div ng-transclude></div>`,
+        template: `<div ng-transclude id="template"></div>`,
         link: (s, e, a) => {
             $(e[0]).hide();
             /**
@@ -33,13 +33,49 @@ rcmpactModule.directive("rcmpctGrid", [() => {
             s.$on("$destroy", () => {
                 clearInterval(wathTimeInterVal);
             });
+
+            var renderTemplate=undefined;
+            if(e.attr("data-display-template")){
+                var tmp= e.attr("data-display-template");
+                var htmlTemplate=unescape(decodeURIComponent(tmp));
+                renderTemplate=$("<div style='display:none'>"+htmlTemplate+"</div>");
+                var contents=renderTemplate.children();
+                for(var i=0;i<contents.length;i++){
+                        $(contents[i]).hide();
+
+                }
+                $compile(renderTemplate.contents())(s)
+                console.log(renderTemplate)
+                s.$applyAsync();
+                renderTemplate.contents().appendTo(e.parent()[0]);
+
+
+            }
+            debugger;
             if (colsInfo.length == 1) {
                 $(e[0]).css({
                     display: "grid",
 
                     "grid-template-columns": a.cols
                 });
-                $(e[0]).show();
+                if(renderTemplate){
+                        $(e[0]).hide();
+                        var contents=renderTemplate.children();
+                        for(var i=0;i<contents.length;i++){
+
+                            $(contents[i]).appendTo($(e[0]).parents()[0]);
+
+                        }
+                        var nc=$($(e[0]).parents()[0]).children();
+                        for(var i=0;i<nc.length;i++){
+                            if(nc[i]!=e[0]){
+                                $(nc[i]).show();
+                            }
+                        }
+                    }
+                    else {
+                        $(e[0]).show();
+                    }
             }
             else if (colsInfo.length > 1) {
                 var colsConfig = []
@@ -67,7 +103,26 @@ rcmpactModule.directive("rcmpctGrid", [() => {
 
                         "grid-template-columns": retCol.cols
                     })
-                    $(e[0]).show();
+                    if(renderTemplate){
+                    $(e[0]).hide();
+                    var contents=renderTemplate.children();
+                    for(var i=0;i<contents.length;i++){
+                        $(contents[i]).appendTo($(e[0]).parents()[0]);
+                    }
+                    var nc=$($(e[0]).parents()[0]).children();
+                    for(var i=0;i<nc.length;i++){
+                        if(nc[i]!=e[0]){
+                            $(nc[i]).show();
+                        }
+                    }
+
+
+
+                        //contents.show();
+                    }
+                    else {
+                        $(e[0]).show();
+                    }
                     
                 }).then()
             }
@@ -75,7 +130,9 @@ rcmpactModule.directive("rcmpctGrid", [() => {
 
 
             }
-            a.$observe("resouce", (v) => {
+
+
+            a.$observe("displayTemplate", (v) => {
                 alert(v);
             });
 
