@@ -113,7 +113,9 @@ class FilesController(BaseController):
             PageSize: int = Body(...),
             PageIndex: int = Body(...),
             FieldSearch: typing.Optional[str] = Body(default=None),
-            ValueSearch: typing.Optional[str] = Body(default=None)):
+            ValueSearch: typing.Optional[str] = Body(default=None),
+            DocType: typing.Optional[str] = Body(default="AllTypes")
+    ):
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
         try:
@@ -123,7 +125,8 @@ class FilesController(BaseController):
                 page_size=PageSize,
                 page_index=PageIndex,
                 field_search=FieldSearch,
-                value_search=ValueSearch
+                value_search=ValueSearch,
+                doc_type=DocType
 
             )
             return [x.to_pydantic() for x in items]

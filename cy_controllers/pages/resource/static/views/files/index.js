@@ -39,6 +39,7 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         }
         this.currentApp = this.listOfApp[0];
         this.currentAppName = this.currentApp.Name;
+        this.filterByDocType="AllTypes"
         await this.doLoadAllFiles();
         this.$applyAsync();
         debugger;
@@ -104,11 +105,11 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
                 }
                 console.log(this.currentApp )
                 this.listOfFiles = await api.post(`${this.currentAppName}/files`, {
-
-                PageIndex: 0,
-                PageSize: 20,
-                FieldSearch: "FileName",
-                ValueSearch: me.fileNameSearchValue
+                    DocType: me.filterByDocType,
+                    PageIndex: 0,
+                    PageSize: 20,
+                    FieldSearch: "FileName",
+                    ValueSearch: me.fileNameSearchValue
                 });
                 this.$applyAsync();
             }
@@ -176,7 +177,8 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
             PageIndex: sender.pageIndex,
             PageSize: sender.pageSize,
             FieldSearch: "FileName",
-            ValueSearch: sender.scope.fileNameSearchValue
+            ValueSearch: sender.scope.fileNameSearchValue,
+            DocType: sender.scope.filterByDocType,
         }).then(r => {
             sender.done(r);
         });

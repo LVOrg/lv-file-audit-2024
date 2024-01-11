@@ -5,7 +5,7 @@ rcmpactModule.directive("rcmpctGrid", ["$compile",($compile) => {
         restrict: "E",
         replace: true,
         transclude: true,
-        template: `<div ng-transclude id="template"></div>`,
+        template: `<div ng-transclude id="template" style="display:none"></div>`,
         link: (s, e, a) => {
             $(e[0]).hide();
             /**

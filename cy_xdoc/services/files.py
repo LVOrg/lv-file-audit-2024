@@ -69,15 +69,29 @@ class FileServices:
         doc = self.db_connect.db(app_name).doc(DocUploadRegister)
         return doc
 
-    def get_list(self, app_name, root_url, page_index: int, page_size: int, field_search: str = None,
-                 value_search: str = None):
+    def get_list(self, app_name, root_url, page_index: int, page_size: int,
+                 field_search: typing.Optional[str] = "FileName",
+                 value_search: typing.Optional[str] = None,
+                 doc_type: typing.Optional[str] = None):
 
         doc = self.db_connect.db(app_name).doc(DocUploadRegister)
+        filter = None
         arrg = doc.context.aggregate()
         if value_search is not None and value_search != "":
-            if field_search is None or field_search == "":
-                field_search = "FileName"
-            arrg = arrg.match(getattr(doc.fields, field_search).like(value_search))
+            filter = getattr(doc.fields, field_search).like(value_search)
+
+        if doc_type and doc_type != "AllTypes" and doc_type!="Uncategorized":
+            if filter:
+                filter = filter & (doc.fields.DocType == doc_type)
+            else:
+                filter = (doc.fields.DocType == doc_type)
+        if doc_type and doc_type == "Uncategorized":
+            if filter:
+                filter = filter & (cy_docs.not_exists(doc.fields.DocType))
+            else:
+                filter = (cy_docs.not_exists(doc.fields.DocType))
+        if filter:
+            arrg = arrg.match(filter)
         items = None
         try:
             items = arrg.sort(
@@ -115,7 +129,10 @@ class FileServices:
                 doc.fields.BrokerMsgUploadIsOk,
                 doc.fields.BrokerErrorLog,
                 doc.fields.StorageType,
-                doc.fields.RemoteUrl
+                doc.fields.RemoteUrl,
+                doc.fields.DocType,
+                doc.fields.HasSearchContent,
+                doc.fields.ThumbnailsAble
 
             )
             self.logger.info("Get list of files is OK")
@@ -192,7 +209,7 @@ class FileServices:
             return None
         try:
             if upload.ThumbFileId is None:
-                upload.ThumbFileId = upload.MainFileId+".webp"
+                upload.ThumbFileId = upload.MainFileId + ".webp"
             ret = await self.file_storage_service.get_file_by_id_async(app_name=app_name, id=upload.ThumbFileId)
             # self.get_file(app_name, upload.ThumbFileId)
             return ret
@@ -272,15 +289,15 @@ class FileServices:
         id = str(uuid.uuid4())
         _has_thumb_ = False
         file_ext = pathlib.Path(client_file_name).suffix
-        local_path_dir:str = self.make_local_path(
-            register_on = __registerde_on__,
-            file_ext = file_ext,
+        local_path_dir: str = self.make_local_path(
+            register_on=__registerde_on__,
+            file_ext=file_ext,
             app_name=app_name,
             upload_id=id
         )
-        thumbs_size= [ int(x) for x in (thumbs_support or "").split(",") if x.isnumeric()]
-        mt,_ = mimetypes.guess_type(client_file_name
-                                    )
+        thumbs_size = [int(x) for x in (thumbs_support or "").split(",") if x.isnumeric()]
+        mt, _ = mimetypes.guess_type(client_file_name
+                                     )
         if "video/" in mt or 'image/' in mt:
             _has_thumb_ = True
 
@@ -433,8 +450,8 @@ class FileServices:
                         doc.fields.OnedrivePassword << onedrive_password,
                         doc.fields.OnedriveExpiration << onedrive_expiration,
                         doc.fields.MsgRequires << require_msg_process,
-                        doc.fields.MainFileId<<f"{local_path_dir}/{client_file_name}",
-                        doc.fields.ThumbFileId <<main_thumb_file
+                        doc.fields.MainFileId << f"{local_path_dir}/{client_file_name}",
+                        doc.fields.ThumbFileId << main_thumb_file
                     )
                 except Exception as e:
                     time.sleep(0.1)
@@ -943,14 +960,15 @@ class FileServices:
             doc_context.fields.HasThumb << True
         )
 
-    def update_available_thumbs(self, upload_id: str, app_name: str, available_thumbs: typing.List[str],thumb_file_path=None):
+    def update_available_thumbs(self, upload_id: str, app_name: str, available_thumbs: typing.List[str],
+                                thumb_file_path=None):
         doc_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         if thumb_file_path is not None:
             doc_context.context.update(
                 doc_context.fields.id == upload_id,
                 doc_context.fields.AvailableThumbs << available_thumbs,
-                doc_context.fields.HasThumb<< True,
-                doc_context.fields.ThumbFileId<<thumb_file_path
+                doc_context.fields.HasThumb << True,
+                doc_context.fields.ThumbFileId << thumb_file_path
             )
         else:
             doc_context.context.update(
@@ -1011,20 +1029,21 @@ class FileServices:
         return ret_doc
 
     def update_msg_check_list(self, app_name, upload_id, key: str, value):
-        chk_key= f"check_list_{app_name}/{key}"
+        chk_key = f"check_list_{app_name}/{key}"
+
         def run():
             doc = self.db_connect.db(app_name).doc(DocUploadRegister)
             doc.context.update(
                 doc.fields.id == upload_id,
                 getattr(doc.fields.MsgCheckList, key.replace(".", "_")) << value
             )
+
         chk = self.memcache_service.get_dict(chk_key) or {}
         if chk is None:
             chk[key.replace(".", "_")] = value
             threading.Thread(target=run).start()
 
-
-    def get_msg_check_list(self, app_name, upload_id, key:str)->typing.Optional[int]:
+    def get_msg_check_list(self, app_name, upload_id, key: str) -> typing.Optional[int]:
         if upload_id is None:
             return -1
         chk_key = f"check_list_{app_name}/{key}"
@@ -1038,15 +1057,14 @@ class FileServices:
                 return -1
             else:
                 chk = data_item[doc.fields.MsgCheckList] or {}
-                self.memcache_service.set_dict(chk_key,dict([(k,v) for k,v in chk.items()]))
+                self.memcache_service.set_dict(chk_key, dict([(k, v) for k, v in chk.items()]))
                 chk_cache = chk
 
-        return  chk_cache.get(key.replace(".","_")) or 0
+        return chk_cache.get(key.replace(".", "_")) or 0
 
-    def make_local_path(self,app_name:str,upload_id:str, register_on:datetime.datetime, file_ext:typing.Optional[str]):
+    def make_local_path(self, app_name: str, upload_id: str, register_on: datetime.datetime,
+                        file_ext: typing.Optional[str]):
         ext = file_ext or "unknown"
-        if ext.startswith(".") and ext!="unknown":
+        if ext.startswith(".") and ext != "unknown":
             ext = ext[1:][0:3]
         return f"local://{app_name.lower()}/{register_on.year}/{register_on.month:02d}/{register_on.day:02d}/{ext}/{upload_id}"
-
-

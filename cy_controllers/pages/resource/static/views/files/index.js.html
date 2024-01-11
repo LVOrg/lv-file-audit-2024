@@ -123,61 +123,66 @@ img.mirror {
             background-image: radial-gradient(circle at -50% 280%, #fff, #000);
             margin: 4px;
         }
+        .header-panel div {
+            padding-right:10px;
+        }
+        .header-panel label {
+            min-width:120px;
+            text-align:right
 
+        }
     </style>
     <div>
-        <div class="header layout-rows">
-            <div class="layout-rows header-panel">
-            <div>
-                <input list="app-list" style="min-width:220px" id="ice-cream-choice" ng-change="doLoadAllFiles().then()" name="ice-cream-choice" ng-model="currentAppName"  class="form-control form-control-sm">
-                <datalist id="app-list"   >
-                    <option ng-repeat="p in listOfApp" value="{{p.Name}}">
-                        {{p.Name}}
-                    </option>
-                </datalist>
-            </div>
 
-            <div>
-                <div class="input-group mb-3" style="width:250px">
+        <div>
+         <rcmpct-grid cols="(,700,100%)(700,,33% 33% 34%)" >
+             <rcmpct-template>
+                 <div class="layout-rows header-panel">
+                     <div>
+                     <label>{{$res("Select tenant")}}</label>
+                         </div>
+                     <div class="dock full">
+                        <input list="app-list"  id="ice-cream-choice" ng-change="doLoadAllFiles().then()" name="ice-cream-choice" ng-model="currentAppName"  class="form-control form-control-sm">
+                        <datalist id="app-list"   >
+                            <option ng-repeat="p in listOfApp" value="{{p.Name}}">
+                                {{p.Name}}
+                            </option>
+                        </datalist>
+                     </div>
+                 </div>
+             <div class="layout-rows header-panel">
+                 <div>
+                     <label>{{$res("Search")}}</label>
+                         </div>
+                     <div class="dock full">
+                 <div class="input-group mb-3" style="width:100%;padding-right:0px;margin-bottom: 0 !important">
                     <input type="text" class="form-control form-control-sm" ng-model="fileNameSearchValue" placeholder="{{$res('Search by Filename')}}">
-                    <div class="input-group-append">
+                    <div class="input-group-append" style=";padding-right:0px">
                         <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()" type="button">{{$res("Tìm")}}</button>
                     </div>
-                </div>
-            </div>
-<!--            <div>-->
-<!--                <div class="input-group mb-3" style="width:250px">-->
-<!--                    <span class="input-group-append">{{$res("Sort by")}}</span>-->
-<!--                    <datalist class="form-control form-control-sm" ng-model="fileNameSort"></datalist>-->
-<!--                    &lt;!&ndash;<div class="input-group-append">-->
-<!--                        <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()" type="button">{{$res("Tìm")}}</button>-->
-<!--                    </div>&ndash;&gt;-->
-<!--                </div>-->
-<!--               -->
-<!--            </div>-->
-
-            <div class="dock full"></div>
-
-
-
-        </div>
-
-        </div>
-        <div>
-         <rcmpct-grid cols="(,700,100%)(700,,50% 50%)">
-             <rcmpct-template>
-                 <div>
-                 <input type="text">
+                </div></div>
              </div>
              <div>
-                 <input type="text">
+                 <div class="layout-rows header-panel">
+                     <div>
+                     <label>{{$res("Filter by")}}:</label>
+                         </div>
+                     <div class="dock full">
+                         <select class="form-control form-control-sm" ng-model="filterByDocType" ng-change="doSearchByFileName().then()">
+                             <option value="AllTypes">All types</option>
+                             <option value="Office">Office</option>
+                             <option value="Pdf">Pdf</option>
+                             <option value="Image">Image</option>
+                             <option value="Video">Video</option>
+                             <option value="Unknown">Unknown</option>
+                             <option value="Uncategorized">Uncategorized</option>
+                         </select>
+
+                     </div>
+                 </div>
              </div>
-             <div>
-                 <input type="text">
-             </div>
-             <div>
-                 <input type="text">
-             </div>
+
+
              </rcmpct-template>
 
          </rcmpct-grid>
@@ -206,8 +211,30 @@ img.mirror {
 
 
     </div>
-    
-    <div class="dock full" style="margin:15px">
+    <div class="layout-rows">
+        <div ng-if="ui.hasSelected">
+            <input type="button" class="btn btn-primary btn-sm" value="{{$res('Add tags')}}" ng-click="doShowWindowAddTags().then()" style="margin-right:10px" />
+        </div>
+        <div ng-if="ui.hasSelected">
+            <input type="button" class="btn btn-danger btn-sm" value="{{$res('Delete selected items')}}" ng-click="doDeleteItems().then()" style="margin-right:10px" />
+        </div>
+        <div class="dock full"></div>
+        <div style="padding:4px" ng-if="currentApp.AzureLoginUrl">
+            <input type="button" class="btn btn-primary btn-sm" value="{{$res('One-Drive upload')}}" ng-click="doOneDriveOpenUpload.then()" style="margin-right:10px" />
+        </div>
+        <div style="padding:4px">
+            <input type="button" class="btn btn-primary btn-sm" value="{{$res('Upload')}}" ng-click="doOpenUploadMultiFilesWindow().then()" style="margin-right:10px" />
+        </div>
+        <div style="padding:4px">
+            <input type="button" class="btn btn-primary btn-sm" value="{{$res('New')}}" ng-click="doOpenUploadWindow().then()" style="margin-right:10px" />
+        </div>
+        <div style="padding:4px">
+             <input type="button" class="btn btn-primary btn-sm" value="{{$res('New compress')}}" ng-click="doOpenUploadZipWindow().then()" />
+        </div>
+
+
+    </div>
+    <div class="dock full">
         <div rcmpct-lazy-scroll source="listOfFiles" item-var="p" class="row" on-request-data="doLoadMore" page-size="20">
             <rcmpct-template>
                 <rcmpct-grid cols="(,700,100%)(700,,50% 50%)"  class="shadow-box" file-id="{{p.UploadId}}">
@@ -227,6 +254,18 @@ img.mirror {
                                 <a style="text-overflow:ellipsis;white-space:nowrap" ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">{{p.FileName}}</a>
 
                             </div>
+                            <label>{{$res("Doc type")}}</label>
+                            <label>
+                                {{p.DocType}}
+                            </label>
+                            <label>{{$res("Thumbnails able")}}</label>
+                            <label>
+                                {{p.ThumbnailsAble}}
+                            </label>
+                            <label>{{$res("Has search content")}}</label>
+                            <label>
+                                {{p.HasSearchContent}}
+                            </label>
                             <label>{{$res("Storage type")}}</label>
                             <label>
                                 {{p.StorageType}}
@@ -381,27 +420,5 @@ img.mirror {
        
         
     </div>
-    <div class="layout-rows">
-        <div ng-if="ui.hasSelected">
-            <input type="button" class="btn btn-primary btn-sm" value="{{$res('Add tags')}}" ng-click="doShowWindowAddTags().then()" style="margin-right:10px" />
-        </div>
-        <div ng-if="ui.hasSelected">
-            <input type="button" class="btn btn-danger btn-sm" value="{{$res('Delete selected items')}}" ng-click="doDeleteItems().then()" style="margin-right:10px" />
-        </div>
-        <div class="dock full"></div>
-        <div style="padding:4px" ng-if="currentApp.AzureLoginUrl">
-            <input type="button" class="btn btn-primary btn-sm" value="{{$res('One-Drive upload')}}" ng-click="doOneDriveOpenUpload.then()" style="margin-right:10px" />
-        </div>
-        <div style="padding:4px">
-            <input type="button" class="btn btn-primary btn-sm" value="{{$res('Upload')}}" ng-click="doOpenUploadMultiFilesWindow().then()" style="margin-right:10px" />
-        </div>
-        <div style="padding:4px">
-            <input type="button" class="btn btn-primary btn-sm" value="{{$res('New')}}" ng-click="doOpenUploadWindow().then()" style="margin-right:10px" />
-        </div>
-        <div style="padding:4px">
-             <input type="button" class="btn btn-primary btn-sm" value="{{$res('New compress')}}" ng-click="doOpenUploadZipWindow().then()" />
-        </div>
 
-
-    </div>
 </div>

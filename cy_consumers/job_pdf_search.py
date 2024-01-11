@@ -87,7 +87,7 @@ def process_pdf_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRegis
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
                 doc_context.fields.HasSearchContent << True,
-                doc_context.fields.DocType<<"Office"
+                doc_context.fields.DocType<<"Pdf"
             )
             return
         os.makedirs(file_dir,exist_ok=True)
