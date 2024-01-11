@@ -38,7 +38,7 @@ class ContentService:
         if not file_ext:
             main_file_id = data["MainFileId"]
             if isinstance(main_file_id, str) and "://" in main_file_id:
-                file_ext = pathlib.Path(main_file_id.splitlines("://")[1]).suffix
+                file_ext = pathlib.Path(main_file_id.split("://")[1]).suffix
                 if file_ext == "":
                     return ContentTypeEnum.Unknown
                 else:

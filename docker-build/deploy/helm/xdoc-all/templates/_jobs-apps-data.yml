@@ -1,6 +1,10 @@
 {{- define "jobs-apps-data"  -}}
 ---
 data:
+  - name: job-office-search
+    endpoint: job_office_search.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.slim}}
   - name: files-upload
     endpoint: files_upload.py
     description: watch all upload from lv-doc-service
@@ -8,7 +12,7 @@ data:
     replicate: 1
     #files_save_search_content.py
   - name: files-save-search-content
-    endpoint: ffiles_save_search_content.py
+    endpoint: files_save_search_content.py
     description: watch all upload from lv-doc-service
     image: {{.images.jobs.slim}}
     replicate: 1
@@ -96,9 +100,11 @@ data:
 #    endpoint: files_fix_data_search.py
 #    image: {{.images.jobs.slim}}
 crons:
-  - name: files-move-from-db-to-disk
-    endpoint: files_move_from_db_to_disk.py
-    description: watch all upload from lv-doc-service
-    image: {{.images.jobs.slim}}
+#  - name: files-move-from-db-to-disk
+#    endpoint: files_move_from_db_to_disk.py
+#    description: watch all upload from lv-doc-service
+#    image: {{.images.jobs.slim}}
+    #job_office_search.py
+
 ---
 {{- end -}}

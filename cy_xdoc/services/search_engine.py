@@ -469,7 +469,7 @@ class SearchEngine:
             file_name=file_name,
             mark_delete=mark_delete,
             content=content,
-            vn_non_accent_content=vn_non_accent_content,
+            # vn_non_accent_content=vn_non_accent_content,
             meta_info=cy_es.convert_to_vn_predict_seg(
                 meta_info or data_item.get('meta_data'),
                 segment_handler=self.vn.parse_word_segment,
@@ -606,9 +606,9 @@ class SearchEngine:
                 index=self.get_index(app_name),
                 id=id,
                 data=(
-                    getattr(cy_es.buiders, content_field) << content,
-                    getattr(cy_es.buiders, f"{content_field}_lower") << content_lower,
-                    getattr(cy_es.buiders, f"{content_field}_seg") << content,
+                    getattr(cy_es.buiders, content_field) << content
+                    # getattr(cy_es.buiders, f"{content_field}_lower") << content_lower,
+                    # getattr(cy_es.buiders, f"{content_field}_seg") << content,
 
                 )
             )
@@ -630,27 +630,27 @@ class SearchEngine:
         if isinstance(data_item, cy_docs.DocumentObject):
             json_data_item = data_item.to_json_convertable()
         elif isinstance(data_item, dict):
-            json_data_item = cy_docs.to_json_convertable(data_item, predict_content_handler=self.vn_predictor.get_text)
+            json_data_item = cy_docs.to_json_convertable(data_item)
         if is_exist:
             es_doc = self.get_doc(
                 app_name=app_name,
                 id=id
 
             )
-            if not replace_content:
-                old_content = self.vn_predictor.get_text(es_doc.source.content or "")
-                content = content + "\n" + self.vn_predictor.get_text(content)
-                content = content + "\n" + old_content
-
-                vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
-            else:
-                if content and content != "":
-                    vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
-                    content = content + "\r\n" + self.vn_predictor.get_text(content)
-                else:
-                    content = es_doc.source.content or ""
-                    vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
-                    content = content + "\r\n" + self.vn_predictor.get_text(content)
+            # if not replace_content:
+            #     old_content = self.vn_predictor.get_text(es_doc.source.content or "")
+            #     content = content + "\n" + self.vn_predictor.get_text(content)
+            #     content = content + "\n" + old_content
+            #
+            #     vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
+            # else:
+            #     if content and content != "":
+            #         vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
+            #         content = content + "\r\n" + self.vn_predictor.get_text(content)
+            #     else:
+            #         content = es_doc.source.content or ""
+            #         vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
+            #         content = content + "\r\n" + self.vn_predictor.get_text(content)
             _Privileges = None
             if hasattr(data_item, "Privileges"):
                 _Privileges = data_item.Privileges
@@ -670,18 +670,10 @@ class SearchEngine:
                 id=id,
                 data=(
                     cy_es.buiders.privileges << _Privileges,
-                    getattr(cy_es.buiders, f"{self.get_content_field_name()}_bm25_seg") << seg_content,
-                    getattr(cy_es.buiders, f"{self.get_content_field_name()}_seg") << seg_content,
-                    getattr(cy_es.buiders, f"{self.get_content_field_name()}_lower") << self.vn.parse_word_segment(
-                        content=content.lower()),
-                    cy_es.buiders.vn_non_accent_content << vn_non_accent_content,
+                    getattr(cy_es.buiders, f"{self.get_content_field_name()}")<<content,
+                    # cy_es.buiders.vn_non_accent_content << vn_non_accent_content,
                     cy_es.buiders.content << content,
-                    cy_es.buiders.data_item << cy_es.convert_to_vn_predict_seg(
-                        json_data_item,
-                        handler=self.vn_predictor.get_text,
-                        segment_handler=self.vn.parse_word_segment,
-                        clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-                    ),
+                    cy_es.buiders.data_item << json_data_item,
                     cy_es.buiders.meta_info << meta_info,
                     cy_es.buiders.meta_data << meta_data
 
