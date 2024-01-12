@@ -187,6 +187,7 @@ services:
 #services=cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService',
 file_storage_path_: "/from-192-168-18-36/files"
 file_storage_path: "/mnt/files"
+dataset_path: "/mnt/files/dataset"
 server_thumb_office: "http://172.16.7.99:31792"
 server_thumb_office_: "http://0.0.0.0:8014"
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/tmp /home/vmadmin/python/cy-py/share-storage

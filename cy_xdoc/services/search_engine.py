@@ -26,7 +26,8 @@ from cy_xdoc.services.text_procesors import TextProcessService
 from cy_xdoc.services.file_content_extractors import FileContentExtractorService
 from cyx.rdr_segmenter.segmenter_services import VnSegmenterService
 import cyx.vn_predictor
-from  cyx.loggers import LoggerService
+from cyx.loggers import LoggerService
+
 
 class SearchEngine:
     """
@@ -50,13 +51,13 @@ class SearchEngine:
                  ),
                  vn=cy_kit.singleton(VnSegmenterService),
                  vn_predictor=cy_kit.singleton(cyx.vn_predictor.VnPredictor),
-                 logger = cy_kit.singleton(LoggerService)):
+                 logger=cy_kit.singleton(LoggerService)):
         self.logger = logger
         self.config = cyx.common.config
         self.client = elasticsearch.Elasticsearch(
-            hosts= cyx.common.config.elastic_search.server,
-            timeout = 30,
-            sniff_timeout = 30
+            hosts=cyx.common.config.elastic_search.server,
+            timeout=30,
+            sniff_timeout=30
         )
         self.prefix_index = cyx.common.config.elastic_search.prefix_index
         self.text_process_service = text_process_service
@@ -261,7 +262,7 @@ class SearchEngine:
         #     )
         #
         #     search_expr = search_expr & (content_search_match_phrase | qr)
-            # search_expr.set_minimum_should_match(1)
+        # search_expr.set_minimum_should_match(1)
         skip = page_index
         highlight_expr = None
         if highlight:
@@ -296,7 +297,7 @@ class SearchEngine:
                 limit=page_size,
                 excludes=[
                     cy_es.buiders.content,
-                    getattr(cy_es.buiders,FIELD_RAW_TEXT),
+                    getattr(cy_es.buiders, FIELD_RAW_TEXT),
 
                     cy_es.buiders.vn_on_accent_content],
                 index=self.get_index(app_name),
@@ -306,28 +307,27 @@ class SearchEngine:
                 sort=sort
 
             )
-            n = (datetime.datetime.now()-t).total_seconds()
+            n = (datetime.datetime.now() - t).total_seconds()
             print(f"Elastic Search time = {n} second")
             return ret
         except elasticsearch.exceptions.RequestError as e:
-            self.logger.error(e,more_info=search_expr)
+            self.logger.error(e, more_info=search_expr)
 
-            if hasattr(e,"info")  and isinstance(e.info,dict) \
+            if hasattr(e, "info") and isinstance(e.info, dict) \
                     and e.info.get('error') \
-                    and isinstance(e.info.get('error'),dict) \
-                    and isinstance(e.info.get('error').get('root_cause'),list) :
+                    and isinstance(e.info.get('error'), dict) \
+                    and isinstance(e.info.get('error').get('root_cause'), list):
 
-
-                if e.info['error']['root_cause'][0]['type']=="illegal_argument_exception":
+                if e.info['error']['root_cause'][0]['type'] == "illegal_argument_exception":
                     if "index.highlight.max_analyzed_offset] " in e.info['error']['root_cause'][0]['reason']:
-                        max_value= e.info['error']['root_cause'][0]['reason'].split('The length [')[1].split(']')[0]
+                        max_value = e.info['error']['root_cause'][0]['reason'].split('The length [')[1].split(']')[0]
                         if app_name == "admin":
                             app_name = self.config.admin_db_name
                         index_name = f"{self.prefix_index}_{app_name}"
                         self.client.indices.put_settings(
                             index=index_name,
                             body={
-                                "index.highlight.max_analyzed_offset": str((int(max_value)*2))
+                                "index.highlight.max_analyzed_offset": str((int(max_value) * 2))
                             }
                         )
                         self.client.indices.refresh(index_name)
@@ -351,14 +351,14 @@ class SearchEngine:
             print(e)
 
     async def full_text_search_async(self,
-                         app_name,
-                         content,
-                         page_size: typing.Optional[int],
-                         page_index: typing.Optional[int],
-                         highlight: typing.Optional[bool],
-                         privileges: typing.Optional[dict],
-                         sort: typing.List[str] = ["data_item.RegisterOn:desc"],
-                         logic_filter=None):
+                                     app_name,
+                                     content,
+                                     page_size: typing.Optional[int],
+                                     page_index: typing.Optional[int],
+                                     highlight: typing.Optional[bool],
+                                     privileges: typing.Optional[dict],
+                                     sort: typing.List[str] = ["data_item.RegisterOn:desc"],
+                                     logic_filter=None):
         return self.full_text_search(
             app_name,
             content,
@@ -370,7 +370,6 @@ class SearchEngine:
             logic_filter
         )
 
-
     def get_doc(self, app_name: str, id: str, doc_type: str = "_doc"):
         """
         get document by id
@@ -381,6 +380,13 @@ class SearchEngine:
         :return:
         """
         return cy_es.get_doc(client=self.client, id=id, doc_type=doc_type, index=self.get_index(app_name))
+
+    def get_source(self, app_name: str, id: str):
+        return cy_es.cy_es_objective.get_source(
+            client=self.client,
+            id=id,
+            index=self.get_index(app_name)
+        )
 
     async def get_doc_async(self, app_name: str, id: str, doc_type: str = "_doc"):
         return await cy_es.get_doc_async(client=self.client, id=id, doc_type=doc_type, index=self.get_index(app_name))
@@ -502,10 +508,10 @@ class SearchEngine:
     def create_or_update_privileges(
             self,
             app_name, upload_id,
-            data_item: typing.Union[dict, cy_docs.DocumentObject,None],
+            data_item: typing.Union[dict, cy_docs.DocumentObject, None],
             privileges,
             meta_info: dict = None,
-            force_replace:bool=False
+            force_replace: bool = False
     ):
         """
         Create or update privileges tag
@@ -607,7 +613,7 @@ class SearchEngine:
                 index=self.get_index(app_name),
                 id=id,
                 data=(
-                    getattr(cy_es.buiders, content_field) << content
+                        getattr(cy_es.buiders, content_field) << content
                     # getattr(cy_es.buiders, f"{content_field}_lower") << content_lower,
                     # getattr(cy_es.buiders, f"{content_field}_seg") << content,
 
@@ -671,7 +677,7 @@ class SearchEngine:
                 id=id,
                 data=(
                     cy_es.buiders.privileges << _Privileges,
-                    getattr(cy_es.buiders, f"{self.get_content_field_name()}")<<content,
+                    getattr(cy_es.buiders, f"{self.get_content_field_name()}") << content,
                     # cy_es.buiders.vn_non_accent_content << vn_non_accent_content,
                     cy_es.buiders.content << content,
                     cy_es.buiders.data_item << json_data_item,
@@ -794,18 +800,17 @@ class SearchEngine:
             return data_privileges
         return data_privileges
 
-
-    def update_data_fields(self, app_name:str, id:str, data:dict):
-        assert isinstance(data,dict),"data args must be dic"
-        for k,v in data.items():
+    def update_data_fields(self, app_name: str, id: str, data: dict):
+        assert isinstance(data, dict), "data args must be dic"
+        for k, v in data.items():
             self.update_data_field(
-                app_name= app_name,
-                id = id,
-                field_path= k,
-                field_value= v
+                app_name=app_name,
+                id=id,
+                field_path=k,
+                field_value=v
             )
 
-    def replace_content(self, app_name, id,field_path:str, field_value:str,timeout="60s"):
+    def replace_content(self, app_name, id, field_path: str, field_value: str, timeout="60s"):
         cy_es.replace_content(
             index=self.get_index(app_name),
             id=id,

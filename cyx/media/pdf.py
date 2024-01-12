@@ -17,7 +17,7 @@ import cy_kit
 
 from cyx.common.share_storage import ShareStorageService
 from cyx.loggers import LoggerService
-
+import fitz
 class PDFService:
     def __init__(self,
                  share_storage_service: ShareStorageService = cy_kit.singleton(ShareStorageService),
@@ -119,9 +119,6 @@ class PDFService:
         return image_file_paths
 
     def get_pdf_searchable_pages(self, fname):
-
-
-
         searchable_pages = []
         non_searchable_pages = []
         # ascii_trip = bytes([0x0c]).decode('ascii')
@@ -358,6 +355,9 @@ class PDFService:
             keep_temporary_files=False
         )
         return out_put_file_path
+
+
+
 
 
 

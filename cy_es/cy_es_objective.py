@@ -413,7 +413,7 @@ def search(client: Elasticsearch,
                 if isinstance(x.__name__, __ScriptField__):
                     continue
                 fields[x.__name__] = {}
-        fields = dict([(k, v) for k, v in fields.items() if not k.endswith("_bm25_seg") or k.startswith("content.") ])
+        fields = dict([(k, v) for k, v in fields.items() if not k.endswith("_bm25_seg") or k.startswith("content.")])
         __highlight = {
             "require_field_match": False,
             "pre_tags": ["<em>"],
@@ -485,16 +485,17 @@ def search(client: Elasticsearch,
                 }
             }
         body["sort"] = _sort_fields_
-        ret = client.search(index=index, doc_type=doc_type, body=body,request_timeout=30)
+        ret = client.search(index=index, doc_type=doc_type, body=body, request_timeout=30)
         return SearchResult(ret)
     except elasticsearch.exceptions.RequestError as e:
         import cy_es.cy_es_manager
-        max_analyzed_offset= cy_es.cy_es_manager.get_max_analyzed_offset(e)
-        if max_analyzed_offset>-1:
+        max_analyzed_offset = cy_es.cy_es_manager.get_max_analyzed_offset(e)
+        if max_analyzed_offset > -1:
             if not ret.isnumeric():
                 settings = {
                     "settings": {
-                        "index.highlight.max_analyzed_offset": max_analyzed_offset+int(math.floor(max_analyzed_offset/10))
+                        "index.highlight.max_analyzed_offset": max_analyzed_offset + int(
+                            math.floor(max_analyzed_offset / 10))
                     }
                 }
                 client.indices.create(index=index, body=settings)
@@ -631,6 +632,14 @@ def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") 
                 if count > 10:
                     raise e
     except elasticsearch.exceptions.NotFoundError as e:
+        return None
+
+
+def get_source(client: Elasticsearch, index: str, id: str) -> typing.Optional[dict]:
+    try:
+        ret = client.get_source(index=index, doc_type="_doc", id=id)
+        return ret
+    except elasticsearch.exceptions.NotFoundError:
         return None
 
 

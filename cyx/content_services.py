@@ -101,7 +101,9 @@ class ContentService:
                 '\r', ' ').replace("  ", ' ').rstrip(' ').lstrip(' ')
             ret_remove_accents = self.remove_accents(ret)
             # self.rdrsegment.segmentRawSentences(self.tokenizer, ret)
-            return ret + " " + ret_remove_accents
+            if ret_remove_accents!=ret:
+                ret = ret + " " + ret_remove_accents
+            return ret
         return ""
 
     def remove_accents(self, input_str):

@@ -20,7 +20,7 @@ __model_storage_directory__ = os.path.abspath(
 """
 easyocr use dataset to recognize text. This variable is the location of dataset dir 
 """
-
+from cyx.common import config
 class DouTextInfo:
     content: typing.List[str]
 
@@ -47,15 +47,18 @@ class EasyOCRService:
     ):
         import easyocr
         self.share_storage=share_storage
-        self.__data_set_path__ = os.path.abspath(
-            os.path.join(self.share_storage.get_root(),"dataset","easyocr")
-        )
+        self.data_set_path=os.path.join(config.dataset_path,"easyocr")
+        if not os.path.isdir(self.data_set_path):
+            os.makedirs(self.data_set_path)
+        # self.__data_set_path__ = os.path.abspath(
+        #     os.path.join(self.share_storage.get_root(),"dataset","easyocr")
+        # )
         print(f"EasyOCR will locate dataset at ")
         self.use_gpu = False
         self.langs = ["vi","en"]
         self.reader = easyocr.Reader(
             self.langs, gpu=self.use_gpu,
-            model_storage_directory=self.__data_set_path__
+            model_storage_directory=self.data_set_path
         )
         self.vn_predict = vn_predict
         self.tmp_file = tmp_file

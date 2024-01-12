@@ -379,6 +379,18 @@ class Field(__BaseField__):
     # all compare operator
     def __eq__(self, other):
         op = "$eq"
+        if other is None:
+            ret= Field(self.__name__)
+            ret.__data__={
+                "$or":[
+                    {
+                        self.__name__:{ "$exists": False}
+                    },{
+                        self.__name__:None
+                    }
+                ]
+            }
+            return ret
         if isinstance(other, Field):
             return Field(
                 {
@@ -414,6 +426,18 @@ class Field(__BaseField__):
 
     def __ne__(self, other):
         op = "$ne"
+        if other is None:
+            ret= Field(self.__name__)
+            ret.__data__={
+                "$and":[
+                    {
+                        self.__name__:{ "$exists": True}
+                    },{
+                        self.__name__: {"$ne": None}
+                    }
+                ]
+            }
+            return ret
         if isinstance(other, Field):
             return Field(
                 {
@@ -804,6 +828,67 @@ class Field(__BaseField__):
         else:
             raise Exception(f"Thous can not alias mongodb expression with {type(other)}")
         return self
+    def __contains__(self,other):
+        if other is not None and type(other) not in [int,datetime.datetime,bool,str,list,float,dict]:
+            raise Exception(f"param in {self.__name__}.__contains__ must be str,int,bool,datetime,float,dict or array")
+        ret= Field(self.__name__)
+        if isinstance(other,list):
+            if any([x for x in other if type(x) not in [int,datetime.datetime,bool,str,list,float,dict]]):
+                raise Exception(f"all element in {other} must be str,int,bool,datetime,float,dict or array")
+            """
+            $all: [{
+            "$elemMatch": {
+                id: 1234,
+                comments: {
+                    $in: ['GOOD', 'NICE']
+                }
+            }
+        }, {
+            "$elemMatch": {
+                id: 2345,
+                comments: {
+                    $in: ['GOOD']
+                }
+            }
+        }, ]
+            """
+            all_items= [{"$elemMatch":x} for x in other]
+            ret.__data__={
+                ret.__name__:{
+                    "$all":all_items
+                }
+            }
+            return ret
+        elif type(other) in [int,datetime.datetime,bool,list,float,dict]:
+            """
+            db.survey.find({ results: { $elemMatch: { product: "xyz" } } })
+            """
+            ret.__data__ = {
+                ret.__name__: {
+                    "$elemMatch": other
+                }
+            }
+            return ret
+        elif isinstance(other,str):
+            """
+            sub_text = "hello"  # The text you want to check for
+                query = {
+                    "your_text_field": {
+                        "$regex": f"{sub_text}",
+                        "$options": "i"  # Enables case-insensitive matching
+                    }
+                }
+            """
+            ret.__data__ = {
+                ret.__name__: {
+                    "$regex": other,
+                    "$options": "i"
+                }
+            }
+            return ret
+
+
+
 
     def asc(self):
         init_data = self.__name__

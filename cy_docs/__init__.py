@@ -256,7 +256,7 @@ class DbQueryableCollection(Generic[T]):
 
     @property
     def fields(self) -> T:
-        return expr(self.__cls__)
+        return cy_docs_x.fields[self.__cls__]
 
 
 class DbQueryable:

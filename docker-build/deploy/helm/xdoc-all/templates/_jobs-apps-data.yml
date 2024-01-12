@@ -3,6 +3,11 @@
 data:
   #job_pdf_search.py
   #files_extract_text_from_pdf.py
+  #job_image_search.py
+  - name: job-image-search
+    endpoint: job_image_search.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.large}}
   - name: job-pdf-search
     endpoint: job_pdf_search.py
     description: watch all upload from lv-doc-service

@@ -24,18 +24,24 @@ def __create_client__(db) -> MongoClient:
             __client__[db.host] = MongoClient(**db.to_dict())
         return __client__[db.host]
 
+
 from typing import TypeVar, Generic
+
 T = TypeVar("T")
 __cache_context__ = {}
+
+
 class DbDocumentContext(Generic[T]):
-    def __init__(self,doc_type:T):
+    def __init__(self, doc_type: T):
         self.doc_type = doc_type
 
+
 class DbContext:
-    def __init__(self,client,db_name:str):
-        self.client=client
+    def __init__(self, client, db_name: str):
+        self.client = client
         self.db_name = db_name
-    def doc(self,cls:T)->DbDocumentContext[T]:
+
+    def doc(self, cls: T) -> DbDocumentContext[T]:
         if __cache_context__.get(self.db_name):
             return __cache_context__[self.db_name]
         ret = cy_docs.DbQueryable(self.db_name, self.client)
@@ -43,12 +49,11 @@ class DbContext:
         return ret
 
 
-
 class MongodbService:
     def __init__(self):
         self.admin_db_name = config.admin_db_name
         self.client = __create_client__(config.db)
-        self.__context__ =  {}
+        self.__context__ = {}
 
     def db(self, db_name: str) -> cy_docs.DbQueryable:
         if db_name == "admin":
@@ -58,11 +63,11 @@ class MongodbService:
             ret = cy_docs.DbQueryable(db_name, self.client)
             return ret
 
-    def get_db_context(self,db_name:str)->DbContext:
+    def get_db_context(self, db_name: str) -> DbContext:
         if db_name == "admin":
             if self.__context__.get(self.admin_db_name):
                 return self.__context__.get(self.admin_db_name)
-            ret = DbContext(self.client,self.admin_db_name)
+            ret = DbContext(self.client, self.admin_db_name)
             self.__context__[self.admin_db_name] = ret
             return ret
         else:
@@ -71,3 +76,30 @@ class MongodbService:
             ret = DbContext(self.client, db_name)
             self.__context__[db_name] = ret
             return ret
+
+
+class RepositoryContext(Generic[T]):
+    def __init__(self, cls: T):
+        self.__client__ = __create_client__(config.db)
+        self.__cls__ = cls
+        self.__cache__ = {}
+        self.__fields__ = cy_docs.cy_docs_x.fields[self.__cls__]
+
+    @property
+    def fields(self) -> T:
+        return self.__fields__
+    def app(self, app_name: str) -> cy_docs.DbQueryableCollection[T]:
+
+        if self.__cache__.get(app_name):
+            return self.__cache__.get(app_name)
+        else:
+            db_name = app_name
+            if app_name == "admin":
+                db_name = config.admin_db_name
+            ret = cy_docs.DbQueryableCollection[T](self.__cls__, self.__client__, db_name)
+            self.__cache__[app_name] = ret
+            return ret
+
+
+
+
