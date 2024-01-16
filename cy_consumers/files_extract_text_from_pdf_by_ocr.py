@@ -38,8 +38,15 @@ def vertical_append(images_list: typing.List[str], out_put: str) -> str:
     images = []
     for image_path in images_list:
         images.append(Image.open(image_path))
+    if len(images)==0:
+        return  None
     total_height = sum(img.height for img in images)
-    max_width = max(img.width for img in images)
+    max_width=-1
+    try:
+        max_width = max(img.width for img in images)
+    except Exception as e:
+        return  None
+
     new_image = Image.new("RGB", (max_width, total_height))
     y_offset = 0
     for img in images:
@@ -88,6 +95,8 @@ def extract_all_images(pdf_file, extract_to) -> typing.List[str]:
                 print(e)
                 pass
             image_index += 1
+        if len(image_paths)==0:
+            return None
         vertical_append(image_paths,image_path)
         ret+=[image_path]
         page_index += 1
@@ -130,6 +139,9 @@ class Process:
                 if not os.path.isdir(content_images_dir_path):
                     os.makedirs(content_images_dir_path)
                 ret = extract_all_images(pdf_file=resource, extract_to=content_images_dir_path)
+                if ret is None:
+                    msg.delete(msg_info)
+                    return
                 full_text = ""
                 for file in ret:
                     text = self.easy_ocr_service.get_text(file)
@@ -153,4 +165,4 @@ class Process:
                 field_value=contents
             )
 
-            # msg.delete(msg_info)
+            msg.delete(msg_info)

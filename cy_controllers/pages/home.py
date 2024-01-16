@@ -64,7 +64,7 @@ from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import Fuc
 from cy_fucking_whore_microsoft.services import (
     account_services, ondrive_services
 )
-from requests_kerberos import HTTPKerberosAuth
+# from requests_kerberos import HTTPKerberosAuth
 @controller.resource()
 class PagesController:
     # add class wide dependencies e.g. auth
