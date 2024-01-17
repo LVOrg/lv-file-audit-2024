@@ -3,7 +3,7 @@ images:
   jobs:
     slim: nttlong/fs:fs.slim.amd.10.53
     medium: nttlong/fs:fs.medium.amd.10.39
-    large: nttlong/fs:fs.large.amd.10.36
+    large: nttlong/fs:fs.large.amd.10.38
     replicas: 2
     cpu_requests: 0.5
     mem_requests: 2Gi

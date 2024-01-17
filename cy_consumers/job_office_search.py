@@ -3,7 +3,7 @@ import shutil
 import sys
 import threading
 import time
-
+__cache_check__ = {}
 
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
@@ -30,6 +30,7 @@ from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
 from cyx.media.contents import ContentsServices
 import os
+from cyx.repository import Repository
 from cy_xdoc.services.search_engine import SearchEngine
 search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
 file_services = cy_kit.singleton(FileServices)
@@ -94,6 +95,7 @@ def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRe
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
                 doc_context.fields.HasSearchContent << True,
+                doc_context.fields.SearchContentAble << True,
                 doc_context.fields.DocType<<"Office"
             )
             return
@@ -112,126 +114,126 @@ def process_office_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRe
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
                 doc_context.fields.HasSearchContent << True,
+                doc_context.fields.SearchContentAble << True,
                 doc_context.fields.DocType<<"Office"
             )
             time.sleep(0.3)
+        except elasticsearch.exceptions.NotFoundError as e:
+            search_engine.update_content(
+                app_name=app_name,
+                id = doc.id,
+                content=text,
+                data_item=doc.to_json_convertable()
+            )
+            doc_context.context.update(
+                doc_context.fields.id == doc.id,
+                doc_context.fields.HasSearchContent << True,
+                doc_context.fields.SearchContentAble << True,
+                doc_context.fields.DocType << "Office"
+            )
         except Exception as e:
             raise e
         print(file_path)
     else:
         doc_context.context.update(
             doc_context.fields.id == doc.id,
-            doc_context.fields.SearchContentAble << False
+            doc_context.fields.SearchContentAble << False,
+            doc_context.fields.HasSearchContent << False,
+            doc_context.fields.DocType<<"Office"
         )
 
 
-def do_update_doc_type(doc_context: cy_docs.DbQueryableCollection[DocUploadRegister]):
-    docs = doc_context.context.find(
-        (cy_docs.not_exists(doc_context.fields.DocType)),
-        linmit=10
+
+def fix_all_doc_types(ap_name:str):
+
+
+    # admin_app_context = Repository.apps.app('admin')
+    # apps = admin_app_context.context.aggregate().sort(
+    #     admin_app_context.fields.AccessCount.desc()
+    # ).project(
+    #     admin_app_context.fields.Name,
+    #     admin_app_context.fields.NameLower,
+    # )
+    file_context = Repository.files.app(app_name=ap_name)
+    total_update = 0
+    for ext in config.ext_office_file:
+        try:
+            file_context.context.update(
+                file_context.fields.StorageType == "Office",
+                file_context.fields.StorageType << "local"
+            )
+            if ext != "pdf":
+                ret = file_context.context.update(
+                    file_context.fields.FileNameLower.endswith(f".{ext}") & (
+                            (file_context.fields.DocType != "Office") |
+                            (file_context.fields.DocType == None)
+                    ),
+                    file_context.fields.DocType << "Office"
+                )
+            else:
+                ret = file_context.context.update(
+                    file_context.fields.FileNameLower.endswith(f".{ext}"),
+                    file_context.fields.DocType << "Pdf"
+                )
+            if hasattr(ret, 'matched_count'):
+                total_update += ret.matched_count
+        except Exception as e:
+            print(e)
+
+    print(f"fix doc type of {ap_name} is {total_update}")
+
+
+
+
+
+
+# time.sleep(5)
+while True:
+
+    apps = app_admin_context.context.aggregate().sort(
+        app_admin_context.fields.AccessCount.desc(),
+        app_admin_context.fields.LatestAccess.desc()
+    ).match(
+        filter=app_admin_context.fields.Name != "admin"
     )
-    list_docs = list(docs)
-    print(f"found {len(list_docs)}")
-    while len(list_docs) > 0:
-        for doc in list_docs:
-            fx = content_service.get_type(doc.to_json_convertable())
-            if fx == ContentTypeEnum.Unknown:
+    for app in apps:
+        fix_all_doc_types(app.Name)
+        doc_context = mongodb_service.db(app.Name.lower()).get_document_context(DocUploadRegister)
+        filter = ((doc_context.fields.DocType=="Office")&
+                  (cy_docs.not_exists(doc_context.fields.HasSearchContent) |
+                   (doc_context.fields.HasSearchContent==False)))
+        filter = filter & ((doc_context.fields.SearchContentAble==True)|(cy_docs.not_exists(doc_context.fields.SearchContentAble)))
+
+        filter= filter & (doc_context.fields.Status==1)
+        docs = doc_context.context.aggregate().sort(
+            doc_context.fields.RegisterOn.desc()
+        ).match(
+            filter
+        ).limit(10)
+        doc_list= list(docs)
+        print(f"Scan {app.Name}, {len(doc_list)}")
+        for doc in docs:
+
+            if doc:
+                if __cache_check__.get(doc.id):
+                    raise Exception(f"{app.Name} with {doc.id} already process")
+                __cache_check__[doc.id] = doc.id
+            m = doc[doc_context.fields.MainFileId]
+            if isinstance(m, str) and "://" in m:
+                file_path = os.path.join(config.file_storage_path, m.split("://")[1])
+                print(file_path)
+                fx = content_service.get_type(doc.to_json_convertable())
+                if fx == ContentTypeEnum.Office:
+                    process_office_content(doc_context=doc_context, doc=doc, app_name=app.Name.lower())
+
+                print(doc[doc_context.fields.MainFileId])
+            else:
                 doc_context.context.update(
                     doc_context.fields.id == doc.id,
                     doc_context.fields.SearchContentAble << False,
-                    doc_context.fields.DocType << "Unknown"
-                )
-                continue
-            if fx == ContentTypeEnum.Office:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
+                    doc_context.fields.HasSearchContent << False,
                     doc_context.fields.DocType << "Office"
                 )
-                continue
-            if fx == ContentTypeEnum.Pdf:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
-                    doc_context.fields.DocType << "Pdf"
-                )
-                continue
-            if fx == ContentTypeEnum.Video:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
-                    doc_context.fields.DocType << "Video"
-                )
-                continue
-            if fx == ContentTypeEnum.Image:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
-                    doc_context.fields.DocType << "Image"
-                )
-                continue
-        docs = doc_context.context.find(
-            (cy_docs.not_exists(doc_context.fields.DocType)),
-            linmit=10
-        )
-        list_docs = list(docs)
-
-
-def do_update_doc_type_al_apps():
-    apps = app_admin_context.context.aggregate().sort(
-        app_admin_context.fields.RegisteredOn.desc()
-    ).match(
-        filter=app_admin_context.fields.Name == "qtscdemo"
-    ).limit(10)
-
-    for app in apps:
-        doc_context = mongodb_service.db(app.Name.lower()).get_document_context(DocUploadRegister)
-        do_update_doc_type(doc_context)
-
-
-threading.Thread(target=do_update_doc_type_al_apps).start()
-apps = app_admin_context.context.aggregate().sort(
-    app_admin_context.fields.AccessCount.desc(),
-    app_admin_context.fields.LatestAccess.desc()
-).match(
-    filter=app_admin_context.fields.Name != "admin"
-)
-# time.sleep(5)
-while True:
-    for app in apps:
-        try:
-            doc_context = mongodb_service.db(app.Name.lower()).get_document_context(DocUploadRegister)
-            filter = ((doc_context.fields.DocType=="Office")&
-                      (cy_docs.not_exists(doc_context.fields.HasSearchContent) |
-                       (doc_context.fields.HasSearchContent==False)))
-            filter = filter & ((doc_context.fields.SearchContentAble==True)|(cy_docs.not_exists(doc_context.fields.SearchContentAble)))
-
-            filter= filter & (doc_context.fields.Status==1)
-            docs = doc_context.context.aggregate().sort(
-                doc_context.fields.RegisterOn.desc()
-            ).match(
-                filter
-            ).limit(10)
-            doc_list= list(docs)
-            print(f"Scan {app.Name}, {len(doc_list)}")
-            while len(doc_list)>0:
-                for doc in docs:
-                    m = doc[doc_context.fields.MainFileId]
-                    if isinstance(m, str) and "://" in m:
-                        file_path = os.path.join(config.file_storage_path, m.split("://")[1])
-                        print(file_path)
-                        fx = content_service.get_type(doc.to_json_convertable())
-                        if fx == ContentTypeEnum.Office:
-                            try:
-                                process_office_content(doc_context=doc_context, doc=doc, app_name=app.Name.lower())
-                            except Exception as e:
-                                print(e)
-                                continue
-
-                        print(doc[doc_context.fields.MainFileId])
-
-
-        except Exception as e:
-            print(e)
         print("xong")
     print("xong")
+    time.sleep(30)

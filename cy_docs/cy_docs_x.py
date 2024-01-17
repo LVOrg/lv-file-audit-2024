@@ -44,8 +44,19 @@ import inspect
 import re
 import pymongo.mongo_client
 import gridfs
-
-
+"""
+. (dot): Matches any character except newline.
+^: Matches the beginning of the string.
+$: Matches the end of the string.
+*: Matches zero or more repetitions of the preceding character.
++: Matches one or more repetitions of the preceding character.
+?: Matches zero or one repetitions of the preceding character.
+|: Or operator.
+(): Grouping.
+[]: Character class.
+{}: Repetition quantifier.
+\: Escape character.
+"""
 def get_mongodb_text(data):
     if isinstance(data, dict):
 
@@ -899,16 +910,21 @@ class Field(__BaseField__):
         return ret
 
     def like(self, value: str):
-
-        ret = self == re.compile(value, re.IGNORECASE)
+        ret = self == re.compile(re.escape(value), re.IGNORECASE)
         return ret
 
     def startswith(self, value: str):
-        ret = self == re.compile(f"^{value}", re.IGNORECASE)
+        ret = self == re.compile(f"^{re.escape(value)}", re.IGNORECASE)
         return ret
 
     def endswith(self, value: str):
-        ret = self == re.compile(f"{value}^", re.IGNORECASE)
+        """
+        Example .docx-> .*\.docx$
+        :param value:
+        :return:
+        """
+
+        ret = self == re.compile("\.*"+re.escape(value)+"$", re.IGNORECASE)
         return ret
 
     def desc(self):
