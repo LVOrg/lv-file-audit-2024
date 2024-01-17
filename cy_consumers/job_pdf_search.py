@@ -4,8 +4,6 @@ import sys
 import threading
 import time
 
-
-
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
 sys.path.append("/app")
@@ -31,23 +29,31 @@ from cyx.common.mongo_db_services import MongodbService
 from cyx.media.contents import ContentsServices
 import os
 from cy_xdoc.services.search_engine import SearchEngine
+
 search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
 file_services = cy_kit.singleton(FileServices)
 content_service = cy_kit.singleton(ContentService)
 mongodb_service: MongodbService = cy_kit.singleton(MongodbService)
 extract_text_service = cy_kit.singleton(ContentsServices)
 logger = cy_kit.singleton(LoggerService)
-app_admin_context = mongodb_service.db("admin").get_document_context(App)
+from cyx.repository import Repository
+from cyx.common import config
+
+app_admin_context = Repository.apps.app('admin')
 import elasticsearch.exceptions
+
 
 def get_content(resource):
     with open(resource, "rb") as fs:
         content = fs.read()
         return content.decode('utf8')
-def process_pdf_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRegister], doc:cy_docs.DocumentObject, app_name):
-    m=doc[doc_context.fields.MainFileId]
-    if isinstance(m,str) and "://" in m:
-        file_path = os.path.join(config.file_storage_path,m.split("://")[1])
+
+
+def process_pdf_content(doc_context: cy_docs.DbQueryableCollection[DocUploadRegister], doc: cy_docs.DocumentObject,
+                        app_name):
+    m = doc[doc_context.fields.MainFileId]
+    if isinstance(m, str) and "://" in m:
+        file_path = os.path.join(config.file_storage_path, m.split("://")[1])
         if not os.path.isfile(file_path):
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
@@ -55,8 +61,8 @@ def process_pdf_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRegis
             )
 
             return
-        file_dir = os.path.join(pathlib.Path(file_path).parent.__str__(),"content")
-        file_content_txt = os.path.join(file_dir,"content.txt")
+        file_dir = os.path.join(pathlib.Path(file_path).parent.__str__(), "content")
+        file_content_txt = os.path.join(file_dir, "content.txt")
         if os.path.isfile(file_content_txt):
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
@@ -87,10 +93,10 @@ def process_pdf_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRegis
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
                 doc_context.fields.HasSearchContent << True,
-                doc_context.fields.DocType<<"Pdf"
+                doc_context.fields.DocType << "Pdf"
             )
             return
-        os.makedirs(file_dir,exist_ok=True)
+        os.makedirs(file_dir, exist_ok=True)
         text, meta = extract_text_service.get_text(file_path)
         text = content_service.well_form_text(text)
         with open(file_content_txt, "wb") as fs:
@@ -105,93 +111,49 @@ def process_pdf_content(doc_context:cy_docs.DbQueryableCollection[DocUploadRegis
             doc_context.context.update(
                 doc_context.fields.id == doc.id,
                 doc_context.fields.HasSearchContent << True,
-                doc_context.fields.DocType<<"Pdf",
-                doc_context.fields.IsRequireOCR<<True
+                doc_context.fields.DocType << "Pdf",
+                doc_context.fields.IsRequireOCR << True
             )
             msg.emit(
-                app_name= app_name,
-                message_type= cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF,
-                data= doc.to_json_convertable(),
+                app_name=app_name,
+                message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF,
+                data=doc.to_json_convertable(),
                 resource=file_path
             )
-            time.sleep(0.3)
-        except Exception as e:
-            raise e
+
+        except elasticsearch.exceptions.NotFoundError:
+            search_engine.make_index_content(
+                app_name=app_name,
+                upload_id=doc.id,
+                data_item=doc.to_json_convertable(),
+                privileges=doc[doc_context.fields.Privileges],
+                content=get_content(file_content_txt)
+
+            )
+            search_engine.replace_content(
+                app_name=app_name,
+                id=doc.id,
+                field_value=get_content(file_content_txt),
+                field_path="content"
+            )
+            doc_context.context.update(
+                doc_context.fields.id == doc.id,
+                doc_context.fields.HasSearchContent << True,
+                doc_context.fields.DocType << "Pdf",
+                doc_context.fields.IsRequireOCR << True
+            )
+            msg.emit(
+                app_name=app_name,
+                message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF,
+                data=doc.to_json_convertable(),
+                resource=file_path
+            )
         print(file_path)
     else:
         doc_context.context.update(
             doc_context.fields.id == doc.id,
             doc_context.fields.SearchContentAble << False
         )
-
-
-def do_update_doc_type(doc_context: cy_docs.DbQueryableCollection[DocUploadRegister]):
-    filter = (cy_docs.not_exists(doc_context.fields.DocType))
-    filter = filter | ((doc_context.fields.DocType=="Pdf") & (
-        (doc_context.fields.HasSearchContent==False)|(cy_docs.not_exists(doc_context.fields.HasSearchContent))
-    ))
-    docs = doc_context.context.aggregate().sort(
-        doc_context.fields.RegisterOn.desc()
-    ).match(
-        filter
-    ).limit(10)
-    list_docs = list(docs)
-    print(f"found {len(list_docs)}")
-    while len(list_docs) > 0:
-        for doc in list_docs:
-            fx = content_service.get_type(doc.to_json_convertable())
-            if fx == ContentTypeEnum.Unknown:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << False,
-                    doc_context.fields.DocType << "Unknown"
-                )
-                continue
-            if fx == ContentTypeEnum.Office:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
-                    doc_context.fields.DocType << "Office"
-                )
-                continue
-            if fx == ContentTypeEnum.Pdf:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
-                    doc_context.fields.DocType << "Pdf"
-                )
-                continue
-            if fx == ContentTypeEnum.Video:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
-                    doc_context.fields.DocType << "Video"
-                )
-                continue
-            if fx == ContentTypeEnum.Image:
-                doc_context.context.update(
-                    doc_context.fields.id == doc.id,
-                    doc_context.fields.SearchContentAble << True,
-                    doc_context.fields.DocType << "Image"
-                )
-                continue
-        docs = doc_context.context.find(
-            (cy_docs.not_exists(doc_context.fields.DocType)),
-            linmit=10
-        )
-        list_docs = list(docs)
-
-
-def do_update_doc_type_al_apps():
-    apps = app_admin_context.context.aggregate().sort(
-        app_admin_context.fields.RegisteredOn.desc()
-    ).match(
-        filter=app_admin_context.fields.Name == "qtscdemo"
-    ).limit(10)
-
-    for app in apps:
-        doc_context = mongodb_service.db(app.Name.lower()).get_document_context(DocUploadRegister)
-        do_update_doc_type(doc_context)
 
 
 # threading.Thread(target=do_update_doc_type_al_apps).start()
@@ -201,70 +163,51 @@ apps = app_admin_context.context.aggregate().sort(
 ).match(
     filter=app_admin_context.fields.Name != "admin"
 )
+
+
 # time.sleep(5)
+def fix_pdf_doc_type(app_name):
+    docs = Repository.files.app(app_name)
+    items = docs.context.update(
+        docs.fields.FileNameLower.endswith(".pdf"),
+        docs.fields.DocType<<"Pdf"
+    )
+
+
+filter = (Repository.files.fields.DocType=="Pdf") & (
+        (Repository.files.fields.HasSearchContent==False)|
+        (Repository.files.fields.HasSearchContent==None)
+)
+filter = filter & (Repository.files.fields.Status==1)
+filter = filter & (
+        (Repository.files.fields.SearchContentAble==None)|
+        (Repository.files.fields.SearchContentAble==True)
+)
 while True:
     for app in apps:
-        try:
-            doc_context = mongodb_service.db(app.Name.lower()).get_document_context(DocUploadRegister)
-            filter = (cy_docs.not_exists(doc_context.fields.DocType))
-            filter = filter | ((doc_context.fields.DocType == "Pdf") & (
-                    (doc_context.fields.HasSearchContent == False) | (
-                cy_docs.not_exists(doc_context.fields.HasSearchContent)|(doc_context.fields.HasSearchContent==False))
-            ))
+        fix_pdf_doc_type(app_name=app.Name)
+        doc_context = Repository.files.app(app.Name)
 
-            filter= filter & (doc_context.fields.Status==1)
-            docs = doc_context.context.aggregate().sort(
-                doc_context.fields.RegisterOn.desc()
-            ).match(
-                filter
-            ).limit(10)
-            doc_list= list(docs)
-            print(f"Scan {app.Name}, {len(doc_list)}")
-            while len(doc_list)>0:
-                for doc in docs:
-                    m = doc[doc_context.fields.MainFileId]
-                    if isinstance(m, str) and "://" in m:
-                        file_path = os.path.join(config.file_storage_path, m.split("://")[1])
-                        print(file_path)
-                        fx = content_service.get_type(doc.to_json_convertable())
-                        if fx == ContentTypeEnum.Pdf:
-                            try:
-                                process_pdf_content(doc_context=doc_context, doc=doc, app_name=app.Name.lower())
-                            except Exception as e:
-                                print(e)
-                                continue
-                        if fx == ContentTypeEnum.Unknown:
-                            doc_context.context.update(
-                                doc_context.fields.id == doc.id,
-                                doc_context.fields.SearchContentAble << False,
-                                doc_context.fields.DocType << "Unknown"
-                            )
-                            continue
-                        if fx == ContentTypeEnum.Office:
-                            doc_context.context.update(
-                                doc_context.fields.id == doc.id,
-                                doc_context.fields.SearchContentAble << True,
-                                doc_context.fields.DocType << "Office"
-                            )
-                            continue
-                        if fx == ContentTypeEnum.Video:
-                            doc_context.context.update(
-                                doc_context.fields.id == doc.id,
-                                doc_context.fields.SearchContentAble << True,
-                                doc_context.fields.DocType << "Video"
-                            )
-                            continue
-                        if fx == ContentTypeEnum.Image:
-                            doc_context.context.update(
-                                doc_context.fields.id == doc.id,
-                                doc_context.fields.SearchContentAble << True,
-                                doc_context.fields.DocType << "Image"
-                            )
-                            continue
-                        print(doc[doc_context.fields.MainFileId])
+        docs = doc_context.context.aggregate().sort(
+            doc_context.fields.RegisterOn.desc()
+        ).match(
+            filter
+        ).limit(10)
+        doc_list = list(docs)
+        print(f"Scan {app.Name}, {len(doc_list)}")
+        for doc in docs:
+            m = doc[doc_context.fields.MainFileId]
+            if isinstance(m, str) and m.startswith("local://"):
+                file_path = os.path.join(config.file_storage_path, m.split("://")[1])
+                print(file_path)
+                process_pdf_content(doc_context=doc_context, doc=doc, app_name=app.Name.lower())
+            else:
+                doc_context.context.update(
+                    doc_context.fields.id == doc.id,
+                    doc_context.fields.HasSearchContent << False,
+                    doc_context.fields.SearchContentAble << False,
+                    doc_context.fields.DocType << "Pdf"
+                )
 
-
-        except Exception as e:
-            print(e)
-        print("xong")
+    print("xong")
     print("xong")
