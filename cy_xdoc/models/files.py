@@ -365,3 +365,5 @@ class DocUploadRegister:
     SearchContentAble: typing.Optional[bool]
     DocType:typing.Optional[str]
     IsRequireOCR: typing.Optional[bool]
+    HasORCContent: typing.Optional[bool]
+    HasORCContentV2: typing.Optional[bool]

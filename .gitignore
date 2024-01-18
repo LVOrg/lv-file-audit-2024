@@ -11,3 +11,5 @@ secret*
 /files/
 /share-storage-delete/
 /cy_external_server/data-test/
+/cy-dataset/
+/gemini/

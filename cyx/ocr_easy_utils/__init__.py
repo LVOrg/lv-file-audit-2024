@@ -78,10 +78,10 @@ def get_all_rectangles(msg_src: str, model_storage_directory: str, cache_dir: st
     ret = __reader__.readtext(msg_src)
 
     data = [(
-        (int(x[0][0][0]), int(x[0][0][1])),
-        (int(x[0][1][0]), int(x[0][1][1])),
-        (int(x[0][2][0]), int(x[0][2][1])),
-        (int(x[0][3][0]), int(x[0][3][1])))
+        (int(max(x[0][0][0],0)), int(max(x[0][0][1],0))),
+        (int(max(x[0][1][0],0)), int(max(x[0][1][1],0))),
+        (int(max(x[0][2][0],0)), int(max(x[0][2][1],0))),
+        (int(max(x[0][3][0],0)), int(max(x[0][3][1],0))))
         for x in ret]
     json_data_file = os.path.join(cache_dir, hash + ".json")
     with open(json_data_file, "wb") as fs:

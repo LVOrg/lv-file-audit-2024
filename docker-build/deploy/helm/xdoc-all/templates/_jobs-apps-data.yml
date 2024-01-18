@@ -1,9 +1,14 @@
 {{- define "jobs-apps-data"  -}}
 ---
 data:
+  #job_image_ocr.py
   #job_pdf_search.py
   #files_extract_text_from_pdf.py
   #job_image_search.py
+  - name: job-image-ocr
+    endpoint: job_image_ocr.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.large}}
   - name: job-image-search
     endpoint: job_image_search.py
     description: watch all upload from lv-doc-service
