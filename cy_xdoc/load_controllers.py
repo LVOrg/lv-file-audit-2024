@@ -25,6 +25,7 @@ from cy_controllers.azure.fucking_one_drive import FuckingOneDriveController
 from cy_controllers.wopi.wopi_controller import WOPIController
 from cy_controllers.office365.office365_controller import Office365Controller
 from cy_controllers.auth.auth_controller import AuthController
+from cy_controllers.files.files_source_controller import FilesSourceController
 from cyx.loggers import LoggerService
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
@@ -41,6 +42,7 @@ controllers_list=[
         SystemsController,
         AzureController,
         FuckingOneDriveController,
+        FilesSourceController,
         WOPIController,
         Office365Controller,
         AuthController,

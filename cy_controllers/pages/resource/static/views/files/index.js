@@ -216,5 +216,9 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         win.doMaximize();
         await viewer.loadWord(item);
     }
+    async doEditInDesktop(item) {
+        new WebSocket("ws://127.0.0.1:8765/?file="+item.UrlOfServerPath);
+        console.log(item)
+    }
 });
 export default filesView;

@@ -283,11 +283,11 @@
                             <a ng-if="p.OCRFileId && p.OCRFileId!=null" ng-href="{{p.UrlDfOCRSource}}" target="_blank">
                                 {{$res("View")}}
                             </a>
-                            <span ng-if="p.MimeType.indexOf('application/vnd.openxmlformats-')==0">
-                                {{$res('Document')}}
+                            <span>
+                                {{$res('Content')}}
                             </span>
-                            <a ng-if="p.MimeType.indexOf('application/vnd.openxmlformats-')==0" href="javascript:void(0);" ng-click="doOpenWordInWindows(p).then()">
-                                {{$res("View")}}
+                            <a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
+                                {{$res("Edit in Desktop application")}}
                             </a>
                             <span ng-if="p.OcrContentUrl">
                                 {{$res('OCR content')}}
@@ -317,7 +317,7 @@
                                 </div>
 
                             </div>
-                            <a ng-href="ms-action/{{currentAppName}}/{{p.UploadID}}" target="_blank">Test</a>
+<!--                            <a ng-href="ms-action/{{currentAppName}}/{{p.UploadID}}" target="_blank">Test</a>-->
                         </rcmpct-grid>
                     </rcmpct-grid>
 
