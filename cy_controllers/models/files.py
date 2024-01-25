@@ -48,26 +48,36 @@ class DataMoveTanent(BaseModel):
     FromAppName: str
     ToAppName: str
     UploadIds: typing.List[str]
+
+
 class DataMoveTanentParam(BaseModel):
     Data: DataMoveTanent
 
+
 class FileContentSaveResult(BaseModel):
-    Data: dict|None
-    Error: dict|None
+    Data: dict | None
+    Error: dict | None
+
 
 class PrivilegesType(BaseModel):
-    Type: str|None
-    Values: str|None
+    Type: str | None
+    Values: str | None
     """
     Separated by comma
     """
+
+
 class FileContentSaveData(BaseModel):
-    DocId: str|None
-    MetaData: dict|None
-    Privileges: typing.List[PrivilegesType]|None
-    Content: str|None
+    DocId: str | None
+    MetaData: dict | None
+    Privileges: typing.List[PrivilegesType] | None
+    Content: str | None
+
+
 class FileContentSaveArgs(BaseModel):
     data: FileContentSaveData
+
+
 class ErrorInfo(BaseModel):
     Code: typing.Optional[str]
     Message: typing.Optional[str]
@@ -86,32 +96,40 @@ class AddPrivilegesResult(BaseModel):
     is_ok: bool
     error: typing.Optional[Err]
 
+
 class CloneFileResult(BaseModel):
     Info: typing.Optional[dict]
     Error: typing.Optional[ErrorInfo]
+
+
 class SkipFileProcessingOptionVirtual(BaseModel):
-    All: bool|None = False
+    All: bool | None = False
     pass
-from  cyx.common.msg import (
+
+
+from cyx.common.msg import (
     MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
     MSG_FILE_EXTRACT_TEXT_FROM_VIDEO,
     MSG_FILE_GENERATE_THUMBS,
     MSG_FILE_OCR_CONTENT,
     MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 )
-list_of_attrs=[
+
+list_of_attrs = [
     MSG_FILE_OCR_CONTENT,
     MSG_FILE_GENERATE_THUMBS,
     MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
     MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 ]
 import pydantic
+
 pydantic.__version__
 from pydantic.fields import ModelField
+
 SkipFileProcessingOptions = SkipFileProcessingOptionVirtual
 skip_all_field = SkipFileProcessingOptionVirtual.__dict__["__fields__"]["All"]
 for x in list_of_attrs:
-    x_name = x.replace(".","_")
+    x_name = x.replace(".", "_")
     x_field = ModelField(
         name=x_name,
         type_=bool,
@@ -120,11 +138,13 @@ for x in list_of_attrs:
         model_config=skip_all_field.model_config,
         default=False
     )
-    SkipFileProcessingOptions.__dict__["__fields__"][x_name]=x_field
+    SkipFileProcessingOptions.__dict__["__fields__"][x_name] = x_field
+
 
 class DeleteFileResult(BaseModel):
     AffectedCount: typing.Optional[int]
     Error: typing.Optional[ErrorInfo]
+
 
 class UploadInfoResult(BaseModel):
     UploadId: typing.Optional[str]
@@ -151,3 +171,9 @@ class UploadInfoResult(BaseModel):
     ClientPrivileges: typing.Optional[typing.List[dict]]
     ThumbnailAble: typing.Optional[bool]
     Search: typing.Optional[dict]
+
+
+class CheckoutResource(BaseModel):
+    appName: str
+    uploadId: str
+

@@ -216,9 +216,118 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         win.doMaximize();
         await viewer.loadWord(item);
     }
+    clientOpenResource(tenant,
+                       resourceId,
+                       resourceExt,
+                       checkOutUrl,
+                       checkOutMethod,
+                       checkOutHeader,
+                       checkOutData,
+                       checkInUrl,
+                       checkInMethod,
+                       checkInHeader,
+                       checkInData,
+                       accessToken) {
+        return new Promise((resolve, reject) => {
+                try {
+                    var data = {
+                        tenant:tenant,
+                        resourceId:resourceId,
+                        checkOutUrl:checkOutUrl,
+                        checkOutMethod:checkOutMethod,
+                        checkOutHeader:checkOutHeader,
+                        checkOutData:checkOutData,
+                        checkInUrl:checkInUrl,
+                        checkInMethod:checkInMethod,
+                        checkInHeader:checkInHeader,
+                        checkInData:checkInData,
+                        resourceExt:resourceExt,
+                        accessToken:accessToken
+                    }
+                    var ws = new WebSocket("ws://127.0.0.1:8765");
+                    ws.onopen = () => {
+                        ws.send(JSON.stringify(data));
+                    };
+                    ws.onmessage = function (event) {
+                            var data = event.data; // Data received from the server
+                            try
+                            {
+                                var result = JSON.parse(event.data);
+                                if (result.error_code) {
+                                    reject(result)
+                                }
+                                else {
+                                    resolve(result);
+                                }
+                            }
+                            catch (error) {
+                                reject(error)
+                            }
+                    };
+                } catch (error) {
+                    // If failed, call reject with the error
+                    reject(error);
+                }
+         });
+    }
     async doEditInDesktop(item) {
-        new WebSocket("ws://127.0.0.1:8765/?file="+item.UrlOfServerPath);
-        console.log(item)
+        var me=this;
+        var  cookieString = document.cookie;
+        var cookieName = "cy-files-token";
+        var accessToken = cookieString.split("; ").find(cookie => cookie.startsWith(cookieName + "=")).split("=")[1];
+
+
+        var checkOutUrl=window.location.protocol+"//"+ window.location.host+"/lvfile/api/files/check_out_source";
+        var checkInUrl=window.location.protocol+"//"+ window.location.host+"/lvfile/api/files/check_in_source";
+        try {
+            var extFile=""
+            if (item.ServerFileName.split('.').length>1) {
+                extFile = item.ServerFileName.split('.')[item.ServerFileName.split('.').length-1];
+            }
+
+            var ret= await this.clientOpenResource(
+                    me.currentApp.Name,
+                    item.UploadId,
+                    extFile,
+                    checkOutUrl,
+                    "post",
+                    {
+                        "Authorization": "Bearer "+accessToken
+                    },
+                    {
+                        appName:me.currentApp.Name,
+                        uploadId:item.UploadId
+                    },
+                    checkInUrl,
+                    "post",
+                    {
+                        "token":accessToken
+                    },
+                    null,
+                    accessToken,
+                    extFile
+
+            )
+         }
+         catch(error) {
+            msgError(error.error_message);
+         }
+//        var ws = new WebSocket("ws://127.0.0.1:8765");
+//        var data= {
+//            token: cookieValue,
+//            source:item.UrlOfServerPath,
+//            urlSaveContent:urlSaveContent
+//        }
+//        ws.onopen = () => {
+//              ws.send(JSON.stringify(data));
+//
+//        };
+//        ws.onmessage = function (event) {
+//                var data = event.data; // Data received from the server
+//                alert(data)
+//
+//        };
+//        console.log(item)
     }
 });
 export default filesView;

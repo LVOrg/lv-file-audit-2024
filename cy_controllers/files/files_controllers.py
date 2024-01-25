@@ -1,5 +1,6 @@
 import datetime
 import gc
+import os
 import typing
 import uuid
 
@@ -36,7 +37,7 @@ from typing import Annotated
 from fastapi.requests import Request
 import traceback
 import humanize
-
+from cyx.repository import Repository
 router = APIRouter()
 controller = Controller(router)
 import threading
@@ -62,7 +63,8 @@ from cy_controllers.models.files import (
     FileContentSaveArgs,
     ErrorInfo,
     AddPrivilegesResult,
-    PrivilegesType
+    PrivilegesType,
+    CheckoutResource
 )
 
 import cy_web
@@ -345,6 +347,7 @@ class FilesController(BaseController):
     async def get_info_async(self, app_name: str, UploadId: str = Body(embed=True)) -> controller_model_files.UploadInfoResult:
         """
         APi này lay chi tiet thong tin cua Upload
+        :param UploadId:
         :param app_name:
         :return:
         """
@@ -407,3 +410,43 @@ class FilesController(BaseController):
 
 
         return upload_info.to_pydantic()
+
+    @controller.router.post("/api/files/check_out_source")
+    async def check_out_source(self,data:CheckoutResource):
+        if not self.request.headers.get("mac_address_id"):
+            raise HTTPException(
+                status_code=400,
+                detail="Please enter mac_address_id in the request headers",
+            )
+        UploadData = await Repository.files.app(data.appName).context.find_one_async(
+            Repository.files.fields.id==data.uploadId
+        )
+        if not UploadData:
+            raise HTTPException(
+                status_code=401,
+                detail="Content was not found",
+            )
+        if isinstance(UploadData.MainFileId,str) and UploadData.MainFileId.startswith("local://"):
+            file_path= os.path.join(self.config.file_storage_path,UploadData.MainFileId.split("://")[1])
+            await self.content_manager_service.do_check_out_async(
+                app_name = data.appName,
+                upload_id= data.uploadId,
+                file_path= file_path,
+                client_mac_address= self.request.headers.get("mac_address_id")
+            )
+            try:
+                fs = self.file_service.get_main_file_of_upload(
+                    app_name= data.appName,
+                    upload_id= data.uploadId
+                )
+                ret = await cy_web.cy_web_x.streaming_async(
+                    fs, self.request, "application/octet-stream", streaming_buffering=1024 * 4 * 3 * 8
+                )
+
+                ret.headers["Content-Disposition"] = f"attachment; filename={data.uploadId}"
+
+                return ret
+            except FileNotFoundError:
+                raise HTTPException(
+                    status_code=404, detail="File not found"
+                )

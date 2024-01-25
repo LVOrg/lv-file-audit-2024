@@ -43,7 +43,7 @@ from cy_xdoc.services.search_engine import SearchEngine
 from cy_fucking_whore_microsoft.services.office_365_services import Office365Service
 from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import FuckingWopiService
 # from cyx.media.image_extractor import ImageExtractorService
-
+from cyx.content_manager_services import ContentManagerService
 from cyx.thumbs_services import ThumbService
 class BaseController:
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -67,6 +67,7 @@ class BaseController:
     fucking_wopi_service = cy_kit.singleton(FuckingWopiService)
 
     thumb_service: ThumbService = cy_kit.singleton(ThumbService)
+    content_manager_service:ContentManagerService = cy_kit.singleton(ContentManagerService)
     # image_extractor_service = cy_kit.singleton(ImageExtractorService)
 
     def __init__(self, request: Request):

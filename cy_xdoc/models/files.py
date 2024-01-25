@@ -230,8 +230,8 @@ class DocUploadRegister:
     Nếu sau này có nhu cầu Resume Upload (Tức là upload tiếp các nội dung chưa xong)
     Resume Upload phía Client sẽ dựa vào thông tin này để đọc file và Upload tiếp
     """
-    MainFileId: bson.ObjectId|str
-    ThumbFileId: bson.ObjectId|str
+    MainFileId: bson.ObjectId | str
+    ThumbFileId: bson.ObjectId | str
     """
     Id ảnh Thumb của file này.
     Mỗi một file trên server nếu có ảnh Thumb, ảnh thumb sẽ lưu trong GridFS với một Id.
@@ -357,13 +357,23 @@ class DocUploadRegister:
     OnedriveId: typing.Optional[str]
 
     RemoteUrl: typing.Optional[str]
-    ThumbnailsAble :typing.Optional[bool]
+    ThumbnailsAble: typing.Optional[bool]
     MsgRequires: typing.Optional[dict]
     MsgCheckList: typing.Optional[dict]
     ReIndex: typing.Optional[bool]
     HasSearchContent: typing.Optional[bool]
     SearchContentAble: typing.Optional[bool]
-    DocType:typing.Optional[str]
+    DocType: typing.Optional[str]
     IsRequireOCR: typing.Optional[bool]
     HasORCContent: typing.Optional[bool]
     HasORCContentV2: typing.Optional[bool]
+
+
+@cy_docs.define(
+    name="LvFilesCheckOutHistory",
+    uniques=["MacId", "UploadId"],
+    indexes=[])
+class ContentHistory:
+    MacId: str
+    UploadId: str
+    HashContents: typing.List[str]
