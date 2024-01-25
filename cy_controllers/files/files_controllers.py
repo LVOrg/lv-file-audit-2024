@@ -450,3 +450,7 @@ class FilesController(BaseController):
                 raise HTTPException(
                     status_code=404, detail="File not found"
                 )
+
+    @controller.router.post("/api/files/check_in_source")
+    async def check_out_source(self, appName:str=Body(embed=True), uploadId:str=Body(embed=True), content: UploadFile = File(...)):
+        print("OK")

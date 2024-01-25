@@ -370,8 +370,8 @@ class DocUploadRegister:
 
 
 @cy_docs.define(
-    name="LvFilesCheckOutHistory",
-    uniques=["MacId", "UploadId"],
+    name="LvFilesHistories",
+    uniques=["MacId,UploadId"],
     indexes=[])
 class ContentHistory:
     MacId: str

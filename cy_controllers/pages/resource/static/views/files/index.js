@@ -301,9 +301,12 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
                     checkInUrl,
                     "post",
                     {
-                        "token":accessToken
+                        "Authorization": "Bearer "+accessToken
                     },
-                    null,
+                    {
+                        appName:me.currentApp.Name,
+                        uploadId:item.UploadId
+                    },
                     accessToken,
                     extFile
 
