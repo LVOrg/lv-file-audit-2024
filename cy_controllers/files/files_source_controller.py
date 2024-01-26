@@ -1,5 +1,6 @@
 import datetime
 import gc
+import pathlib
 import typing
 import uuid
 
@@ -69,7 +70,7 @@ from cy_controllers.models.files import (
 import cy_web
 from cyx.repository import Repository
 import os
-
+import cyx.common.msg
 
 @controller.resource()
 class FilesSourceController(BaseController):
@@ -147,10 +148,20 @@ class FilesSourceController(BaseController):
     @controller.router.post("/api/files/check_out_source")
     async def check_out_source(self, data: CheckoutResource):
         if not self.request.headers.get("mac_address_id"):
-            raise HTTPException(
-                status_code=400,
-                detail="Please enter mac_address_id in the request headers",
-            )
+            try:
+                fs = self.file_service.get_main_file_of_upload(
+                    app_name=data.appName,
+                    upload_id=data.uploadId
+                )
+                ret = await cy_web.cy_web_x.streaming_async(
+                    fs, self.request, "application/octet-stream", streaming_buffering=1024 * 4 * 3 * 8
+                )
+
+                ret.headers["Content-Disposition"] = f"attachment; filename={data.uploadId}"
+
+                return ret
+            except FileNotFoundError:
+                raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
         if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():
             raise HTTPException(
                 status_code=400,
@@ -201,10 +212,22 @@ class FilesSourceController(BaseController):
             if not os.path.isfile(file_path):
                 raise HTTPException(status_code=404, detail=f"{uploadId} not found in {appName}")
             if not self.request.headers.get("mac_address_id"):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Please enter mac_address_id in the request headers",
-                )
+                with open(file_path, "wb") as f:
+                    while contents := content.file.read(1024 * 1024):
+                        f.write(contents)
+                    self.content_manager_service.remove_check_out(
+                        app_name=appName,
+                        upload_id=uploadId,
+                        client_mac_address=self.request.headers.get('mac_address_id')
+
+                    )
+                    self.raise_re_do_message(
+                        file_path=file_path,
+                        app_name=appName,
+                        data=upload_data
+                    )
+
+                    return dict(message="Update is Ok")
             if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():
                 raise HTTPException(
                     status_code=400,
@@ -219,6 +242,11 @@ class FilesSourceController(BaseController):
                         upload_id= uploadId,
                         client_mac_address =self.request.headers.get('mac_address_id')
 
+                    )
+                    self.raise_re_do_message(
+                        file_path=file_path,
+                        app_name=appName,
+                        data=upload_data
                     )
                     return dict(message="Update is Ok")
             sync_file = f"{file_path}.{self.request.headers.get('mac_address_id')}"
@@ -235,7 +263,6 @@ class FilesSourceController(BaseController):
             if verify:
                 try:
                     os.replace(sync_file,file_path)
-                    return dict(message="Update is Ok")
                 except PermissionError:
                     with open(sync_file,"rb") as src:
                         with open(file_path,"wb") as dest:
@@ -244,7 +271,13 @@ class FilesSourceController(BaseController):
                                 dest.write(data)
                                 data = src.read(1024 * 1024)
                     os.remove(sync_file)
-                    return dict(message="Update is Ok")
+
+                self.raise_re_do_message(
+                    file_path=file_path,
+                    app_name=appName,
+                    data=upload_data
+                )
+                return dict(message="Update is Ok")
 
 
             else:
@@ -252,4 +285,23 @@ class FilesSourceController(BaseController):
                     status_code=500,
                     detail=f"Resource {uploadId} in tenant {appName} was modified by other user"
                 )
+
+    def raise_re_do_message(self, file_path, app_name, data):
+        self.broker.emit(
+            app_name=app_name,
+            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+            data=data
+        )
+        root,_,files = list(os.walk(pathlib.Path(file_path).parent.__str__()))[0]
+        if data[Repository.files.fields.DocType] == "Image":
+            for x in files:
+                fx = os.path.join(root,x)
+                if pathlib.Path(fx).suffix==".webp" and pathlib.Path(fx).stem.isnumeric():
+                    try:
+                        os.remove(fx)
+                    except:
+                        continue
+
+
+
 
