@@ -370,10 +370,13 @@ class DocUploadRegister:
 
 
 @cy_docs.define(
-    name="LvFilesHistories",
+    name="LvFilesHistoryCheckoutV1",
     uniques=["MacId,UploadId"],
-    indexes=[])
+    indexes=["CheckOutOn"])
 class ContentHistory:
     MacId: str
     UploadId: str
     HashContents: typing.List[str]
+    HashLen: int
+    CheckOutOn: typing.Optional[datetime.datetime]
+    ContentLen:int
