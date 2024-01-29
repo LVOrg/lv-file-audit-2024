@@ -202,16 +202,16 @@ class FilesSourceController(BaseController):
     @controller.router.post("/api/files/check_in_source")
     async def check_in_source(self, appName: str = Body(embed=True), uploadId: str = Body(embed=True),
                                content: UploadFile = File(...)):
-        upload_data = await Repository.files.app(appName).context.find_one_async(
-            Repository.files.fields.id == uploadId
-        )
-        if upload_data is None:
-            raise HTTPException(status_code=404, detail=f"{uploadId} not found in {appName}")
-        if isinstance(upload_data.MainFileId, str) and upload_data.MainFileId.startswith("local://"):
-            file_path = os.path.join(self.config.file_storage_path, upload_data.MainFileId.split("://")[1])
-            if not os.path.isfile(file_path):
+        try:
+            upload_data = await Repository.files.app(appName).context.find_one_async(
+                Repository.files.fields.id == uploadId
+            )
+            if upload_data is None:
                 raise HTTPException(status_code=404, detail=f"{uploadId} not found in {appName}")
-            if not self.request.headers.get("mac_address_id"):
+            if isinstance(upload_data.MainFileId, str) and upload_data.MainFileId.startswith("local://"):
+                file_path = os.path.join(self.config.file_storage_path, upload_data.MainFileId.split("://")[1])
+                if not os.path.isfile(file_path):
+                    raise HTTPException(status_code=404, detail=f"{uploadId} not found in {appName}")
                 with open(file_path, "wb") as f:
                     while contents := content.file.read(1024 * 1024):
                         f.write(contents)
@@ -228,63 +228,18 @@ class FilesSourceController(BaseController):
                     )
 
                     return dict(message="Update is Ok")
-            if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():
-                raise HTTPException(
-                    status_code=400,
-                    detail="Please enter hash_len in the request headers (hash_len is a number of hash256 segment of file for check out)",
-                )
-            if self.request.headers.get('force'):
-                with open(file_path, "wb") as f:
-                    while contents := content.file.read(1024 * 1024):
-                        f.write(contents)
-                    self.content_manager_service.remove_check_out(
-                        app_name=appName,
-                        upload_id= uploadId,
-                        client_mac_address =self.request.headers.get('mac_address_id')
-
+                if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Please enter hash_len in the request headers (hash_len is a number of hash256 segment of file for check out)",
                     )
-                    self.raise_re_do_message(
-                        file_path=file_path,
-                        app_name=appName,
-                        data=upload_data
-                    )
-                    return dict(message="Update is Ok")
-            sync_file = f"{file_path}.{self.request.headers.get('mac_address_id')}"
-            with open(sync_file, "wb") as f:
-                while contents := content.file.read(1024 * 1024):
-                    f.write(contents)
-            verify= self.content_manager_service.verify_check_in(
-                app_name=appName,
-                upload_id=uploadId,
-                sync_file=sync_file,
-                client_mac_address=self.request.headers.get('mac_address_id'),
-                hash_len = int(self.request.headers["hash_len"])
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=500,
+                detail=str(e),
             )
-            if verify:
-                try:
-                    os.replace(sync_file,file_path)
-                except PermissionError:
-                    with open(sync_file,"rb") as src:
-                        with open(file_path,"wb") as dest:
-                            data = src.read(1024 * 1024)
-                            while len(data)>0:
-                                dest.write(data)
-                                data = src.read(1024 * 1024)
-                    os.remove(sync_file)
 
-                self.raise_re_do_message(
-                    file_path=file_path,
-                    app_name=appName,
-                    data=upload_data
-                )
-                return dict(message="Update is Ok")
-
-
-            else:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Resource {uploadId} in tenant {appName} was modified by other user"
-                )
 
     def raise_re_do_message(self, file_path, app_name, data):
         self.broker.emit(

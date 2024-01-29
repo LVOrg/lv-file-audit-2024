@@ -41,7 +41,8 @@ db_25:
 #  username: admin-doc
 #  password: '123456'
 #  replicaSet: lv-doc
-db: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
+db: mongodb://admin:password@192.168.18.234:31256/admin
+db11: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
 db3: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
 db2: mongodb://192.168.18.36:27017
 db___: 'mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0'

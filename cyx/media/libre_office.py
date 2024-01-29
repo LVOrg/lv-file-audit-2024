@@ -33,7 +33,10 @@ class LibreOfficeService:
         unique_dir = pathlib.Path(file_path).parent.name
         ret_file = os.path.join(self.output_dir,unique_dir, f"{filename_only}.png")
         if os.path.isfile(ret_file):
-            return ret_file
+            try:
+                os.remove(ret_file)
+            except:
+                pass
 
         uno = f"Negotiate=0,ForceSynchronous=1;"
         # from subprocess import CREATE_NEW_CONSOLE

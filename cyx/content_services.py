@@ -125,7 +125,10 @@ class ContentService:
         os.makedirs(content_dir_path, exist_ok=True)
         content_file_path = os.path.join(content_dir_path, "context.txt")
         if os.path.isfile(content_file_path):
-            return content_file_path
+            try:
+                os.remove(content_file_path)
+            except:
+                pass
         with open(content_file_path, "wb") as fs:
             fs.write(content.encode('utf8'))
         return content_file_path

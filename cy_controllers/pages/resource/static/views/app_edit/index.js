@@ -54,9 +54,9 @@ var appEditView = await View(import.meta, class EditAppView extends BaseScope {
             var ret = await api.post(`apps/admin/register`, {
                 Data:{
                     Name: me.app.Name,
-                    Token: window.token,
+                    //Token: window.token,
                     LoginUrl: me.app.LoginUrl,
-                    ReturnUrlAfterSignIn: me.app.ReturnUrlAfterSignIn,
+                    //ReturnUrlAfterSignIn: me.app.ReturnUrlAfterSignIn,
                     Description: me.app.Description,
                     Domain: me.app.Domain,
                     AppOnCloud: me.app.AppOnCloud

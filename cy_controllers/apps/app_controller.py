@@ -50,8 +50,8 @@ class AppsController(BaseController):
         )
         return app_name
 
-    @controller.route.post("/api/admin/apps/register", summary="App register")
-    def app_register(self, Data: AppInfoRegister=Body(embed=True)) -> AppInfoRegisterResult:
+
+    def do_app_register(self, Data: AppInfoRegister) -> AppInfoRegisterResult:
         import cy_xdoc
         if not self.request.username or self.request.username != "root":
             raise HTTPException(
@@ -87,6 +87,13 @@ class AppsController(BaseController):
             )
             return ret
 
+    @controller.route.post("/api/admin/apps/register", summary="App register")
+    def app_register(self, Data: AppInfoRegister=Body(embed=True)) -> AppInfoRegisterResult:
+        return self.do_app_register(Data)
+
+    @controller.route.post("/api/apps/admin/register", summary="App register")
+    def app_register(self, Data: AppInfoRegister = Body(embed=True)) -> AppInfoRegisterResult:
+        return self.do_app_register(Data)
     @controller.route.post("/api/admin/apps/update/{app_name}", summary="update_app")
     def app_update(self, app_name: str, Data: AppInfoRegister=Body(embed=True)) -> AppInfoRegisterResult:
 

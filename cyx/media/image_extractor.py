@@ -79,9 +79,10 @@ class ImageExtractorService:
                 os.makedirs(dir_path,exist_ok=True)
             thumb_file_path = os.path.join(dir_path, f"{size}.webp")
             if os.path.isfile(thumb_file_path):
-                return thumb_file_path
-            if os.path.isfile(thumb_file_path):
-                return thumb_file_path
+                try:
+                    os.remove(thumb_file_path)
+                except:
+                    pass
             self.graphics_service.scale(
                 source=image_file_path,
                 dest=thumb_file_path,

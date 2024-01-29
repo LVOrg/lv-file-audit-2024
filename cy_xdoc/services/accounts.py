@@ -37,7 +37,8 @@ class AccountService:
         doc=self.db_connect.db(app_name).doc(User)
         user = doc.context @ (doc.fields.UsernameLowerCase == username.lower())
         if user is None:
-            return False
+            self.create_default_user()
+            user = doc.context @ (doc.fields.UsernameLowerCase == username.lower())
         if not self.verify_password(
                 plain_password=username.lower() + "/" + password,
                 hashed_password=user.HashPassword

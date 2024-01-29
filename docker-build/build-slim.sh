@@ -57,7 +57,7 @@ COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cyx /app/cyx
 ">$job_slim_file
 
-job_slim_tag=55
+job_slim_tag=57
 job_slim_tag_build="fs.slim."$(tag $job_core_tag).$job_slim_tag
 job_slim_image=$repository/$image_name.$web_api_core_tag_build
 buildFunc $job_slim_file $repository $image_name $job_slim_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
