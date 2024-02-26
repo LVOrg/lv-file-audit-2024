@@ -156,6 +156,7 @@ class DocumentFields:
 
     def __contains__(self, item):
         from cy_es.cy_es_utils import __well_form__
+
         import cy_es.cy_es_utils
         # special_characters = [
         #     "+", "-", "=", "&&", "||", ">", "<",
@@ -202,7 +203,12 @@ class DocumentFields:
                 query_value = item[1:-1]
             else:
                 query_value = item
+                txt_search  = query_value.replace("  "," ").lstrip(" ").rstrip(" ")
+                if field_name == "content" and " " in txt_search:
+                    from cy_es.cy_es_objective import __build_search__
+                    search_content = __build_search__(["content"], txt_search)
 
+                    return search_content
             search_value= __well_form__(query_value)
             # for x in query_value:
             #     if x in special_characters:
@@ -378,6 +384,8 @@ class DocumentFields:
             ret_return = ret2 | ret
             ret_return.__highlight_fields__ += [field_name, f"{field_name}.keyword"]
             ret_macth_pharse = cy_es.cy_es_utils.__make_like__(field_name=field_name,content=query_value,boost_score=boost_score)
+
+
             return ret_macth_pharse
         elif isinstance(item, list):
             """

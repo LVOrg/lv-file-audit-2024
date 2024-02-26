@@ -26,10 +26,12 @@ from cy_controllers.wopi.wopi_controller import WOPIController
 from cy_controllers.office365.office365_controller import Office365Controller
 from cy_controllers.auth.auth_controller import AuthController
 from cy_controllers.files.files_source_controller import FilesSourceController
+from cy_controllers.global_settings.global_settinsg_controllers import GlobalSettingsController
 from cyx.loggers import LoggerService
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
 controllers_list=[
+        GlobalSettingsController,
         HealthCheckController,
         FilesContentController,
         AppsController,
