@@ -41,8 +41,8 @@ db_25:
 #  username: admin-doc
 #  password: '123456'
 #  replicaSet: lv-doc
-db: mongodb://admin:password@192.168.18.234:31256/admin
-db11: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
+#db: mongodb://admin:password@192.168.18.234:31256/admin
+db: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
 db3: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
 db2: mongodb://192.168.18.36:27017
 db___: 'mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0'
@@ -110,6 +110,7 @@ elastic_search__:
 elastic_search:
   server:
     - http://192.168.18.36:9200
+#    - http://192.168.18.234:31949
   index: lv-files-server-v2
   prefix_index: lv-codx
   index_max_analyzed_offset: 60000000
@@ -186,7 +187,7 @@ services:
   - "cyx.common.file_storage_mongodb.MongoDbFileReader->cy_plugins.files_storage_hybrid_reader.HybridReader"
 
 #services=cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService',
-file_storage_path_: "/from-192-168-18-36/files"
+#file_storage_path: "/from-192-168-18-36/files"
 file_storage_path: "/mnt/files"
 dataset_path: "/mnt/files/dataset"
 server_thumb_office: "http://172.16.7.99:31792"

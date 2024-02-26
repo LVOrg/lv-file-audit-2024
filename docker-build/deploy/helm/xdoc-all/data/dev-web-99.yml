@@ -110,13 +110,13 @@ storage_longhorn:
   namespace: xdoc-storage
 webApi:
 # This is the value of web api configuration
-  name: xdoc-v1
+  name: xdoc
   #name of web api service in K8S
   # This value really extremely important.
   # If wrong value no-one can access Web Api. As usual,
   # this is unchangeable value. But, when thou deploy in a certain K8S with ingress-controller.
   # Thou must inquire thee's DEV-OP about ingress-controller and get correct name
-  namespace: xdoc-web-v1
+  namespace: xdoc-web
   # namespace: The same rule of name
   hostUrl: https://172.16.7.99/lvfile
   # inquire about Web Host server from thee's DEV-OP
@@ -138,9 +138,9 @@ webApi:
   mountPath: /app/share-storage
 ingress:
   name: xdoc-web-ingress
-  namespace: xdoc-web-v1
+  namespace: xdoc-web
   path: /lvfile/(.*)
-  servicename: xdoc-v1
+  servicename: xdoc
   host_ip: 172.16.7.99
 #msg:
 #  name: rabbit-dev

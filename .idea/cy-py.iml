@@ -57,8 +57,9 @@
       <excludeFolder url="file://$MODULE_DIR$/files" />
       <excludeFolder url="file://$MODULE_DIR$/share-storage-delete" />
       <excludeFolder url="file://$MODULE_DIR$/app_services_delete/data-test" />
+      <excludeFolder url="file://$MODULE_DIR$/env_ai_cloud" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (3)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9 (cy-py)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
