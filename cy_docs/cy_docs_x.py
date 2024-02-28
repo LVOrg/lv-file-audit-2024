@@ -361,8 +361,11 @@ class Field(__BaseField__):
             if check_name is None:
                 raise AttributeError(f"{item} was not found in {self.__check_map__module__}.{self.__check_map__name__}")
             if isinstance(check_name, dict):
-                ret = Field(check_name["__name__"])
-                ret.__set_check__(check_name)
+                field_name = check_name["__name__"]
+                if field_name[0:2]=="__" and field_name[-2:]=="__":
+                    field_name = item
+                ret = Field(field_name)
+                ret.__set_check__(field_name)
                 if self.__name__ is not None:
                     ret.__name__ = f"{self.__name__}.{ret.__name__}"
                 return ret
@@ -1242,6 +1245,8 @@ class DBDocument:
                         data[k] = v
                     if data.get("_id") is None:
                         data["_id"] = bson.ObjectId()
+                    from cy_docs import cy_xdoc_utils
+                    data = cy_xdoc_utils.zip_to_dict(data)
                     ret = self.collection.insert_one(data)
                     return ret
             else:
@@ -1256,6 +1261,8 @@ class DBDocument:
                         data = {**data, **x}
                 if data.get("_id") is None:
                     data["_id"] = bson.ObjectId()
+                from cy_docs import cy_xdoc_utils
+                data = cy_xdoc_utils.zip_to_dict(data)
                 ret = self.collection.insert_one(data)
                 return ret
 
