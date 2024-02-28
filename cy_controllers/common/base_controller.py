@@ -46,6 +46,7 @@ from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import Fuc
 from cyx.content_manager_services import ContentManagerService
 from cyx.thumbs_services import ThumbService
 from cyx.common.global_settings_services import GlobalSettingsService
+from cyx.gemini_service import GeminiService
 class BaseController:
     msg_service = cy_kit.singleton(RabitmqMsg)
     file_service: FileServices = cy_kit.singleton(FileServices)
@@ -70,6 +71,7 @@ class BaseController:
     thumb_service: ThumbService = cy_kit.singleton(ThumbService)
     content_manager_service:ContentManagerService = cy_kit.singleton(ContentManagerService)
     global_settings_service : GlobalSettingsService = cy_kit.singleton(GlobalSettingsService)
+    gemini_service: GeminiService = cy_kit.singleton(GeminiService)
     # image_extractor_service = cy_kit.singleton(ImageExtractorService)
 
     def __init__(self, request: Request):
