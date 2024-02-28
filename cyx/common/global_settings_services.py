@@ -44,4 +44,12 @@ class GlobalSettingsService:
         return ret
 
     def get_gemini_key(self) -> str | None:
-        return self.cacher.get_str(self.GEMINI_API_KEY)
+        ret = self.cacher.get_str(self.GEMINI_API_KEY)
+        if ret is None:
+            global_settings_context = Repository.global_settings.app('admin')
+            ret = global_settings_context.context.find_one({})
+            key_value = ret[Repository.global_settings.fields.AI.Gemini.Key]
+            self.cacher.set_str(self.GEMINI_API_KEY,key_value)
+            ret = self.cacher.get_str(self.GEMINI_API_KEY)
+        return ret
+
