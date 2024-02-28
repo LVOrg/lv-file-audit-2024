@@ -1,8 +1,0 @@
----
-- hosts: all
-  user: root
-  become: True
-  roles:
-#    - mongodb-one-node
-#    - elasticsearch-one-node
-    - k8s-master

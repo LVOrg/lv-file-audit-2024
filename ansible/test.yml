@@ -1,5 +1,0 @@
-- hosts: all
-  tasks:
-  - name: Echo a message
-    ansible.builtin.ssh:
-      cmd: echo "Hello, world!"
