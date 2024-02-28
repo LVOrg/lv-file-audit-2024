@@ -19,3 +19,4 @@ secret*
 /data-dict/
 /ansible/
 /ansible/elasticsearch-one-node/
+*.pyc
