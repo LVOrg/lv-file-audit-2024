@@ -4,6 +4,7 @@ from cy_xdoc.models.apps import App
 from cy_xdoc.models.files import DocUploadRegister, ContentHistory
 from cy_xdoc.models.settings import GlobalSettings
 
+
 class Repository:
     apps = RepositoryContext[App](App)
     files = RepositoryContext[DocUploadRegister](DocUploadRegister)

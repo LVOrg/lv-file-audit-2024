@@ -68,6 +68,7 @@ config:
     #Broker server
     #    temp_directory: /app/share-storage
     msg: xyzdsc-2024
+  cache_server: memcache-service.xdoc-web:11211 #Quan trong
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,

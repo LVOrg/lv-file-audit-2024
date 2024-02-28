@@ -33,7 +33,7 @@ data:
   {{end}}
   rabbitmq.msg: '{{ $rb.msg }}'
   temp_directory: /app/share-storage
-  cache_server: memcache-service.file-cache:11211
+  cache_server: {{$data.config.cache_server}}
   tika_server: {{$fileJob.tika_server}}
   vn_suggest_url: {{$fileJob.vn_suggest_url}}
   log_url: {{$globalVar.config.logs_url}}

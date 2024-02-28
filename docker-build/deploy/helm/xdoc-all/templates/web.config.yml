@@ -35,11 +35,7 @@ data:
   {{end}}
   rabbitmq.msg: '{{ $rb.msg }}'
   temp_directory_: /app/share-storage
-  {{ if $cache }}
-  cache_server: {{$cache.name}}-service.{{$cache.namespace}}:11211
-  {{else}}
-  cache_server: memcache-service.file-cache:11211
-  {{end}}
+  cache_server: memcache-service.{{$api.namespace}}:11211
   workers: '1'
   worker_class.uvicorn: 'UvicornWorker' #UvicornH11Worker
   worker_class.h11: 'UvicornH11Worker' #UvicornH11Worker
