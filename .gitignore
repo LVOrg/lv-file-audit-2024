@@ -18,3 +18,4 @@ secret*
 /ansible/
 /data-dict/
 /ansible/
+/ansible/elasticsearch-one-node/
