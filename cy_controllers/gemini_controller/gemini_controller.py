@@ -34,10 +34,10 @@ class GeminiControllr(BaseController):
 
     @controller.router.post("/api/global/gemini")
     async def upload_file(self,
-                          file:typing.Annotated[UploadFile, File()]=None,
-                          question: typing.Annotated[str|None,Form()]=None,
-                          format_content: typing.Annotated[str | None, Form()]=None,
-                          return_format: typing.Annotated[str | None, Form()]=None
+                          file:UploadFile|None = File(default=None),
+                          question: str|None = Form(default=None),
+                          format_content: str|None = Form(default=None),
+                          return_format: str|None = Form(default=None)
                           ):
         """
         Upload a file and optionally send a text message.

@@ -86,7 +86,7 @@ class GeminiService:
                 return response.text
         elif isinstance(question, str):
             model = genai.GenerativeModel("gemini-pro")
-            response = model.generate_content(question)
+            response = model.generate_content(question, stream=True)
             response.resolve()
             return response.text
 
