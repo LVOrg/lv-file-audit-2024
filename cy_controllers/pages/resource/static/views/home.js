@@ -40,6 +40,9 @@ var homeView = await View(import.meta, class homeview extends BaseScope {
     async loadFullTextSearch() {
         redirect("search")
     }
+    async loadGeminiServices() {
+        redirect("gemini-services")
+    }
     async init() {
         await getListOfApps();
     } 

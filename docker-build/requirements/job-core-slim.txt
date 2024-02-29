@@ -27,3 +27,4 @@ python-onedrive
 microsoftgraph-python
 msal
 tqdm
+google-generativeai

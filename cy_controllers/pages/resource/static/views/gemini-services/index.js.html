@@ -1,0 +1,18 @@
+﻿<div class="layout-columns">
+    <div class="dock full layout-rows debug">
+        <div id="dropzone" style="min-width:300px">
+                Drop files here or click to browse
+
+        </div>
+
+        <div class="dock full debug"></div>
+
+    </div>
+    <div class="layout-rows debug">
+        <div class="dock full">{{file.name}}</div>
+        <div>
+            <button  class="btn btn-small" ng-click="doRunApIAsync().then()">Run</button>
+        </div>
+    </div>
+    <input type="file" id="file-input" style="display: none;">
+</div>

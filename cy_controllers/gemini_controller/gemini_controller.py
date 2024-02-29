@@ -51,9 +51,4 @@ class GeminiControllr(BaseController):
             is_image = is_image,
             text = text
         )
-        return {
-            "filename": file.filename,
-            "content_type": file.content_type,
-            "size": len(await file.read()),
-            "text": text  # Include received text if provided
-        }
+        return res

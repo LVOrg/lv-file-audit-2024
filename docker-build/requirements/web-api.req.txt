@@ -40,3 +40,4 @@ requests-kerberos
 tqdm
 webp
 pillow
+google-generativeai
