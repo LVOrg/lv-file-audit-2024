@@ -7,6 +7,7 @@ import { redirect, urlWatching, getPaths, msgError } from "../../js/ui/core.js"
 var geminiServiceView = await View(import.meta, class SearchView extends BaseScope {
     async init() {
     var me=this;
+    me.commandText="{}"
     var mainEle = await this.$getElement();
     $(window).resize(()=>{
             $(mainEle).css({
@@ -55,8 +56,17 @@ var geminiServiceView = await View(import.meta, class SearchView extends BaseSco
 
     }
     async doRunApIAsync(){
-
-        alert(this.file)
+        var me=this;
+        var res = await api.formPost(`global/gemini`, {
+                format_content: me.commandText,
+                question: me.question,
+                file: me.file
+            });
+        me.result= JSON.stringify(res, null, 2);
+        me.$applyAsync();
+    }
+    async doSelectFileAsync(){
+        this.fileInput.click();
     }
 });
 export default geminiServiceView;

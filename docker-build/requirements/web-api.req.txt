@@ -41,3 +41,4 @@ tqdm
 webp
 pillow
 google-generativeai
+spacy

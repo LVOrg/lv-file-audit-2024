@@ -1,15 +1,38 @@
 ﻿<div class="layout-columns">
-    <div class="dock full layout-rows debug">
-        <div id="dropzone" style="min-width:300px">
-                Drop files here or click to browse
+    <div class="dock full layout-columns">
+        <div class="layout-columns">
+            <div>
+                <label>Output format</label>
+                <select>
+                    <option value="text">Text</option>
+                    <option value="html">Html</option>
+                    <option value="json">JSON</option>
+                    <option value="excel-csv">Excel CSV</option>
+                </select>
+            </div>
+            <div class="dock full layout-columns">
+                <textarea class="dock full" ng-model="commandText">
 
+                </textarea>
+            </div>
+            <div>
+                <label>Result</label>
+            </div>
+            <div class="dock full layout-columns">
+                <textarea class="dock full" ng-model="result">
+
+                </textarea>
+            </div>
         </div>
-
-        <div class="dock full debug"></div>
-
     </div>
-    <div class="layout-rows debug">
-        <div class="dock full">{{file.name}}</div>
+    <div class="layout-rows">
+        <div>
+            <button  class="btn btn-small" ng-click="doSelectFileAsync().then()">File</button>
+        </div>
+        <div style="max-width:150px">{{file.name}}</div>
+        <div  class="dock full">
+              <input ng-model="question" class="dock full" placeholder="your question here">
+        </div>
         <div>
             <button  class="btn btn-small" ng-click="doRunApIAsync().then()">Run</button>
         </div>

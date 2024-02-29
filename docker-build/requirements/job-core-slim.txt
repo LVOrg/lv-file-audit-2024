@@ -28,3 +28,4 @@ microsoftgraph-python
 msal
 tqdm
 google-generativeai
+spacy
