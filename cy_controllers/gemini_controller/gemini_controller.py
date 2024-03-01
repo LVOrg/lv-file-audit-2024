@@ -75,8 +75,9 @@ class GeminiControllr(BaseController):
                     question=question
 
                 )
+
             return dict(
-                resutl=res
+                result=res
             )
         except Exception as e:
             return  dict(

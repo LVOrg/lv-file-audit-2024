@@ -76,7 +76,6 @@ var fileInfoView = await View(import.meta, class FileInfoView extends BaseScope 
         });
       }
       async doSetMarkDelete(mark){
-      //UploadId: str, IsDelete
         this.ret= await api.post(`${this.appName}/files/mark_delete`, {
             UploadId:this.uploadId,
             IsDelete:mark

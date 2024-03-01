@@ -257,6 +257,117 @@ class FilesSourceController(BaseController):
                     except:
                         continue
 
+    @controller.router.post("/api/{app_name}/files/inspect-content")
+    async def inspect_content_async(self, app_name: str,
+                             UploadId: str = Body(embed=True)):
+        try:
+            upload_data = await Repository.files.app(app_name).context.find_one_async(
+                Repository.files.fields.id == UploadId
+            )
+            if upload_data is None:
+                raise HTTPException(status_code=404, detail=f"{UploadId} not found in {app_name}")
+            if isinstance(upload_data.MainFileId, str) and upload_data.MainFileId.startswith("local://"):
+                file_path = os.path.join(self.config.file_storage_path, upload_data.MainFileId.split("://")[1])
+                is_image = mimetypes.guess_type(file_path)[0].startswith("image/")
+                if is_image:
+                    Question = "get all text in image"
+                    try:
+                        text = self.gemini_service.image_prompt(file_path, question= Question)
+                    except Exception as e:
+                        return dict(
+                            error=dict(
+                                code="gemini-error",
+                                description=f"Gemini-Error:{e}"
+                            )
+                        )
+                    return dict(
+                        content=text
+                    )
+                else:
 
+                    try:
+                        text = self.gemini_service.get_text_from_tika(file_path)
+                    except Exception as e:
+                        return dict(
+                            error=dict(
+                                code="gemini-error",
+                                description=f"Gemini-Error:{e}"
+                            )
+                        )
+                    return dict(
+                        content=text
+                    )
+            else:
+                return dict(
+                    error=dict(
+                        code="resource_was_not_found",
+                        description=f"{UploadId} not found in {app_name}"
+                    )
+                )
+        except HTTPException as e:
+            raise e
 
+        except Exception as e:
+            return dict(
+                error=dict(
+                    code="system",
+                    description=str(e)
+                )
+            )
 
+    @controller.router.post("/api/{app_name}/files/gemini-assistant")
+    async def gemini_assistant_async(self, app_name: str,
+                             UploadId: str = Body(embed=True),
+                             Question: str = Body(embed=True)):
+        try:
+            upload_data = await Repository.files.app(app_name).context.find_one_async(
+                Repository.files.fields.id == UploadId
+            )
+            if upload_data is None:
+                raise HTTPException(status_code=404, detail=f"{UploadId} not found in {app_name}")
+            if isinstance(upload_data.MainFileId, str) and upload_data.MainFileId.startswith("local://"):
+                file_path = os.path.join(self.config.file_storage_path, upload_data.MainFileId.split("://")[1])
+                is_image = mimetypes.guess_type(file_path)[0].startswith("image/")
+                if is_image:
+                    try:
+                        text = self.gemini_service.image_prompt(file_path,question=Question)
+                    except Exception as e:
+                        return dict(
+                            error=dict(
+                                code="gemini-error",
+                                description=f"Gemini-Error:{e}"
+                            )
+                        )
+                    return dict(
+                        content=text
+                    )
+                else:
+                    try:
+                        text = self.gemini_service.text_prompt(file_path, question=Question)
+                    except Exception as e:
+                        return dict(
+                            error=dict(
+                                code="gemini-error",
+                                description=f"Gemini-Error:{e}"
+                            )
+                        )
+                    return dict(
+                        content=text
+                    )
+            else:
+                return dict(
+                    error=dict(
+                        code="resource_was_not_found",
+                        description=f"{UploadId} not found in {app_name}"
+                    )
+                )
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            return dict(
+                error=dict(
+                    code="system",
+                    description=str(e)
+                )
+            )

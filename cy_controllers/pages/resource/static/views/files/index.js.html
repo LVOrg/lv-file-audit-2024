@@ -277,18 +277,19 @@
                             <label>
                                 {{p.CreatedOn|date:'dd-MM-yyyy hh:mm:ss'}}
                             </label>
-                            <label ng-if="p.OCRFileId && p.OCRFileId!=null">
-                                {{$res("OCR content")}}
-                            </label>
-                            <a ng-if="p.OCRFileId && p.OCRFileId!=null" ng-href="{{p.UrlDfOCRSource}}" target="_blank">
-                                {{$res("View")}}
-                            </a>
+
                             <span>
                                 {{$res('Content')}}
                             </span>
-                            <a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
-                                {{$res("Edit in Desktop application")}}
-                            </a>
+                            <p>
+                                <a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
+                                   {{$res("Edit in Desktop application")}}
+                               </a> </br>
+                                <a href="javascript:void(0);" ng-click="doLoadGeminiAssistantWindow(p).then()">
+                                   {{$res("Gemini  assistant")}}
+                               </a>
+                            </p>
+
                             <span ng-if="p.OcrContentUrl">
                                 {{$res('OCR content')}}
                             </span>

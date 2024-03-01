@@ -356,5 +356,12 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         }
 
     }
+    async doLoadGeminiAssistantWindow(item) {
+            var r = await import("../gemini-assistant/index.js");
+            var geminiAssistant = await r.default();
+            geminiAssistant.setInfo(this.currentAppName,item,this);
+            var win = await geminiAssistant.asWindow();
+            win.doMaximize();
+    }
 });
 export default filesView;
