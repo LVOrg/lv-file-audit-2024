@@ -21,3 +21,4 @@ secret*
 /ansible/elasticsearch-one-node/
 *.pyc
 /docker-build/deploy/heml2/
+/a-working/
