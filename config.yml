@@ -189,6 +189,7 @@ services:
 #services=cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService',
 #file_storage_path: "/from-192-168-18-36/files"
 file_storage_path: "/mnt/files"
+file_storage_encrypt: true
 dataset_path: "/mnt/files/dataset"
 server_thumb_office: "http://172.16.7.99:31792"
 server_thumb_office_: "http://0.0.0.0:8014"
