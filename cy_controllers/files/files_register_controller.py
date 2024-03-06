@@ -40,6 +40,7 @@ class RegisterUploadInfo(BaseModel):
     onedriveScope: typing.Optional[str]
     onedriveExpiration: typing.Optional[datetime.datetime]
     onedrivePassword: typing.Optional[str]
+    encryptContent: typing.Optional[bool]
 
 
 class RegisterUploadResult(BaseModel):
@@ -219,7 +220,8 @@ class FilesRegisterController(BaseController):
                 storage_type=Data.storageType,
                 onedriveScope=Data.onedriveScope,
                 onedrive_password=Data.onedrivePassword,
-                onedrive_expiration=Data.onedriveExpiration
+                onedrive_expiration = Data.onedriveExpiration,
+                is_encrypt_content = Data.encryptContent
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())

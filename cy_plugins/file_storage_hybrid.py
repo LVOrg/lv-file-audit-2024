@@ -20,6 +20,8 @@ class HybridFileStorage:
                  size: typing.Optional[int],
                  file_services,
                  cacher):
+        self.doc_id:str = None
+        self.app_name: str = None
         self.file_services: FileServices = file_services
         self.cacher: MemcacheServices = cacher
         self.file_storage_path = file_storage_path
@@ -177,13 +179,27 @@ class HybridFileStorage:
         """
         somehow to implement thy source here ...
         """
+        self.doc_id = self.get_id().split('/')[-2]
+        self.app_name = self.get_id().split('://')[1].split('/')[0]
+        upload_info = self.file_services.get_upload_register_with_cache(
+            app_name=self.app_name,
+            upload_id= self.doc_id
+        )
         file_path = os.path.join(self.full_dir, self.filename)
         if not os.path.exists(file_path):
-            with open(file_path, "wb") as f:
-                f.write(content)
+            if upload_info.IsEncryptContent:
+                with open(file_path, "wb",encrypt=True,chunk_size_in_kb=1024) as f:
+                    f.write(content)
+            else:
+                with open(file_path, "wb") as f:
+                    f.write(content)
         else:
-            with open(file_path, "ab") as f:
-                f.write(content)
+            if upload_info.IsEncryptContent:
+                with open(file_path, "ab",encrypt=True,chunk_size_in_kb=1024) as f:
+                    f.write(content)
+            else:
+                with open(file_path, "ab") as f:
+                    f.write(content)
 
     def get_id(self) -> str:
         """

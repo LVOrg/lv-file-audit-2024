@@ -132,7 +132,8 @@ class FileServices:
                 doc.fields.RemoteUrl,
                 doc.fields.DocType,
                 doc.fields.HasSearchContent,
-                doc.fields.ThumbnailsAble
+                doc.fields.ThumbnailsAble,
+                doc.fields.IsEncryptContent
 
             )
             self.logger.info("Get list of files is OK")
@@ -255,7 +256,8 @@ class FileServices:
                                         meta_data: typing.Optional[dict] = None,
                                         skip_option: typing.Optional[dict] = None,
                                         onedrive_password: typing.Optional[str] = None,
-                                        onedrive_expiration: typing.Optional[str] = None
+                                        onedrive_expiration: typing.Optional[str] = None,
+                                        is_encrypt_content: typing.Optional[bool] = False
                                         ):
         return self.add_new_upload_info(
             app_name=app_name,
@@ -271,7 +273,8 @@ class FileServices:
             storage_type=storage_type,
             onedriveScope=onedriveScope,
             onedrive_password=onedrive_password,
-            onedrive_expiration=onedrive_expiration
+            onedrive_expiration=onedrive_expiration,
+            is_encrypt_content = is_encrypt_content
 
         )
 
@@ -289,7 +292,8 @@ class FileServices:
                             meta_data: typing.Optional[dict] = None,
                             skip_option: typing.Optional[dict] = None,
                             onedrive_password: typing.Optional[str] = None,
-                            onedrive_expiration: typing.Optional[str] = None):
+                            onedrive_expiration: typing.Optional[str] = None,
+                            is_encrypt_content: typing.Optional[bool] = False):
         __registerde_on__ = datetime.datetime.utcnow()
         id = str(uuid.uuid4())
         _has_thumb_ = False
@@ -341,6 +345,7 @@ class FileServices:
             cache_doc[doc.fields.id] = id
             cache_doc[doc.fields.FileName] = client_file_name
             cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
+            cache_doc[doc.fields.IsEncryptContent] = is_encrypt_content
 
             cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
             if len(os.path.splitext(client_file_name)[1].split('.')) > 1:
@@ -456,7 +461,8 @@ class FileServices:
                         doc.fields.OnedriveExpiration << onedrive_expiration,
                         doc.fields.MsgRequires << require_msg_process,
                         doc.fields.MainFileId << f"{local_path_dir}/{client_file_name}",
-                        doc.fields.ThumbFileId << main_thumb_file
+                        doc.fields.ThumbFileId << main_thumb_file,
+                        doc.fields.IsEncryptContent << is_encrypt_content
                     )
                 except Exception as e:
                     time.sleep(0.1)

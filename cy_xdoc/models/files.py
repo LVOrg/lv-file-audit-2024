@@ -367,6 +367,7 @@ class DocUploadRegister:
     IsRequireOCR: typing.Optional[bool]
     HasORCContent: typing.Optional[bool]
     HasORCContentV2: typing.Optional[bool]
+    IsEncryptContent: typing.Optional[bool]
 
 
 @cy_docs.define(

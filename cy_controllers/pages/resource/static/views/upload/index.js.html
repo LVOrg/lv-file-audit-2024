@@ -9,11 +9,18 @@
         <div>
             <input type="file" id="file" />
         </div>
+
         <label>
             {{$res("Is Public")}}:
         </label>
         <div>
             <input type="checkbox" ng-model="data.IsPublic"/>
+        </div>
+                <label>
+            {{$res("Encrypt server content")}}:
+        </label>
+        <div>
+            <input type="checkbox" ng-model="data.EncryptServerContent"/>
         </div>
         <label>
             {{$res("Is StorageType")}}:

@@ -61,7 +61,7 @@ def __apply__write__(ret_fs):
 
                 ret_fs.cryptor['first-data'] = data[0]
                 ret_fs.cryptor['last-data'] = data[-1]
-                ret_fs.cryptor['encoding']=result.get("encoding")
+                ret_fs.cryptor['encoding']="utf-8"
                 write_dict(ret_fs.cryptor, ret_fs.cryptor_rel,ret_fs.original_open_file)
             first_data = ret_fs.cryptor['first-data']
             if pos>0:
@@ -101,8 +101,8 @@ def __apply__read__(ret_fs):
     def on_read(*args, **kwargs):
         from cy_file_cryptor import encrypting
         pos = ret_fs.tell()
-        index = int(pos/512)
-        print(f"{pos} [{index}]")
+
+
 
 
         if ret_fs.cryptor['encoding']=='binary':
@@ -156,8 +156,12 @@ def __apply__read__(ret_fs):
                         fx = next(ret_data)
                         ret += fx
                     except StopIteration:
-                        return ret.decode(ret_fs.cryptor['encoding'])
-                return ret.decode(ret_fs.cryptor['encoding'])
+                        try:
+                            return ret.decode("utf-8")
+                        except:
+                            return ret
+
+                return ret.decode("utf-8")
             except StopIteration:
                 return  bytes([])
 
