@@ -67,6 +67,8 @@ def cy_open_file(*args, **kwargs):
             ret_fs = original_open_file(**send_kwargs)
             ret_fs.seek(0, 2)
         else:
+            if "r" not in send_kwargs["mode"] and "+" not in send_kwargs["mode"]:
+                send_kwargs["mode"]+="+"
             ret_fs = original_open_file(**send_kwargs)
         setattr(ret_fs, "cryptor", encrypt_info)
         setattr(ret_fs, "cryptor_rel", encrypt_info_path)
@@ -74,11 +76,6 @@ def cy_open_file(*args, **kwargs):
     else:
 
         ret_fs = original_open_file(*args, **kwargs)
-        # old_read = getattr(ret_fs,"read")
-        # def debug_read(*args,**kwargs):
-        #     print(f"{ret_fs.tell()}/{args} {ret_fs.name}")
-        #     return old_read(*args,**kwargs)
-        # setattr(ret_fs,"read",debug_read)
 
 
     setattr(ret_fs, "encrypt", is_encrypt)
@@ -89,6 +86,7 @@ def cy_open_file(*args, **kwargs):
         return ret_fs
     if is_encrypt and isinstance(ret_fs, io.BufferedRandom):
         import cy_file_cryptor.settings
+
         cy_file_cryptor.settings.__apply__write__(ret_fs)
         return ret_fs
     if is_encrypt and isinstance(ret_fs,io.BufferedReader):
