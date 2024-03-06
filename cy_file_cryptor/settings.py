@@ -23,37 +23,131 @@ def should_encrypt_path(file_path: str):
         return False
 
 
-def apply(ret_fs):
+def __apply__write__(ret_fs):
     if hasattr(ret_fs, "name") and isinstance(ret_fs.name, str):
         if should_encrypt_path(ret_fs.name):
             print(f"{ret_fs.name} should be encrypt")
-    if hasattr(ret_fs, "close") and callable(ret_fs.close):
+    old_write = ret_fs.write
 
-        old_write = ret_fs.write
+    def on_write(*args, **kwargs):
+        pos = ret_fs.tell()
+        if len(args) == 1:
+            from cy_file_cryptor import encrypting
 
-        def on_write(*args, **kwargs):
-            pos = ret_fs.tell()
-            if len(args) == 1:
-                from cy_file_cryptor import encrypting
+            data = args[0]
+            if isinstance(data, str):
+                data = data.encode()
+            detect_data = data[0:ret_fs.cryptor['chunk_size']]
+            result = chardet.detect(detect_data)
+            if result.get("encoding") is None or ("utf" not in result.get("encoding") and "ascii" not in result.get("encoding")):
+                ret=0
+                if pos ==0:
+                    from cy_file_cryptor.crypt_info import write_dict, read_dict
+                    ret_fs.cryptor['first-data'] = data[0]
+                    ret_fs.cryptor['encoding'] = 'binary'
+                    write_dict(ret_fs.cryptor, ret_fs.cryptor_rel)
+                    encrypt_bff = encrypting.encrypt_content(
+                        data_encrypt=detect_data,
+                        chunk_size=len(detect_data),
+                        rota=ret_fs.cryptor['rotate'],
+                        first_data=detect_data[0])
+                    ret+=old_write(next(encrypt_bff))
+                    ret+=old_write(data[ret_fs.cryptor['chunk_size']:])
+                else:
+                    ret+=old_write(data)
+                return ret
 
-                data = args[0]
-                if isinstance(data, str):
-                    data = data.encode()
-                detect_data = data[0:100]
-                result = chardet.detect(detect_data)
-                print(result.get("encoding"))
+            if pos == 0:
+                from cy_file_cryptor.crypt_info import write_dict, read_dict
+                ret_fs.cryptor['first-data'] = data[0]
+                ret_fs.cryptor['encoding']=result.get("encoding")
+                write_dict(ret_fs.cryptor, ret_fs.cryptor_rel)
 
-                encrypt_bff = encrypting.rotate_bit_left(
-                    data_encrypt=data,
-                    chunk_size=ret_fs.cryptor["chunk_size"],
-                    rota=ret_fs.cryptor['rotate'])
-                for x in encrypt_bff:
-                    old_write(x)
+            encrypt_bff = encrypting.encrypt_content(
+                data_encrypt=data,
+                chunk_size=ret_fs.cryptor["chunk_size"],
+                rota=ret_fs.cryptor['rotate'],
+                first_data=ret_fs.cryptor['first-data'])
+            ret = None
+            for x in encrypt_bff:
+                ret = old_write(x)
+            return  ret
+    def on_writelines(*args,**kwargs):
+        text ="\n".join(args[0])
+        ret =ret_fs.write(text)
+        return ret
 
-        if hasattr(ret_fs, "cryptor") and isinstance(ret_fs.cryptor, dict):
+    setattr(ret_fs, "write", on_write)
+    setattr(ret_fs,"writelines",on_writelines)
 
-            if hasattr(ret_fs, "mode") and 'w' in ret_fs.mode:
-                setattr(ret_fs, "write", on_write)
+
+def __apply__read__(ret_fs):
+    old_read = ret_fs.read
+
+    def on_read(*args, **kwargs):
+        from cy_file_cryptor import encrypting
+        pos = ret_fs.tell()
+        index = int(pos/512)
+        print(f"{pos} [{index}]")
+
+
+        if ret_fs.cryptor['encoding']=='binary':
+            if pos<ret_fs.cryptor["chunk_size"]:
+                if len(args)==0:
+                    data = old_read(*args, **kwargs)
+                    encrypt_data = data[0:ret_fs.cryptor["chunk_size"]]
+                    decrypt_data = encrypting.decrypt_content(data_encrypt=encrypt_data,
+                                                              chunk_size=ret_fs.cryptor["chunk_size"],
+                                                              rota=ret_fs.cryptor['rotate'],
+                                                              first_data=ret_fs.cryptor['first-data']
+                                                              )
+                    ret_data = next(decrypt_data)+data[ret_fs.cryptor["chunk_size"]:]
+                    return ret_data
+                else:
+                    if not hasattr(ret_fs, "buffer_cache"):
+                        ret_fs.seek(0)
+                        encrypt_data = old_read(ret_fs.cryptor["chunk_size"])
+                        ret_fs.seek(pos)
+                        decrypt_data = encrypting.decrypt_content(data_encrypt=encrypt_data,
+                                                                  chunk_size=ret_fs.cryptor["chunk_size"],
+                                                                  rota=ret_fs.cryptor['rotate'],
+                                                                  first_data=ret_fs.cryptor['first-data']
+                                                                  )
+                        setattr(ret_fs, "buffer_cache", next(decrypt_data))
+                    if pos+args[0]<=ret_fs.cryptor["chunk_size"]:
+                        ret_fs.seek(pos+args[0])
+                        return ret_fs.buffer_cache[pos:pos+args[0]]
+                    else:
+                        # ret_fs.seek(ret_fs.cryptor["chunk_size"])
+                        n= args[0]+ pos-ret_fs.cryptor["chunk_size"]
+                        ret_fs.seek(ret_fs.cryptor["chunk_size"])
+                        next_data = old_read(n)
+                        ret_data = ret_fs.buffer_cache[pos:]+ next_data
+                        return ret_data
+            else:
+                data = old_read(*args, **kwargs)
+                return data
+        else:
+            data = old_read(*args, **kwargs)
+            ret_data = encrypting.decrypt_content(data_encrypt= data,
+                                                  chunk_size=ret_fs.cryptor["chunk_size"],
+                                                  rota=ret_fs.cryptor['rotate'],
+                                                  first_data=ret_fs.cryptor['first-data'])
+            try:
+                fx = next(ret_data)
+                ret = fx
+                while fx:
+
+                    try:
+                        fx = next(ret_data)
+                        ret += fx
+                    except StopIteration:
+                        return ret
+                return ret.decode(ret_fs.cryptor['encoding'])
+            except StopIteration:
+                return  bytes([])
+
+    setattr(ret_fs, "read", on_read)
 
     # 1622 /0.472
 

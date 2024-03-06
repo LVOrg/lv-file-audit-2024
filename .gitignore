@@ -22,3 +22,4 @@ secret*
 *.pyc
 /docker-build/deploy/heml2/
 /a-working/
+/encryp-dir/
