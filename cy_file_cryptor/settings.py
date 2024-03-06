@@ -3,7 +3,7 @@ __cache__ = {}
 
 import os
 import chardet
-
+from cy_file_cryptor.crypt_info import write_dict
 
 def set_encrypt_folder_path(directory: str):
     global __folder__paths__
@@ -42,10 +42,10 @@ def __apply__write__(ret_fs):
             if result.get("encoding") is None or ("utf" not in result.get("encoding") and "ascii" not in result.get("encoding")):
                 ret=0
                 if pos ==0:
-                    from cy_file_cryptor.crypt_info import write_dict, read_dict
+
                     ret_fs.cryptor['first-data'] = data[0]
                     ret_fs.cryptor['encoding'] = 'binary'
-                    write_dict(ret_fs.cryptor, ret_fs.cryptor_rel)
+                    write_dict(ret_fs.cryptor, ret_fs.cryptor_rel,ret_fs.original_open_file)
                     encrypt_bff = encrypting.encrypt_content(
                         data_encrypt=detect_data,
                         chunk_size=len(detect_data),
@@ -58,10 +58,24 @@ def __apply__write__(ret_fs):
                 return ret
 
             if pos == 0:
-                from cy_file_cryptor.crypt_info import write_dict, read_dict
+
                 ret_fs.cryptor['first-data'] = data[0]
+                ret_fs.cryptor['last-data'] = data[-1]
                 ret_fs.cryptor['encoding']=result.get("encoding")
-                write_dict(ret_fs.cryptor, ret_fs.cryptor_rel)
+                write_dict(ret_fs.cryptor, ret_fs.cryptor_rel,ret_fs.original_open_file)
+            first_data = ret_fs.cryptor['first-data']
+            if pos>0:
+                from cy_file_cryptor.encrypting import print_bytes
+                ret_fs.seek(pos-1)
+                last_byte = ret_fs.read(1)[0]
+
+                first_append = data[0]
+                first_bit = (first_append>>7)
+                last_byte =last_byte |first_bit
+                ret_fs.seek(pos - 1)
+                old_write(bytes([last_byte]))
+
+
 
             encrypt_bff = encrypting.encrypt_content(
                 data_encrypt=data,
@@ -142,7 +156,7 @@ def __apply__read__(ret_fs):
                         fx = next(ret_data)
                         ret += fx
                     except StopIteration:
-                        return ret
+                        return ret.decode(ret_fs.cryptor['encoding'])
                 return ret.decode(ret_fs.cryptor['encoding'])
             except StopIteration:
                 return  bytes([])

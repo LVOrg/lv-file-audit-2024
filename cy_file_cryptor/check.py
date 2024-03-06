@@ -9,39 +9,46 @@ import cy_file_cryptor
 
 # test text file
 file_content = ""
-# with open("/home/vmadmin/python/cy-py/a-working/files/3.png", "rb") as f:
-#     file_content = f.read()  # Read the entire file content as a string
+with open("/home/vmadmin/python/cy-py/a-working/files/con-cho.jpg", "rb") as f:
+    file_content = f.read()  # Read the entire file content as a string
+
+
+file_encrypt = os.path.join(config.file_storage_path, "__gemini_tmp__", "con-cho-encrypt.jpg")
+file_encrypt_part = os.path.join(config.file_storage_path, "__gemini_tmp__", "con-cho-encrypt-part.jpg")
+file_encrypt_part_001 = os.path.join(config.file_storage_path, "__gemini_tmp__", "con-cho-encrypt-part-001.jpg")
+file_encrypt_part_002 = os.path.join(config.file_storage_path, "__gemini_tmp__", "con-cho-encrypt-part-002.jpg")
+file_origin = os.path.join(config.file_storage_path, "__gemini_tmp__", "con-cho-origin.png")
+file_origin_part= os.path.join(config.file_storage_path, "__gemini_tmp__", "con-cho-origin-part.png")
+
+with open(file_encrypt,"rb") as f:
+    with open(file_encrypt_part_002,mode="wb",encrypt=True,chunk_size_in_kb=3) as fs:
+        data = f.read(1024)
+        fs.write(data)
+
+    with open(file_encrypt_part_002,"ab") as fs:
+        while data:
+            data = f.read(512)
+            fs.write(data)
+
+# with open(file_encrypt,"wb",encrypt=True,chunk_size_in_kb=1) as e_file:
+#     e_file.write(file_content)
+#decrypt file
+# with open(file_encrypt_part,"rb") as e_file:
 #
+#     with open(file_origin_part,"wb") as o_file:
+#         data = e_file.read(1024 * 3)
+#         o_file.write(data)
 #
-file_test = os.path.join(config.file_storage_path, "__gemini_tmp__", "3.png")
+#     while data:
+#         with open(file_origin_part, "ab") as o_file:
+#             data = e_file.read(512)
+#             o_file.write(data)
 
-file_test_orgin = os.path.join(config.file_storage_path, "__gemini_tmp__", "3orgin.png")
-# with open(file_test, "wb",encrypt=True,chunk_size_in_kb=1) as file:
-#     file.write(file_content)
 
-# with open(file_test_orgin, "wb") as file:
-#     file.write(file_content)
-file_decode = os.path.join(config.file_storage_path, "__gemini_tmp__", "3decode.png")
-file_decode2 = os.path.join(config.file_storage_path, "__gemini_tmp__", "2decode.png")
-file_test2 =  os.path.join(config.file_storage_path, "__gemini_tmp__", "4.png")
-if os.path.isfile(file_decode2):
-    os.remove(file_decode2)
 
-with open(file_test, "r") as file:
-    data = file.read(16)
-
-    # file.seek(10)
-
-    while len(data) > 0:
-        if not os.path.isfile(file_test2):
-            with open(file_test2, "ab", encrypt=True, chunk_size_in_kb=1) as f:
-                f.write(data)
-        with open(file_test2, "ab", encrypt=True, chunk_size_in_kb=1) as f:
-            f.write(data)
-        data = file.read(128)
-# from PIL import Image
-# image = Image.open(file_test)
-# print("OK")
+from PIL import Image
+image = Image.open(file_encrypt_part_002)
+print("OK")
 """
 0/() /home/vmadmin/python/cy-py/a-working/files/3.png
 0/(16,) /mnt/files/__gemini_tmp__/3decode.png
