@@ -5,6 +5,7 @@ import os
 import chardet
 from cy_file_cryptor.crypt_info import write_dict
 
+
 def set_encrypt_folder_path(directory: str):
     global __folder__paths__
     __folder__paths__[directory.lower()] = 1
@@ -28,7 +29,8 @@ def __apply__write__(ret_fs):
         if should_encrypt_path(ret_fs.name):
             print(f"{ret_fs.name} should be encrypt")
     old_write = ret_fs.write
-    setattr(ret_fs,"original_write",old_write)
+    setattr(ret_fs, "original_write", old_write)
+
     def on_write(*args, **kwargs):
         pos = ret_fs.tell()
         if len(args) == 1:
@@ -39,43 +41,40 @@ def __apply__write__(ret_fs):
                 data = data.encode()
             detect_data = data[0:ret_fs.cryptor['chunk_size']]
             result = chardet.detect(detect_data)
-            if result.get("encoding") is None or ("utf" not in result.get("encoding") and "ascii" not in result.get("encoding")):
-                from cy_file_cryptor import writer_binary
-                return writer_binary.do_write(
-                    fs = ret_fs,
-                    data = data
+            if result.get("encoding") is None or (
+                    "utf" not in result.get("encoding") and "ascii" not in result.get("encoding")):
+                from cy_file_cryptor import writer_binary_v02
+                return writer_binary_v02.do_write(
+                    fs=ret_fs,
+                    data=data
                 )
 
             else:
                 from cy_file_cryptor import writer_text
                 return writer_text.do_write(
                     fs=ret_fs,
-                    data = data
+                    data=data
                 )
 
-
-    def on_writelines(*args,**kwargs):
-        text ="\n".join(args[0])
-        ret =ret_fs.write(text)
+    def on_writelines(*args, **kwargs):
+        text = "\n".join(args[0])
+        ret = ret_fs.write(text)
         return ret
 
     setattr(ret_fs, "write", on_write)
-    setattr(ret_fs,"writelines",on_writelines)
+    setattr(ret_fs, "writelines", on_writelines)
 
 
 def __apply__read__(ret_fs):
     old_read = ret_fs.read
-    setattr(ret_fs,"original_read",old_read)
+    setattr(ret_fs, "original_read", old_read)
+
     def on_read(*args, **kwargs):
-        from cy_file_cryptor import encrypting
-        pos = ret_fs.tell()
 
 
-
-
-        if ret_fs.cryptor['encoding']=='binary':
-            from  cy_file_cryptor import reader_binary
-            return reader_binary.do_read(
+        if ret_fs.cryptor['encoding'] == 'binary':
+            from cy_file_cryptor import reader_binary_v02
+            return reader_binary_v02.do_read(
                 ret_fs,
                 *args,
                 **kwargs
@@ -87,7 +86,6 @@ def __apply__read__(ret_fs):
                 ret_fs,
                 *args,
                 **kwargs)
-
 
     setattr(ret_fs, "read", on_read)
 
