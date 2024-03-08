@@ -1,5 +1,5 @@
 __footer_size__ = 64
-__header_size__ = 1024
+__header_size__ = 128
 
 import base64
 import os
