@@ -1,6 +1,8 @@
 def do_read(fs, *args, **kwargs):
     from cy_file_cryptor import encrypting
     pos = fs.tell()
+    fs.cryptor['header']=fs.cryptor.get('header') or bytes([])
+    fs.cryptor['footer'] = fs.cryptor.get('footer') or bytes([])
     header_len = len(fs.cryptor['header'])
     footer_len = len(fs.cryptor['footer'])
     file_size = fs.cryptor["file-size"]
@@ -11,8 +13,10 @@ def do_read(fs, *args, **kwargs):
             """
             ret_data = fs.original_read(*args, **kwargs)
 
-
-            return fs.cryptor['header']+ret_data[header_len:-footer_len]+fs.cryptor['footer']
+            if footer_len>0:
+                return fs.cryptor['header']+ret_data[header_len:-footer_len]+fs.cryptor['footer']
+            else:
+                return fs.cryptor['header'] + ret_data[header_len:]
         else:
             """
             read all data from position

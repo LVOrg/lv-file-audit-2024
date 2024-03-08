@@ -22,6 +22,7 @@ def encrypt_content(data_encrypt: bytes, chunk_size: int, rota: int, first_data)
   Returns:
       The rotated byte.
   """
+    assert isinstance(data_encrypt,bytes),"data_encrypt must be bytes"
     offset = 0
     len_of_bytes = len(data_encrypt)
     if len_of_bytes == 0:

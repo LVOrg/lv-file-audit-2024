@@ -10,30 +10,34 @@ with open(file_image,"rb") as f:
 
 with open(file_test,"wb",encrypt=True,chunk_size_in_kb=1) as e_file:
     e_file.write(file_content)
-if os.path.isfile(file_test_original):
-    os.remove(file_test_original)
 with open(file_test,"rb")  as e_file:
-    data1 = e_file.read(15)
+    data1 = e_file.read()
     with open(file_test_original,"wb")  as fs:
         fs.write(data1)
-
-    data1 = e_file.read(15)
-    with open(file_test_original, "ab") as fs:
-        fs.write(data1)
-    data1 = e_file.read(15)
-    with open(file_test_original, "ab") as fs:
-        fs.write(data1)
-    data1 = e_file.read(15)
-    with open(file_test_original, "ab") as fs:
-        fs.write(data1)
-    data1 = e_file.read(15)
-    with open(file_test_original, "ab") as fs:
-        fs.write(data1)
-    data1 = e_file.read(1500)
-    while data1:
-        with open(file_test_original,"ab")  as fs:
-            fs.write(data1)
-        data1 = e_file.read(1023)
+# if os.path.isfile(file_test_original):
+#     os.remove(file_test_original)
+# with open(file_test,"rb")  as e_file:
+#     data1 = e_file.read(15)
+#     with open(file_test_original,"wb")  as fs:
+#         fs.write(data1)
+#
+#     data1 = e_file.read(15)
+#     with open(file_test_original, "ab") as fs:
+#         fs.write(data1)
+#     data1 = e_file.read(15)
+#     with open(file_test_original, "ab") as fs:
+#         fs.write(data1)
+#     data1 = e_file.read(15)
+#     with open(file_test_original, "ab") as fs:
+#         fs.write(data1)
+#     data1 = e_file.read(15)
+#     with open(file_test_original, "ab") as fs:
+#         fs.write(data1)
+#     data1 = e_file.read(1500)
+#     while data1:
+#         with open(file_test_original,"ab")  as fs:
+#             fs.write(data1)
+#         data1 = e_file.read(1023)
 from PIL import Image
 image = Image.open(file_test)
 print(f"PIL can read encrypt file {file_test}")

@@ -8,7 +8,7 @@ def do_write(fs, data):
         fs.cryptor['last-data'] = data[-1]
         fs.cryptor['encoding'] = "utf-8"
         write_dict(fs.cryptor, fs.cryptor_rel, fs.original_open_file)
-    first_data = fs.cryptor['first-data']
+
     if pos > 0:
         from cy_file_cryptor.encrypting import print_bytes
         fs.seek(pos - 1)
