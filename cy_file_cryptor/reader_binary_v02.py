@@ -42,8 +42,7 @@ def do_read(fs, *args, **kwargs):
         ret_data = bff[pos - start_block_pos:pos - start_block_pos + read_len]
         remain_len = read_len-len(ret_data)
         while remain_len>0:
-            next_block=start_block_pos+block_size
-            next_pos = fs.tell()
+
             next_data = fs.original_read(block_size)
             if len(next_data)<block_size:
                 tmp_next = next_data[0:remain_len]
