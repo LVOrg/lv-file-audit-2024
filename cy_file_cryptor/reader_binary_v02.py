@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-
+default_wrap_size = 1024 * 4
 
 def __decode_data__(data, start_pos, chunk_size):
     bff = data[start_pos:chunk_size]
@@ -17,7 +17,7 @@ def __decode_data__(data, start_pos, chunk_size):
 
 
 def do_read(fs, *args, **kwargs):
-    block_size = 1024 * 4
+    block_size = fs.cryptor.get("wrap-size",default_wrap_size)
     bff = None
     if len(args) == 0:
         pos = fs.tell()

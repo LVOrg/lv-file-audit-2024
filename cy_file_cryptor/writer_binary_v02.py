@@ -3,42 +3,48 @@ __header_size__ = 64
 
 import math
 
-wrap_size = 1024 * 4
+__min_wrap_size__ = 1024 * 4
+__max_wrap_size__ = 1024 * 8
+
 import base64
 import gc
 import os
 import hashlib
+from random import random
+
 import numpy as np
 
-
-
-
-
+from random import randint
 def do_write(fs, data):
+    global __wrap_size__
     from cy_file_cryptor.crypt_info import write_dict
+    if fs.cryptor.get("wrap-size") is None:
+        wrap_size = randint(__min_wrap_size__, __max_wrap_size__)
+    else:
+        wrap_size = fs.cryptor.get("wrap-size")
 
     pos = fs.tell()
 
-    if pos==0:
-        pre_index = fs.cryptor.get('pre-index',0)
-        fs.cryptor['encrypt_block_index']= 0
+    if pos == 0:
+        pre_index = fs.cryptor.get('pre-index', 0)
+        fs.cryptor['encrypt_block_index'] = 0
         pre_encrypt_block_index = fs.cryptor['encrypt_block_index']
     else:
         pre_index = 0
         pre_encrypt_block_index = fs.cryptor['encrypt_block_index']
 
-    fs_old_len = fs.seek(0,2)
+    fs_old_len = fs.seek(0, 2)
     fs.seek(pos)
     fs.original_write(data)
-    fs_new_len = fs.seek(0,2)
+    fs_new_len = fs.seek(0, 2)
 
-    if fs_new_len>wrap_size:
-        encrypt_block_index = int(math.floor(fs_new_len/wrap_size))
-        for x in range(pre_encrypt_block_index,encrypt_block_index):
+    if fs_new_len > wrap_size:
+        encrypt_block_index = int(math.floor(fs_new_len / wrap_size))
+        for x in range(pre_encrypt_block_index, encrypt_block_index):
             cursor_pos = x * wrap_size
             fs.seek(cursor_pos)
             bff = fs.read(wrap_size)
-            if len(bff)<wrap_size:
+            if len(bff) < wrap_size:
                 print("OK")
             else:
                 fs.seek(cursor_pos)
@@ -47,11 +53,11 @@ def do_write(fs, data):
             check_len = fs.seek(0, 2)
             if check_len != fs_new_len:
                 raise Exception()
-        fs.cryptor['encrypt_block_index']= encrypt_block_index
+        fs.cryptor['encrypt_block_index'] = encrypt_block_index
         print("encrypt")
-    check_len = fs.seek(0,2)
-    if check_len!=fs_new_len:
-        raise  Exception()
+    check_len = fs.seek(0, 2)
+    # if check_len != fs_new_len:
+    #     raise Exception()
     # index = int(math.floor(fs_old_len / wrap_size))
     # remain_size_in_file = fs_old_len-index*wrap_size
     # fs.cryptor['pre-index'] = index
@@ -66,6 +72,7 @@ def do_write(fs, data):
     #         bff = fs.read(wrap_size)
     #         fs.original_write(bff[::-1])
     fs.cryptor['encoding'] = 'binary'
+    fs.cryptor["wrap-size"]= wrap_size
     # fs.cryptor["file-size"] = fs.file_size
     write_dict(fs.cryptor, fs.cryptor_rel, fs.original_open_file)
     # data_size = pos + len(data)
