@@ -10,7 +10,7 @@ def do_commit(fs, header_size, footer_size):
     #     fs.original_write(os.urandom(len(fs.cryptor['footer'])))
 
     fs.cryptor['encoding'] = 'binary'
-    fs.cryptor["file-size"] = fs.file_size
+    # fs.cryptor["file-size"] = fs.file_size
     write_dict(fs.cryptor, fs.cryptor_rel, fs.original_open_file)
 
     ret = fs.original_close()

@@ -46,6 +46,8 @@ def __apply__write__(ret_fs):
                 if result.get("encoding") is None or (
                         "utf" not in result.get("encoding") and "ascii" not in result.get("encoding")):
                     ret_fs.cryptor['encoding']='binary'
+                else:
+                    ret_fs.cryptor['encoding'] = 'utf8'
             if ret_fs.cryptor['encoding'] == 'binary':
                 from cy_file_cryptor import writer_binary_v02
                 return writer_binary_v02.do_write(
@@ -76,7 +78,7 @@ def __apply__read__(ret_fs):
     def on_read(*args, **kwargs):
 
 
-        if ret_fs.cryptor['encoding'] == 'binary':
+        if ret_fs.cryptor.get('encoding','binary') == 'binary':
             from cy_file_cryptor import reader_binary_v02
             return reader_binary_v02.do_read(
                 ret_fs,

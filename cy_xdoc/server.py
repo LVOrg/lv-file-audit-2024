@@ -14,11 +14,11 @@ import cyx.framewwork_configs
 
 import cyx.common
 from cyx.common import config
-if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
-    import cy_file_cryptor
-    import cy_file_cryptor.settings
+# if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
+import cy_file_cryptor
+import cy_file_cryptor.settings
 
-    cy_file_cryptor.settings.set_encrypt_folder_path(config.file_storage_path)
+cy_file_cryptor.settings.set_encrypt_folder_path(config.file_storage_path)
 
 import fastapi
 import datetime

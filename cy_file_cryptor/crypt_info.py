@@ -19,10 +19,11 @@ def write_dict(data: dict, file_path,original_open):
     if isinstance(data['header'],bytes):
         tem_header = data['header']
         data['header'] = base64.b64encode(tem_header).decode("utf-8")
+        data['header_size'] = len(tem_header)
     if isinstance(data['footer'],bytes):
         tem_footer = data['footer']
         data['footer'] = base64.b64encode(tem_footer).decode("utf-8")
-
+        data['footer_size'] = len(tem_footer)
     txt_json = json.dumps(data)
     encrypted_text = fernet.encrypt(txt_json.encode('utf8'))
     with original_open(file_path, "wb") as f:
@@ -43,10 +44,14 @@ def read_dict(file_path,original_open) -> dict:
         ret = json.loads(txt_json)
         if ret.get('header'):
             from cy_file_cryptor import encrypting
-            ret['header'] = base64.b64decode(ret['header'])
+            ret['header'] = base64.b64decode(ret['header']) or bytes([])
         if ret.get('footer'):
             from cy_file_cryptor import encrypting
-            ret['footer'] = base64.b64decode(ret['footer'])
+            ret['footer'] = base64.b64decode(ret['footer']) or bytes([])
+        if ret.get('header_size') and isinstance(ret['header'],bytes):
+            ret['header'] = ret['header'][0:ret['header_size']]
+        if ret.get('footer_size') and isinstance(ret['footer'],bytes):
+            ret['footer'] = ret['footer'][0:ret['footer_size']]
 
         del txt_json
         del data

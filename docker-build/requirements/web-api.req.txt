@@ -42,3 +42,4 @@ webp
 pillow
 google-generativeai
 spacy
+chardet

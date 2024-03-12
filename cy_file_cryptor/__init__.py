@@ -106,6 +106,7 @@ def cy_open_file(*args, **kwargs):
             else:
                 if "r" not in send_kwargs["mode"] and "+" not in send_kwargs["mode"]:
                     send_kwargs["mode"]+="+"
+
                 ret_fs = original_open_file(**send_kwargs)
         setattr(ret_fs, "cryptor", encrypt_info)
         setattr(ret_fs, "cryptor_rel", encrypt_info_path)

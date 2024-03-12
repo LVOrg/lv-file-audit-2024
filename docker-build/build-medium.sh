@@ -44,7 +44,7 @@ COPY ./../docker-build/requirements/office.req.txt /app/office.req.txt
 RUN python3 -m pip install -r /app/office.req.txt --no-cache-dir
 ENTRYPOINT [\"/usr/bin/env\"]
 ">>$job_core_office_file
-job_core_office_tag=10
+job_core_office_tag=11
 job_core_office_build="fs.medium.core."$(tag $job_core_office_tag)
 job_core_office_image=$repository/$image_name:$job_core_office_build
 buildFunc $job_core_office_file $repository $image_name $job_core_office_build "docker.io/python:3.10.12-slim-bookworm" "debian"
@@ -64,6 +64,7 @@ echo "
 FROM $job_core_office_image
 ARG TARGETARCH
 ARG OS
+COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
 COPY ./../cy_kit /app/cy_kit

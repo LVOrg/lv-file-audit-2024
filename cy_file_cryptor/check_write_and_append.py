@@ -44,11 +44,30 @@ with open(file_image, "rb") as f:
 
 
 file_test_original = os.path.join(config.file_storage_path,"__gemini_tmp__","3-org.png")
-with open(file_test,"rb")  as e_file:
-    data1 = e_file.read()
-    with open(file_test_original,"wb")  as fs:
-        fs.write(data1)
+file_from_web_api =  os.path.join(config.file_storage_path,"__gemini_tmp__","sadsa.png")
+file_from_web_api_restore =  os.path.join(config.file_storage_path,"__gemini_tmp__","sadsa-restore.png")
+file_from_web_api_restore_full =  os.path.join(config.file_storage_path,"__gemini_tmp__","sadsa-restore-full.png")
+len_of_file = os.path.getsize(file_test)
+block_size =1023
+# with open(file_from_web_api,"rb")  as e_file:
+#     data= e_file.read()
+#     with open(file_from_web_api_restore_full, "wb") as fs:
+#         fs.write(data)
 
+with open(file_from_web_api,"rb")  as e_file:
+
+    with open(file_from_web_api_restore,"wb")  as fs:
+        read_len= min(block_size,len_of_file)
+        data1 = e_file.read(block_size)
+        while data1:
+            fs.write(data1)
+            len_of_file-=read_len
+            read_len = min(block_size, len_of_file)
+            if read_len<block_size:
+                print("XX")
+            data1 = e_file.read(block_size)
+
+ff=f"/home/vmadmin/python/cy-py/a-working/files/3.png"
 from PIL import Image
-image = Image.open(file_test)
+image = Image.open(file_test_original)
 print(f"PIL can read encrypt file {file_test}")
