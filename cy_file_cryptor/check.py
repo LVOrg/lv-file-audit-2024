@@ -1,3 +1,7 @@
+# d=",".encode()
+# fx=~d[0]
+#
+# print(fx)
 import sys
 
 sys.path.append("/home/vmadmin/python/cy-py")
