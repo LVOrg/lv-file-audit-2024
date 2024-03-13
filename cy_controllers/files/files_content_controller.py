@@ -134,7 +134,7 @@ class FilesContentController(BaseController):
             await self.auth_service.check_request(app_name, self.request)
 
         mime_type, _ = mimetypes.guess_type(directory)
-        if mime_type.startswith('image/'):
+        if mime_type.startswith('image/') and self.request.headers.get('Range') is None:
             if upload.MainFileId.startswith("local://"):
                 if hasattr(self.config, "file_storage_path"):
                     full_path = self.get_full_path_of_local_from_cache(upload)

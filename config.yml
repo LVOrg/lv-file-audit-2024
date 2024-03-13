@@ -158,6 +158,7 @@ media_plugins:
   - enig_frames.plugins.thumbs.exe_file:ExeFile
   - enig_frames.plugins.ocr.images:Images
   - enig_frames.plugins.ocr.pdf_file:PdfFile
+private_web_api: http://172.16.7.99/lvfile
 
 
 #temp_directory: ./brokers/tmp-files

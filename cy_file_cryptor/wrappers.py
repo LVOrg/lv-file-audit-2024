@@ -93,6 +93,21 @@ def cy_open_file(*args, **kwargs):
     send_kwargs = {**send_kwargs, **kwargs}
 
     file_path = send_kwargs["file"]
+    if isinstance(file_path,str) and (file_path.startswith("http://") or file_path.startswith("https://")):
+        from cy_file_cryptor import remote_file
+        ret_fs = remote_file.do_open(
+            url_file= file_path,
+            original_open_file=original_open_file,
+            send_kwargs=send_kwargs
+        )
+        return ret_fs
+    if isinstance(file_path,str) and file_path.startswith("mongodb://"):
+        from cy_file_cryptor import mongodb_file
+        return mongodb_file.do_open(
+            url_file= file_path,
+            original_open_file=original_open_file,
+            *args,**kwargs
+        )
     file_size = 0
     if os.path.isfile(file_path):
         file_size = os.path.getsize(file_path)
