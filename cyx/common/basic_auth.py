@@ -55,7 +55,7 @@ class BasicAuth:
     async def check_request(self,app_name:str, request: Request):
         from cy_xdoc.services.accounts import AccountService
         from fastapi.security import HTTPBasic, HTTPBasicCredentials
-        if request.method=="GET":
+        if request.method in ["GET","POST","PUT","DELETE"]:
             token =  request.query_params.get("token")
             if token:
                 token_infor = self.token_verifier.verify(share_key=self.share_key, token=token)

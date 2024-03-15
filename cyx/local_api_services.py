@@ -67,16 +67,15 @@ class LocalAPIService:
 
         headers = {}
         files = {'content': (file_path, image_data, 'image/png')}  # Adjust content type if needed
-        url=f"{config.private_web_api}/api/sys/admin/create-raw-content"
+        #/lvfile/api/sys/admin/content-share/{rel_path}
+        url=f"{config.private_web_api}/api/sys/admin/content-share/{rel_server_path}"
         if token:
-            headers['Authorization']= f'Bearer {token}'
+            url+=f"?token={token}"
+        elif local_share_id:
+            url += f"?local-share-id={local_share_id}"
 
         try:
-            response = requests.post(url, headers=headers, files=files,data={
-                "rel_path":rel_server_path,
-                "app_name":app_name,
-                "local_share_id":local_share_id
-            })
+            response = requests.post(url, files=files)
             response.raise_for_status()  # Raise an exception for non-200 status codes
 
             # Handle successful response (e.g., print status code)

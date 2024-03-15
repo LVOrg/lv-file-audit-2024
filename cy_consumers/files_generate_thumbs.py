@@ -52,6 +52,25 @@ class Process:
         self.mongodb_service= mongodb_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        if hasattr(msg_info,"resource") and isinstance(msg_info.resource,str):
+            if msg_info.resource.split('/')[0]==msg_info.AppName:
+                resource_url= f"{config.private_web_api}/api/sys/admin/content-share/{msg_info.resource}"
+                local_share_id=None
+                token = None
+                if hasattr(msg_info.Data, "local_share_id"):
+                    local_share_id = msg_info.Data.local_share_id
+                if local_share_id:
+                    url_get_file = f"{resource_url}?app-name={msg_info.AppName}&local-share-id={local_share_id}"
+                else:
+                    token = self.local_api_service.get_access_token("admin/root", "root")
+                    url_get_file = f"{resource_url}?token={token}"
+                default_thumbs = self.image_extractor_service.create_thumb(
+                    image_file_path=msg_info.resource,
+                    size=700,
+                    id=unique_dir
+
+                )
+                print(msg_info)
         print(msg_info)
         master_resource = self.content_service.get_master_resource(msg_info)
         print(master_resource)
