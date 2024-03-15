@@ -16,6 +16,8 @@ import cyx.common
 from cyx.common import config
 # if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
 import cy_file_cryptor.wrappers
+import cy_file_cryptor.context
+cy_file_cryptor.context.set_server_cache(config.cache_server)
 import cy_file_cryptor.settings
 
 cy_file_cryptor.settings.set_encrypt_folder_path(config.file_storage_path)

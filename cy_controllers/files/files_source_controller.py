@@ -17,6 +17,7 @@ from fastapi import (
     UploadFile,
     Form, File, Body
 )
+from starlette.responses import StreamingResponse
 from cy_xdoc.auths import Authenticate
 import cy_xdoc.models.files
 import cy_kit
@@ -71,6 +72,7 @@ import cy_web
 from cyx.repository import Repository
 import os
 import cyx.common.msg
+
 
 @controller.resource()
 class FilesSourceController(BaseController):
@@ -182,7 +184,7 @@ class FilesSourceController(BaseController):
                 upload_id=data.uploadId,
                 file_path=file_path,
                 client_mac_address=self.request.headers.get("mac_address_id"),
-                hash_len = int(self.request.headers.get("hash_len"))
+                hash_len=int(self.request.headers.get("hash_len"))
             )
             try:
                 fs = self.file_service.get_main_file_of_upload(
@@ -201,7 +203,7 @@ class FilesSourceController(BaseController):
 
     @controller.router.post("/api/files/check_in_source")
     async def check_in_source(self, appName: str = Body(embed=True), uploadId: str = Body(embed=True),
-                               content: UploadFile = File(...)):
+                              content: UploadFile = File(...)):
         try:
             upload_data = await Repository.files.app(appName).context.find_one_async(
                 Repository.files.fields.id == uploadId
@@ -228,7 +230,8 @@ class FilesSourceController(BaseController):
                     )
 
                     return dict(message="Update is Ok")
-                if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():
+                if not self.request.headers.get("hash_len") or not str(
+                        self.request.headers.get("hash_len")).isnumeric():
                     raise HTTPException(
                         status_code=400,
                         detail="Please enter hash_len in the request headers (hash_len is a number of hash256 segment of file for check out)",
@@ -240,18 +243,17 @@ class FilesSourceController(BaseController):
                 detail=str(e),
             )
 
-
     def raise_re_do_message(self, file_path, app_name, data):
         self.broker.emit(
             app_name=app_name,
             message_type=cyx.common.msg.MSG_FILE_UPLOAD,
             data=data
         )
-        root,_,files = list(os.walk(pathlib.Path(file_path).parent.__str__()))[0]
+        root, _, files = list(os.walk(pathlib.Path(file_path).parent.__str__()))[0]
         if data[Repository.files.fields.DocType] == "Image":
             for x in files:
-                fx = os.path.join(root,x)
-                if pathlib.Path(fx).suffix==".webp" and pathlib.Path(fx).stem.isnumeric():
+                fx = os.path.join(root, x)
+                if pathlib.Path(fx).suffix == ".webp" and pathlib.Path(fx).stem.isnumeric():
                     try:
                         os.remove(fx)
                     except:
@@ -259,7 +261,7 @@ class FilesSourceController(BaseController):
 
     @controller.router.post("/api/{app_name}/files/inspect-content")
     async def inspect_content_async(self, app_name: str,
-                             UploadId: str = Body(embed=True)):
+                                    UploadId: str = Body(embed=True)):
         try:
             upload_data = await Repository.files.app(app_name).context.find_one_async(
                 Repository.files.fields.id == UploadId
@@ -272,7 +274,7 @@ class FilesSourceController(BaseController):
                 if is_image:
                     Question = "get all text in image"
                     try:
-                        text = self.gemini_service.image_prompt(file_path, question= Question)
+                        text = self.gemini_service.image_prompt(file_path, question=Question)
                     except Exception as e:
                         return dict(
                             error=dict(
@@ -317,8 +319,8 @@ class FilesSourceController(BaseController):
 
     @controller.router.post("/api/{app_name}/files/gemini-assistant")
     async def gemini_assistant_async(self, app_name: str,
-                             UploadId: str = Body(embed=True),
-                             Question: str = Body(embed=True)):
+                                     UploadId: str = Body(embed=True),
+                                     Question: str = Body(embed=True)):
         try:
             upload_data = await Repository.files.app(app_name).context.find_one_async(
                 Repository.files.fields.id == UploadId
@@ -330,7 +332,7 @@ class FilesSourceController(BaseController):
                 is_image = mimetypes.guess_type(file_path)[0].startswith("image/")
                 if is_image:
                     try:
-                        text = self.gemini_service.image_prompt(file_path,question=Question)
+                        text = self.gemini_service.image_prompt(file_path, question=Question)
                     except Exception as e:
                         return dict(
                             error=dict(
@@ -371,3 +373,96 @@ class FilesSourceController(BaseController):
                     description=str(e)
                 )
             )
+
+    @controller.route.post(
+        "/api/sys/admin/content-share/{rel_path:path}", summary=""
+    )
+    async def save_raw_content(self,
+                               rel_path: str,
+                               content: Annotated[UploadFile, File()],
+                               mode: Annotated[str, Form()] = "wb"
+                               ) -> None:
+        server_path = os.path.join(self.config.file_storage_path, rel_path.split('/'))
+        pos = 0
+        pos_len = content.size
+        if self.request.headers.get("Range"):
+            range_content = self.request.headers["Range"].split("bytes=")[0]
+            pos = int(range_content.split("-")[0])
+            if len(range_content.split("-")) == 2:
+                pos_len = int(range_content.split("-")[1]) - pos
+        with open(server_path, mode, encrypt=True, chunk_in_kb=1024) as f:
+            while contents := content.file.read(1024 * 1024):
+                f.write(contents)
+
+        origin = self.request.headers.get("Origin")  # Check for `Origin` header
+        print(origin)
+        user_agent = self.request.headers.get("User-Agent")  # Check for `User-Agent` header
+
+        # (Optional) Implement logic based on API keys, tokens, or session management
+
+        if origin and origin.startswith("https://your-front-end-domain"):
+            # Potentially a front-end request (not definitive)
+            return {"message": "Data for front-end"}
+        else:
+            # Potentially a back-end request or unknown origin
+            return {"message": "Data for generic usage"}
+
+    @controller.route.get(
+        "/api/sys/admin/content-share/{rel_path:path}", summary="", response_class=StreamingResponse
+    )
+    async def read_raw_content(self,
+                               rel_path: str
+                               ) -> None:
+        import urllib.parse
+
+        try:
+
+            server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
+            # Open the file in binary mode
+            response_header = None
+            pos = 0
+            pos_len = 1024 * 4
+            content_length = os.path.getsize(server_path)
+            response_content_len = content_length
+            if self.request.headers.get("Range"):
+                range_content = self.request.headers["Range"].split("=")[1]
+                print(range_content)
+                pos = int(range_content.split("-")[0])
+                response_content_len = content_length-pos
+                if len(range_content.split("-")) == 2 and range_content.split("-")[1].isnumeric():
+                    response_content_len = int(range_content.split("-")[1]) - pos
+            response_header = {
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(response_content_len),
+                "Content-Range": F"bytes {pos}-{content_length - 1}/{content_length}"
+            }
+            fs = open(server_path, "rb")
+            #
+            fs.seek(pos)
+            segment_len = 8192
+            def iter_content():
+
+                # Yield file data in chunks for efficient streaming
+                data = fs.read(segment_len)
+                while data:
+                    yield data
+                    data = fs.read(segment_len)
+                # yield bytes([])
+
+            content_type, _ = mimetypes.guess_type(server_path)
+            fx= iter_content()
+            print(fx)
+            return responses.StreamingResponse(
+                content=iter_content(),
+                media_type=content_type,
+                status_code=status.HTTP_206_PARTIAL_CONTENT,
+                headers=response_header
+            )
+
+
+        except FileNotFoundError:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+
+        except Exception as e:
+            print(e)
+            return  None

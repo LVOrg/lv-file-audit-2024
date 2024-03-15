@@ -14,16 +14,20 @@ import cyx.common.cacher
 import jwt.exceptions
 import cy_xdoc.services.apps
 from user_agents import parse
+from cyx.local_api_services import LocalAPIService
 class BasicAuth:
     def __init__(self,
                     token_verifier:TokenVerifier=cy_kit.singleton(TokenVerifier),
                     cacher: cyx.common.cacher.CacherService = cy_kit.singleton(cyx.common.cacher.CacherService),
-                    app_services:cy_xdoc.services.apps.AppServices = cy_kit.singleton(cy_xdoc.services.apps.AppServices)
+                    app_services:cy_xdoc.services.apps.AppServices = cy_kit.singleton(cy_xdoc.services.apps.AppServices),
+                 local_app_service:LocalAPIService = cy_kit.singleton(LocalAPIService)
+
                 ):
         self.token_verifier=token_verifier
         self.share_key = cyx.common.config.jwt.secret_key
         self.cacher = cacher
         self.app_services=app_services
+        self.local_app_service = local_app_service
 
     def raise_expr(self,ret_url:str=None, app_name:str=None):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -66,6 +70,13 @@ class BasicAuth:
                     setattr(request, 'token_infor', token_infor)
                     return
 
+        if request.query_params.get("local-share-id") and request.query_params.get("app-name"):
+            if self.local_app_service.check_local_share_id(
+                app_name = request.query_params.get("app-name"),
+                local_share_id= request.query_params.get("local-share-id")
+
+            ):
+                return
 
 
 

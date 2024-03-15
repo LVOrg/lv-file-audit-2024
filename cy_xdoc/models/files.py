@@ -370,6 +370,7 @@ class DocUploadRegister:
     IsEncryptContent: typing.Optional[bool]
 
 
+
 @cy_docs.define(
     name="LvFilesHistoryCheckoutV1",
     uniques=["MacId,UploadId"],
@@ -381,3 +382,10 @@ class ContentHistory:
     HashLen: int
     CheckOutOn: typing.Optional[datetime.datetime]
     ContentLen:int
+@cy_docs.define(
+    name="LvXDocDocLocalShareInfo",
+    uniques=["LocalShareId,UploadId"],
+    indexes=["LocalShareId","UploadId"])
+class DocLocalShareInfo:
+    LocalShareId: str
+    UploadId: str

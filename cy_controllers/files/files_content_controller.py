@@ -131,7 +131,15 @@ class FilesContentController(BaseController):
                 client_file_name=upload.FileName
             )
         if not upload.IsPublic:
-            await self.auth_service.check_request(app_name, self.request)
+            if self.request.query_params.get("local-share-id") and self.request.query_params.get("app-name"):
+                check_data = self.local_api_service.check_local_share_id(
+                    app_name = self.request.query_params.get("app-name"),
+                    local_share_id=self.request.query_params.get("local-share-id")
+                )
+                if check_data and isinstance(check_data.UploadId,str) and check_data.UploadId == upload_id:
+                    pass
+                else:
+                    await self.auth_service.check_request(app_name, self.request)
 
         mime_type, _ = mimetypes.guess_type(directory)
         if mime_type.startswith('image/') and self.request.headers.get('Range') is None:

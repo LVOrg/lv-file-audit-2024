@@ -3,7 +3,14 @@ from fastapi import (
     APIRouter,
     Depends,
     Request,
+    UploadFile,
+    File,
+    Form,
+    Query,
+Path
+
 )
+from typing import Annotated
 from cy_xdoc.auths import Authenticate
 from cyx.common import config
 
@@ -27,3 +34,4 @@ class SystemsController(BaseController):
     )
     def get_config(self) -> dict:
         return config
+

@@ -212,6 +212,8 @@ class FilesUploadController(BaseController):
             if data[upload_register_doc.fields.FileExt] is None:
                 return
             try:
+                local_share_id = self.local_api_service.generate_local_share_id(app_name=app_name, upload_id=data.id)
+                data.local_share_id = local_share_id
                 self.broker.emit(
                     app_name=app_name,
                     message_type=cyx.common.msg.MSG_FILE_UPLOAD,
@@ -456,3 +458,4 @@ class FilesUploadController(BaseController):
             )
         n = (datetime.datetime.utcnow() - st).total_seconds()
         print(f"push_temp_file_async={n}")
+
