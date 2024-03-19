@@ -23,3 +23,5 @@ secret*
 /docker-build/deploy/heml2/
 /a-working/
 /encryp-dir/
+/env_office/
+/cy_office_image_service/tmp/

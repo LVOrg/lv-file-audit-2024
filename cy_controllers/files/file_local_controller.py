@@ -92,7 +92,7 @@ class FilesLocalController(BaseController):
         if not is_ok:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="")
         server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
-        upload_id = pathlib.Path(rel_path).parent.__str__()
+        upload_id = pathlib.Path(rel_path).parent.name.__str__()
         app_name = rel_path.split('/')[0]
         if local_share_id:
             check_data = self.local_api_service.check_local_share_id(
@@ -100,9 +100,8 @@ class FilesLocalController(BaseController):
                 local_share_id=local_share_id
             )
             if check_data and isinstance(check_data.UploadId, str) and check_data.UploadId != upload_id:
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
-            elif not self.token_verifier.verify(self.share_key,token):
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
+                if not self.token_verifier.verify(self.share_key, token):
+                    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
         try:
 
 
@@ -135,13 +134,13 @@ class FilesLocalController(BaseController):
                                rel_path: str
                                ) -> None:
         import urllib.parse
-        local_share_id= self.request.query_params.get(("local-share-id"))
+        local_share_id= self.request.query_params.get("local-share-id")
         token = self.request.query_params.get("token")
         is_ok = local_share_id or token
         if not is_ok:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="")
         server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
-        upload_id = pathlib.Path(rel_path).parent.__str__()
+        upload_id = pathlib.Path(rel_path).parent.name.__str__()
         app_name = rel_path.split('/')[0]
         if local_share_id:
             check_data = self.local_api_service.check_local_share_id(
@@ -149,9 +148,9 @@ class FilesLocalController(BaseController):
                 local_share_id=local_share_id
             )
             if check_data and isinstance(check_data.UploadId, str) and check_data.UploadId != upload_id:
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
-            elif not self.token_verifier.verify(self.share_key, token):
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
+                if not self.token_verifier.verify(self.share_key, token):
+                    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
+
 
         try:
 

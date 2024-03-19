@@ -81,4 +81,4 @@ class LocalAPIService:
             # Handle successful response (e.g., print status code)
             print(f"Image submission successful. Status code: {response.status_code}")
         except requests.exceptions.RequestException as e:
-            print(f"Error submitting image: {e}")
+            raise e

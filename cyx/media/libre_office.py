@@ -23,15 +23,16 @@ class LibreOfficeService:
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
 
-    def get_image(self, file_path) -> str:
+    def get_image(self, file_path:str) -> str:
         """
         Generate image of file by using libre-office
         :param file_path:
         :return:
         """
         filename_only = pathlib.Path(file_path).stem
-        unique_dir = pathlib.Path(file_path).parent.name
-        ret_file = os.path.join(self.output_dir,unique_dir, f"{filename_only}.png")
+        out_put_dir = pathlib.Path(file_path).parent.__str__()
+        out_put_file_name = str(uuid.uuid4())+".png"
+        ret_file = os.path.join(self.output_dir,out_put_dir, f"{filename_only}.png")
         if os.path.isfile(ret_file):
             try:
                 os.remove(ret_file)
@@ -44,8 +45,8 @@ class LibreOfficeService:
         user_profile_id = str(uuid.uuid4())  # Tạo user profile giả, nếu kg có điều này LibreOffice chỉ tạo 1 instance,
         # kg xử lý song song được
         full_user_profile_path = os.path.join(self.user_profile_dir, user_profile_id)
-        output_unique_dir = os.path.join(self.output_dir,unique_dir)
-        os.makedirs(output_unique_dir,exist_ok=True)
+        # output_unique_dir = os.path.join(self.output_dir,out_put_dir)
+        # os.makedirs(output_unique_dir,exist_ok=True)
         pid = subprocess.Popen(
             [
                 self.libre_office_path,
@@ -54,7 +55,7 @@ class LibreOfficeService:
                 f"--accept={uno}",
                 f"-env:UserInstallation=file://{full_user_profile_path.replace(os.sep, '/')}",
                 '--outdir',
-                output_unique_dir, file_path
+                out_put_dir, file_path
             ],
             shell=False,
             start_new_session=True
@@ -66,8 +67,9 @@ class LibreOfficeService:
         except:
             pass
 
-
-        return ret_file
+        if os.path.isfile(file_path+".png"):
+            return file_path+".png"
+        return None
 
     def convert_to_pdf(self, file_path):
         """
