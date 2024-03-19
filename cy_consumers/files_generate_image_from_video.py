@@ -61,20 +61,8 @@ class Process:
         # api/hps-file-test/file/e5524d97-467e-4c96-99d0-21c5c36a4349/piano.mp4
         # http://172.16.7.99/lvfile/api/lv-docs/file/1c387233-9bf8-4a0d-939d-bbcec7bf36c6/bandicam%202023-08-11%2011-51-55-581.mp4
         main_file_id = msg_info.Data["StoragePath"]
-        # /lvfile/api/sys/admin/content-share/{rel_path}
         server_file = config.private_web_api + "/api/sys/admin/content-share/" + main_file_id.split("://")[1]
-        # resource = self.content_service.get_resource(msg_info)
-        # docs = self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
-        # if resource is None:
-        #     msg.delete(msg_info)
-        #     return
-        # if not os.path.isfile(resource):
-        #     docs.context.update(
-        #         docs.fields.id==msg_info.Data["_id"],
-        #         docs.fields.ThumbnailsAble<<False
-        #     )
-        #     msg.delete(msg_info)
-        #     return
+
         local_share_id = None
         token = None
         if hasattr(msg_info.Data, "local_share_id"):
