@@ -87,6 +87,7 @@ spec:
             - tika_server=$(tika_server)
             - host_url=$(web_api_url)
             - file_storage_path=/mnt/files
+            - private_web_api=$(private_web_api)
             {{if not $storage_files}}
             - services=""
             {{end}}

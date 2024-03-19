@@ -38,5 +38,6 @@ data:
   vn_suggest_url: {{$fileJob.vn_suggest_url}}
   log_url: {{$globalVar.config.logs_url}}
   web_api_url:  {{$fileJob.web_api_url}}
+  private_web_api: {{$fileJob.private_web_api}}
 ---
 {{end}}

@@ -57,7 +57,7 @@ class ThumbService:
         if ret is not None and not os.path.isfile(ret):
             self.memcache_services.remove(cache_key)
             ret = None
-        if ret is None:
+        if ret is None or not os.path.isfile(directory):
             upload_id = directory.split('/')[0]
             doc_context = self.mongodb_service.db(app_name).get_document_context(DocUploadRegister)
             upload = await doc_context.context.find_one_async(
@@ -148,6 +148,7 @@ class ThumbService:
                 """
 
         ret_image_path = os.path.join(pathlib.Path(main_file_path).parent.__str__(), f"{size}.webp")
+        temp_ret_image_path = os.path.join(pathlib.Path(main_file_path).parent.__str__(), f"{size}_tmp.webp")
         with Image.open(main_file_path) as img:
             original_width, original_height = img.size
             if size > max(original_width, original_height):
@@ -158,7 +159,11 @@ class ThumbService:
                 rate = size / original_height
                 w, h = int(original_width * rate), size
             scaled_img = img.resize((w, h))  # High-quality resampling
-            webp.save_image(scaled_img, ret_image_path, lossless=True)  # Set lossless=False for lossy compression
+            webp.save_image(scaled_img, temp_ret_image_path, lossless=True)  # Set lossless=False for lossy compression
+            with open(temp_ret_image_path,"rb") as ft:
+                with open(ret_image_path,"wb",encrypt=True,chunk_size_in_kb=1024) as fs:
+                    fs.write(ft.read())
+            os.remove(temp_ret_image_path)
 
             return ret_image_path
 
@@ -169,11 +174,13 @@ class ThumbService:
             return ret
         name_only = pathlib.Path(directory).stem
         if name_only.isnumeric():
-            return await self.get_async(
+            ret = await self.get_async(
                 app_name=app_name,
                 directory=directory,
                 size=int(name_only)
             )
+            self.memcache_services.set_str(cache_key,ret)
+            return ret
         else:
             return await self.get_async(
                 app_name=app_name,
