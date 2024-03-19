@@ -83,6 +83,16 @@ class Process:
             print(server_file)
             os.remove(file_path)
             os.remove(image_file_path)
+            msg.emit(
+                app_name=msg_info.AppName,
+                message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+                data=msg_info.Data,
+                parent_msg=msg_info.MsgType,
+                parent_tag=msg_info.tags["method"].delivery_tag,
+                resource= rel_server_path,
+                require_tracking=True
+
+            )
             msg.delete(msg_info)
         except:
             pass
@@ -95,16 +105,7 @@ class Process:
         # #     img_file = self.libre_office_service.get_image(file_path=resource)
         # #     if not os.path.isfile(img_file):
         # #         raise  FileNotFoundError()
-        # #     msg.emit(
-        # #         app_name=msg_info.AppName,
-        # #         message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-        # #         data= msg_info.Data,
-        # #         parent_msg=msg_info.MsgType,
-        # #         parent_tag=msg_info.tags["method"].delivery_tag,
-        # #         resource=img_file,
-        # #         require_tracking=True
-        # #
-        # #     )
+
         # #     msg.delete(msg_info)
         # except Exception as ex:
         #     print(ex)
