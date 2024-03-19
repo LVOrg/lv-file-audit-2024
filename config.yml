@@ -194,8 +194,8 @@ file_storage_encrypt: true
 dataset_path: "/mnt/files/dataset"
 server_thumb_office: "http://172.16.7.99:31792"
 server_thumb_office_: "http://0.0.0.0:8014"
-#private_web_api: http://172.16.7.99/lvfile
-private_web_api: http://172.16.13.72:8012/lvfile
+private_web_api: http://172.16.7.99/lvfile
+#private_web_api: http://172.16.13.72:8012/lvfile
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/tmp /home/vmadmin/python/cy-py/share-storage
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/from-192-168-18-36/files
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/files

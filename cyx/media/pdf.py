@@ -34,9 +34,8 @@ class PDFService:
         import fitz
         pdf_file = file_path
         filename_only = pathlib.Path(pdf_file).stem
-        unique_dir = os.path.join(self.processing_folder, pathlib.Path(pdf_file).parent.name)
-        if not os.path.isdir(unique_dir):
-            os.makedirs(unique_dir)
+        unique_dir = pathlib.Path(file_path).parent.__str__()
+
         image_file_path = os.path.join(unique_dir, f"{filename_only}.png")
         if os.path.isfile(image_file_path):
             return image_file_path
