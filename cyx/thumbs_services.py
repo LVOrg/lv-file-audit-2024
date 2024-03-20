@@ -87,27 +87,39 @@ class ThumbService:
 
                     thumb_type = self.get_thumb_type(ext_file)
                     if thumb_type == "office":
-                        if upload.get("ThumbnailsAble")==False:
+                        if not os.path.isfile(f"{real_file_path}.png"):
+                            self.msg.emit(
+                                app_name=app_name,
+                                data=upload,
+                                message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE,
+                                resource=real_file_path
+                            )
                             return None
-                        key= f"{type(self).__module__}/{__file__}/raise_from_web/{app_name}/{real_file_path}"
-                        self.msg.emit(
-                            app_name=app_name,
-                            data=upload,
-                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                            resource=real_file_path
-                        )
-                        return None
+                        else:
+                            thumb_file_path = self.get_thumb_path_from_image(
+                                in_path=f"{real_file_path}.png",
+                                size=size,
+                                main_file_path=f"{real_file_path}.png"
+                            )
+                            return thumb_file_path
+
                     if thumb_type == "pdf":
-                        if upload.get("ThumbnailsAble") == False:
+                        if not os.path.isfile(f"{real_file_path}.png"):
+                            self.msg.emit(
+                                app_name=app_name,
+                                data=upload,
+                                message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF,
+                                resource=real_file_path
+                            )
                             return None
-                        key = f"{type(self).__module__}/{__file__}/raise_from_web/{app_name}/{real_file_path}"
-                        self.msg.emit(
-                            app_name=app_name,
-                            data=upload,
-                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                            resource=real_file_path
-                        )
-                        return None
+                        else:
+                            thumb_file_path = self.get_thumb_path_from_image(
+                                in_path=f"{real_file_path}.png",
+                                size=size,
+                                main_file_path=f"{real_file_path}.png"
+                            )
+                            return thumb_file_path
+
                     elif thumb_type == "image":
                         if upload.get("ThumbnailsAble") == False:
                             return None
@@ -119,16 +131,21 @@ class ThumbService:
                         self.memcache_services.set_str(cache_key, thumb_file_path)
                         return thumb_file_path
                     elif thumb_type == "video":
-                        if upload.get("ThumbnailsAble")==False:
+                        if not os.path.isfile(f"{real_file_path}.png"):
+                            self.msg.emit(
+                                app_name=app_name,
+                                data=upload,
+                                message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO,
+                                resource=real_file_path
+                            )
                             return None
-                        key = f"{type(self).__module__}/{__file__}/raise_from_web/{app_name}/{real_file_path}"
-                        self.msg.emit(
-                            app_name=app_name,
-                            data=upload,
-                            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                            resource=real_file_path
-                        )
-                        return None
+                        else:
+                            thumb_file_path = self.get_thumb_path_from_image(
+                                in_path=f"{real_file_path}.png",
+                                size=size,
+                                main_file_path=f"{real_file_path}.png"
+                            )
+                            return thumb_file_path
 
                     else:
                         return None
@@ -159,11 +176,13 @@ class ThumbService:
                 rate = size / original_height
                 w, h = int(original_width * rate), size
             scaled_img = img.resize((w, h))  # High-quality resampling
-            webp.save_image(scaled_img, temp_ret_image_path, lossless=True)  # Set lossless=False for lossy compression
-            with open(temp_ret_image_path,"rb") as ft:
-                with open(ret_image_path,"wb",encrypt=True,chunk_size_in_kb=1024) as fs:
-                    fs.write(ft.read())
-            os.remove(temp_ret_image_path)
+
+            from cy_file_cryptor.context import create_encrypt
+            with create_encrypt(ret_image_path):
+                webp.save_image(scaled_img, ret_image_path,
+                                lossless=True)  # Set lossless=False for lossy compression
+
+
 
             return ret_image_path
 

@@ -52,6 +52,7 @@ class FilesContentController(BaseController):
         :param app_name:
         :return:
         """
+
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
         upload_id = None

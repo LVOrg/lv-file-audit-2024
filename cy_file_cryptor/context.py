@@ -63,3 +63,23 @@ def read_from_cache(key: str):
     ret = __client__.get(memcache_key)
     return ret
 
+
+class EncryptContext:
+    def __init__(self, file_will_be_encrypt: str):
+        self.file_path = file_will_be_encrypt
+        self.encryptor_file = f"{file_will_be_encrypt}.cryptor"
+        from cy_file_cryptor.crypt_info import write_dict
+        from cy_file_cryptor.wrappers import original_open_file
+        from cy_file_cryptor.writer_binary_v02 import __max_wrap_size__, __min_wrap_size__
+
+        write_dict(dict(is_crypted=True,chunk_size=1024*64), self.encryptor_file, original_open_file)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def __enter__(self):
+        return self
+
+
+def create_encrypt(file_path: str) -> EncryptContext:
+    return EncryptContext(file_path)

@@ -56,6 +56,7 @@ COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cyx /app/cyx
+RUN apt clean && apt autoclean
 ">$job_slim_file
 
 job_slim_tag=1

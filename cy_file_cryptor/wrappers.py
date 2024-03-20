@@ -68,7 +68,7 @@ def cy_open_file(*args, **kwargs):
     if kwargs.get("encrypt") == True:
         del kwargs["encrypt"]
         is_encrypt = True
-        chunk_size = int(kwargs["chunk_size_in_kb"]) * 1024
+        chunk_size = int(kwargs.get("chunk_size_in_kb",1024)) * 1024
         del kwargs["chunk_size_in_kb"]
     #open, file, mode, buffering, encoding, errors, newline, closefd, opener
     wrapper_args = dict(

@@ -55,11 +55,14 @@ class Process:
         main_file_id = msg_info.Data["MainFileId"]
         rel_file_path = main_file_id.split("://")[1]
         server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        token = None
+        local_share_id=None
         if not msg_info.Data.get("local_share_id"):
-            msg.delete(msg_info)
-            return
-        local_share_id = msg_info.Data["local_share_id"]
-        server_file += f"?local-share-id={local_share_id}&app-name={msg_info.AppName}"
+            token = self.local_api_service.get_access_token("admin/root", "root")
+            server_file+=f"?token={token}"
+        else:
+            local_share_id = msg_info.Data["local_share_id"]
+            server_file += f"?local-share-id={local_share_id}&app-name={msg_info.AppName}"
         if not os.path.isdir(self.temp_file.get_root_dir()):
             os.makedirs(self.temp_file.get_root_dir(), exist_ok=True)
         file_path = os.path.join(self.temp_file.get_root_dir(), str(uuid.uuid4()))
@@ -72,7 +75,7 @@ class Process:
         img_file = self.pdf_file_service.get_image(file_path)
         self.local_api_service.send_file(
             file_path=img_file,
-            token=None,
+            token=token,
             local_share_id=local_share_id,
             app_name=msg_info.AppName,
             rel_server_path=rel_server_path
@@ -81,16 +84,16 @@ class Process:
         print(server_file)
         os.remove(file_path)
         os.remove(img_file)
-        msg.emit(
-            app_name=msg_info.AppName,
-            message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-            data=msg_info.Data,
-            parent_msg=msg_info.MsgType,
-            parent_tag=msg_info.tags["method"].delivery_tag,
-            resource=rel_server_path,
-            require_tracking=True
-
-        )
+        # msg.emit(
+        #     app_name=msg_info.AppName,
+        #     message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
+        #     data=msg_info.Data,
+        #     parent_msg=msg_info.MsgType,
+        #     parent_tag=msg_info.tags["method"].delivery_tag,
+        #     resource=rel_server_path,
+        #     require_tracking=True
+        #
+        # )
         msg.delete(msg_info)
         print(img_file)
 

@@ -37,14 +37,30 @@ repository="docker.io/nttlong"
 platform=linux/amd64
 rm -f $job_core_office_file
 echo "
-FROM linuxserver/libreoffice
-RUN apk add py3-pip
-RUN apk add git
-COPY ./../docker-build/requirements/office.req.txt /app/office.req.txt
-RUN python3 -m pip install -r /app/office.req.txt --no-cache-dir
-ENTRYPOINT [\"/usr/bin/env\"]
+FROM python:3.10.12-slim-bookworm
+RUN apt update
+RUN apt-get upgrade -y
+RUN apt install libreoffice -y
+#RUN apt-get update --fix-missing
+#RUN apt install libreoffice -y
+RUN apt install git -y
+#RUN apk update && apk upgrade
+#RUN apk add py3-pip
+#RUN apk --no-cache update && apk add --no-cache python3 py3-pip
+#RUN apk add git
+#RUN apk add --no-cache py3-pip
+#RUN apk add py3-pip
+#RUN apk add git
+#RUN apt-get install -y build-essential python3-dev
+#COPY ./../docker-build/requirements/office.req.txt /app/office.req.txt
+#RUN apk add --no-cache python3
+#RUN python3 -m pip install fastapi
+#RUN python3 -m pip install -r /app/office.req.txt --no-cache-dir
+#ENTRYPOINT [\"/usr/bin/env\"]
+#COPY ./../env_office/lib/python3.11/site-packages /usr/local/lib/python3.11/dist-packages
+RUN apt clean && apt autoclean
 ">>$job_core_office_file
-job_core_office_tag=11
+job_core_office_tag=14
 job_core_office_build="fs.medium.core."$(tag $job_core_office_tag)
 job_core_office_image=$repository/$image_name:$job_core_office_build
 buildFunc $job_core_office_file $repository $image_name $job_core_office_build "docker.io/python:3.10.12-slim-bookworm" "debian"
@@ -64,6 +80,9 @@ echo "
 FROM $job_core_office_image
 ARG TARGETARCH
 ARG OS
+COPY ./../docker-build/requirements/office.req.txt /app/requirements/office.req.txt
+RUN python3 -m pip install -r /app/requirements/office.req.txt --no-cache-dir
+#COPY ./../env_libre_office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
@@ -86,7 +105,7 @@ COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cyx /app/cyx">>$job_office_file
-job_office_tag=41
+job_office_tag=1
 job_office_tag_build="fs.medium."$(tag $job_core_office_tag).$job_office_tag
 job_office_image=$repository/$image_name.$job_office_tag_build
 buildFunc $job_office_file $repository $image_name $job_office_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"

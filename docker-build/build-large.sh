@@ -53,7 +53,8 @@ COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cy-dataset /app/cy-dataset
-#RUN pip cache purge
+RUN apt clean && apt autoclean
+
 ENTRYPOINT []
 ">>$ai_file
 ai_tag=4
