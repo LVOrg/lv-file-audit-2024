@@ -63,7 +63,7 @@
       <excludeFolder url="file://$MODULE_DIR$/docker-build/deploy/heml2" />
       <excludeFolder url="file://$MODULE_DIR$/env_office" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (5)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (4)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

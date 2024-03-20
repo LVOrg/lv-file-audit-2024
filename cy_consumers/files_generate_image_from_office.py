@@ -52,50 +52,42 @@ class Process:
         self.temp_file = temp_file
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        try:
-            rel_file_path = msg_info.Data["MainFileId"].split("://")[1]
-
-            server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
-            if not msg_info.Data.get("local_share_id"):
-                msg.delete(msg_info)
-                return
+        rel_file_path = msg_info.Data["MainFileId"].split("://")[1]
+        local_share_id = None
+        token = None
+        server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        if not msg_info.Data.get("local_share_id"):
+            token = self.local_api_service.get_access_token("admin/root", "root")
+            server_file += f"?token={token}"
+        else:
             local_share_id = msg_info.Data["local_share_id"]
             server_file += f"?local-share-id={local_share_id}&app-name={msg_info.AppName}"
-            if not os.path.isdir(self.temp_file.get_root_dir()):
-                os.makedirs(self.temp_file.get_root_dir(), exist_ok=True)
-            file_path = os.path.join(self.temp_file.get_root_dir(),str(uuid.uuid4()))
-            with open(server_file,"rb") as fs:
-                data = fs.read()
-                with open(file_path,"wb") as f:
-                    f.write(data)
-            main_file_id=msg_info.Data["MainFileId"]
-            server_dir = pathlib.Path(main_file_id.split("://")[1]).parent.__str__().replace(os.sep, '/')
-            rel_server_path = os.path.join(server_dir, pathlib.Path(main_file_id).name + ".png").replace(os.sep, '/')
-            image_file_path=self.libre_office_service.get_image(file_path=file_path)
-            self.local_api_service.send_file(
-                file_path=image_file_path,
-                token=None,
-                local_share_id=local_share_id,
-                app_name=msg_info.AppName,
-                rel_server_path=rel_server_path
 
-            )
-            print(server_file)
-            os.remove(file_path)
-            os.remove(image_file_path)
-            msg.emit(
-                app_name=msg_info.AppName,
-                message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-                data=msg_info.Data,
-                parent_msg=msg_info.MsgType,
-                parent_tag=msg_info.tags["method"].delivery_tag,
-                resource= rel_server_path,
-                require_tracking=True
 
-            )
-            msg.delete(msg_info)
-        except:
-            pass
+        if not os.path.isdir(self.temp_file.get_root_dir()):
+            os.makedirs(self.temp_file.get_root_dir(), exist_ok=True)
+        file_path = os.path.join(self.temp_file.get_root_dir(), str(uuid.uuid4()))
+        with open(server_file, "rb") as fs:
+            data = fs.read()
+            with open(file_path, "wb") as f:
+                f.write(data)
+        main_file_id = msg_info.Data["MainFileId"]
+        server_dir = pathlib.Path(main_file_id.split("://")[1]).parent.__str__().replace(os.sep, '/')
+        rel_server_path = os.path.join(server_dir, pathlib.Path(main_file_id).name + ".png").replace(os.sep, '/')
+        image_file_path = self.libre_office_service.get_image(file_path=file_path)
+        self.local_api_service.send_file(
+            file_path=image_file_path,
+            token=token,
+            local_share_id=local_share_id,
+            app_name=msg_info.AppName,
+            rel_server_path=rel_server_path
+
+        )
+        print(server_file)
+        os.remove(file_path)
+        os.remove(image_file_path)
+
+        msg.delete(msg_info)
         # try:
         #
         #     # resource = self.content_service.get_resource(msg_info)+rel_file_path
