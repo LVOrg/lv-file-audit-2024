@@ -36,10 +36,10 @@ data:
 #    description: watch all upload from lv-doc-service
 #    image: {{.images.jobs.slim}}
 #    replicate: 1
-#  - name: files-extract-text-from-office
-#    endpoint: files_extract_text_from_office.py
-#    description: watch all upload from lv-doc-service
-#    image: {{.images.jobs.slim}}
+  - name: files-extract-text-from-office
+    endpoint: files_extract_text_from_office.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.slim}}
 #    replicate: 2
   - name: generate-image-from-office
     endpoint: files_generate_image_from_office.py

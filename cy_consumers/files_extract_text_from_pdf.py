@@ -37,8 +37,19 @@ class Process:
         self.logger = logger
         self.mongodb_service= mongodb_service
 
-
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        rel_file_path = msg_info.Data["MainFileId"].split("://")[1]
+        local_share_id = None
+        token = None
+        server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        if not msg_info.Data.get("local_share_id"):
+            token = self.local_api_service.get_access_token("admin/root", "root")
+            server_file += f"?token={token}"
+        else:
+            local_share_id = msg_info.Data["local_share_id"]
+            server_file += f"?local-share-id={local_share_id}&app-name={msg_info.AppName}"
+
+    def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         resource = self.content_service.get_master_resource(msg_info)
         docs = self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
         upload_id= msg_info.Data.get("_id")
