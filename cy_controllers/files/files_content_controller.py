@@ -59,6 +59,13 @@ class FilesContentController(BaseController):
         is_file_not_found = False
         file_path = await self.thumb_service.get_async(app_name,directory,700)
         if file_path is not None:
+            image_file_path = self.local_file_caching_service.cache_file(
+                file_path
+            )
+            mt, _ = mimetypes.guess_type(image_file_path)
+            return FileResponse(image_file_path)
+
+        if file_path is not None:
             mt,_ = mimetypes.guess_type(file_path)
             return  FileResponse(path= file_path,media_type=mt)
         try:
@@ -70,6 +77,7 @@ class FilesContentController(BaseController):
 
             upload_id = directory.split('/')[0]
             fs = await self.file_service.get_main_main_thumb_file_async(app_name, upload_id)
+            print(fs)
 
 
             if fs is None:
@@ -239,8 +247,11 @@ class FilesContentController(BaseController):
         is_file_not_found = False
         file_path = await self.thumb_service.get_customize_async(app_name, directory)
         if file_path is not None:
-            mt, _ = mimetypes.guess_type(file_path)
-            return FileResponse(path=file_path, media_type=mt)
+            image_file_path = self.local_file_caching_service.cache_file(
+                file_path
+            )
+            mt, _ = mimetypes.guess_type(image_file_path)
+            return FileResponse(image_file_path)
         try:
             fs = self.file_storage_service.get_file_by_name(
                 app_name=app_name,

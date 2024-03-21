@@ -1,0 +1,2 @@
+craft-text-detector
+gradio

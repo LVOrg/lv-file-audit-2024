@@ -19,41 +19,41 @@ from cyx.common.brokers import Broker
 from cyx.common import config
 from cyx.media.contents import ContentsServices
 from cyx.repository import Repository
+
 msg = cy_kit.singleton(RabitmqMsg)
 
 content_services = cy_kit.singleton(ContentsServices)
 content, info = content_services.get_text(__file__)
-
-
 
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
 from cy_utils import texts
 from cy_xdoc.services.files import FileServices
 from cy_xdoc.services.search_engine import SearchEngine
-from cyx.content_services import ContentService,ContentTypeEnum
+from cyx.content_services import ContentService, ContentTypeEnum
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
+
 
 @broker(message=cyx.common.msg.MSG_FILE_SAVE_SEARCH_CONTENT)
 class Process:
     def __init__(self,
                  logger=cy_kit.singleton(LoggerService),
                  search_engine: SearchEngine = cy_kit.singleton(SearchEngine),
-                 content_service= cy_kit.singleton(ContentService),
-                 mongodb_service = cy_kit.singleton(MongodbService)
+                 content_service=cy_kit.singleton(ContentService),
+                 mongodb_service=cy_kit.singleton(MongodbService)
 
                  ):
         self.logger = logger
         self.search_engine = search_engine
         self.file_services = mongodb_service
         self.content_service = content_service
-        self.mongodb_service=mongodb_service
+        self.mongodb_service = mongodb_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         rel_file_path = msg_info.Data["MainFileId"].split("://")[1]
         print(rel_file_path)
-        #phiếu đề xuất mua hàng.docx.search.es
+        # phiếu đề xuất mua hàng.docx.search.es
         rel_file_path = f"{rel_file_path}.search.es"
         print(rel_file_path)
         local_share_id = None
@@ -66,15 +66,13 @@ class Process:
             local_share_id = msg_info.Data["local_share_id"]
             server_file += f"?local-share-id={local_share_id}&app-name={msg_info.AppName}"
         content = ""
-        with open(server_file,"rb") as fs:
+        with open(server_file, "rb") as fs:
             content = fs.read().decode()
         content = texts.well_form_text(content)
         db_context = Repository.files.app(msg_info.AppName)
         upload_item = db_context.context.find_one(
             db_context.fields.id == msg_info.Data["_id"]
         )
-
-
 
         self.search_engine.update_content(
             app_name=msg_info.AppName,
@@ -97,17 +95,17 @@ class Process:
         print("---------------------------------")
         print(resource)
         try:
-            content= self.get_content(resource)
+            content = self.get_content(resource)
             self.search_engine.replace_content(
                 app_name=msg_info.AppName,
-                id= msg_info.Data.get("_id"),
-                field_value= content,
+                id=msg_info.Data.get("_id"),
+                field_value=content,
                 field_path="content"
             )
-            doc_context= self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
+            doc_context = self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
             doc_context.context.update(
-                doc_context.fields.id==msg_info.Data.get("_id"),
-                doc_context.fields.HasSearchContent<<True
+                doc_context.fields.id == msg_info.Data.get("_id"),
+                doc_context.fields.HasSearchContent << True
             )
             msg.delete(msg_info)
         except FileNotFoundError:
@@ -119,5 +117,3 @@ class Process:
         with open(resource, "rb") as fs:
             content = fs.read()
             return content.decode('utf8')
-
-

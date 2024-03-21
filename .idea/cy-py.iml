@@ -61,9 +61,12 @@
       <excludeFolder url="file://$MODULE_DIR$/a-working" />
       <excludeFolder url="file://$MODULE_DIR$/cy_office_image_service/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/docker-build/deploy/heml2" />
+      <excludeFolder url="file://$MODULE_DIR$/env-ocr" />
+      <excludeFolder url="file://$MODULE_DIR$/env-ocr-39" />
       <excludeFolder url="file://$MODULE_DIR$/env_office" />
+      <excludeFolder url="file://$MODULE_DIR$/tem-caching" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (5)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9 (cy-py) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
