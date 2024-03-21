@@ -107,9 +107,9 @@ fileJob:
   tag: amd.1.2
   mountPath: /app/share-storage
   vn_suggest_url: vn-suggestion.xdoc-web:8000
-  tika_server: http://tika.xdoc-web-v1:9998
+  tika_server: http://tika.xdoc-web:9998
   web_api_url: http://172.16.7.99/lvfile
-  private_web_api: xdoc.xdoc-web:8082/lvfile
+  private_web_api: http://xdoc.xdoc-web:8082/lvfile
 #msg:
 #  name: rabbit-dev
 #  namespace: file-msg

@@ -1,7 +1,7 @@
 images:
   web: nttlong/fs:fs.tiny.amd.11.18
   jobs:
-    slim: nttlong/fs:fs.slim.amd.11.2
+    slim: nttlong/fs:fs.slim.amd.11.5
     medium: nttlong/fs:fs.medium.amd.14.2
     large: nttlong/fs:fs.large.amd.11.4
     replicas: 2

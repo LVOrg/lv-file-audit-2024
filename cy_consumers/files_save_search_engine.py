@@ -8,6 +8,7 @@ import threading
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
 sys.path.append("/app")
+import cy_file_cryptor.wrappers
 import cyx.framewwork_configs
 import cy_kit
 import cyx.common.msg
@@ -46,6 +47,9 @@ class Process:
         self.temp_file = temp_file
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        pass
+
+    def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         try:
             full_file_path = msg_info.Data['processing_file']
             if full_file_path is None:

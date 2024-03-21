@@ -338,7 +338,7 @@ def broker(message: str, allow_resume=False, auto_ack=False, auto_proctect_error
             except Exception as e:
                 err_content = traceback.format_exc()
                 print(err_content)
-                msg.delete(msg_info)
+                # msg.delete(msg_info)
 
         def on_receive_msg(msg_info: MessageInfo):
             if auto_proctect_error:

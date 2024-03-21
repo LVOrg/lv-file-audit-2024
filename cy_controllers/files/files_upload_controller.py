@@ -219,6 +219,7 @@ class FilesUploadController(BaseController):
                     message_type=cyx.common.msg.MSG_FILE_UPLOAD,
                     data=data
                 )
+                print(cyx.common.msg.MSG_FILE_UPLOAD)
 
 
 

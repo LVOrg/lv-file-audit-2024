@@ -107,7 +107,7 @@ class Process:
         self.output_dir = shared_storage_service.get_temp_dir(self.__class__)
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        print(msg_info)
+        print(f'{msg_info.Data.get("MainFileId")}')
         content_type = self.content_service.get_type(msg_data= msg_info.Data)
         upload_id = msg_info.Data.get("_id") or msg_info.Data.get("UploadId")
         resource = self.content_service.get_resource(msg_info=msg_info)
@@ -192,7 +192,7 @@ class Process:
             )
             msg.delete(msg_info)
         else:
-            return
+            msg.delete(msg_info)
     def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         full_file_path = None
         file_ext = msg_info.Data.get("FileExt")
