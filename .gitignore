@@ -26,3 +26,17 @@ secret*
 /env_office/
 /cy_office_image_service/tmp/
 /tem-caching/
+/env/
+/env-ocr/
+/env-ocr-38/
+/env-ocr-39/
+/env_ai_cloud/
+/env_full/
+/env_jobs/
+/env_jobs_slim/
+/env_libre_office/
+/env_office/
+/env_test/
+/env_text_from_pdf/
+/env_vn_sugesstion/
+/env_webapi/
