@@ -71,6 +71,14 @@ if __name__ == '__main__':
         image = Image.open(img_path).convert('RGB')
         img_array = np.array(image)
         calculate_box = []
+        if result is None:
+            try:
+                with open(f"{img_path}.txt", "wb") as fs:
+                    fs.write("".encode())
+                exit(0)
+            except Exception as e:
+                print(e)
+                exit(0)
         for x in result:
             calculate_box += [x[0]]
         estimate_boxes = []

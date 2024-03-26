@@ -48,7 +48,7 @@ echo "ARG BASE
 FROM $ocr_core_image
 RUN apt install python3-pip -y && python3.9 -m pip install pika
 
-COPY ./../cy_command /cmd
+COPY ./../cy-commands /cmd
 ENTRYPOINT [\"/cmd/listener.sh\"]
 ">>$fs_ocr_file
 fs_ocr_tag=1

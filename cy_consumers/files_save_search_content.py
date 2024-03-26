@@ -34,14 +34,15 @@ from cyx.content_services import ContentService, ContentTypeEnum
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
 
-
+from cyx.local_api_services import LocalAPIService
 @broker(message=cyx.common.msg.MSG_FILE_SAVE_SEARCH_CONTENT)
 class Process:
     def __init__(self,
                  logger=cy_kit.singleton(LoggerService),
                  search_engine: SearchEngine = cy_kit.singleton(SearchEngine),
                  content_service=cy_kit.singleton(ContentService),
-                 mongodb_service=cy_kit.singleton(MongodbService)
+                 mongodb_service=cy_kit.singleton(MongodbService),
+                 local_api_service=cy_kit.singleton(LocalAPIService)
 
                  ):
         self.logger = logger
@@ -49,6 +50,7 @@ class Process:
         self.file_services = mongodb_service
         self.content_service = content_service
         self.mongodb_service = mongodb_service
+        self.local_api_service =local_api_service
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         rel_file_path = msg_info.Data["MainFileId"].split("://")[1]
