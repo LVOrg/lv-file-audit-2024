@@ -1,5 +1,7 @@
 import os.path
-
+import pathlib
+import time
+working_dir = pathlib.Path(__file__).parent.__str__()
 from paddleocr import PaddleOCR, draw_ocr
 import numpy as np
 from vietocr.tool.predictor import Predictor
@@ -54,13 +56,25 @@ def combine_bound_rects(rects, dx, dy):
     return combined_rects
 
 
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Do OCR file')
     parser.add_argument('input', help='Image file for OCR')
+    parser.add_argument('verify', help='verify file for OCR')
     args = parser.parse_args()
     img_path = args.input
+    count=100
+    while not os.path.isfile(img_path):
+        time.sleep(0.1)
+        count-=1
+
     if not os.path.isfile(img_path):
         print(f"{img_path} was not found")
+        with open(f"{img_path}.log.txt", "wb") as fs:
+            fs.write(f"{img_path} was not found")
+        os.system(f"echo '{args.verify}'>{args.verify}.txt")
+        exit(0)
     else:
         print(f"Do OCR file {img_path}")
         ocr = PaddleOCR(use_angle_cls=True, lang="vi", show_log=False)
@@ -75,9 +89,11 @@ if __name__ == '__main__':
             try:
                 with open(f"{img_path}.txt", "wb") as fs:
                     fs.write("".encode())
+                os.system(f"echo '{args.verify}'>{args.verify}.txt")
                 exit(0)
             except Exception as e:
                 print(e)
+                os.system(f"echo '{args.verify}'>{args.verify}.txt")
                 exit(0)
         for x in result:
             calculate_box += [x[0]]
@@ -90,8 +106,11 @@ if __name__ == '__main__':
             max_y = int(max(boxe[0][1], boxe[1][1], boxe[2][1], boxe[3][1])) + 1
 
             estimate_boxes += [(min_x, min_y, max_x, max_y)]
-        config = Cfg.load_config_from_name('vgg_transformer')
-        config['cnn']['pretrained'] = False
+        # Cfg.load_config_from_file()
+        config =Cfg.load_config_from_file(os.path.join(working_dir,"config-delete","base.yml"))
+        # config = Cfg.load_config_from_name('vgg_transformer')
+        # config.save(os.path.join(working_dir,"config-delete"))
+        config['cnn']['pretrained'] = True
         config['device'] = 'cpu'
         detector = Predictor(config)
         retx_boxes = combine_bound_rects(estimate_boxes, 100, 100)
@@ -102,9 +121,14 @@ if __name__ == '__main__':
             s = detector.predict(inspect_image)
             contents += [s]
         txt = " ".join(contents)
-        print(txt)
+        print(f"save content to file {img_path}.txt")
         try:
+
             with open(f"{img_path}.txt", "wb") as fs:
                 fs.write(txt.encode())
         except Exception as e:
+            with open(f"{img_path}.log.txt", "wb") as fs:
+                fs.write(str(e))
             print(e)
+        os.system(f"echo '{args.verify}'>{args.verify}.txt")
+        print("*****----finished-----*****") # important this is a accord bwteen client and server

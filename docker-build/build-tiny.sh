@@ -11,13 +11,16 @@ web_api_core_file="web-api-core"
 rm -f $web_api_core_file
 echo "
 FROM python:3.10.13-bullseye
+RUN apt update
 RUN apt-get install git
 RUN pip install --upgrade pip
+RUN apt install socat -y
 RUN python3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git --no-cache-dir
 COPY ./../docker-build/requirements/web-api.req.txt /app/web-api.req.txt
 RUN python3 -m pip install -r  /app/web-api.req.txt --no-cache-dir
+RUN apt clean && apt autoclean
 ">>$web_api_core_file
-web_api_core_tag=13
+web_api_core_tag=14
 web_api_core_tag_build="fs.tiny.core."$(tag $web_api_core_tag)
 web_api_core_image="$repository/fs:"$web_api_core_tag_build
 buildFunc $web_api_core_file $repository $image_name $web_api_core_tag_build "python:3.10-alpine" "alpine"
@@ -54,8 +57,9 @@ COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cyx /app/cyx
+COPY ./../cy_consumers /app/cy_consumers
 RUN apt clean && apt autoclean">>$web_api_file
-web_api_tag=19
+web_api_tag=3
 web_api_tag_build="fs.tiny."$(tag $web_api_core_tag).$web_api_tag
 web_api_image=web:"apps".$web_api_core_tag_build
 buildFunc $web_api_file $repository $image_name $web_api_tag_build "python:3.10-alpine" "alpine"

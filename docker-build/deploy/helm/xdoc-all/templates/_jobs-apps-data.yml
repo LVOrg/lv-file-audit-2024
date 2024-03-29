@@ -1,30 +1,6 @@
 {{- define "jobs-apps-data"  -}}
 ---
 data:
-  #job_image_ocr.py
-  #job_pdf_search.py
-  #files_extract_text_from_pdf.py
-  #job_image_search.py
-#  - name: job-image-ocr
-#    endpoint: job_image_ocr.py
-#    description: watch all upload from lv-doc-service
-#    image: {{.images.jobs.large}}
-#  - name: job-image-search
-#    endpoint: job_image_search.py
-#    description: watch all upload from lv-doc-service
-#    image: {{.images.jobs.large}}
-#  - name: job-pdf-search
-#    endpoint: job_pdf_search.py
-#    description: watch all upload from lv-doc-service
-#    image: {{.images.jobs.slim}}
-#  - name: files-extract-text-from-pdf
-#    endpoint: files_extract_text_from_pdf.py
-#    description: watch all upload from lv-doc-service
-#    image: {{.images.jobs.slim}}
-#  - name: job-office-search
-#    endpoint: job_office_search.py
-#    description: watch all upload from lv-doc-service
-#    image: {{.images.jobs.slim}}
   - name: files-upload
     endpoint: files_upload.py
     description: watch all upload from lv-doc-service
@@ -58,67 +34,13 @@ data:
     cpu_limits: {{.images.jobs.cpu_limits}}
     mem_requests: {{.images.jobs.mem_requests}}
     mem_limits: {{.images.jobs.mem_limits}}
-##  - name: files-ocr-pdf
-##    endpoint: files_ocr_pdf.py
-##    image: {{.images.jobs.large}}
-#  - name: files-generate-thumbs
-#    endpoint: files_generate_thumbs.py
-#    image: {{.images.jobs.slim}}
-#    replicas: {{.images.jobs.replicas}}
-#  - name: files-save-custom-thumb
-#    endpoint: files_save_custom_thumb.py
-#    image: {{.images.jobs.slim}}
-#    replicas: {{.images.jobs.replicas}}
-#  - name: files-save-default-thumb
-#    endpoint: files_save_default_thumb.py
-#    image: {{.images.jobs.slim}}
-#    replicas: {{.images.jobs.replicas}}
-#  - name: files-text-from-pdf
-#    endpoint: files_text_from_pdf.py
-#    image: {{.images.jobs.large}}
-#    replicas: {{.images.jobs.replicas}}
-#    cpu_requests: {{.images.jobs.cpu_requests}}
-#    cpu_limits: {{.images.jobs.cpu_limits}}
-#    mem_requests: {{.images.jobs.mem_requests}}
-#    mem_limits: {{.images.jobs.mem_limits}}
-##  - name: files-save-orc-pdf-file
-##    endpoint: files_save_orc_pdf_file.py
-##    image: {{.images.jobs.slim}}
-#  - name: files-save-search-engine
-#    endpoint: files_save_search_engine.py
-#    image: {{.images.jobs.slim}}
-#    replicas: {{.images.jobs.replicas}}
-#  - name: files-extrac-text-from-image
-#    endpoint: files_extrac_text_from_image.py
-#    image: {{.images.jobs.large}}
-#    replicas: {{.images.jobs.replicas}}
-#    cpu_requests: {{.images.jobs.cpu_requests}}
-#    cpu_limits: {{.images.jobs.cpu_limits}}
-#    mem_requests: 4Gi
-#    mem_limits: 4Gi
-#  - name: files-clean-up
-#    endpoint: files_clean_up.py
-#    replicas: 1
-#    image: {{.images.jobs.slim}}
-#  - name: files-move-tenants
-#    endpoint: files_move_tenants.py
-#    image: {{.images.jobs.slim}}
-#    replicas: 1
-#  - name: files-clean-unfinished
-#    endpoint: files_clean_unfinish.py
-#    replicas: 1
-#    image: {{.images.jobs.slim}}
-#  - name: fix-hanger-content
-#    endpoint: fix_hanger_content.py
-#    replicas: 1
-#    image: {{.images.jobs.slim}}
-#  - name: app-reindex-all-data
-#    endpoint: app_re_index_all_data.py
-#    image: {{.images.jobs.slim}}
-#    replicas: 1
-#  - name: files-fix-data-search
-#    endpoint: files_fix_data_search.py
-#    image: {{.images.jobs.slim}}
+  - name: files-generate-content-from-image
+    endpoint: files_generate_content_from_image.py
+    image: {{.images.jobs.tiny}}
+    container:
+      image: {{.images.jobs.ocr}}
+      name: orc-container
+
 crons:
 #  - name: files-move-from-db-to-disk
 #    endpoint: files_move_from_db_to_disk.py

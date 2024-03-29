@@ -2,16 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ansible/elasticsearch-one-node" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ansible/k8s-master" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ansible/k8s-pre-bootstrap" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ansible/kubernetes-master" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ansible/mongodb" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ansible/mongodb-one-node" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/data-dict/vietnamese-wordlist" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/detectron2" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/docker-build/test/charts" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/docker-build/test/kube-prometheus-grafana" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/uniconvertor" vcs="Git" />
   </component>
 </project>

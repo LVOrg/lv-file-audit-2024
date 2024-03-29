@@ -52,6 +52,10 @@ spec:
       imagePullSecrets:
         - name: harbor-secret-registry
       volumes:
+        - name: tmp-files
+          emptyDir: { }
+        - name: socat-share
+          emptyDir: { }
         - name: {{$storage.name}}
         {{if hasKey  $storage "className"}}
           persistentVolumeClaim:
@@ -67,12 +71,24 @@ spec:
             server: {{$storage_files.server}}
             path: {{$storage_files.directory}}
         {{end}}
+
       tolerations:
         - key: "app"
           operator: "Equal"
           value: "xdoc"
           effect: "NoSchedule"
       containers:
+
+        {{ if $value.container }}
+        - name: {{$value.container.name}}
+          image: {{$value.container.image}}
+          volumeMounts:
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
+        {{end}}
+
         - args:
             - python3
             - /app/cy_consumers/{{$value.endpoint}}
@@ -111,10 +127,16 @@ spec:
           volumeMounts:
             - mountPath: {{$fileJob.mountPath}}
               name:  {{$storage.name}}
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
             {{ if $storage_files }}
             - mountPath: /mnt/files
               name: {{$storage_files.name}}
             {{end}}
+
+
 ---
 {{- end }}
 ---

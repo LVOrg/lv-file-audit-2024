@@ -1,9 +1,11 @@
 images:
   web: nttlong/fs:fs.tiny.amd.13.18
   jobs:
+    tiny: nttlong/fs:fs.tiny.amd.14.2
     slim: nttlong/fs:fs.slim.amd.11.5
     medium: nttlong/fs:fs.medium.amd.14.2
     large: nttlong/fs:fs.large.amd.11.4
+    ocr: nttlong/fs:fs.ocr.amd.2.2
     replicas: 2
     cpu_requests: 0.5
     mem_requests: 2Gi

@@ -41,3 +41,4 @@ secret*
 /env_vn_sugesstion/
 /env_webapi/
 /tmp-files/
+/docker-build/build-ocr-cache-dataset/
