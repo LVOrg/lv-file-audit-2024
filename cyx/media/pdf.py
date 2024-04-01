@@ -10,6 +10,8 @@ import pdfplumber
 
 import glob
 import PyPDF2.errors
+import PyPDF2
+
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfMerger
 import PyPDF2.errors
 from pdfminer.pdfpage import PDFPage

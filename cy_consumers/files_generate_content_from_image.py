@@ -98,9 +98,9 @@ class Process:
         if not os.path.isfile(text_file) :
             text_file = f"{download_file_path}.txt"
         count = 5
-        # print("process ...")
-        # while not os.path.isfile(text_file) and not os.path.isfile(log_file):
-        #     time.sleep(2)
+        print("process ...")
+        while not os.path.isfile(text_file) and not os.path.isfile(log_file):
+            time.sleep(2)
 
         if os.path.isfile(log_file):
             with open(log_file,"rb") as fs:

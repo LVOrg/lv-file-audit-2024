@@ -20,11 +20,14 @@ data:
   - name: generate-image-from-office
     endpoint: files_generate_image_from_office.py
     description: Generate image from any office file, replicate number should be number of worker
-    image: {{.images.jobs.medium}}
+    image: {{.images.jobs.tiny}}
+    container:
+      image: {{.images.jobs.office}}
+      name: office-container
     replicas: {{.images.jobs.replicas}}
   - name: files-generate-image-from-pdf
     endpoint: files_generate_image_from_pdf.py
-    image: {{.images.jobs.slim}}
+    image: {{.images.jobs.tiny}}
     replicas: {{.images.jobs.replicas}}
   - name: files-generate-image-from-video
     endpoint: files_generate_image_from_video.py
