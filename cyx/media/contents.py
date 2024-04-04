@@ -34,11 +34,11 @@ class ContentsServices:
         from tika import parser
 
         headers = {
-
+            'maxWriteLimit': '2147483647'
         }
         ret = parser.from_file(
             filename=file_path,
-            serverEndpoint=f'{self.config.tika_server}/tika',
+            serverEndpoint=f'http://localhost:9998/tika',
             requestOptions={'headers': headers, 'timeout': 30000}
         )
 

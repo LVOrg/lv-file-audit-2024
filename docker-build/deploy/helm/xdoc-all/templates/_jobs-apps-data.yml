@@ -4,18 +4,28 @@ data:
   - name: files-upload
     endpoint: files_upload.py
     description: watch all upload from lv-doc-service
-    image: {{.images.jobs.slim}}
+    image: {{.images.jobs.tiny}}
     replicate: 1
     #files_save_search_content.py
   - name: files-save-search-content
     endpoint: files_save_search_content.py
     description: watch all upload from lv-doc-service
-    image: {{.images.jobs.slim}}
+    image: {{.images.jobs.tiny}}
     replicate: 1
+  - name: files-extract-text-from-pdf
+    endpoint: files_extract_text_from_pdf.py
+    description: watch all upload from lv-doc-service
+    image: {{.images.jobs.tiny}}
+    container:
+      image: apache/tika
+      name: tika-container
   - name: files-extract-text-from-office
     endpoint: files_extract_text_from_office.py
     description: watch all upload from lv-doc-service
-    image: {{.images.jobs.slim}}
+    image: {{.images.jobs.tiny}}
+    container:
+      image: apache/tika
+      name: tika-container
 #    replicate: 2
   - name: generate-image-from-office
     endpoint: files_generate_image_from_office.py
@@ -39,6 +49,12 @@ data:
     mem_limits: {{.images.jobs.mem_limits}}
   - name: files-generate-content-from-image
     endpoint: files_generate_content_from_image.py
+    image: {{.images.jobs.tiny}}
+    container:
+      image: {{.images.jobs.ocr}}
+      name: orc-container
+  - name: files-extract-images-from-pdf-by-ocr
+    endpoint: files_extract_images_from_pdf_by_ocr.py
     image: {{.images.jobs.tiny}}
     container:
       image: {{.images.jobs.ocr}}

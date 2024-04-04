@@ -2,50 +2,47 @@ import pathlib
 import shutil
 import sys
 import typing
+import uuid
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(working_dir)
 sys.path.append("/app")
+import cy_file_cryptor.wrappers
 import cyx.framewwork_configs
-import fitz
-from PIL import Image
 
 import cy_kit
 import cyx.common.msg
 from cyx.common.msg import MessageService, MessageInfo
-from cyx.common import config
+
 from cyx.common.rabitmq_message import RabitmqMsg
+from cyx.common import config
 
 msg = cy_kit.singleton(RabitmqMsg)
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
-from cy_xdoc.services.files import FileServices
-from cyx.content_services import ContentService, ContentTypeEnum
-from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
-from cyx.media.contents import ContentsServices
-from cyx.content_services import ContentService, ContentTypeEnum
-# https://github.com/pbcquoc/vietocr/blob/master/vietocr/predict.py
+from cyx.local_api_services import LocalAPIService
+from cyx.socat_services import SocatClientService
 import os
 
 __check_id__ = {}
 
-from cyx.easy_ocr import EasyOCRService
-from cy_xdoc.services.search_engine import SearchEngine
+import fitz
+from PIL import Image
 
 
 def vertical_append(images_list: typing.List[str], out_put: str) -> str:
     images = []
     for image_path in images_list:
         images.append(Image.open(image_path))
-    if len(images)==0:
-        return  None
+    if len(images) == 0:
+        return None
     total_height = sum(img.height for img in images)
-    max_width=-1
+    max_width = -1
     try:
         max_width = max(img.width for img in images)
     except Exception as e:
-        return  None
+        return None
 
     new_image = Image.new("RGB", (max_width, total_height))
     y_offset = 0
@@ -54,6 +51,8 @@ def vertical_append(images_list: typing.List[str], out_put: str) -> str:
         y_offset += img.height
     new_image.save(out_put)
     return out_put
+
+
 def extract_all_images(pdf_file, extract_to) -> typing.List[str]:
     doc = fitz.open(pdf_file)
 
@@ -65,7 +64,7 @@ def extract_all_images(pdf_file, extract_to) -> typing.List[str]:
         image_list = page.get_images()
         # Access the first page (index starts from 0)
         image_index = 0
-        image_path = os.path.join(extract_to,f"page_{page_index:04d}.png")
+        image_path = os.path.join(extract_to, f"page_{page_index:04d}.png")
         image_paths = []
         for img in image_list:
 
@@ -95,34 +94,85 @@ def extract_all_images(pdf_file, extract_to) -> typing.List[str]:
                 print(e)
                 pass
             image_index += 1
-        if len(image_paths)==0:
+        if len(image_paths) == 0:
             return None
-        vertical_append(image_paths,image_path)
-        ret+=[image_path]
+        vertical_append(image_paths, image_path)
+        ret += [image_path]
         page_index += 1
     return ret
 
 
-@broker(message=cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF)
+@broker(message=cyx.common.msg.MSG_FILE_EXTRACT_IMAGES_FROM_PDF)
 class Process:
     def __init__(self,
-                 file_services=cy_kit.singleton(FileServices),
-                 content_service=cy_kit.singleton(ContentService),
                  mongodb_service=cy_kit.singleton(MongodbService),
-                 extract_text_service=cy_kit.singleton(ContentsServices),
                  logger=cy_kit.singleton(LoggerService),
-                 easy_ocr_service=cy_kit.singleton(EasyOCRService),
-                 search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
+                 local_api_service=cy_kit.singleton(LocalAPIService),
+                 socat_client_service = cy_kit.singleton(SocatClientService)
                  ):
-        self.file_services = file_services
-        self.extract_text_service = extract_text_service
-        self.content_service = content_service
         self.logger = logger
         self.mongodb_service = mongodb_service
-        self.easy_ocr_service = easy_ocr_service
-        self.search_engine = search_engine
+        self.working_dir = pathlib.Path(__file__).parent.parent.__str__()
+        self.temp_dir = "/tmp-files"
+        self.local_api_service = local_api_service
+        self.socat_client_service = socat_client_service
+        self.socat_client_service.start(3456)
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        rel_file_path = msg_info.Data["MainFileId"].split("://")[1]
+        local_share_id = None
+        token = None
+        server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        if not msg_info.Data.get("local_share_id"):
+            token = self.local_api_service.get_access_token("admin/root", "root")
+            server_file += f"?token={token}"
+        else:
+            local_share_id = msg_info.Data["local_share_id"]
+            server_file += f"?local-share-id={local_share_id}&app-name={msg_info.AppName}"
+        download_file = os.path.join(self.temp_dir, str(uuid.uuid4()))
+        with open(server_file, "rb") as fs:
+            with open(download_file, "wb") as fd:
+                fd.write(fs.read())
+        out_put_dir_name = str(uuid.uuid4())
+        out_put_dir = os.path.join(self.temp_dir,out_put_dir_name)
+        os.makedirs(out_put_dir,exist_ok=True)
+        image_files = extract_all_images(download_file,out_put_dir)
+        search_content_file = f"{rel_file_path}.images.search.es"
+        result_file = f"{download_file}.txt"
+        print(f"Ssave file {result_file} to {search_content_file} ...")
+        for x in image_files:
+            ocr_command = f"python3.9 /cmd/ocr.py {x}"
+            ret = self.socat_client_service.send(ocr_command)
+            txt_file= f"{x}.txt"
+            if os.path.isfile(txt_file):
+                with open(txt_file,"rb") as fs:
+                    if not os.path.isfile(result_file):
+                        with open(result_file,"wb") as fw:
+                            fw.write(fs.read()+" ".encode())
+                    else:
+                        with open(result_file,"ab") as fw:
+                            fw.write(fs.read()+" ".encode())
+
+
+
+
+            self.local_api_service.send_file(
+                file_path = result_file,
+                token=token,
+                local_share_id=local_share_id,
+                app_name=msg_info.AppName,
+                rel_server_path=search_content_file
+
+            )
+            msg.emit_child_message(
+                parent_message=msg_info,
+                message_type=cyx.common.msg.MSG_FILE_SAVE_SEARCH_CONTENT,
+                resource=search_content_file
+            )
+
+            print(f"Save file {result_file} to {search_content_file} is ok")
+
+    def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         resource = self.content_service.get_master_resource(msg_info)
         print(msg_info)
         print("-------------------------------")

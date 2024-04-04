@@ -36,15 +36,17 @@ from cyx.loggers import LoggerService
 import elasticsearch.exceptions
 from cyx.repository import Repository
 from cyx.local_api_services import LocalAPIService
-
-
+from cyx.lv_ocr_services import LVOCRService
+from cy_utils import texts
 @broker(message=cyx.common.msg.MSG_FILE_GENERATE_CONTENT_FROM_IMAGE)
 class Process:
     def __init__(self,
                  logger=cy_kit.singleton(LoggerService),
                  local_api_service=cy_kit.singleton(LocalAPIService),
                  os_command_service=cy_kit.singleton(OSCommandService),
-                 socat_client_service = cy_kit.singleton(SocatClientService)
+                 socat_client_service = cy_kit.singleton(SocatClientService),
+                 lv_ocr_service = cy_kit.singleton(LVOCRService),
+                 search_engine: SearchEngine = cy_kit.singleton(SearchEngine)
 
                  ):
         self.logger = logger
@@ -53,13 +55,54 @@ class Process:
 
         self.os_command_service = os_command_service
         self.socat_client_service = socat_client_service
+        self.lv_ocr_service = lv_ocr_service
         self.socat_client_service.start(8765)
+        self.search_engine = search_engine
         print("OK")
 
+    def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+        rel_file_path: str = msg_info.Data["MainFileId"].split("://")[1]
+        print(f"process file {rel_file_path} ...")
+        local_share_id = None
+        token = None
+        server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        # es_server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path+".search.es"
+        if not msg_info.Data.get("local_share_id"):
+            token = self.local_api_service.get_access_token("admin/root", "root")
+            server_file += f"?token={token}"
+        else:
+            local_share_id = msg_info.Data["local_share_id"]
+            server_file += f"?local-share-id={local_share_id}&app-name={msg_info.AppName}"
+        file_ext = pathlib.Path(rel_file_path).suffix
+        download_file_path = os.path.join("/tmp-files", str(uuid.uuid4()) + file_ext)
+        try:
+            with open(server_file, "rb") as fs:
+                with open(download_file_path, "wb") as ft:
+                    ft.write(fs.read())
+        except requests.exceptions.HTTPError as ex:
+            if ex.response.status_code in [404,500]:
+                msg.delete(msg_info)
+                return
+        text = self.lv_ocr_service.do_orc(download_file_path)
+        content = texts.well_form_text(text)
+        db_context = Repository.files.app(msg_info.AppName)
+        upload_item = db_context.context.find_one(
+            db_context.fields.id == msg_info.Data["_id"]
+        )
 
+        self.search_engine.update_content(
+            app_name=msg_info.AppName,
+            id=msg_info.Data["_id"],
+            content=content,
+            meta_data=None,
+            data_item=upload_item
+        )
+        os.remove(download_file_path)
+        msg.delete(msg_info)
+        print(f"process file {rel_file_path} is complete")
     def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         self.socat_client_service.send_command("echo ok",8765)
-    def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
+    def on_receive_msg_old(self, msg_info: MessageInfo, msg_broker: MessageService):
 
         rel_file_path: str = msg_info.Data["MainFileId"].split("://")[1]
         print(f"process file {rel_file_path}")

@@ -301,7 +301,7 @@ class SearchEngine:
 
                     cy_es.buiders.vn_on_accent_content],
                 index=self.get_index(app_name),
-                highlight=highlight_expr,
+                highlight=None,
                 filter=search_expr,
                 skip=skip,
                 sort=sort

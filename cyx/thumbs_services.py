@@ -43,6 +43,8 @@ class ThumbService:
         return ext_file
 
     async def get_async(self, app_name: str, directory: str, size: int):
+        import fitz
+        fitz.__version__
         upload_id= directory.split('/')[0]
         cache_key = f"{self.cache_group}/{app_name}/{upload_id}/get_async"
         ret = self.memcache_services.get_str(cache_key)

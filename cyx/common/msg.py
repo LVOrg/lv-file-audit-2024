@@ -55,6 +55,8 @@ MSG_FILE_GENERATE_CONTENT_FROM_OFFICE = "files.upload.generate.content.from.offi
 MSG_FILE_GENERATE_CONTENT_FROM_IMAGE = "files.upload.generate.content.from.image"
 MSG_FILE_GENERATE_CONTENT_FROM_PDF = "files.upload.generate.content.from.pdf"
 MSG_FILE_OCR_CONTENT_FROM_PDF = "files.upload.ocr.content.from.pdf"
+MSG_FILE_EXTRACT_IMAGES_FROM_PDF = "files.extract.images.from.pdf"
+MSG_FILE_EXTRACT_IMAGES_FROM_OFFICE = "files.extract.images.from.office"
 MSG_FILE_GENERATE_CONTENT_FROM_VIDEO = "files.upload.generate.content.from.video"
 MSG_FILE_SAVE_SEARCH_CONTENT="file.save.search.content"
 """

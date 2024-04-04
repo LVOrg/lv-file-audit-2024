@@ -35,7 +35,6 @@ azure-identity
 azure-keyvault-secrets
 pyOpenSSL
 cryptography
-PyCrypto
 requests-kerberos
 tqdm
 webp
@@ -43,3 +42,6 @@ pillow
 google-generativeai
 spacy
 chardet
+pdfplumber
+PyPDF2
+PyMuPDF

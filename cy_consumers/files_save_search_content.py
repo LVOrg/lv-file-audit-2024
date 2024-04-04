@@ -22,15 +22,11 @@ from cyx.repository import Repository
 
 msg = cy_kit.singleton(RabitmqMsg)
 
-content_services = cy_kit.singleton(ContentsServices)
-content, info = content_services.get_text(__file__)
 
 from cyx.common.msg import broker
 from cyx.loggers import LoggerService
 from cy_utils import texts
-from cy_xdoc.services.files import FileServices
 from cy_xdoc.services.search_engine import SearchEngine
-from cyx.content_services import ContentService, ContentTypeEnum
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
 
@@ -40,7 +36,6 @@ class Process:
     def __init__(self,
                  logger=cy_kit.singleton(LoggerService),
                  search_engine: SearchEngine = cy_kit.singleton(SearchEngine),
-                 content_service=cy_kit.singleton(ContentService),
                  mongodb_service=cy_kit.singleton(MongodbService),
                  local_api_service=cy_kit.singleton(LocalAPIService)
 
@@ -48,7 +43,7 @@ class Process:
         self.logger = logger
         self.search_engine = search_engine
         self.file_services = mongodb_service
-        self.content_service = content_service
+
         self.mongodb_service = mongodb_service
         self.local_api_service =local_api_service
 
@@ -91,29 +86,7 @@ class Process:
         )
         msg.delete(msg_info)
 
-    def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
-        resource = self.content_service.get_resource(msg_info)
-        print(msg_info)
-        print("---------------------------------")
-        print(resource)
-        try:
-            content = self.get_content(resource)
-            self.search_engine.replace_content(
-                app_name=msg_info.AppName,
-                id=msg_info.Data.get("_id"),
-                field_value=content,
-                field_path="content"
-            )
-            doc_context = self.mongodb_service.db(msg_info.AppName).get_document_context(DocUploadRegister)
-            doc_context.context.update(
-                doc_context.fields.id == msg_info.Data.get("_id"),
-                doc_context.fields.HasSearchContent << True
-            )
-            msg.delete(msg_info)
-        except FileNotFoundError:
-            msg.delete(msg_info)
-        except Exception as e:
-            print(e)
+
 
     def get_content(self, resource):
         with open(resource, "rb") as fs:
