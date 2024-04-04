@@ -56,12 +56,13 @@ class Process:
         self.os_command_service = os_command_service
         self.socat_client_service = socat_client_service
         self.lv_ocr_service = lv_ocr_service
-        self.socat_client_service.start(8765)
+        # self.socat_client_service.start(8765)
         self.search_engine = search_engine
         print("OK")
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
         rel_file_path: str = msg_info.Data["MainFileId"].split("://")[1]
+        self.logger.info(f"process file {rel_file_path} ...")
         print(f"process file {rel_file_path} ...")
         local_share_id = None
         token = None
@@ -80,26 +81,38 @@ class Process:
                 with open(download_file_path, "wb") as ft:
                     ft.write(fs.read())
         except requests.exceptions.HTTPError as ex:
+            self.logger.error(ex)
             if ex.response.status_code in [404,500]:
                 msg.delete(msg_info)
                 return
-        text = self.lv_ocr_service.do_orc(download_file_path)
-        content = texts.well_form_text(text)
-        db_context = Repository.files.app(msg_info.AppName)
-        upload_item = db_context.context.find_one(
-            db_context.fields.id == msg_info.Data["_id"]
-        )
+        try:
+            self.logger.info(f"call lv service {self.lv_ocr_service.url}")
 
-        self.search_engine.update_content(
-            app_name=msg_info.AppName,
-            id=msg_info.Data["_id"],
-            content=content,
-            meta_data=None,
-            data_item=upload_item
-        )
-        os.remove(download_file_path)
-        msg.delete(msg_info)
-        print(f"process file {rel_file_path} is complete")
+            text = self.lv_ocr_service.do_orc(download_file_path)
+            content = texts.well_form_text(text)
+            db_context = Repository.files.app(msg_info.AppName)
+            upload_item = db_context.context.find_one(
+                db_context.fields.id == msg_info.Data["_id"]
+            )
+
+            self.search_engine.update_content(
+                app_name=msg_info.AppName,
+                id=msg_info.Data["_id"],
+                content=content,
+                meta_data=None,
+                data_item=upload_item
+            )
+            db_context.context.update(
+                db_context.fields.id == msg_info.Data["_id"],
+                db_context.fields.HasORCContent<<True
+            )
+            os.remove(download_file_path)
+            msg.delete(msg_info)
+            print(f"process file {rel_file_path} is complete")
+        except Exception as e:
+            self.logger.error(e)
+            print(f"process file {rel_file_path} is error")
+
     def on_receive_msg_delete(self, msg_info: MessageInfo, msg_broker: MessageService):
         self.socat_client_service.send_command("echo ok",8765)
     def on_receive_msg_old(self, msg_info: MessageInfo, msg_broker: MessageService):

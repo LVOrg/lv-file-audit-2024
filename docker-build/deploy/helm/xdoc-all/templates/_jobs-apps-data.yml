@@ -50,9 +50,9 @@ data:
   - name: files-generate-content-from-image
     endpoint: files_generate_content_from_image.py
     image: {{.images.jobs.tiny}}
-    container:
-      image: {{.images.jobs.ocr}}
-      name: orc-container
+#    container:
+#      image: {{.images.jobs.ocr}}
+#      name: orc-container
   - name: files-extract-images-from-pdf-by-ocr
     endpoint: files_extract_images_from_pdf_by_ocr.py
     image: {{.images.jobs.tiny}}

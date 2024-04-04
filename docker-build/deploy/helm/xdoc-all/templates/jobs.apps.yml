@@ -11,6 +11,7 @@
       {{ $rb := $data.config.rabbitmq -}}
       {{ $api := $data.webApi -}}
       {{ $storage := $data.storage -}}
+  {{ $host_map := $data.host_map -}}
   {{ $globalVar := .Files.Get "global/data.yml" | fromYaml -}}
 
   {{ $jobsList:= fromYaml ((include "jobs-apps-data" $globalVar ))  -}}
@@ -49,6 +50,12 @@ spec:
       labels:
         app: files-{{$value.name}}
     spec:
+      {{if $host_map}}
+      hostAliases:
+        - ip: "{{$host_map.ip}}"
+          hostnames:
+            - "{{$host_map.host}}"
+      {{end}}
       imagePullSecrets:
         - name: harbor-secret-registry
       volumes:
@@ -104,6 +111,8 @@ spec:
             - host_url=$(web_api_url)
             - file_storage_path=/mnt/files
             - private_web_api=$(private_web_api)
+            - ocr_api=$(ocr_api)
+            - ocr_token=$(ocr_token)
             {{if not $storage_files}}
             - services=""
             {{end}}

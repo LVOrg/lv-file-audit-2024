@@ -368,7 +368,7 @@ class DocUploadRegister:
     HasORCContent: typing.Optional[bool]
     HasORCContentV2: typing.Optional[bool]
     IsEncryptContent: typing.Optional[bool]
-
+    IsLvOrc: typing.Optional[bool]
 
 
 @cy_docs.define(

@@ -52,6 +52,7 @@ from cyx.local_api_services import LocalAPIService
 
 from cyx.common.jwt_utils import TokenVerifier
 from cyx.local_file_caching_services import LocalFileCachingService
+from  cyx.docs_contents_services import DocsContentsServices
 class BaseController:
     msg_service = cy_kit.singleton(RabitmqMsg)
     file_service: FileServices = cy_kit.singleton(FileServices)
@@ -83,6 +84,7 @@ class BaseController:
     token_verifier: TokenVerifier = cy_kit.singleton(TokenVerifier)
     share_key = cyx.common.config.jwt.secret_key
     local_file_caching_service = cy_kit.singleton(LocalFileCachingService)
+    docs_contents_cervices = cy_kit.singleton(DocsContentsServices)
 
     def __init__(self, request: Request):
         self.request = request

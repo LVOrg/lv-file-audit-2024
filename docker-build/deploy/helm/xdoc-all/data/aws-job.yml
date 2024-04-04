@@ -96,4 +96,11 @@ fileJob:
   vn_suggest_url: vn-suggestion.xdoc:8000
   tika_server: http://tika.xdoc:9998
   web_api_url: https://apps.codx.vn/lvfile
+  private_web_api: http://xdoc.xdoc:8082/lvfile
+  ocr_api: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
+  ocr_token: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+host_map:
+  ip: 192.168.111.248
+  host: api.trogiupluat.vn
+
   #docker run  -v $(pwd)/../share-storage:/ap/share-storage -p 8012:8012 docker.lacviet.vn/xdoc/py310-xdoc:amd.cpu.9.30.7 python3  /app/cy_xdoc/server.py db=mongodb://admin:Lacviet#123@172.16.0.83:27018/admin
