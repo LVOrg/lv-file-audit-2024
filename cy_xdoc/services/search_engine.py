@@ -663,14 +663,14 @@ class SearchEngine:
                 _Privileges = data_item.Privileges
             elif isinstance(data_item, dict):
                 _Privileges = data_item.get("Privileges")
-            seg_content = self.vn.parse_word_segment(
-                content=content
-            )
+            # seg_content = self.vn.parse_word_segment(
+            #     content=content
+            # )
             _Privileges = json_data_item.get("Privileges") or _Privileges
             if isinstance(_Privileges, cy_docs.DocumentObject):
                 _Privileges = _Privileges.to_json_convertable()
             meta_info = (meta_info or es_doc.source.get('meta_info')) or json_data_item.get('meta_data')
-            meta_data = meta_data or es_doc.source['meta_data']
+            meta_data = meta_data or es_doc.source.get('meta_data')
             return cy_es.update_doc_by_id(
                 client=self.client,
                 index=self.get_index(app_name),
@@ -687,7 +687,8 @@ class SearchEngine:
                 )
             )
         else:
-            content = original_content + "\n" + content
+            if not replace_content:
+                content = original_content + "\n" + content
             _Privileges = None
             if hasattr(data_item, "Privileges"):
                 _Privileges = data_item.Privileges

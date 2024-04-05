@@ -612,6 +612,20 @@ class ESDocumentObjectInfo:
         return ESDocumentObject(self.__data__["_source"])
 
 
+import requests
+
+
+def is_closed(client: Elasticsearch, index: str) -> bool | None:
+    url_check = f"{client.transport.get_connection().host}/_cluster/state/metadata"
+    response = requests.get(url_check)
+    response.raise_for_status()
+    data = response.json()
+    if data['metadata']['indices'].get(index):
+        return data['metadata']['indices'][index]['state'] == "closed"
+    else:
+        return None
+
+
 def get_doc(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> ESDocumentObjectInfo:
     index = index.lower()
     try:

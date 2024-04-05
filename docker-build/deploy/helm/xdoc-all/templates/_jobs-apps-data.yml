@@ -61,6 +61,9 @@ data:
       name: orc-container
 
 crons:
+  - name: re-ocr
+    endpoint: ocr.py
+    image: {{.images.jobs.tiny}}
 #  - name: files-move-from-db-to-disk
 #    endpoint: files_move_from_db_to_disk.py
 #    description: watch all upload from lv-doc-service

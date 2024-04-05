@@ -6,6 +6,8 @@ __sepilcal_chacters__ = [
     "\r"
 ]
 def well_form_text(content:typing.Optional[str])->typing.Optional[str]:
+    if content is None:
+        return ""
     global  __sepilcal_chacters__
     ret = content
     for x in __sepilcal_chacters__:

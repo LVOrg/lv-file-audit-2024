@@ -61,7 +61,12 @@ class Process:
         print("OK")
 
     def on_receive_msg(self, msg_info: MessageInfo, msg_broker: MessageService):
-        rel_file_path: str = msg_info.Data["MainFileId"].split("://")[1]
+        rel_file_path = None
+        try:
+            rel_file_path: str = msg_info.Data["MainFileId"].split("://")[1]
+        except:
+            msg.delete(msg_info)
+            return
         self.logger.info(f"process file {rel_file_path} ...")
         print(f"process file {rel_file_path} ...")
         local_share_id = None

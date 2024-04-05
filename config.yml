@@ -109,7 +109,8 @@ elastic_search__:
   field_content: content_bm25
 elastic_search:
   server:
-    - http://192.168.18.36:9200
+    - http://172.16.7.244:9200
+    #- http://192.168.18.36:9200
 #    - http://192.168.18.234:31949
   index: lv-files-server-v2
   prefix_index: lv-codx
@@ -201,3 +202,44 @@ private_web_api: http://172.16.7.99/lvfile
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/files
 ocr_api: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
 ocr_token: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+process_services:
+  image:
+    content:
+      type: web-api
+      url: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
+      headers:
+        Api_key: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+        Api-Version: "1.0"
+      file: file
+      response: "Data.Content"
+  video:
+    image:
+      type: socat
+      port: 1111
+      command: python3 /cmd/video_image.py
+  pdf:
+    image:
+      type: socat
+      port: 1112
+      command: python3 /cmd/pdf_image.py
+    content:
+      type: web-api
+      url: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
+      headers:
+        Api_key: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+        Api-Version: "1.0"
+      file: file
+      response: "Data.Content"
+  office:
+    image:
+      type: socat
+      port: 1113
+      command: python3 /cmd/office_image.py
+    content:
+      type: tika
+
+
+
+
+
+

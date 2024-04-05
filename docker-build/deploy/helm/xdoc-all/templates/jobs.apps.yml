@@ -111,8 +111,7 @@ spec:
             - host_url=$(web_api_url)
             - file_storage_path=/mnt/files
             - private_web_api=$(private_web_api)
-            - ocr_api=$(ocr_api)
-            - ocr_token=$(ocr_token)
+
             {{if not $storage_files}}
             - services=""
             {{end}}

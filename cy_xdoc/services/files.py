@@ -133,7 +133,9 @@ class FileServices:
                 doc.fields.DocType,
                 doc.fields.HasSearchContent,
                 doc.fields.ThumbnailsAble,
-                doc.fields.IsEncryptContent
+                doc.fields.IsEncryptContent,
+                doc.fields.IsLvOcrError,
+                doc.fields.IsSearchEngineError
 
             )
             self.logger.info("Get list of files is OK")

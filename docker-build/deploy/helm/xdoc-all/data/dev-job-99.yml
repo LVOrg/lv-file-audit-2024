@@ -56,7 +56,8 @@ config:
     # When API-File and File-Service create new Tenant they also create new ElasticSearch
     # Index by concat 'prefix_index' and Tenant-Name.
     # Example Tenant-Name is qc, ElasticSearch Index Name is lv-codx_qc
-    server: 'http://192.168.18.36:9200'
+    server_1: 'http://192.168.18.36:9200'
+    server: http://172.16.7.244:9200
     server__: http://172.16.0.83:9200
     # In poor conditional, we have only one ElasticServer Node
     # if thee's system need more than one node this value will be a list of url separated by comma

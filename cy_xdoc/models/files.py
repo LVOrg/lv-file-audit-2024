@@ -329,6 +329,7 @@ class DocUploadRegister:
     A flag is make sure that 
     """
     SearchEngineErrorLog: typing.Optional[str]
+    IsSearchEngineError: typing.Optional[bool]
     """
     If meta data and privilege insert to Elastic Search Error logs will be here
     """
@@ -369,6 +370,10 @@ class DocUploadRegister:
     HasORCContentV2: typing.Optional[bool]
     IsEncryptContent: typing.Optional[bool]
     IsLvOrc: typing.Optional[bool]
+    IsLvOrc3: typing.Optional[bool]
+    LvOcrErrorLogs: typing.Optional[str]
+    IsLvOcrError: typing.Optional[bool]
+    ProcessInfo: typing.Optional[dict]
 
 
 @cy_docs.define(

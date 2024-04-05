@@ -242,6 +242,20 @@
 
                             </div>
                             <label>
+                                {{$res("ES error")}}
+                            </label>
+
+                            <label>
+                                {{p.IsSearchEngineError || false }}
+                            </label>
+                            <label>
+                                {{$res("OCR error")}}
+                            </label>
+
+                            <label>
+                                {{p.IsLvOcrError || false }}
+                            </label>
+                            <label>
                                 {{$res("Encrypt")}}
                             </label>
                             <labe>

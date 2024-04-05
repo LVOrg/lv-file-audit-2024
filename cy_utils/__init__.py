@@ -1,6 +1,9 @@
 import os.path
+import pathlib
+import typing
 import uuid
-
+import requests
+working_dir = pathlib.Path(__file__).parent.__str__()
 TEM_DIR = None
 
 
@@ -8,8 +11,56 @@ def __verify_temp_dir__():
     global TEM_DIR
     if TEM_DIR is None:
         raise Exception("Thou should call set_temp_dir before use any method in the package")
+import subprocess
+import time
+class ConnectionRefusedException(Exception):
+  """
+  Custom exception class for connection refused errors.
+  """
+  pass
+def execute_command_with_polling(command, command_handler=None):
+    """
+  Executes a command line and prints output while it's running.
 
+  Args:
+      command: A string representing the command to execute.
+  """
+    try:
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        ret_text = ""
+        while process.poll() is None:
+            # Check for new output periodically (adjust interval as needed)
+            try:
+                line = process.stdout.readline().decode()
+                print(line)
+                if line:
+                    if callable(command_handler):
+                        command_handler(line)
+                    else:
+                        print(line, end='')  # Print without newline to avoid extra line breaks
+                        ret_text += line + "\n"
+            except Exception as e:
+                continue
+            time.sleep(0.1)  # Adjust sleep time for desired polling frequency
 
+        # Wait for the command to finish and get the final output
+        output, error = process.communicate()
+        if output and output != bytes([]):
+            try:
+                if "Connection refused" in output.decode():
+                    return None, output.decode()
+                else:
+                    return ret_text, None
+
+            except Exception as e:
+                raise e
+        if "Connection refused" in ret_text:
+            return None, ret_text
+        return ret_text,None
+    except ConnectionRefusedException as ex:
+        raise ex
+    except Exception as e:
+        print(e)
 def set_temp_dir(dir_path: str):
     global TEM_DIR
     import os
@@ -44,3 +95,106 @@ def new_temp_dir():
     if not os.path.isdir(ret):
         os.makedirs(ret)
     return ret
+
+def socat_ping(port):
+    ret,error =execute_command_with_polling(f"echo 'echo ok'|socat TCP4:localhost:{port} -")
+    return ret,error
+def call_web_api(data, url_file, download_file):
+    """Calls a web API using the provided data.
+
+  Args:
+      data (dict): A dictionary containing API details like URL, headers, file path (optional), and response key (optional).
+
+  Returns:
+      dict: The parsed JSON response data (if successful) or None (if error).
+  """
+
+    # Extract URL, headers, and file upload information
+
+    url = data['url']
+    headers = data['headers']
+    with open(url_file,"rb") as sf:
+        sf.name=download_file
+        files = {'file': sf}
+
+        # Send the POST request
+        response = requests.post(url, headers=headers, files=files)
+        response.raise_for_status()
+        res_data = response.json()
+        res_keys = data["response"].split(".")
+        ret_value = res_data
+        for x in res_keys:
+            ret_value = ret_value[x]
+        return ret_value
+
+from tika import parser
+import urllib.parse
+def call_local_tika(action,action_type, url_file, download_file):
+    fx= os.path.join(working_dir,str(uuid.uuid4()))
+    try:
+        with open(url_file,"rb") as fs:
+            with open(fx,"wb") as fsx:
+                fsx.write(fs.read())
+        try:
+            headers = {
+                'maxWriteLimit': '2147483647'
+            }
+
+            ret = parser.from_file(
+                filename=fx,
+                serverEndpoint=f'http://localhost:9998/tika',
+                requestOptions={'headers': headers, 'timeout': 30000}
+            )
+
+            # ret = parser.from_file(file_path,  requestOptions={'headers': headers, 'timeout': 30000})
+            # import psutil
+            # import signal
+            # for x in psutil.process_iter():
+            #     if x.status() == 'sleeping' and x.__name__() == 'java':
+            #         os.kill(x.pid, signal.SIGKILL)
+            return ret['content']
+        except Exception as ex:
+            raise ex
+        finally:
+            os.remove(fx)
+    except requests.exceptions.HTTPError as ex:
+        if ex.response.status_code==404:
+            return None
+        else:
+            raise ex
+
+
+def call_socat(action,,action_type, url_file, download_file):
+    port = action['port']
+    command = action['command']
+    ok = False
+    while not ok:
+        format_string = "%Y-%d-%m-%H-%M-%S"
+        ret, error = socat_ping(port)
+        if error is None:
+            print("Start ok")
+            return
+        print("Try connect on next 10 second\n")
+        time.sleep(10)
+    print(action)
+
+
+def run_action(action,action_type, url_file, download_file):
+    """
+    This function will call tcp ot http server to resolve command
+    if action return text content the function will return "text","...content receive after run action
+    :param action:
+    :param url_file:
+    :param download_file:
+    :return: content-type:str, content
+    """
+    print(action)
+    if action.get('type') == "web-api":
+        return call_web_api(action,action_type, url_file, download_file)
+    if action.get('type') == "tika":
+        return call_local_tika(action,action_type,url_file,download_file)
+    elif action.get('type')=='socat':
+        return call_socat(action,action_type,url_file,download_file)
+        print(action)
+    else:
+        raise NotImplemented("..")

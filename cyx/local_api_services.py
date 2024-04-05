@@ -1,5 +1,8 @@
 import json
+import os
 import uuid
+
+import pathlib
 
 from cyx.common import config
 
@@ -82,3 +85,25 @@ class LocalAPIService:
             print(f"Image submission successful. Status code: {response.status_code}")
         except requests.exceptions.RequestException as e:
             raise e
+
+
+    def get_download_path(self, upload_item, app_name):
+        rel_file_path = None
+        try:
+            rel_file_path: str = upload_item["MainFileId"].split("://")[1]
+        except:
+            return None, None
+        print(f"process file {rel_file_path} ...")
+        local_share_id = None
+        token = None
+        server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        # es_server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path+".search.es"
+        if not upload_item.get("local_share_id"):
+            token = self.get_access_token("admin/root", "root")
+            server_file += f"?token={token}"
+        else:
+            local_share_id = upload_item["local_share_id"]
+            server_file += f"?local-share-id={local_share_id}&app-name={app_name}"
+        file_ext = pathlib.Path(rel_file_path).suffix
+        download_file_path = os.path.join("/tmp-files", str(uuid.uuid4()) + file_ext)
+        return server_file, download_file_path

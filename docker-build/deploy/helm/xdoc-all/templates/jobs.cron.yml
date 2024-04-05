@@ -6,6 +6,7 @@
 {{ $fileJob := $data.fileJob -}}
 {{ $db := $data.config.db -}}
 {{ $es := $data.config.elastic_search -}}
+{{ $host_map := $data.host_map -}}
 {{ $rb := $data.config.rabbitmq -}}
 {{ $api := $data.webApi -}}
 {{ $storage := $data.storage -}}
@@ -28,6 +29,12 @@ metadata:
 spec:
   template:
     spec:
+      {{if $host_map}}
+      hostAliases:
+        - ip: "{{$host_map.ip}}"
+          hostnames:
+            - "{{$host_map.host}}"
+      {{end}}
       volumes:
         - name: {{$storage.name}}
         {{if hasKey  $storage "className"}}
@@ -47,7 +54,7 @@ spec:
       containers:
         - args:
             - python3
-            - /app/cy_consumers/{{$value.endpoint}}
+            - /app/cy_jobs/{{$value.endpoint}}
             - elastic_search.server=$(elastic_search.server)
             - elastic_search.prefix_index=$(elastic_search.prefix_index)
             - db=$(db)
