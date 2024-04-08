@@ -1,4 +1,6 @@
 import argparse
+import json
+import pathlib
 import subprocess
 import sys
 import os
@@ -24,13 +26,23 @@ if __name__ == '__main__':
     # Execute the command using subprocess
     try:
         subprocess.run(command, check=True)
-        os.system(f"echo '{args.verify}'>{args.verify}.txt")
+        ret= dict(
+            result=os.path.join(
+                args.output,
+                f"{pathlib.Path(args.input).stem}.png")
+        )
+        with open(f"{args.verify}.txt","wb") as ret_fs:
+            ret_fs.write(json.dumps(ret).encode())
+
         print(f"generate image from {args.input} ... to {args.output} successfully!")
 
     except subprocess.CalledProcessError as error:
         str_error = str(error)
-        str_error = str_error.replace("'","\\'")
-        os.system(f"echo '{str_error}'>{args.verify}.txt")
+        ret = dict(
+            error= str_error
+        )
+        with open(f"{args.verify}.txt", "wb") as ret_fs:
+            ret_fs.write(json.dumps(ret).encode())
         print(f"generate image from {args.input} ... to {args.output} fail!", error)
 
     #/usr/bin/soffice --headless --convert-to png --outdir /tmp-files /tmp-files/759d6cb7-83cb-4d92-9b83-711f9733a457.docx

@@ -22,7 +22,7 @@ COPY  ./../env_jobs_slim/lib/python3.10/site-packages /usr/local/lib/python3.10/
 RUN   apt update && apt install python3-opencv -y
 RUN apt clean && apt autoclean
 ">>$job_core_file
-job_core_tag=1
+job_core_tag=2
 job_core_tag_build="fs.cv2.core."$(tag $job_core_tag)
 job_core_image=$repository/$image_name:$job_core_tag_build
 buildFunc $job_core_file $repository $image_name $job_core_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
@@ -35,5 +35,5 @@ ARG TARGETARCH
 ARG OS
 COPY ./../cy-commands /cmd
 RUN apt clean && apt autoclean
-ENTRYPOINT [\"/cmd/server_cv2.sh\"]
+ENTRYPOINT [\"/cmd/server-cv2.sh\"]
 ">$job_slim_file

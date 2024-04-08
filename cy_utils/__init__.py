@@ -1,3 +1,4 @@
+import json
 import os.path
 import pathlib
 import typing
@@ -99,7 +100,7 @@ def new_temp_dir():
 def socat_ping(port):
     ret,error =execute_command_with_polling(f"echo 'echo ok'|socat TCP4:localhost:{port} -")
     return ret,error
-def call_web_api(data, url_file, download_file):
+def call_web_api(data,action_type, url_file, download_file):
     """Calls a web API using the provided data.
 
   Args:
@@ -164,7 +165,7 @@ def call_local_tika(action,action_type, url_file, download_file):
             raise ex
 
 
-def call_socat(action,,action_type, url_file, download_file):
+def call_socat(action,action_type, url_file, download_file):
     port = action['port']
     command = action['command']
     ok = False
@@ -173,10 +174,29 @@ def call_socat(action,,action_type, url_file, download_file):
         ret, error = socat_ping(port)
         if error is None:
             print("Start ok")
-            return
+            break
         print("Try connect on next 10 second\n")
         time.sleep(10)
     print(action)
+    with open(url_file,"rb") as sf:
+        with open(download_file,"wb") as df:
+            df.write(sf.read())
+    command_id = str(uuid.uuid4())
+    output_dir = os.path.join("/tmp-files")
+    cmd = action['command'].replace("{input}",f'{download_file}').replace("{output}","/tmp-files")
+    command_full = f"echo \"{cmd} /socat-share/{command_id}\"|socat TCP4:localhost:{action['port']} -"
+    ret = execute_command_with_polling(command_full)
+    while not os.path.isfile(f"/socat-share/{command_id}.txt"):
+        time.sleep(0.5)
+    ret_data = {}
+    with open(f"/socat-share/{command_id}.txt", "rb") as fs:
+        ret_data = json.loads(fs.read().decode())
+    os.remove(f"/socat-share/{command_id}.txt")
+    if ret_data.get('error'):
+        raise Exception(ret_data.get('error'))
+    else:
+        return ret_data.get("result")
+
 
 
 def run_action(action,action_type, url_file, download_file):

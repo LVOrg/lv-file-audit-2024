@@ -1,5 +1,6 @@
 import json
 import os
+import typing
 import uuid
 
 import pathlib
@@ -87,7 +88,7 @@ class LocalAPIService:
             raise e
 
 
-    def get_download_path(self, upload_item, app_name):
+    def get_download_path(self, upload_item, app_name)->typing.Tuple[str|None,str|None,str|None,str|None,str|None]:
         rel_file_path = None
         try:
             rel_file_path: str = upload_item["MainFileId"].split("://")[1]
@@ -106,4 +107,4 @@ class LocalAPIService:
             server_file += f"?local-share-id={local_share_id}&app-name={app_name}"
         file_ext = pathlib.Path(rel_file_path).suffix
         download_file_path = os.path.join("/tmp-files", str(uuid.uuid4()) + file_ext)
-        return server_file, download_file_path
+        return server_file,rel_file_path, download_file_path, token,local_share_id

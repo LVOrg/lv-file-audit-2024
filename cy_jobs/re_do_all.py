@@ -59,21 +59,26 @@ def get_docs_miss_msg(app_name: str, action_type: str | None = None, limit=10):
 
     ret = list(arg)
     return ret
+
+
 while True:
     apps = Repository.apps.app("admin").context.find({})
     finish = dict()
     _apps = list(apps)
-    action_keys = ["content","image"]
+    action_keys = ["content", "image"]
 
     for app in _apps:
         for action_key in action_keys:
             files_context = Repository.files.app(app.Name)
             files = get_docs_miss_msg(app.Name, action_key)
             for file in files:
-                doc_type = get_doc_type(file[Repository.files.fields.FileExt])
+                file_ext = file[Repository.files.fields.FileExt]
+                if file_ext is None:
+                    file_ext = pathlib.Path(file[Repository.files.fields.FileNameLower]).suffix.replace(".", "")
+                doc_type = get_doc_type(file_ext)
                 if hasattr(config.process_services, doc_type):
                     try:
-                        download_url, download_file = local_api_service.get_download_path(file, app.Name)
+                        download_url, rel_path, download_file, token,share_id = local_api_service.get_download_path(file, app.Name)
 
                         action_info = getattr(config.process_services, doc_type)
                         content = "\n"
@@ -82,21 +87,32 @@ while True:
                                 content = cy_utils.run_action(
                                     action=getattr(action_info, action_key),
                                     url_file=download_url,
+                                    action_type=action_key,
                                     download_file=download_file
                                 )
                             except NotImplemented as ex:
                                 raise ex
                             content = cy_utils.texts.well_form_text(content)
-                        search_engine.update_content(
-                            app_name=app.Name,
-                            id=file.id,
-                            content=content,
-                            replace_content=True
-                        )
+                        if action_key == "content":
+                            search_engine.update_content(
+                                app_name=app.Name,
+                                id=file.id,
+                                content=content,
+                                replace_content=True
+                            )
+                        else:
+                            local_api_service.send_file(
+                                file_path=content,
+                                token=token,
+                                local_share_id=share_id,
+                                app_name= app.Name,
+                                rel_server_path=rel_path
+
+                            )
                         if file[files_context.fields.ProcessInfo] is None:
                             files_context.context.update(
                                 files_context.fields.id == file.id,
-                                files_context.fields.ProcessInfo<< {action_key: dict(
+                                files_context.fields.ProcessInfo << {action_key: dict(
 
                                     IsError=False,
                                     Error="",
@@ -118,7 +134,7 @@ while True:
                         if file[files_context.fields.ProcessInfo] is None:
                             files_context.context.update(
                                 files_context.fields.id == file.id,
-                                files_context.fields.ProcessInfo<< {action_key: dict(
+                                files_context.fields.ProcessInfo << {action_key: dict(
 
                                     IsError=True,
                                     Error=str(ex),
@@ -136,4 +152,3 @@ while True:
 
                                 )
                             )
-

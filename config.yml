@@ -221,7 +221,7 @@ process_services:
     image:
       type: socat
       port: 1112
-      command: python3 /cmd/pdf_image.py
+      command: python3 /cmd/pdf_image.py {input} {output}
     content:
       type: web-api
       url: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
@@ -234,7 +234,7 @@ process_services:
     image:
       type: socat
       port: 1113
-      command: python3 /cmd/office_image.py
+      command: python3 /cmd/office_image.py {input} {output}
     content:
       type: tika
 
