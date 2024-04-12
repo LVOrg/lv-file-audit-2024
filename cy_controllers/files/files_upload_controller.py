@@ -214,17 +214,15 @@ class FilesUploadController(BaseController):
             try:
                 local_share_id = self.local_api_service.generate_local_share_id(app_name=app_name, upload_id=data.id)
                 data.local_share_id = local_share_id
-                self.broker.emit(
-                    app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
-                    data=data
+                self.extract_content_service.save_search_engine(
+                    data = data,
+                    app_name = app_name
                 )
-                print(cyx.common.msg.MSG_FILE_GENERATE_CONTENT)
-                self.broker.emit(
-                    app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE,
-                    data=data
+                self.image_service.generate_image(
+                    data=data,
+                    app_name=app_name
                 )
+
 
 
 

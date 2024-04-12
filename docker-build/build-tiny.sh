@@ -49,7 +49,7 @@ COPY ./../cy_controllers /app/cy_controllers
 COPY ./../cy_services /app/cy_services
 COPY ./../cy_ui /app/cy_ui
 COPY ./../cy_utils /app/cy_utils
-COPY ./../cy_vn /app/cy_vn
+#COPY ./../cy_vn /app/cy_vn
 #COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
 RUN rm -fr /app/cy_vn_suggestion/data
 COPY ./../cy_web /app/cy_web

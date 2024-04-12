@@ -52,6 +52,7 @@ spec:
 #      imagePullSecrets:
 #        - name: harbor-secret-registry
       volumes:
+        - name: content-files
         - name: {{$storage.name}}
           {{if hasKey  $storage "className"}}
           persistentVolumeClaim:
@@ -95,30 +96,33 @@ spec:
             {{if not $storage_files}}
             - services=""
             {{end}}
-          image: {{ $globalVar.images.web}}
-#          livenessProbe:
-#            httpGet:
-#              path: /lvfile/api/healthz
-#              port: 80
-#            initialDelaySeconds: 3
-#            periodSeconds: 10
-#            failureThreshold: 3
-#          readinessProbe:
-#            httpGet:
-#              path: /lvfile/api/healthz
-#              port: 80
-          envFrom:
-            - configMapRef:
-               name: {{$api.configMapName}}
-          name: {{$api.name}}
-          imagePullPolicy: Always #{{$api.pullPolicy}}
+          image: {{ $globalVar.images.web.main}}
           volumeMounts:
-            - mountPath:  {{$api.mountPath}}
+            - mountPath: {{$api.mountPath}}
               name: {{$storage.name}}
             {{ if $storage_files }}
             - mountPath: /mnt/files
               name: {{$storage_files.name}}
             {{end}}
+
+
+          envFrom:
+            - configMapRef:
+               name: {{$api.configMapName}}
+          name: {{$api.name}}
+        {{- range $key, $libs := $globalVar.images.web.libs }}
+        - name: {{$key}}
+          image: {{$libs}}
+          volumeMounts:
+            - mountPath: {{$api.mountPath}}
+              name: {{$storage.name}}
+            {{ if $storage_files }}
+            - mountPath: /mnt/files
+              name: {{$storage_files.name}}
+            {{end}}
+        {{- end }}
+#          imagePullPolicy: Always #{{$api.pullPolicy}}
+
           ports:
             - containerPort: 80
 ---

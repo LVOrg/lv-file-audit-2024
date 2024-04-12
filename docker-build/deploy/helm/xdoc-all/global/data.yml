@@ -1,5 +1,9 @@
 images:
-  web: nttlong/fs:fs.tiny.amd.17.22
+  web:
+    main: nttlong/fs:fs.tiny.amd.19.1
+    libs:
+      thumb: nttlong/fs:fs.thumbs.amd.1
+      tika: apache/tika
   jobs:
     libs:
       office: nttlong/fs:fs.office.amd.1.4

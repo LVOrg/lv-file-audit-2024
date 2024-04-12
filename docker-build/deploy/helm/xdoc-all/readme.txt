@@ -52,6 +52,7 @@ helm --set name=dev-job-99 upgrade --install xdoc-job xdoc-all
 
 helm --set name=lv-job template xdoc-all>>lv-job-test.yml
 helm --set name=dev-job-99 template xdoc-all>>test.yml
+helm --set name=dev-web-99 template xdoc-all>>test-web.yml
 helm --set name=aws-web template xdoc-all>>test.yml
 helm --set name=dev-web-only upgrade --install xdoc-web-1 xdoc/xdoc-all
 helm --set name=dev-web-only upgrade --install xdoc-web-1 xdoc/xdoc-all
