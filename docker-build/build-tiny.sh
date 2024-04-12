@@ -11,22 +11,23 @@ web_api_core_file="web-api-core"
 rm -f $web_api_core_file
 echo "
 FROM python:3.10.13-bullseye
-RUN apt update
-RUN apt-get install git
-RUN pip install --upgrade pip
-RUN apt install socat -y
-RUN python3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git --no-cache-dir
-COPY ./../docker-build/requirements/web-api.req.txt /app/web-api.req.txt
-RUN python3 -m pip install -r  /app/web-api.req.txt --no-cache-dir
+#RUN apt update
+#RUN apt-get install git
+#RUN pip install --upgrade pip
+#RUN apt install socat -y
+#RUN python3 -m pip install git+https://github.com/Sudo-VP/Vietnamese-Word-Segmentation-Python.git --no-cache-dir
+#COPY ./../docker-build/requirements/web-api.req.txt /app/web-api.req.txt
+#RUN python3 -m pip install -r  /app/web-api.req.txt --no-cache-dir
+COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 RUN apt clean && apt autoclean
 ">>$web_api_core_file
-web_api_core_tag=17
+web_api_core_tag=18
 web_api_core_tag_build="fs.tiny.core."$(tag $web_api_core_tag)
 web_api_core_image="$repository/fs:"$web_api_core_tag_build
 buildFunc $web_api_core_file $repository $image_name $web_api_core_tag_build "python:3.10-alpine" "alpine"
 web_api_file="web-api"
 rm -f $web_api_file
-
+du -sh $(pwd)/../env_webapi/lib/python3.10/site-packages/* | sort -h
 echo "ARG BASE
 FROM $web_api_core_image
 #FROM python:3.10.13-bullseye
@@ -59,8 +60,10 @@ COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_jobs /app/cy_jobs
+#RUN python3 -m pip install gradio==3.50.2
+#RUN python3 -m pip install gradio-client==0.15.1
 RUN apt clean && apt autoclean">>$web_api_file
-web_api_tag=17
+web_api_tag=2
 web_api_tag_build="fs.tiny."$(tag $web_api_core_tag).$web_api_tag
 web_api_image=web:"apps".$web_api_core_tag_build
 buildFunc $web_api_file $repository $image_name $web_api_tag_build "python:3.10-alpine" "alpine"

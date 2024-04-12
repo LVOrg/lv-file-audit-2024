@@ -66,7 +66,10 @@
         }
 
         .card-container {
-            overflow: hidden;
+            overflow: visible;
+        }
+        .dropdown-menu li a {
+            white-space: nowrap !important;
         }
 
         img.mirror {
@@ -120,6 +123,9 @@
         .img-container {
             background-image: radial-gradient(circle at -50% 280%, #fff, #000);
             margin: 4px;
+            z-index: -1;
+            overflow: hidden;
+
         }
 
         .header-panel div {
@@ -129,6 +135,11 @@
         .header-panel label {
             min-width: 120px;
             text-align: right
+        }
+        .dropdown-menu {
+            padding: 10px;
+            margin:4px;
+            z-index: 1000000 !important;
         }
     </style>
     <div>
@@ -242,19 +253,13 @@
 
                             </div>
                             <label>
-                                {{$res("ES error")}}
+                                {{$res("Process error")}}
                             </label>
 
                             <label>
-                                {{p.IsSearchEngineError || false }}
-                            </label>
-                            <label>
-                                {{$res("OCR error")}}
+                                {{is_processing_error(p)}}
                             </label>
 
-                            <label>
-                                {{p.IsLvOcrError || false }}
-                            </label>
                             <label>
                                 {{$res("Encrypt")}}
                             </label>
@@ -298,25 +303,9 @@
                                 {{p.CreatedOn|date:'dd-MM-yyyy hh:mm:ss'}}
                             </label>
 
-                            <span>
-                                {{$res('Content')}}
-                            </span>
-                            <p>
-                                <a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
-                                   {{$res("Edit in Desktop application")}}
-                               </a> </br>
-                                <a href="javascript:void(0);" ng-click="doLoadGeminiAssistantWindow(p).then()">
-                                   {{$res("Gemini  assistant")}}
-                               </a>
-                            </p>
 
-                            <span ng-if="p.OcrContentUrl">
-                                {{$res('OCR content')}}
-                            </span>
 
-                            <a ng-if="p.OcrContentUrl" ng-href="{{p.OcrContentUrl}}" target="_blank">
-                                {{$res('view')}}
-                            </a>
+
                             <div style="grid-column: 1/-1">
                                 <div class="layout-rows">
                                     <div>
@@ -324,17 +313,38 @@
                                     </div>
                                     <div class="dock full"></div>
                                     <div>
-                                        <button class="btn btn-link btn-sm" ng-click="doLoadLayoutOCR(p).then()">{{$res('Layout OCR')}} </button>
-                                    </div>
-                                    <div>
-                                        <button class="btn btn-link btn-sm" ng-click="doReadableContent(p).then()">{{$res('Content')}} </button>
-                                    </div>
-                                    <div>
-                                        <button class="btn btn-link btn-sm" ng-click="doShowDetail(p).then()">{{$res('Detail')}} </button>
-                                    </div>
-                                    <div style="position:relative;right:4px;bottom:4px">
-                                        <button class="btn btn-danger btn-sm" ng-click="doDelete(p).then()">{{$res('Delete')}}</button>
-                                    </div>
+                            <div class="dropdown">
+                            <button style="text-wrap:nowrap;border:none !important" class="form-control form-control-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span style="fon-size:8pt">...</span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li><a href="javascript:void(0);" ng-click="showError(p).then()"><b style="color:red">{{$res('Show error')}}</b></a></li>
+                                <li> <a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
+                                   {{$res("Edit in Desktop application")}}
+                               </a> </li>
+                                <li> <a href="javascript:void(0);" ng-click="doLoadGeminiAssistantWindow(p).then()">
+                                   {{$res("Gemini  assistant")}}
+                               </a></li>
+
+                              <li><a href="javascript:void(0);" ng-click="doShowDetail(p).then()">{{$res('Detail')}}</a></li>
+                                <li><a href="javascript:void(0);" ng-click="doReadableContent(p).then()">{{$res('Content')}}</a></li>
+                                <li><a href="javascript:void(0);" ng-click="doDelete(p).then()"><b style="color:red">{{$res('Delete')}}</b></a></li>
+
+                            </ul>
+                          </div>
+                        </div>
+<!--                                    <div>-->
+<!--                                        <button class="btn btn-link btn-sm" ng-click="doLoadLayoutOCR(p).then()">{{$res('Layout OCR')}} </button>-->
+<!--                                    </div>-->
+<!--                                    <div>-->
+<!--                                        <button class="btn btn-link btn-sm" ng-click="doReadableContent(p).then()">{{$res('Content')}} </button>-->
+<!--                                    </div>-->
+<!--                                    <div>-->
+<!--                                        <button class="btn btn-link btn-sm" ng-click="doShowDetail(p).then()">{{$res('Detail')}} </button>-->
+<!--                                    </div>-->
+<!--                                    <div style="position:relative;right:4px;bottom:4px">-->
+<!--                                        <button class="btn btn-danger btn-sm" ng-click="doDelete(p).then()">{{$res('Delete')}}</button>-->
+<!--                                    </div>-->
                                 </div>
 
                             </div>

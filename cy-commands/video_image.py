@@ -1,6 +1,12 @@
-import cv2
+import argparse
+import json
+import pathlib
+import subprocess
+import sys
 import os
+import uuid
 
+import cv2
 def get_middle_frame_and_save(video_file_path, image_file_path):
   """Extracts the middle frame from a video, converts it to PNG, and saves it.
 
@@ -53,19 +59,36 @@ def get_middle_frame_and_save(video_file_path, image_file_path):
 
 def main():
   """Parses command-line arguments and calls the get_middle_frame_and_save function."""
-
-  import argparse
-
-  parser = argparse.ArgumentParser(description="Extract middle frame from video and save as PNG.")
-  parser.add_argument("video_file_path", type=str, help="Path to the input video file.")
-  parser.add_argument("image_file_path", type=str, help="Path to save the extracted frame (PNG format).")
-
-  args = parser.parse_args()
-
   try:
-    get_middle_frame_and_save(args.video_file_path, args.image_file_path)
-  except ValueError as e:
-    print(f"Error: {e}")
+    parser = argparse.ArgumentParser(description='Do OCR file')
+    parser.add_argument('input', help='Image file for OCR')
+    parser.add_argument('output', help='Image file for OCR')
+    parser.add_argument('verify', help='verify file for OCR')
+    # parser = argparse.ArgumentParser(description="Extract middle frame from video and save as PNG.")
+    # parser.add_argument("video_file_path", type=str, help="Path to the input video file.")
+    # parser.add_argument("ouput", type=str, help="Path to save the extracted frame (PNG format).")
+
+    args = parser.parse_args()
+    video_file = args.input
+
+    image_path = os.path.join(args.output,f"{str(uuid.uuid4())}.png")
+    print(f"process file at {video_file} in to {image_path}")
+    get_middle_frame_and_save(video_file, image_path)
+    ret = dict(
+      result=image_path
+    )
+    with open(f"{args.verify}.txt", "wb") as ret_fs:
+      ret_fs.write(json.dumps(ret).encode())
+
+    print(f"generate image from {args.input} ... to {args.output} successfully!")
+  except Exception as error:
+    str_error = str(error)
+    ret = dict(
+      error=str_error
+    )
+    with open(f"{args.verify}.txt", "wb") as ret_fs:
+      ret_fs.write(json.dumps(ret).encode())
+    print(f"generate image from {args.input} ... to {args.output} fail!", error)
 
 if __name__ == "__main__":
   main()

@@ -101,7 +101,7 @@ jwt:
 #tmp_upload_dir: ./tmp
 elastic_search__:
   server:
-    - http://172.16.0.83:9200
+    - http://192.168.18.36:9200
   index: lv-files-server-v2
   prefix_index: qtsc-codx
   index_max_analyzed_offset: 60000000
@@ -109,8 +109,8 @@ elastic_search__:
   field_content: content_bm25
 elastic_search:
   server:
-    - http://172.16.7.244:9200
-    #- http://192.168.18.36:9200
+#    - http://172.16.7.244:9200
+     - http://192.168.18.36:9200
 #    - http://192.168.18.234:31949
   index: lv-files-server-v2
   prefix_index: lv-codx
@@ -216,7 +216,7 @@ process_services:
     image:
       type: socat
       port: 1111
-      command: python3 /cmd/video_image.py
+      command: python3 /cmd/video_image.py  {input} {output}
   pdf:
     image:
       type: socat
@@ -237,7 +237,8 @@ process_services:
       command: python3 /cmd/office_image.py {input} {output}
     content:
       type: tika
-
+process_services_host_1: http://172.16.13.72
+process_services_host: "http://localhost"
 
 
 

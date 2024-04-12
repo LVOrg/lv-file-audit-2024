@@ -1,38 +1,81 @@
-import argparse
-import subprocess
+import pathlib
 import sys
+sys.path.append(pathlib.Path(__file__).parent.__str__())
+
+import uuid
+
+import gradio as gr
 import os
-if __name__ == '__main__':
-    if sys.platform == "linux":
-        import signal
-        signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-    parser = argparse.ArgumentParser(description='Do OCR file')
-    parser.add_argument('input', help='Image file for OCR')
-    parser.add_argument('output', help='Image file for OCR')
-    parser.add_argument('verify', help='verify file for OCR')
-    args = parser.parse_args()
-    if not os.path.isfile(args.input):
-        raise FileNotFoundError(args.input)
-    print(f"generate image from {args.input} ... to {args.output}")
-    command = ["/usr/bin/soffice",
-               "--headless",
-               "--convert-to",
-               "png", "--outdir",
-               f"{args.output}",
-               args.input]
-    print(" ".join(command))
-    # Execute the command using subprocess
+import requests
+import subprocess
+import  libs
+
+def download_file(url, download_to_file):
+    """
+    Downloads a file from the given URL to the specified location.
+
+    Args:
+        url (str): The URL of the file to download.
+        download_location (str): The path to the directory where the file should be saved.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If any error occurs during the download process.
+    """
+
     try:
-        subprocess.run(command, check=True)
-        os.system(f"echo '{args.verify}'>{args.verify}.txt")
-        print(f"generate image from {args.input} ... to {args.output} successfully!")
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Raise an exception for bad status codes
 
-    except subprocess.CalledProcessError as error:
-        str_error = str(error)
-        str_error = str_error.replace("'","\\'")
-        os.system(f"echo '{str_error}'>{args.verify}.txt")
-        print(f"generate image from {args.input} ... to {args.output} fail!", error)
 
-    #/usr/bin/soffice --headless --convert-to png --outdir /tmp-files /tmp-files/759d6cb7-83cb-4d92-9b83-711f9733a457.docx
 
-    #/usr/bin/soffice --headless --convert-to png --outdir "/tmp-files" "/tmp-files/38cdd081-dc5d-4d8d-9e8b-614e3f278c57.docx"
+        with open(download_to_file, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        return download_to_file
+
+    except Exception as e:
+        print(f"An error occurred during download: {e}")
+os.makedirs("/socat-share",exist_ok=True)
+def process_text(text,is_return_base_64_image):
+    try:
+        # Replace this with your desired text processing logic
+        processed_text = text.upper() + " (processed)"
+        file_id = str(uuid.uuid4())
+        file_download = os.path.join("/socat-share",file_id)
+        download_file(text,file_download)
+
+        command = ["/usr/bin/soffice",
+                   "--headless",
+                   "--convert-to",
+                   "png", "--outdir",
+                   f"/socat-share",
+                   f"{file_download}"]
+        txt_command= " ".join(command)
+        libs.execute_command_with_polling(txt_command)
+        os.remove(file_download)
+
+    except Exception as ex:
+        raise ex
+    if is_return_base_64_image:
+        return f"/socat-share/{file_id}.png",f"/socat-share/{file_id}.png"
+    else:
+        return None, f"/socat-share/{file_id}.png"
+
+
+iface = gr.Interface(
+    fn=process_text,
+    inputs=["textbox",gr.Checkbox(label="Return base64 image", value=True)],
+    outputs=["image","textbox"],
+    title="Text Processor",
+    description="Enter text and see it processed!",
+
+)
+
+iface.launch(
+    server_name="0.0.0.0",  # Here's where you specify server name
+    server_port=1113
+)

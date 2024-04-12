@@ -121,9 +121,8 @@ list_of_attrs = [
     MSG_FILE_EXTRACT_TEXT_FROM_IMAGE,
     MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 ]
-import pydantic
+import pydantic #1.10.14
 
-pydantic.__version__
 from pydantic.fields import ModelField
 
 SkipFileProcessingOptions = SkipFileProcessingOptionVirtual

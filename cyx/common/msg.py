@@ -297,8 +297,8 @@ def broker(message: str, allow_resume=False, auto_ack=False, auto_proctect_error
         ins.__set_msg__(message)
         setattr(ins, "__msg_process_fail_count__", 0)
         msg = cy_kit.singleton(RabitmqMsg)
-        from cyx.loggers import LoggerService
-        __logger__ = cy_kit.singleton(LoggerService)
+        # from cyx.loggers import LoggerService
+        # __logger__ = cy_kit.singleton(LoggerService)
         setattr(ins, "__msg_broker__", msg)
 
         def on_receive_msg_(msg_info: MessageInfo):

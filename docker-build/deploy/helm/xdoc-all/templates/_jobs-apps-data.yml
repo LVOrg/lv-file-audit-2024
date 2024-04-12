@@ -1,6 +1,33 @@
 {{- define "jobs-apps-data"  -}}
 ---
 data:
+  - name: files-upload-processing
+    endpoint: re_do_all.py
+    image: {{.images.jobs.tiny}}
+    replicate: 1
+    libs:
+      - name: text-office
+        image: {{.images.jobs.libs.tika}}
+      - name: image-office
+        image: {{.images.jobs.libs.office}}
+      - name: image-pdf
+        image: {{.images.jobs.libs.pdf}}
+      - name: image-video
+        image: {{.images.jobs.libs.video}}
+  - name: files-msg
+    endpoint: files.py
+    image: {{.images.jobs.tiny}}
+    replicate: 1
+    libs:
+      - name: text-office
+        image: {{.images.jobs.libs.tika}}
+      - name: image-office
+        image: {{.images.jobs.libs.office}}
+      - name: image-pdf
+        image: {{.images.jobs.libs.pdf}}
+      - name: image-video
+        image: {{.images.jobs.libs.video}}
+data1:
   - name: files-upload
     endpoint: files_upload.py
     description: watch all upload from lv-doc-service
@@ -60,10 +87,10 @@ data:
       image: {{.images.jobs.ocr}}
       name: orc-container
 
-crons:
-  - name: re-ocr
-    endpoint: ocr.py
-    image: {{.images.jobs.tiny}}
+#crons:
+#  - name: re-ocr
+#    endpoint: ocr.py
+#    image: {{.images.jobs.tiny}}
 #  - name: files-move-from-db-to-disk
 #    endpoint: files_move_from_db_to_disk.py
 #    description: watch all upload from lv-doc-service

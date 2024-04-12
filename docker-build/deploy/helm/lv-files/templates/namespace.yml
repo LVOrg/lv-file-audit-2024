@@ -1,0 +1,6 @@
+{{ toJson .Values }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{.Values.namespace}}

@@ -1,0 +1,4 @@
+gradio
+webp
+chardet
+python-memcached==1.59

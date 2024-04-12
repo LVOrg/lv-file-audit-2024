@@ -12,17 +12,17 @@ import pika
 import os
 import pathlib
 
-log_dir = os.path.join(
-    pathlib.Path(__file__).parent.parent.parent.__str__(),
-    "logs",
-    cyx.common.msg.MSG_FILE_UPLOAD
-
-)
-print(f"logs to {log_dir}")
-logs = cy_kit.create_logs(
-    log_dir=log_dir,
-    name=pathlib.Path(__file__).stem
-)
+# log_dir = os.path.join(
+#     pathlib.Path(__file__).parent.parent.parent.__str__(),
+#     "logs",
+#     cyx.common.msg.MSG_FILE_UPLOAD
+#
+# )
+# print(f"logs to {log_dir}")
+# logs = cy_kit.create_logs(
+#     log_dir=log_dir,
+#     name=pathlib.Path(__file__).stem
+# )
 
 from cyx.cache_service.memcache_service import MemcacheServices
 memcache_service = cy_kit.singleton(MemcacheServices)
@@ -107,7 +107,7 @@ class RabitmqMsg:
 
         def callback(ch, method, properties, body: bytes):
             txt_json = body.decode('utf-8')
-            logs.info(txt_json)
+            print(txt_json)
             data = dict()
             try:
                 data = json.loads(txt_json)
@@ -125,7 +125,8 @@ class RabitmqMsg:
                 msg.parent_tag = parent_tag
                 msg.require_tracking = require_tracking
                 handler(msg)
-            except:
+            except Exception as ex:
+                print(str(ex))
                 if isinstance(self.__channel__,pika.adapters.blocking_connection.BlockingChannel):
                     if self.__channel__.is_open:
                         self.__channel__.basic_ack(delivery_tag=method.delivery_tag)

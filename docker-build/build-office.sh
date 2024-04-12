@@ -39,9 +39,14 @@ rm -f $fs_office_file
 echo "ARG BASE
 FROM $ocr_office_image
 COPY ./../cy-commands /cmd
-ENTRYPOINT [\"/cmd/server-office.sh\"]
+RUN apt-get update --fix-missing
+RUN apt install python3-pip -y
+RUN python3.9 -m pip install gradio
+RUN apt clean && apt autoclean
+ENTRYPOINT [\"python3.9\", \"/cmd/office.py\"]
 ">>$fs_office_file
-fs_office_tag=3
+fs_office_tag=4
 fs_office_tag_build="fs.office."$(tag $ocr_office_tag).$fs_office_tag
 fs_ocr_image=web:"apps".$web_api_core_tag_build
 buildFunc $fs_office_file $repository $image_name $fs_office_tag_build "python:3.10-alpine" "alpine"
+echo "docker run -p 1113:1113  -v /socat-share:/socat-share $repository/$image_name:$fs_office_tag_build"

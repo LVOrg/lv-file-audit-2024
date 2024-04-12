@@ -94,7 +94,7 @@ storage_longhorn:
   namespace: xdoc-storage
 
 fileJob:
-  namespace: xdoc-job-v10
+  namespace: xdoc-job
   configMapName: xdoc-job-config
   replicas: 2
   repository: nttlong/py310-xdoc
@@ -102,5 +102,7 @@ fileJob:
   tag: amd.cpu.9.40.56
   mountPath: /app/share-storage
   vn_suggest_url: vn-suggestion.xdoc-web:8000
-  tika_server: http://tika.xdoc-web:9998
+  tika_server: http://tika.xdoc:9998
   web_api_url: http://172.16.7.91/lvfile
+  private_web_api: http://xdoc.xdoc-web:8082/lvfile
+  cache_server: memcache-service.xdoc-web:11211

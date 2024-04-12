@@ -1,3 +1,4 @@
+import json
 import os.path
 import pathlib
 import threading
@@ -8,11 +9,10 @@ from cyx.cache_service.memcache_service import MemcacheServices
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.mongo_db_services import MongodbService
 from cyx.common import config
-
+from gradio_client import Client
 __version__ = "0.5"
 
-import webp
-from PIL import Image
+
 from cyx.common.rabitmq_message import RabitmqMsg
 
 
@@ -43,8 +43,7 @@ class ThumbService:
         return ext_file
 
     async def get_async(self, app_name: str, directory: str, size: int):
-        import fitz
-        fitz.__version__
+
         upload_id= directory.split('/')[0]
         cache_key = f"{self.cache_group}/{app_name}/{upload_id}/get_async"
         ret = self.memcache_services.get_str(cache_key)
@@ -155,38 +154,29 @@ class ThumbService:
         return ret
 
     def get_thumb_path_from_image(self, in_path, size, main_file_path):
-        """Scales an image while maintaining its aspect ratio.
-
-                Args:
-                    image_path (str): Path to the image file.
-                    new_width (int, optional): Desired width of the scaled image.
-                    new_height (int, optional): Desired height of the scaled image.
-
-                Returns:
-                    Image: The scaled image.
-                """
-
-        ret_image_path = os.path.join(pathlib.Path(main_file_path).parent.__str__(), f"{size}.webp")
-        temp_ret_image_path = os.path.join(pathlib.Path(main_file_path).parent.__str__(), f"{size}_tmp.webp")
-        with Image.open(main_file_path) as img:
-            original_width, original_height = img.size
-            if size > max(original_width, original_height):
-                size = int(max(original_width, original_height))
-            rate = size / original_width
-            w, h = size, int(original_height * rate)
-            if original_height > original_width:
-                rate = size / original_height
-                w, h = int(original_width * rate), size
-            scaled_img = img.resize((w, h))  # High-quality resampling
-
-            from cy_file_cryptor.context import create_encrypt
-            with create_encrypt(ret_image_path):
-                webp.save_image(scaled_img, ret_image_path,
-                                lossless=True)  # Set lossless=False for lossy compression
+        try:
+            txt_json = json.dumps(dict(
+                in_path=in_path,
+                size=size,
+                main_file_path=main_file_path,
+                mem_cache_server = config.cache_server
+            ))
+            client = Client(f"http://172.16.13.72:1114/")
+            _, result = client.predict(
+                txt_json,
+                False,
+                api_name="/predict"
+            )
+        except Exception as ex:
+            print(ex)
+        print(in_path,size,main_file_path)
+        ret = os.path.join(pathlib.Path(in_path).parent.__str__(),f"{size}.webp")
+        if os.path.isfile(ret):
+            return ret
 
 
+        return
 
-            return ret_image_path
 
     async def get_customize_async(self, app_name, directory):
         cache_key = f"{self.cache_group}/{app_name}/{directory}/get_customize_async".replace(" ", "_")

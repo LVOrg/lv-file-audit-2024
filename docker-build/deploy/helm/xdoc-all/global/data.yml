@@ -1,12 +1,20 @@
 images:
-  web: nttlong/fs:fs.tiny.amd.17.10
+  web: nttlong/fs:fs.tiny.amd.17.22
   jobs:
-    tiny: nttlong/fs:fs.tiny.amd.17.17
+    libs:
+      office: nttlong/fs:fs.office.amd.1.4
+      video: nttlong/fs:fs.video.amd.1
+      pdf: nttlong/fs:fs.pdf.amd.2
+      tika: apache/tika
+
+    tiny: nttlong/fs:fs.tiny.amd.18.2
     slim: nttlong/fs:fs.slim.amd.11.4
     medium: nttlong/fs:fs.medium.amd.14.2
     large: nttlong/fs:fs.large.amd.11.4
     ocr: nttlong/fs:fs.ocr.amd.2.2
     office: nttlong/fs:fs.office.amd.1.1
+
+
     replicas: 2
     cpu_requests: 0.5
     mem_requests: 2Gi

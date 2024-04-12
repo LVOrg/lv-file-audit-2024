@@ -12,6 +12,17 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
     listOfFiles = []
     currentAppName = undefined
     hasSelected = false
+    is_processing_error(item) {
+        if (item.ProcessInfo) {
+            if (item.ProcessInfo.content && item.ProcessInfo.content.IsError==true) {
+                return true
+            }
+            if (item.ProcessInfo.image && item.ProcessInfo.image.IsError==true) {
+                return true
+            }
+        }
+        return false;
+    }
     async init() {
 
         this.ui = {
@@ -127,6 +138,12 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
 
 
 
+    }
+    async showError(item) {
+        var r = await import("../errors/index.js");
+        var err = await r.default();
+        err.setItem(item);
+        err.asWindow();
     }
     async doShowWindowAddTags() {
         var r = await import("../tags-editor/index.js");

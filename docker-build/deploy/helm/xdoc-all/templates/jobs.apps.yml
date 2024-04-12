@@ -95,10 +95,23 @@ spec:
             - name: socat-share
               mountPath: /socat-share
         {{end}}
+        {{if $value.libs}}
+        {{- range $key, $libs := $value.libs }}
+        - name: {{$libs.name}}
+          image: {{$libs.image}}
+          volumeMounts:
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
+
+
+        {{- end }}
+        {{end}}
 
         - args:
             - python3
-            - /app/cy_consumers/{{$value.endpoint}}
+            - /app/cy_jobs/{{$value.endpoint}}
             - elastic_search.server=$(elastic_search.server)
             - elastic_search.prefix_index=$(elastic_search.prefix_index)
             - db=$(db)

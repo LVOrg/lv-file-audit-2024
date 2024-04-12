@@ -57,7 +57,7 @@ config:
     # Index by concat 'prefix_index' and Tenant-Name.
     # Example Tenant-Name is qc, ElasticSearch Index Name is lv-codx_qc
     server_1: 'http://192.168.18.36:9200'
-    server: http://172.16.7.244:9200
+    server: 'http://192.168.18.36:9200'
     server__: http://172.16.0.83:9200
     # In poor conditional, we have only one ElasticServer Node
     # if thee's system need more than one node this value will be a list of url separated by comma
@@ -69,7 +69,7 @@ config:
     #Broker server
     #    temp_directory: /app/share-storage
     msg: xyzdsc-2024
-  cache_server: memcache-service.xdoc-web:11211 #Quan trong
+  cache_server: memcache-service.xdoc:11211 #Quan trong
 storage:
   # This configuration  describes how and where all Pods in all deployments use shared-files
   # when Pods need to process of file or,
@@ -110,10 +110,11 @@ fileJob:
   vn_suggest_url: vn-suggestion.xdoc-web:8000
   tika_server: http://localhost:9998
   web_api_url: http://172.16.7.99/lvfile
-  private_web_api: http://xdoc.xdoc-web:8082/lvfile
+  private_web_api: http://xdoc.xdoc:8082/lvfile
+  cache_server: memcache-service.xdoc:11211
 #msg:
 #  name: rabbit-dev
 #  namespace: file-msg
-cache:
-  name: file-cache
-  namespace: file-cache
+#cache:
+#  name: file-cache
+#  namespace: file-cache

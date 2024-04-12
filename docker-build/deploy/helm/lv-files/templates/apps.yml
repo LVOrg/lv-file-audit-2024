@@ -1,0 +1,2 @@
+{{ $images := .Files.Get "images.yml" | fromYaml -}}
+{{ toJson $images }}

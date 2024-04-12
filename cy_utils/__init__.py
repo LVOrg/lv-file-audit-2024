@@ -1,9 +1,11 @@
 import json
+import mimetypes
 import os.path
 import pathlib
 import typing
 import uuid
 import requests
+
 working_dir = pathlib.Path(__file__).parent.__str__()
 TEM_DIR = None
 
@@ -12,13 +14,19 @@ def __verify_temp_dir__():
     global TEM_DIR
     if TEM_DIR is None:
         raise Exception("Thou should call set_temp_dir before use any method in the package")
+
+
 import subprocess
 import time
+
+
 class ConnectionRefusedException(Exception):
-  """
+    """
   Custom exception class for connection refused errors.
   """
-  pass
+    pass
+
+
 def execute_command_with_polling(command, command_handler=None):
     """
   Executes a command line and prints output while it's running.
@@ -57,11 +65,13 @@ def execute_command_with_polling(command, command_handler=None):
                 raise e
         if "Connection refused" in ret_text:
             return None, ret_text
-        return ret_text,None
+        return ret_text, None
     except ConnectionRefusedException as ex:
         raise ex
     except Exception as e:
         print(e)
+
+
 def set_temp_dir(dir_path: str):
     global TEM_DIR
     import os
@@ -97,10 +107,13 @@ def new_temp_dir():
         os.makedirs(ret)
     return ret
 
+
 def socat_ping(port):
-    ret,error =execute_command_with_polling(f"echo 'echo ok'|socat TCP4:localhost:{port} -")
-    return ret,error
-def call_web_api(data,action_type, url_file, download_file):
+    ret, error = execute_command_with_polling(f"echo 'echo ok'|socat TCP4:localhost:{port} -")
+    return ret, error
+
+
+def call_web_api(data, action_type, url_file, download_file=None):
     """Calls a web API using the provided data.
 
   Args:
@@ -114,8 +127,8 @@ def call_web_api(data,action_type, url_file, download_file):
 
     url = data['url']
     headers = data['headers']
-    with open(url_file,"rb") as sf:
-        sf.name=download_file
+    with open(url_file, "rb") as sf:
+        sf.name = download_file
         files = {'file': sf}
 
         # Send the POST request
@@ -128,13 +141,19 @@ def call_web_api(data,action_type, url_file, download_file):
             ret_value = ret_value[x]
         return ret_value
 
-from tika import parser
-import urllib.parse
-def call_local_tika(action,action_type, url_file, download_file):
-    fx= os.path.join(working_dir,str(uuid.uuid4()))
+
+
+
+
+def call_local_tika(action, action_type, url_file, download_file):
+    from cyx.common import config
+    process_services_host = config.process_services_host or "http://localhost"
+    from tika import parser
+    import urllib.parse
+    fx = os.path.join(working_dir, str(uuid.uuid4()))
     try:
-        with open(url_file,"rb") as fs:
-            with open(fx,"wb") as fsx:
+        with open(url_file, "rb") as fs:
+            with open(fx, "wb") as fsx:
                 fsx.write(fs.read())
         try:
             headers = {
@@ -143,7 +162,7 @@ def call_local_tika(action,action_type, url_file, download_file):
 
             ret = parser.from_file(
                 filename=fx,
-                serverEndpoint=f'http://localhost:9998/tika',
+                serverEndpoint=f'{process_services_host}:9998/tika',
                 requestOptions={'headers': headers, 'timeout': 30000}
             )
 
@@ -159,13 +178,14 @@ def call_local_tika(action,action_type, url_file, download_file):
         finally:
             os.remove(fx)
     except requests.exceptions.HTTPError as ex:
-        if ex.response.status_code==404:
+        if ex.response.status_code == 404:
             return None
         else:
             raise ex
 
 
-def call_socat(action,action_type, url_file, download_file):
+def call_socat(action, action_type, url_file, download_file):
+    mime_type, _ = mimetypes.guess_type(download_file)
     port = action['port']
     command = action['command']
     ok = False
@@ -178,12 +198,16 @@ def call_socat(action,action_type, url_file, download_file):
         print("Try connect on next 10 second\n")
         time.sleep(10)
     print(action)
-    with open(url_file,"rb") as sf:
-        with open(download_file,"wb") as df:
-            df.write(sf.read())
+
     command_id = str(uuid.uuid4())
     output_dir = os.path.join("/tmp-files")
-    cmd = action['command'].replace("{input}",f'{download_file}').replace("{output}","/tmp-files")
+    if not mime_type.startswith("video/"):
+        with open(url_file, "rb") as sf:
+            with open(download_file, "wb") as df:
+                df.write(sf.read())
+        cmd = action['command'].replace("{input}", f'\"{download_file}\"').replace("{output}", "\"/tmp-files\"")
+    else:
+        cmd = action['command'].replace("{input}", f'\"{url_file}\"').replace("{output}", "\"/tmp-files\"")
     command_full = f"echo \"{cmd} /socat-share/{command_id}\"|socat TCP4:localhost:{action['port']} -"
     ret = execute_command_with_polling(command_full)
     while not os.path.isfile(f"/socat-share/{command_id}.txt"):
@@ -198,8 +222,7 @@ def call_socat(action,action_type, url_file, download_file):
         return ret_data.get("result")
 
 
-
-def run_action(action,action_type, url_file, download_file):
+def run_action(action, action_type, url_file, download_file):
     """
     This function will call tcp ot http server to resolve command
     if action return text content the function will return "text","...content receive after run action
@@ -210,11 +233,11 @@ def run_action(action,action_type, url_file, download_file):
     """
     print(action)
     if action.get('type') == "web-api":
-        return call_web_api(action,action_type, url_file, download_file)
+        return call_web_api(action, action_type, url_file, download_file)
     if action.get('type') == "tika":
-        return call_local_tika(action,action_type,url_file,download_file)
-    elif action.get('type')=='socat':
-        return call_socat(action,action_type,url_file,download_file)
+        return call_local_tika(action, action_type, url_file, download_file)
+    elif action.get('type') == 'socat':
+        return call_socat(action, action_type, url_file, download_file)
         print(action)
     else:
         raise NotImplemented("..")

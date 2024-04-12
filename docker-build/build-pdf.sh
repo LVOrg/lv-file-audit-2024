@@ -13,14 +13,16 @@ build_file="pdf-prcoessing"
 rm -f $build_file
 echo "
 FROM python:3.10.13-bullseye
-RUN apt update && apt upgrade -y
-RUN apt install socat -y
-RUN pip install PyMuPDF
+#RUN apt update && apt upgrade -y
+#RUN apt install socat -y
+RUN python3 -m pip install PyMuPDF
+RUN python3 -m pip install gradio
 COPY /../cy-commands /cmd
 RUN apt clean && apt autoclean
-ENTRYPOINT [\"/cmd/server-pdf.sh\"]
+ENTRYPOINT [\"python3\",\"/cmd/pdf.py\"]
 ">>$build_file
-ocr_core_tag=1
+ocr_core_tag=2
 ocr_core_tag_build="fs.pdf."$(tag $ocr_core_tag)
 ocr_core_image="$repository/fs:"$ocr_core_tag_build
 buildFunc $build_file $repository $image_name $ocr_core_tag_build "python:3.10-alpine" "alpine"
+echo "docker run -p 1112:1112  -v /socat-share:/socat-share $repository/$image_name:$ocr_core_tag_build"

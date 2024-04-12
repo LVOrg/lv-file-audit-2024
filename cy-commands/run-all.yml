@@ -1,0 +1,29 @@
+version: "3.8"  # Specify a compatible Docker Compose version
+
+services:
+  video-1111:
+    image: docker.io/nttlong/fs:fs.video.amd.1
+    container_name: video-1111
+    ports:
+      - "1111:1111"
+    volumes:
+      - /socat-share:/socat-share
+  pdf-1112:
+    image: docker.io/nttlong/fs:fs.pdf.amd.2
+    container_name: pdf-1112
+    ports:
+      - "1112:1112"
+    volumes:
+      - /socat-share:/socat-share
+  office:
+    image: docker.io/nttlong/fs:fs.office.amd.1.4
+    container_name: office-1113  # Corrected container name to match command
+    ports:
+      - "1113:1113"
+    volumes:
+      - /socat-share:/socat-share
+  tika:
+    image: apache/tika
+    container_name: tika-9998
+    ports:
+      - "9998:9998"

@@ -177,4 +177,21 @@ spec:
       terminationGracePeriodSeconds: 30
       serviceAccountName: kubernetes-dashboard
       serviceAccount: kubernetes-dashboard
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-dashboard
+  namespace: lv-dashboard
+  labels:
+    k8s-app: kubernetes-dashboard
+spec:
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 8443
+      nodePort: 30036
+  selector:
+    k8s-app: kubernetes-dashboard
 
+  type: NodePort

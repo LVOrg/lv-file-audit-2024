@@ -90,10 +90,11 @@ class LocalAPIService:
 
     def get_download_path(self, upload_item, app_name)->typing.Tuple[str|None,str|None,str|None,str|None,str|None]:
         rel_file_path = None
+        server_file, rel_file_path, download_file_path, token, local_share_id = None,None,None,None,None
         try:
             rel_file_path: str = upload_item["MainFileId"].split("://")[1]
         except:
-            return None, None
+            return server_file, rel_file_path, download_file_path, token, local_share_id
         print(f"process file {rel_file_path} ...")
         local_share_id = None
         token = None
