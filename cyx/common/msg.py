@@ -32,7 +32,7 @@ import typing
 import uuid
 import traceback
 
-MSG_FILE_UPLOAD = "files.upload"
+MSG_FILE_UPLOAD_DELETE = "files.upload"
 """
 Whenever file was uploaded, the message would be raised
   
@@ -50,6 +50,8 @@ Use readable text for Content Search \n
 Phát hiện khung trong tệp video nếu khung đó chứa văn bản có thể đọc được.
 Sử dụng văn bản có thể đọc được cho Tìm kiếm Nội dung
 """
+MSG_FILE_GENERATE_IMAGE = "files.generate.image"
+MSG_FILE_GENERATE_CONTENT = "files.generate.image"
 MSG_FILE_GENERATE_IMAGE_FROM_OFFICE = "files.upload.generate.image.from.office"
 MSG_FILE_GENERATE_CONTENT_FROM_OFFICE = "files.upload.generate.content.from.office"
 MSG_FILE_GENERATE_CONTENT_FROM_IMAGE = "files.upload.generate.content.from.image"

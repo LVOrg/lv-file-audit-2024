@@ -216,10 +216,15 @@ class FilesUploadController(BaseController):
                 data.local_share_id = local_share_id
                 self.broker.emit(
                     app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+                    message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
                     data=data
                 )
-                print(cyx.common.msg.MSG_FILE_UPLOAD)
+                print(cyx.common.msg.MSG_FILE_GENERATE_CONTENT)
+                self.broker.emit(
+                    app_name=app_name,
+                    message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE,
+                    data=data
+                )
 
 
 

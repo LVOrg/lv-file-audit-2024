@@ -87,41 +87,9 @@ class ThumbService:
                             return None
 
                     thumb_type = self.get_thumb_type(ext_file)
-                    if thumb_type == "office":
-                        if not os.path.isfile(f"{real_file_path}.png"):
-                            self.msg.emit(
-                                app_name=app_name,
-                                data=upload,
-                                message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE,
-                                resource=real_file_path
-                            )
-                            return None
-                        else:
-                            thumb_file_path = self.get_thumb_path_from_image(
-                                in_path=f"{real_file_path}.png",
-                                size=size,
-                                main_file_path=f"{real_file_path}.png"
-                            )
-                            return thumb_file_path
 
-                    if thumb_type == "pdf":
-                        if not os.path.isfile(f"{real_file_path}.png"):
-                            self.msg.emit(
-                                app_name=app_name,
-                                data=upload,
-                                message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_PDF,
-                                resource=real_file_path
-                            )
-                            return None
-                        else:
-                            thumb_file_path = self.get_thumb_path_from_image(
-                                in_path=f"{real_file_path}.png",
-                                size=size,
-                                main_file_path=f"{real_file_path}.png"
-                            )
-                            return thumb_file_path
 
-                    elif thumb_type == "image":
+                    if thumb_type == "image":
                         if upload.get("ThumbnailsAble") == False:
                             return None
                         thumb_file_path = self.get_thumb_path_from_image(
@@ -131,29 +99,25 @@ class ThumbService:
                         )
                         self.memcache_services.set_str(cache_key, thumb_file_path)
                         return thumb_file_path
-                    elif thumb_type == "video":
-                        if not os.path.isfile(f"{real_file_path}.png"):
-                            self.msg.emit(
-                                app_name=app_name,
-                                data=upload,
-                                message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_VIDEO,
-                                resource=real_file_path
-                            )
-                            return None
-                        else:
-                            thumb_file_path = self.get_thumb_path_from_image(
-                                in_path=f"{real_file_path}.png",
-                                size=size,
-                                main_file_path=f"{real_file_path}.png"
-                            )
-                            return thumb_file_path
-
+                    elif os.path.isfile(f"{real_file_path}.png"):
+                        thumb_file_path = self.get_thumb_path_from_image(
+                            in_path=f"{real_file_path}.png",
+                            size=size,
+                            main_file_path=f"{real_file_path}.png"
+                        )
+                        return thumb_file_path
                     else:
+                        self.msg.emit(
+                            app_name=app_name,
+                            data=upload,
+                            message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE,
+                            resource=real_file_path
+                        )
                         return None
-
         return ret
 
     def get_thumb_path_from_image(self, in_path, size, main_file_path):
+        process_services_host = config.process_services_host or "http://localhost"
         try:
             txt_json = json.dumps(dict(
                 in_path=in_path,
@@ -161,7 +125,7 @@ class ThumbService:
                 main_file_path=main_file_path,
                 mem_cache_server = config.cache_server
             ))
-            client = Client(f"http://172.16.13.72:1114/")
+            client = Client(f"{process_services_host}:1114/")
             _, result = client.predict(
                 txt_json,
                 False,

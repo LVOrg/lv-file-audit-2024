@@ -143,15 +143,10 @@ class FileServices:
         except Exception as e:
             self.logger.info("Get list of files is error")
             self.logger.error(e)
-        msh_cache_key = f"{__file__}/{type(self).__name__}/check_thumbs/{cyx.common.msg.MSG_FILE_UPLOAD}"
+
         from cyx.common.content_marterial_utils import check_is_thumbnails_able
         try:
             for x in items:
-                # if x[doc.fields.RemoteUrl] is None:
-                #     x[doc.fields.StorageType] ="local"
-                # else:
-                #     x[cy_docs.fields.UrlOfServerPath]=x[doc.fields.RemoteUrl]
-
                 _a_thumbs = []
                 if x.AvailableThumbs is not None:
                     for url in x.AvailableThumbs:

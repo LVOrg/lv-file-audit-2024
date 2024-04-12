@@ -24,8 +24,8 @@ import cy_es
 import cyx.common
 from cy_xdoc.services.text_procesors import TextProcessService
 from cy_xdoc.services.file_content_extractors import FileContentExtractorService
-from cyx.rdr_segmenter.segmenter_services import VnSegmenterService
-import cyx.vn_predictor
+# from cyx.rdr_segmenter.segmenter_services import VnSegmenterService
+# import cyx.vn_predictor
 from cyx.loggers import LoggerService
 
 
@@ -49,8 +49,8 @@ class SearchEngine:
                  file_content_extractor_service: FileContentExtractorService = cy_kit.singleton(
                      FileContentExtractorService
                  ),
-                 vn=cy_kit.singleton(VnSegmenterService),
-                 vn_predictor=cy_kit.singleton(cyx.vn_predictor.VnPredictor),
+                 # vn=cy_kit.singleton(VnSegmenterService),
+                 # vn_predictor=cy_kit.singleton(cyx.vn_predictor.VnPredictor),
                  logger=cy_kit.singleton(LoggerService)):
         self.logger = logger
         self.config = cyx.common.config
@@ -66,8 +66,8 @@ class SearchEngine:
         # "index.mapping.total_fields.limit": 2000
         self.__index_mapping_total_fields_limit = {}
         self.index_highlight_max_analyzed_offset = {}
-        self.vn = vn
-        self.vn_predictor = vn_predictor
+        # self.vn = vn
+        # self.vn_predictor = vn_predictor
         self.empty_privilege_value = 0
 
     def get_content_field_name(self):
@@ -281,8 +281,7 @@ class SearchEngine:
             ]
         if logic_filter is not None and isinstance(logic_filter, dict):
             _logic_filter = cy_es.create_filter_from_dict(
-                logic_filter,
-                suggest_handler=self.vn_predictor.get_text
+                logic_filter
             )
             if _logic_filter:
                 search_expr = search_expr & _logic_filter
@@ -477,18 +476,20 @@ class SearchEngine:
             mark_delete=mark_delete,
             content=content,
             # vn_non_accent_content=vn_non_accent_content,
-            meta_info=cy_es.convert_to_vn_predict_seg(
-                meta_info or data_item.get('meta_data'),
-                segment_handler=self.vn.parse_word_segment,
-                handler=self.vn_predictor.get_text,
-                clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-            ),
-            data_item=cy_es.convert_to_vn_predict_seg(
-                data_item or {},
-                segment_handler=self.vn.parse_word_segment,
-                handler=self.vn_predictor.get_text,
-                clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-            ),
+            # meta_info=cy_es.convert_to_vn_predict_seg(
+            #     meta_info or data_item.get('meta_data'),
+            #     segment_handler=self.vn.parse_word_segment,
+            #     handler=self.vn_predictor.get_text,
+            #     clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
+            # ),
+            # data_item=cy_es.convert_to_vn_predict_seg(
+            #     data_item or {},
+            #     segment_handler=self.vn.parse_word_segment,
+            #     handler=self.vn_predictor.get_text,
+            #     clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
+            # ),
+            meta_info = meta_info or data_item.get('meta_data'),
+            data_item = data_item or {},
             privileges=privileges,
             meta_data=meta_data
         )
@@ -555,12 +556,13 @@ class SearchEngine:
                     app_name=app_name,
                     privileges=privileges,
                     upload_id=upload_id,
-                    data_item=cy_es.convert_to_vn_predict_seg(
-                        data_item,
-                        segment_handler=self.vn.parse_word_segment,
-                        handler=self.vn_predictor.get_text,
-                        clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-                    ),
+                    # data_item=cy_es.convert_to_vn_predict_seg(
+                    #     data_item,
+                    #     segment_handler=self.vn.parse_word_segment,
+                    #     handler=self.vn_predictor.get_text,
+                    #     clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
+                    # ),
+                    data_item = data_item,
                     meta_info=meta_info
                 )
             else:
@@ -701,12 +703,13 @@ class SearchEngine:
                 app_name=app_name,
                 privileges=_Privileges,
                 upload_id=id,
-                data_item=cy_es.convert_to_vn_predict_seg(
-                    json_data_item,
-                    handler=self.vn_predictor.get_text,
-                    segment_handler=self.vn.parse_word_segment,
-                    clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-                ),
+                # data_item=cy_es.convert_to_vn_predict_seg(
+                #     json_data_item,
+                #     handler=self.vn_predictor.get_text,
+                #     segment_handler=self.vn.parse_word_segment,
+                #     clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
+                # ),
+                data_item = data_item,
                 content=content,
                 meta_info=meta_info,
                 meta_data=meta_data,
