@@ -14,6 +14,7 @@
       {{ $cache := $data.cache -}}
       {{ $msg := $data.msg -}}
     {{ $dataJson := toPrettyJson $api -}}
+{{ $host_map := $data.host_map -}}
 ---
 {{ if $api}}
 ---
@@ -44,14 +45,18 @@ spec:
       labels:
         app: {{$api.name}}
     spec:
-#      tolerations:
-#        - key: "app"
-#          operator: "Equal"
-#          value: "xdoc"
-#          effect: "NoSchedule"
-#      imagePullSecrets:
-#        - name: harbor-secret-registry
+      {{if $host_map}}
+      hostAliases:
+        - ip: "{{$host_map.ip}}"
+          hostnames:
+            - "{{$host_map.host}}"
+      {{end}}
       volumes:
+        - name: tmp-files
+          emptyDir: { }
+        - name: socat-share
+          emptyDir: { }
+        - name: {{$storage.name}}
         - name: content-files
         - name: {{$storage.name}}
           {{if hasKey  $storage "className"}}
@@ -93,11 +98,16 @@ spec:
             - tika_server=$(tika_server)
             - file_storage_path=/mnt/files
             - server_thumb_office=http://xdoc-office-thumbs.xdoc-web:8014
+            - private_web_api=http://localhost/lvfile
             {{if not $storage_files}}
             - services=""
             {{end}}
           image: {{ $globalVar.images.web.main}}
           volumeMounts:
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
             - mountPath: {{$api.mountPath}}
               name: {{$storage.name}}
             {{ if $storage_files }}
@@ -114,6 +124,10 @@ spec:
         - name: {{$key}}
           image: {{$libs}}
           volumeMounts:
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
             - mountPath: {{$api.mountPath}}
               name: {{$storage.name}}
             {{ if $storage_files }}

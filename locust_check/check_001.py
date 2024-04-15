@@ -23,11 +23,12 @@ class CongTyCSCUser(HttpUser):
     @task
     def login(self):
         # self.client.verify = False
+        #http://172.16.7.34:8011/api/Auth/exec23
         print("/api/WP/exec71")
         #http://172.16.7.34:8011/api/WP/exec19
         for x in data_test_list:
-            self.client.post("/api/TM/exec51", json= x,headers= {
-                "lvtk":key_aws
+            self.client.post("/api/TM/exec23", json= x,headers= {
+                "lvtk":key_43
             })
 
     # @task

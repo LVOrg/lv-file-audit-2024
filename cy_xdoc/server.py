@@ -16,6 +16,10 @@ import cyx.common
 from cyx.common import config
 # if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
 import cy_file_cryptor.wrappers
+from PIL import Image
+
+Image.MAX_IMAGE_PIXELS = None  # Set to None to disable the limit (not recommended)
+
 import cy_file_cryptor.context
 cy_file_cryptor.context.set_server_cache(config.cache_server)
 import cy_file_cryptor.settings

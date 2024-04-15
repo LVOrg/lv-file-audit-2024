@@ -12,9 +12,7 @@ import os
 import requests
 import subprocess
 import  libs
-import webp
-from PIL import Image
-
+ # Set to None to disable the limit (not recommended)
 import json
 
 is_install_encrypt = False
@@ -33,6 +31,9 @@ def get_thumb_path_from_image(in_path, size, main_file_path):
     if not is_install_encrypt:
         import cy_file_cryptor.wrappers
         is_install_encrypt = True
+    import webp
+    from PIL import Image
+    Image.MAX_IMAGE_PIXELS = None
     ret_image_path = os.path.join(pathlib.Path(main_file_path).parent.__str__(), f"{size}.webp")
     temp_ret_image_path = os.path.join(pathlib.Path(main_file_path).parent.__str__(), f"{size}_tmp.webp")
     with Image.open(main_file_path) as img:

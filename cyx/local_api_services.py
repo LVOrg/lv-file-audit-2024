@@ -71,10 +71,10 @@ class LocalAPIService:
 
         headers = {}
         files = {'content': (file_path, image_data, 'image/png')}  # Adjust content type if needed
-        #/lvfile/api/sys/admin/content-share/{rel_path}
-        url=f"{config.private_web_api}/api/sys/admin/content-share/{rel_server_path}"
+        # /lvfile/api/sys/admin/content-share/{rel_path}
+        url = f"{config.private_web_api}/api/sys/admin/content-share/{rel_server_path}"
         if token:
-            url+=f"?token={token}"
+            url += f"?token={token}"
         elif local_share_id:
             url += f"?local-share-id={local_share_id}"
 
@@ -87,10 +87,9 @@ class LocalAPIService:
         except requests.exceptions.RequestException as e:
             raise e
 
-
-    def get_download_path(self, upload_item, app_name)->typing.Tuple[str|None,str|None,str|None,str|None,str|None]:
+    def get_download_path(self, upload_item, app_name) -> typing.Tuple[ str | None, str | None, str | None, str | None, str | None]:
         rel_file_path = None
-        server_file, rel_file_path, download_file_path, token, local_share_id = None,None,None,None,None
+        server_file, rel_file_path, download_file_path, token, local_share_id = None, None, None, None, None
         try:
             rel_file_path: str = upload_item["MainFileId"].split("://")[1]
         except:
@@ -108,4 +107,4 @@ class LocalAPIService:
             server_file += f"?local-share-id={local_share_id}&app-name={app_name}"
         file_ext = pathlib.Path(rel_file_path).suffix
         download_file_path = os.path.join("/tmp-files", str(uuid.uuid4()) + file_ext)
-        return server_file,rel_file_path, download_file_path, token,local_share_id
+        return server_file, rel_file_path, download_file_path, token, local_share_id

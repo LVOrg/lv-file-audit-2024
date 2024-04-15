@@ -146,6 +146,8 @@ def call_web_api(data, action_type, url_file, download_file=None):
 
 
 def call_local_tika(action, action_type, url_file, download_file):
+
+
     from cyx.common import config
     process_services_host = config.process_services_host or "http://localhost"
     from tika import parser

@@ -237,8 +237,8 @@ process_services:
       command: python3 /cmd/office_image.py {input} {output}
     content:
       type: tika
-process_services_host: http://172.16.13.72
-process_services_host_: "http://localhost"
+process_services_host_: http://172.16.13.72
+process_services_host: "http://localhost"
 
 
 

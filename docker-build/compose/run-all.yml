@@ -34,11 +34,11 @@ services:
       - "1114:1114"
     volumes:
       - /mnt/files:/mnt/files
-#  web:
-#    image: docker.io/nttlong/fs:fs.tiny.amd.19.1
-#    container_name: web-8012
-#    ports:
-#      - "8012:8012"
-#    volumes:
-#      - /mnt/files:/mnt/files
-#    command: ["python3", "/app/cy_xdoc/server.py"]
+  web:
+    image: docker.io/nttlong/fs:fs.tiny.amd.19.2
+    container_name: web-8012
+    ports:
+      - "8012:8012"
+    volumes:
+      - /mnt/files:/mnt/files
+    command: ["python3", "/app/cy_xdoc/server.py","private_web_api=http://localhost/lvfile"]
