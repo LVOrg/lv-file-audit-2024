@@ -21,33 +21,22 @@ spec:
       labels:
         app: {{$value.name}}
     spec:
-      {{if $value.storage }}
       volumes:
         - name: tmp-files
           emptyDir: { }
         - name: socat-share
           emptyDir: { }
-        - name: xdoc-storage
-          nfs:
-            server: {{$value.storage.server}}
-            path: {{$value.storage.directory}}/tmp
+        - mountPath: /mnt/files
+          name: {{$storage_files.name}}
         - name: {{ $value.storage.name}}
           nfs:
             server: {{$value.storage.server}}
             path: {{$value.storage.directory}}
-      {{end}}
       containers:
-
         - image: {{ $value.image}}
-          name: {{ $value.name }}
-          envFrom:
-            - configMapRef:
-                name: lv-file
-        {{ if $value.entrypoint }}
           args:
-          {{- range $key, $args := $value.entrypoint  }}
-            - {{ $args }}
-          {{- end }}
+            - python3
+            - /app/cy_xdoc/server.py
             - bind=0.0.0.0:80
             - content_segment_len=9
             - elastic_search.server=$(elastic_search.server)
@@ -68,42 +57,24 @@ spec:
             - tika_server=$(tika_server)
             - file_storage_path=/mnt/files
             - server_thumb_office=http://xdoc-office-thumbs.xdoc-web:8014
-            - private_web_api=$(private_web_api)
-        {{end}}
+            - private_web_api=http://localhost/lvfile
           volumeMounts:
             - name: tmp-files
-              mountPath: /tmp-files
+              emptyDir: { }
             - name: socat-share
-              mountPath: /socat-share
-            - name: {{ $value.storage.name }}
-              mountPath: /mnt/files
+              emptyDir: { }
             - name: {{ $value.storage.name }}
               mountPath: /mnt/files
         {{- range $key, $libs := $value.libs }}
-        - name: {{$libs.name}}
-          image: {{$libs.image}}
-          volumes:
-            - name: tmp-files
-              emptyDir: { }
-            - name: socat-share
-              emptyDir: { }
-            - name: xdoc-storage
-              nfs:
-                server: {{$value.storage.server}}
-                path: {{$value.storage.directory}}/tmp
-            - name: { { $value.storage.name } }
-              nfs:
-                server: {{$value.storage.server}}
-                path: {{$value.storage.directory}}
+        - name: {{$key}}
+          image: {{$libs}}
           volumeMounts:
             - name: tmp-files
-              mountPath: /tmp-files
+              emptyDir: { }
             - name: socat-share
-              mountPath: /socat-share
+              emptyDir: { }
             - name: {{ $value.storage.name }}
               mountPath: /mnt/files
-            - name: xdoc-storage
-              mountPath: /app/share-storage
         {{- end }}
 ---
 {{- end}}

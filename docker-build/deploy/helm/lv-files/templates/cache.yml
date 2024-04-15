@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.cache.appName}}
+  namespace: {{ .Values.namespace}}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.cache.appName}}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.cache.appName}}
+    spec:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
+      containers:
+      - name: file-cache
+        image: memcached:latest
+        ports:
+        - containerPort: 11211
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.cache.appName }}-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.cache.appName }}-service
+spec:
+  ports:
+    - name: '11211'
+      protocol: TCP
+      port: 11211
+      targetPort: 11211
+      nodePort: 30212
+  selector:
+    app: {{ .Values.cache.appName}}
+  type: NodePort

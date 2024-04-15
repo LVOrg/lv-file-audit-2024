@@ -2,4 +2,5 @@ office: nttlong/fs:fs.office.amd.1.4
 video: nttlong/fs:fs.video.amd.1
 pdf: nttlong/fs:fs.pdf.amd.2
 tika: apache/tika
-main: nttlong/fs:fs.tiny.amd.17.27
+main: nttlong/fs:fs.tiny.amd.19.3
+thumb: nttlong/fs:fs.thumbs.amd.2

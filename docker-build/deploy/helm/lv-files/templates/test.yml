@@ -1,0 +1,3 @@
+#{{  $images := .Files.Get "images.yml" | fromYaml -}}
+#{{ $jobsList:= fromYaml ((include "apps-data" (dict "values" .Values "images" $images) ))  -}}
+#  {{/*toPrettyJson $jobsList */}}

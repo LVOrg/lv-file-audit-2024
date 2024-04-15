@@ -1,3 +1,24 @@
-namespace: xdoc
+namespace: files
+webAppName: lv-file
+db:
+  mongodb: mongodb://192.168.18.36:27017
+  manage: 'lv-docs'
+search:
+  prefix_index: 'lv-codx'
+  server: 'http://192.168.18.36:9200'
+lacvietApi:
+  url: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
+  tokenKey: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+  apiVersion: "1.0"
 
-
+cache:
+  appName: lv-file-cache
+rabbit:
+  server: rabbitmq.rabbitmq-dev
+  port: 5672
+  prefixMsg: xyzdsc-2024 # default value is msg: xyzdsc-2024
+replicas: 1
+storage:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files

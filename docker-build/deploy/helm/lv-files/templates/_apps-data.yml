@@ -1,0 +1,32 @@
+{{- define "apps-data"  -}}
+---
+apps:
+    - name: {{ .values.webAppName }}
+      image: {{ .images.main }}
+      namespace: {{ .values.namespace}}
+      replicas: {{.values.replicas}}
+      entrypoint:
+        - python3
+        - /app/cy_xdoc/server.py
+        - bind=0.0.0.0:80
+        - content_segment_len=9
+      service:
+        type: nodePort
+        nodePort: 30072
+      storage:
+        name: {{ .values.storage.name}}
+        server: {{ .values.storage.server}}
+        directory: {{ .values.storage.directory}}
+      libs:
+        - name: pdf
+          image: {{ .images.pdf }}
+        - name: thumb
+          image: {{ .images.thumb }}
+        - name: video
+          image: {{ .images.video}}
+        - name: office
+          image: {{.images.office }}
+        - name: tika
+          image: {{ .images.tika }}
+---
+{{- end -}}
