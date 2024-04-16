@@ -47,7 +47,7 @@ def process_text(text,is_return_base_64_image):
         file_id = str(uuid.uuid4())
         file_download = os.path.join("/socat-share",file_id)
         download_file(text,file_download)
-
+        #/usr/bin/soffice --headless --convert-to png --outdir /socat-share /cmd/office_image.py
         command = ["/usr/bin/soffice",
                    "--headless",
                    "--convert-to",

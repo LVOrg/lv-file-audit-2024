@@ -1,0 +1,38 @@
+{{ $images := .Files.Get "images.yml" | fromYaml -}}
+{{ $jobsList:= fromYaml ((include "apps-data" (dict "values" .Values "images" $images) ))  -}}
+---
+{{- range $key, $value := $jobsList.apps }}
+---
+{{ if $value.service }}
+---
+---
+{{ if $value.service.ingress }}
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ $value.name }}-ingress
+  namespace: {{ $value.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /{{$value.service.ingress.path}}/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: {{$value.name}}-service
+                port:
+                  number: 8082
+status:
+  loadBalancer:
+    ingress:
+      - ip: {{$value.service.ingress.ip}}
+---
+{{end}}
+{{end}}
+{{- end}}

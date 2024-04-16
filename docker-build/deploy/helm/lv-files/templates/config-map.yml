@@ -26,5 +26,5 @@ data:
   h2_max_concurrent_streams: '100'
   auto_ssl_redirect: 'off'
   web_api_url: {{ .Values.webAppName }}.{{.Values.Namespace}}/lvfile
-  private_web_api: http://{{ .Values.webAppName }}.{{.Values.Namespace}}:8012/lvfile
+  private_web_api: http://{{ .Values.webAppName }}.{{.Values.namespace}}:8012/lvfile
 ---

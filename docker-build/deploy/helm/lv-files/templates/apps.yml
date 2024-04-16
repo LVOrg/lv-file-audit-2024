@@ -67,8 +67,6 @@ spec:
             - vn_suggest_url=$(vn_suggest_url)
             - tika_server=$(tika_server)
             - file_storage_path=/mnt/files
-            - server_thumb_office=http://xdoc-office-thumbs.xdoc-web:8014
-            - private_web_api=$(private_web_api)
         {{end}}
           volumeMounts:
             - name: tmp-files
@@ -77,24 +75,10 @@ spec:
               mountPath: /socat-share
             - name: {{ $value.storage.name }}
               mountPath: /mnt/files
-            - name: {{ $value.storage.name }}
-              mountPath: /mnt/files
         {{- range $key, $libs := $value.libs }}
         - name: {{$libs.name}}
           image: {{$libs.image}}
-          volumes:
-            - name: tmp-files
-              emptyDir: { }
-            - name: socat-share
-              emptyDir: { }
-            - name: xdoc-storage
-              nfs:
-                server: {{$value.storage.server}}
-                path: {{$value.storage.directory}}/tmp
-            - name: { { $value.storage.name } }
-              nfs:
-                server: {{$value.storage.server}}
-                path: {{$value.storage.directory}}
+
           volumeMounts:
             - name: tmp-files
               mountPath: /tmp-files

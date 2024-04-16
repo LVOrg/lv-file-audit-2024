@@ -1,4 +1,5 @@
 {{- define "apps-data"  -}}
+{{- $appConfig :=(index .values.appConfig .values.webAppName)  }}
 ---
 apps:
     - name: {{ .values.webAppName }}
@@ -10,9 +11,21 @@ apps:
         - /app/cy_xdoc/server.py
         - bind=0.0.0.0:80
         - content_segment_len=9
+        {{if $appConfig.host}}
+        - host_url={{$appConfig.host.protocol}}://{{$appConfig.host.name}}/{{$appConfig.host.path}}
+        - private_web_api=http://localhost/{{$appConfig.host.path}}
+        {{end}}
       service:
         type: nodePort
         nodePort: 30072
+        {{ if (index .values.ingress .values.webAppName) }}
+        {{- $ingress := (index .values.ingress .values.webAppName) }}
+        ingress:
+          path: {{$appConfig.host.path}}
+          pathType: {{$ingress.pathType}}
+          ip: {{$appConfig.host.name}}
+        {{end}}
+
       storage:
         name: {{ .values.storage.name}}
         server: {{ .values.storage.server}}
