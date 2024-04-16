@@ -37,8 +37,6 @@ spec:
     - name: '11211'
       protocol: TCP
       port: 11211
-      targetPort: 11211
-      nodePort: 30212
   selector:
     app: {{ .Values.cache.appName}}
   type: NodePort

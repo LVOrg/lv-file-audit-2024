@@ -6,9 +6,9 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   admin_db_name: {{ .Values.db.manage }}
-  db: {{.Values.db.mongodb}}
+  db: {{urlquery  .Values.db.mongodb }}
   elastic_search.prefix_index: '{{.Values.search.prefix_index}}'
-  elastic_search.server: '{{ .Values.search.server }}'
+  elastic_search.server: '{{urlquery .Values.search.server}}'
   rabbitmq.port: '{{ .Values.rabbit.port }}'
   rabbitmq.server: '{{ .Values.rabbit.server }}'
   rabbitmq.msg: '{{ .Values.rabbit.prefixMsg }}'

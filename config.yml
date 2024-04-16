@@ -200,6 +200,7 @@ private_web_api: http://172.16.7.99/lvfile
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/tmp /home/vmadmin/python/cy-py/share-storage
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/from-192-168-18-36/files
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/files
+#sudo mount -t nfs 172.16.13.72://home/vmadmin/python/cy-py /mnt/k8s
 ocr_api: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
 ocr_token: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
 process_services:

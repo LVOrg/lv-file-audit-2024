@@ -3,18 +3,18 @@ webAppName: lv-file
 appConfig:
   lv-file:
     host:
-      path: lvfile2
+      path: lvfile
       name: 172.16.7.99
       protocol: https
 ingress:
   lv-file:
     pathType: Prefix
 db:
-  mongodb: mongodb://192.168.18.36:27017
+  mongodb: ????
   manage: 'lv-docs'
 search:
-  prefix_index: 'lv-codx'
-  server: 'http://192.168.18.36:9200'
+  prefix_index: ????
+  server: ????
 lacvietApi:
   url: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
   tokenKey: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
@@ -28,7 +28,7 @@ rabbit:
   prefixMsg: xyzdsc-2024 # default value is msg: xyzdsc-2024
 replicas: 1
 storage:
-  server: 192.168.18.36
-  directory: /codx-file-storage/files
+  server: ????
+  directory: ????
   name: storage-files
 

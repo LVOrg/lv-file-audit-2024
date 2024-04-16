@@ -4,3 +4,4 @@ pdf: nttlong/fs:fs.pdf.amd.2
 tika: apache/tika
 main: nttlong/fs:fs.tiny.amd.19.3
 thumb: nttlong/fs:fs.thumbs.amd.2
+check_key: ^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$

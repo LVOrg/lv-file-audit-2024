@@ -16,8 +16,10 @@ apps:
         - private_web_api=http://localhost/{{$appConfig.host.path}}
         {{end}}
       service:
+        {{ if not (index .values.ingress .values.webAppName) }}
         type: nodePort
         nodePort: 30072
+        {{end}}
         {{ if (index .values.ingress .values.webAppName) }}
         {{- $ingress := (index .values.ingress .values.webAppName) }}
         ingress:
