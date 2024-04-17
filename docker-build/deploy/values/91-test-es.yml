@@ -1,0 +1,22 @@
+namespace: files-test-es
+webAppName: lv-file
+appConfig:
+  lv-file:
+    host:
+      path: lvfile
+      name: 172.16.7.91
+      protocol: https
+ingress:
+  files3:
+    pathType: Prefix
+db:
+  mongodb: mongodb://192.168.18.36:27017
+  manage: 'lv-docs'
+search:
+  prefix_index: 'lv-codx'
+  server: 'http://192.168.18.36:9200'
+storage:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files
+

@@ -50,6 +50,7 @@ spec:
           {{- range $key, $args := $value.entrypoint  }}
             - {{ $args }}
           {{- end }}
+            - process_services_host=http://localhost
             - bind=0.0.0.0:80
             - content_segment_len=9
             - elastic_search.server=$(elastic_search.server)

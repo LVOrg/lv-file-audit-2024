@@ -1,7 +1,7 @@
 import time
 
-import tika
-from tika import parser
+
+
 
 import requests
 
@@ -19,11 +19,11 @@ class DocsContentsServices:
                 time.sleep(5)
 
     def get_text(self, file_path: str):
-
+        import tika.parser
         headers = {
             'maxWriteLimit': '2147483647'
         }
-        ret = parser.from_file(
+        ret = tika.parser.from_file(
             filename=file_path,
             serverEndpoint=f'http://localhost:9998/tika',
             requestOptions={'headers': headers, 'timeout': 30000}

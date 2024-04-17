@@ -9,7 +9,9 @@ import os
 import requests
 import subprocess
 import  libs
-
+if sys.platform == "linux":
+    import signal
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 def download_file(url, download_to_file):
     """
     Downloads a file from the given URL to the specified location.

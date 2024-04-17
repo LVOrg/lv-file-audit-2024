@@ -109,8 +109,8 @@ elastic_search__:
   field_content: content_bm25
 elastic_search:
   server:
-#    - http://172.16.7.244:9200
-     - http://192.168.18.36:9200
+    - http://172.16.7.244:9200
+#     - http://192.168.18.36:9200
 #    - http://192.168.18.234:31949
   index: lv-files-server-v2
   prefix_index: lv-codx
@@ -180,7 +180,7 @@ broker:
   servers: 172.16.7.99:30992
   msg: xdoc
 #  temp_directory: ./brokers/tmp-files
-cache_server: 172.16.7.99:30211
+cache_server: localhost:11211
 logs_url: https://hooks.slack.com/services/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
 
 services:
@@ -238,8 +238,8 @@ process_services:
       command: python3 /cmd/office_image.py {input} {output}
     content:
       type: tika
-process_services_host_: http://172.16.13.72
-process_services_host: "http://localhost"
+process_services_host: http://172.16.13.72
+process_services_host_: "http://localhost"
 
 
 

@@ -22,11 +22,11 @@ services:
       - "1113:1113"
     volumes:
       - /socat-share:/socat-share
-  tika:
-    image: apache/tika
-    container_name: tika-9998
-    ports:
-      - "9998:9998"
+#  tika:
+#    image: apache/tika
+#    container_name: tika-9998
+#    ports:
+#      - "9998:9998"
 #  thumb:
 #    image: docker.io/nttlong/fs:fs.thumbs.amd.1
 #    container_name: thumb-1114

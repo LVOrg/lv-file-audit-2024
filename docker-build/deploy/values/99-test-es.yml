@@ -1,0 +1,20 @@
+namespace: test-es-99
+appConfig:
+  name: test-es
+  host:
+    path: test-es
+    name: 172.16.7.99
+    protocol: https
+  ingress:
+    pathType: Prefix
+db:
+  mongodb: mongodb://192.168.18.36:27017
+  manage: 'lv-docs'
+search:
+  prefix_index: 'lv-codx'
+  server: 'http://172.16.7.244:9200'
+storage:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files
+

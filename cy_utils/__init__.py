@@ -150,7 +150,7 @@ def call_local_tika(action, action_type, url_file, download_file):
 
     from cyx.common import config
     process_services_host = config.process_services_host or "http://localhost"
-    from tika import parser
+    import tika.parser
     import urllib.parse
     fx = os.path.join(working_dir, str(uuid.uuid4()))
     try:
@@ -162,7 +162,7 @@ def call_local_tika(action, action_type, url_file, download_file):
                 'maxWriteLimit': '2147483647'
             }
 
-            ret = parser.from_file(
+            ret = tika.parser.from_file(
                 filename=fx,
                 serverEndpoint=f'{process_services_host}:9998/tika',
                 requestOptions={'headers': headers, 'timeout': 30000}
@@ -244,3 +244,10 @@ def run_action(action, action_type, url_file, download_file):
     else:
         raise NotImplemented("..")
 
+from gradio_client import Client
+__cache_gradio__ = {}
+def get_radio_client(url:str)->Client:
+    global __cache_gradio__
+    if __cache_gradio__.get(url) is None:
+        __cache_gradio__[url] = Client(url)
+    return __cache_gradio__[url]

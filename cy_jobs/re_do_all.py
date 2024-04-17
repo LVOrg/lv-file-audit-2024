@@ -24,11 +24,11 @@ from cyx.lv_ocr_services import LVOCRService
 from cy_utils import texts
 from cy_xdoc.services.search_engine import SearchEngine
 import cy_utils
-from gradio_client import Client
+
 local_api_service = cy_kit.singleton(LocalAPIService)
 lv_ocr_service = cy_kit.singleton(LVOCRService)
 msg = cy_kit.singleton(RabitmqMsg)
-apps = Repository.apps.app("admin").context.find(Repository.apps.fields.Name=="lv-docs")
+apps = Repository.apps.app("admin").context.find({})
 finish = dict()
 _apps = list(apps)
 for app in _apps:
@@ -131,8 +131,7 @@ while True:
                                     if action_info.get(action_key).get('port')==1112:
                                         print("OK")
 
-
-                                    client = Client(f"{process_services_host}:{action_info.get(action_key).get('port')}/")
+                                    client = cy_utils.get_radio_client(f"{process_services_host}:{action_info.get(action_key).get('port')}/")
                                     if download_url is None:
                                         continue
                                     _,result = client.predict(
@@ -177,7 +176,6 @@ while True:
                             )
 
                     except Exception as ex:
-                        print(download_url)
                         print(ex)
                         if file[files_context.fields.ProcessInfo] is None:
                             files_context.context.update(
