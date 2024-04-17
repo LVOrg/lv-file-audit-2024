@@ -5,3 +5,16 @@ pdf: nttlong/fs:fs.pdf.amd.2
 tika: apache/tika
 thumb: nttlong/fs:fs.thumbs.amd.2
 check_key: ^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$
+processesMsgConfig:
+  content:
+    entrypoint:
+      - python3
+      - app/cy_jobs/contents.py
+  image:
+    entrypoint:
+      - python3
+      - app/cy_jobs/images.py
+  index:
+    entrypoint:
+      - python3
+      - app/cy_jobs/re_do_all.py

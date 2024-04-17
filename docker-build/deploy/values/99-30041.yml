@@ -16,3 +16,7 @@ storage:
   server: 192.168.18.36
   directory: /codx-file-storage/files
   name: storage-files
+processMsg:
+  - content # dich vu xu ly no dung file
+  - image #dich vu xu ly anh cua file
+  - index #dich vu tao index trong ES

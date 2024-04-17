@@ -1,5 +1,8 @@
 {{- define "apps-data"  -}}
 {{- $appConfig :=.values.appConfig  }}
+{{- $processesMsgConfig:= .images.processesMsgConfig }}
+{{ $valuesObject:= .values}}
+{{ $imagesObject:= .images}}
 ---
 apps:
     - name: {{ $appConfig.name }}
@@ -43,6 +46,34 @@ apps:
         - name: office
           image: {{.images.office }}
         - name: tika
-          image: {{ .images.tika }}
+          image: {{ $imagesObject.tika }}
+    {{- range $key, $value := .values.processMsg }}
+    {{- $app:= (index $processesMsgConfig $value) }}
+    {{ if $app }}
+    - name: {{$value}}
+      image: {{ $imagesObject.main }}
+      entrypoint:
+        {{- range $km,$e := $app.entrypoint }}
+        - {{$e}}
+        {{- end }}
+      storage:
+        name: {{ $valuesObject.storage.name }}
+        server: {{ $valuesObject.storage.server }}
+        directory: {{ $valuesObject.storage.directory }}
+      libs:
+        - name: pdf
+          image: {{ $imagesObject.pdf }}
+        - name: video
+          image: {{ $imagesObject.video }}
+        - name: office
+          image: {{$imagesObject.office }}
+        - name: tika
+          image: {{ $imagesObject.tika }}
+    {{else}}
+    - name: {{$value}}
+      isError: True
+    {{end}}
+    {{- end}}
+
 ---
 {{- end -}}

@@ -4,6 +4,11 @@
 ---
 {{- range $key, $value := $jobsList.apps }}
 ---
+  {{- if $value.isError }}
+
+    {{- $errorMsg:= print $value.name " is invalid" }}
+  {{- fail $errorMsg }}
+  {{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
