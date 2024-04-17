@@ -9,12 +9,12 @@ processesMsgConfig:
   content:
     entrypoint:
       - python3
-      - app/cy_jobs/contents.py
+      - /app/cy_jobs/contents.py
   image:
     entrypoint:
       - python3
-      - app/cy_jobs/images.py
+      - /app/cy_jobs/images.py
   index:
     entrypoint:
       - python3
-      - app/cy_jobs/re_do_all.py
+      - /app/cy_jobs/re_do_all.py

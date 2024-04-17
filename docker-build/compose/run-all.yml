@@ -27,18 +27,18 @@ services:
     container_name: tika-9998
     ports:
       - "9998:9998"
-  thumb:
-    image: docker.io/nttlong/fs:fs.thumbs.amd.1
-    container_name: thumb-1114
-    ports:
-      - "1114:1114"
-    volumes:
-      - /mnt/files:/mnt/files
-  web:
-    image: docker.io/nttlong/fs:fs.tiny.amd.19.2
-    container_name: web-8012
-    ports:
-      - "8012:8012"
-    volumes:
-      - /mnt/files:/mnt/files
-    command: ["python3", "/app/cy_xdoc/server.py","private_web_api=http://localhost/lvfile"]
+#  thumb:
+#    image: docker.io/nttlong/fs:fs.thumbs.amd.1
+#    container_name: thumb-1114
+#    ports:
+#      - "1114:1114"
+#    volumes:
+#      - /mnt/files:/mnt/files
+#  web:
+#    image: docker.io/nttlong/fs:fs.tiny.amd.19.2
+#    container_name: web-8012
+#    ports:
+#      - "8012:8012"
+#    volumes:
+#      - /mnt/files:/mnt/files
+#    command: ["python3", "/app/cy_xdoc/server.py","private_web_api=http://localhost/lvfile"]
