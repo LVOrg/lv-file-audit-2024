@@ -1,14 +1,12 @@
 namespace: files
-webAppName: lv-file
 appConfig:
-  lv-file:
-    host:
-      path: lvfile
-      name: 172.16.7.99
-      protocol: https
-ingress:
-  lv-file:
-    pathType: Prefix
+  name: lv-file
+  host:
+    path: lvfile
+    name: 172.16.7.99
+    protocol: https
+  ingress:
+      pathType: Prefix
 db:
   mongodb: ????
   manage: 'lv-docs'
@@ -31,4 +29,4 @@ storage:
   server: ????
   directory: ????
   name: storage-files
-
+jobs:

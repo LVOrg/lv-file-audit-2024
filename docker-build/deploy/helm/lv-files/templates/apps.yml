@@ -1,5 +1,6 @@
 {{ $images := .Files.Get "images.yml" | fromYaml -}}
 {{ $jobsList:= fromYaml ((include "apps-data" (dict "values" .Values "images" $images) ))  -}}
+
 ---
 {{- range $key, $value := $jobsList.apps }}
 ---
@@ -27,10 +28,6 @@ spec:
           emptyDir: { }
         - name: socat-share
           emptyDir: { }
-#        - name: xdoc-storage
-#          nfs:
-#            server: {{$value.storage.server}}
-#            path: {{$value.storage.directory}}/tmp
         - name: {{ $value.storage.name}}
           nfs:
             server: {{$value.storage.server}}

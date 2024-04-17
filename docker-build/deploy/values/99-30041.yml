@@ -1,14 +1,11 @@
-namespace: files
-webAppName: lv-file
+namespace: default-99-30041
 appConfig:
-  lv-file:
-    host:
-      path: lvfile
-      name: 172.16.7.91
-      protocol: https
-ingress:
-  files3:
-    pathType: Prefix
+  name: lv-file
+  host:
+    path: lvfile
+    name: 172.16.7.99
+    protocol: https
+  nodePort: 30041
 db:
   mongodb: mongodb://192.168.18.36:27017
   manage: 'lv-docs'
@@ -19,4 +16,3 @@ storage:
   server: 192.168.18.36
   directory: /codx-file-storage/files
   name: storage-files
-

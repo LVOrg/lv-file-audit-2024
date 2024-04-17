@@ -1,14 +1,14 @@
-namespace: lv-files
-webAppName: lv-file
+namespace: lacviet
+webAppName: lv-file-lacviet
 appConfig:
-  name: lv-file
-  host:
-    path: lacviet
-    name: 172.16.7.99
-    protocol: https
-  ingress:
-    lv-file:
-      pathType: Prefix
+  lv-file-lacviet:
+    host:
+      path: lacviet
+      name: 172.16.7.91
+      protocol: https
+ingress:
+  lv-file-lacviet:
+    pathType: Prefix
 db:
   mongodb: mongodb://172.16.0.83:27017,172.16.0.84:27017,172.16.0.85:27017/?replicaSet=rs0&readPreference=secondary
   manage: 'lv-docs'

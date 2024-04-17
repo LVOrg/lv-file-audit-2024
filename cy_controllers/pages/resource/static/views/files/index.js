@@ -331,9 +331,9 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         var cookieName = "cy-files-token";
         var accessToken = cookieString.split("; ").find(cookie => cookie.startsWith(cookieName + "=")).split("=")[1];
 
-
-        var checkOutUrl = window.location.protocol + "//" + window.location.host + "/lvfile/api/files/check_out_source";
-        var checkInUrl = window.location.protocol + "//" + window.location.host + "/lvfile/api/files/check_in_source";
+        var url=$("head base").attr("href")
+        var checkOutUrl = url + "api/files/check_out_source";
+        var checkInUrl = url + "api/files/check_in_source";
         try {
             var items = item.FileName.split('.')
             var ext=""

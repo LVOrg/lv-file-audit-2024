@@ -1,8 +1,8 @@
 {{- define "apps-data"  -}}
-{{- $appConfig :=(index .values.appConfig .values.webAppName)  }}
+{{- $appConfig :=.values.appConfig  }}
 ---
 apps:
-    - name: {{ .values.webAppName }}
+    - name: {{ $appConfig.name }}
       image: {{ .images.main }}
       namespace: {{ .values.namespace}}
       replicas: {{.values.replicas}}
@@ -16,16 +16,17 @@ apps:
         - private_web_api=http://localhost/{{$appConfig.host.path}}
         {{end}}
       service:
-        {{ if not (index .values.ingress .values.webAppName) }}
+        {{ if index $appConfig "nodePort" }}
         type: nodePort
-        nodePort: 30072
-        {{end}}
-        {{ if (index .values.ingress .values.webAppName) }}
-        {{- $ingress := (index .values.ingress .values.webAppName) }}
+        nodePort: {{$appConfig.nodePort}}
+        {{else}}
+        {{ if index $appConfig "ingress"}}
+        {{- $ingress := $appConfig.ingress }}
         ingress:
           path: {{$appConfig.host.path}}
           pathType: {{$ingress.pathType}}
           ip: {{$appConfig.host.name}}
+        {{end}}
         {{end}}
 
       storage:
