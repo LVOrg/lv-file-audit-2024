@@ -42,3 +42,4 @@ secret*
 /env_webapi/
 /tmp-files/
 /docker-build/build-ocr-cache-dataset/
+/client_secrets.json

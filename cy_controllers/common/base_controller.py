@@ -55,6 +55,7 @@ from cyx.local_file_caching_services import LocalFileCachingService
 from  cyx.docs_contents_services import DocsContentsServices
 from cyx.image_services import ImageService
 from cyx.extract_content_service import ExtractContentService
+from cyx.g_drive_services import GDriveService
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -90,6 +91,7 @@ class BaseController:
     docs_contents_cervices = cy_kit.singleton(DocsContentsServices)
     image_service:ImageService = cy_kit.singleton(ImageService)
     extract_content_service:ExtractContentService = cy_kit.singleton(ExtractContentService)
+    g_drive_service:GDriveService = cy_kit.singleton(GDriveService)
 
     def __init__(self, request: Request):
         self.request = request

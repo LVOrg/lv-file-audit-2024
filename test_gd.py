@@ -1,0 +1,2 @@
+url="https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive.metadata.readonly&access_type=offline&include_granted_scopes=true&response_type=code&state=ok&redirect_uri=http%3A%2F%2Flocalhost%3A8012%2Flvfile%2Fapi%2Flv-docs%2Fafter-google-login%2F&client_id=466393455541-v1nari37o3e1pj87aq6373orghppk20n.apps.googleusercontent.com"
+URL2="https://localhost:8012/lvfile/api/lv-docs/after-google-login/"

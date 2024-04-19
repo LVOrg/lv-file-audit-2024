@@ -30,6 +30,8 @@ from cy_controllers.global_settings.global_settinsg_controllers import GlobalSet
 from cy_controllers.gemini_controller.gemini_controller import GeminiControllr
 from cy_controllers.files.file_local_controller import FilesLocalController
 from cyx.loggers import LoggerService
+from cy_controllers.google.auth_controller import GoogleController
+from cy_controllers.google.google_settings_controller import GoogleSettingsController
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
 controllers_list=[
@@ -52,6 +54,9 @@ controllers_list=[
         Office365Controller,
         AuthController,
         FilesLocalController,
+        GoogleController,
+        GoogleSettingsController,
+
         PagesController
 
     ]
