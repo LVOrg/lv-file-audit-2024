@@ -96,7 +96,7 @@ def move_data(app_name: str):
     agg = file_context.context.aggregate().sort(
         file_context.fields.RegisterOn.desc()
     ).match(
-        cy_docs.not_exists(file_context.fields.StoragePath) & (file_context.fields.Status == 1)
+        cy_docs.not_exists(file_context.fields.StoragePath) & (file_context.fields.Status == 1) & (file_context.fields.StorageType!="local")
 
     ).limit(10)
     for x in agg:
@@ -194,7 +194,7 @@ def do_move_all(app_name: str):
 db_names = mongodb_service.db("admin").client.list_database_names()
 app_qr = mongodb_service.db("admin").get_document_context(App)
 apps = mongodb_service.db("admin").get_document_context(App).context.find(
-    app_qr.fields.NameLower!="_"
+    app_qr.fields.Name!="_"
 )
 # fileter_reindex = ((qr.fields.HasThumb == False) | (cy_docs.not_exists(qr.fields.HasThumb)))
 # fileter_thumb_able = ((qr.fields.ThumbnailsAble == True) | (cy_docs.not_exists(qr.fields.ThumbnailsAble)))
@@ -205,8 +205,8 @@ apps = mongodb_service.db("admin").get_document_context(App).context.find(
 # )
 # mime_type:str = item[qr.fields.MimeType]
 
-
-for x in apps:
-    app_name = x[app_qr.fields.NameLower] or x[app_qr.fields.Name]
-    do_move_all(app_name)
+while True:
+    for x in apps:
+        app_name = x[app_qr.fields.NameLower] or x[app_qr.fields.Name]
+        do_move_all(app_name)
 

@@ -348,6 +348,7 @@ class DocUploadRegister:
     Search_vv_support: typing.Optional[bool]
     ReIndexInfo: typing.Optional[dict]
     StorageType: typing.Optional[str]
+    IsToLocalDist: typing.Optional[bool]
     OnedriveScope: typing.Optional[str]
     OnedriveSessionUrl: typing.Optional[str]
     OnedrivePassword: typing.Optional[str]

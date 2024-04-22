@@ -1,0 +1,20 @@
+namespace: qtcs-long-test
+appConfig:
+  name: lv-file
+  host:
+    path: long-test
+    name: oms.qtsc.com.vn
+    protocol: https
+  ingress:
+    pathType: Prefix
+db:
+  mongodb: mongdb://admin:Lacviet#123@10.200.16.15:27017/admin
+  manage: 'hps-file-test'
+search:
+  prefix_index: 'lv-codx'
+  server: 'http://10.200.16.16:9200'
+storage:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files
+

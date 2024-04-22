@@ -56,7 +56,6 @@ controllers_list=[
         FilesLocalController,
         GoogleController,
         GoogleSettingsController,
-
         PagesController
 
     ]

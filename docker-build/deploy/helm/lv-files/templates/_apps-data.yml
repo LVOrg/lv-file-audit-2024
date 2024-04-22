@@ -14,7 +14,7 @@ apps:
         - /app/cy_xdoc/server.py
         - bind=0.0.0.0:80
         - content_segment_len=9
-        - private_web_api=http://{{$appConfig.name}}-service.{{.values.namespace}}:8082 #test-es-service.test-es-99:8082
+        - private_web_api=http://{{$appConfig.name}}-service.{{.values.namespace}}:8082/{{$appConfig.host.path}} #test-es-service.test-es-99:8082
         {{if $appConfig.host}}
         - host_url={{$appConfig.host.protocol}}://{{$appConfig.host.name}}/{{$appConfig.host.path}}
         - private_web_api=http://localhost/{{$appConfig.host.path}}
@@ -59,7 +59,7 @@ apps:
         {{- range $km,$e := $app.entrypoint }}
         - {{$e}}
         {{- end }}
-        - private_web_api=http://{{$appConfig.name}}-service.{{$valuesObject.namespace}}:8082
+        - private_web_api=http://{{$appConfig.name}}-service.{{$valuesObject.namespace}}:8082/{{$appConfig.host.path}}
       storage:
         name: {{ $valuesObject.storage.name }}
         server: {{ $valuesObject.storage.server }}

@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: db-to-disk
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: index
+  namespace: db-to-disk
+  uid: 373cfb55-4fce-4294-a955-ece4552ee3d0
+  resourceVersion: '25953939'
+  generation: 3
+  creationTimestamp: '2024-04-17T07:07:10Z'
+  labels:
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-to-disk
+  template:
+    metadata:
+      labels:
+        app: db-to-disk
+    spec:
+      volumes:
+        - name: tmp-files
+          emptyDir: {}
+        - name: socat-share
+          emptyDir: {}
+        - name: storage-files
+          nfs:
+            server: 10.200.16.15
+            path: /data/share/xdoc-web
+      containers:
+        - name: db-to-disk
+          image: nttlong/fs:fs.tiny.amd.19.13
+          args:
+            - python3
+            - /app/cy_jobs/move_to_disk.py
+            - long-test
+            - bind=0.0.0.0:80
+            - content_segment_len=9
+            - elastic_search.server=$(elastic_search.server)
+            - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            - db=mongodb://admin:Lacviet#123@10.200.16.15:27017/admin
+            - admin_db_name=hps-file-test
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.port=$(rabbitmq.port)
+            - rabbitmq.msg=$(rabbitmq.msg)
+            - cache_server=$(cache_server)
+            - workers=$(workers)
+            - server_type=$(server_type.hypercorn)
+            - worker_class=$(worker_class.trio)
+            - timeout_keep_alive=$(timeout_keep_alive)
+            - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
+            - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
+            - vn_suggest_url=$(vn_suggest_url)
+            - tika_server=$(tika_server)
+            - file_storage_path=/mnt/files
+          resources: {}
+          volumeMounts:
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
+            - name: storage-files
+              mountPath: /mnt/files
+
+
+
+

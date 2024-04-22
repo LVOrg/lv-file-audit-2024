@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-cache
+  namespace: file-cache
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: file-cache
+  template:
+    metadata:
+      labels:
+        app: file-cache
+    spec:
+      containers:
+      - name: file-cache
+        image: memcached:latest
+        ports:
+        - containerPort: 11211
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: memcache-service
+  namespace: file-cache
+  labels:
+    app: memcache-service
+spec:
+  ports:
+    - name: '11211'
+      protocol: TCP
+      port: 11211
+      targetPort: 11211
+      nodePort: 30211
+  selector:
+    app: file-cache
+  type: NodePort

@@ -52,6 +52,16 @@ var appsView = await View(import.meta, class AppsView extends BaseScope {
             app_edit.asWindow();
 
     }
+    async loadGoogleDriveSettings(appName) {
+        //appGoogleDriveSettingsView
+        var r = await import("../app_settings_google_drive/index.js");
+            var appGoogleDriveSettings = await r.default();
+            await appGoogleDriveSettings.doEditApp(appName);
+            appGoogleDriveSettings.asWindow();
+    }
+    roundValue(val) {
+        return Math.round(val, 2)
+    }
     //async loadFullTextSearch() {
     //    redirect("search")
     //}

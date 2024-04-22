@@ -26,10 +26,10 @@ import pymongo
 from pydantic import BaseModel
 
 class GoogleAuthCredentials(BaseModel):
-  client_id: str
-  client_secret: str
+  ClientId: str
+  ClientSecret: str
 from fastapi import Body
-
+from cyx.repository import Repository
 @controller.resource()
 class GoogleSettingsController(BaseController):
     dependencies = [
@@ -39,16 +39,39 @@ class GoogleSettingsController(BaseController):
     def __init__(self, request: Request):
         self.request = request
 
-    @controller.route.get(
+    @controller.route.post(
         "/api/{app_name}/google-drive-settings/update", summary="Update settings for google drive"
     )
-    def google_drive_settings_update(self, app_name: str,settings:GoogleAuthCredentials=Body()) -> str:
-        # code="4/0AeaYSHB7RHy_Chta27XKeYlvTL_R8AU4JaAlqT1nISgyRHJBxdoH4k5QsShnMUwRc4pcTQ"
-        code = self.request.query_params.get("code")
-        access_token_key= self.g_drive_service.get_access_token(code=code)
+    def google_drive_settings_update(self, app_name: str,settings:GoogleAuthCredentials=Body()):
+        try:
+            Repository.apps.app('admin').context.update(
+                Repository.apps.fields.Name==app_name,
+                Repository.apps.fields.AppOnCloud.Google.ClientId<<settings.ClientId,
+                Repository.apps.fields.AppOnCloud.Google.ClientSecret << settings.ClientSecret
+            )
+            return dict(
+                ok=True
+            )
+        except Exception as ex:
+            return dict(
+                error=dict(
+                    code="system",
+                    desccription=ex.__str__()
+                )
+            )
 
-        return code
-
-
-
+    @controller.route.post(
+        "/api/{app_name}/google-drive-settings/get", summary="Update settings for google drive"
+    )
+    def google_drive_settings_get(self, app_name: str):
+        ret = Repository.apps.app('admin').context.aggregate().match(
+            Repository.apps.fields.Name==app_name
+        ).project(
+            cy_docs.fields.ClientId>>Repository.apps.fields.AppOnCloud.Google.ClientId,
+            cy_docs.fields.ClientSecret>>Repository.apps.fields.AppOnCloud.Google.ClientSecret
+        )
+        ret=list(ret)
+        if len(ret)>0:
+            return ret[0]
+        return None
 
