@@ -21,25 +21,26 @@
                 <legend>Azure App</legend>
                 <div class="app-editor-frame">
                     <span>Client id</span>
-                    <input type="text" ng-model="data.ClientId" class="form-control" />
+                    <input type="text" ng-model="data.ClientId" class="form-control"  autocomplete="off" />
                     <span >Client Secret</span>
                     <div class="input-group">
-
-                        <input type="{{clientSecretInputType}}" ng-model="data.ClientSecret" class="form-control" />
+                        <input type="hidden" autocomplete="true" ng-model="data.ClientSecret">
+                        <input type="{{clientSecretInputType}}" ng-model="data.ClientSecret" class="form-control"  autocomplete="off" name="password"/>
                         <button ng-click="clientSecretOnOff()"><span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span></button>
                     </div>
 
 
                 </div>
-                <div ng-if="app.Apps.Azure.UrlLogin">
-                    <a target="_blank" ng-href="{{app.AppOnCloud.Azure.UrlLogin}}">Login and get access token key</a>
-                </div>
+
             </fieldset>
         </div>
         <div class="layout-rows" style="padding-top:40px">
             <div class="dock full"></div>
             <div style="margin:10px">
                 <input type="button" class="btn btn-primary btn-sm" value="{{$res('Save changes')}}" ng-click="doUpdateApp().then()" />
+            </div>
+            <div style="margin:10px" ng-if="data.ClientSecret && data.ClientId">
+                <a  class="btn btn-primary btn-sm" href="{{getGoogleLoginUrl()}}" target="_blank">Sign-i and get token </a>
             </div>
             <div style="margin:10px">
                 <input type="button" class="btn btn-primary btn-sm" style="float:right" value="{{$res('Cancel')}}" ng-click="$close()" />

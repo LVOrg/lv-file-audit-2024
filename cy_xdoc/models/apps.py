@@ -27,8 +27,10 @@ class AppMicrosoftAzure:
 
 
 class AppGoogle:
-    ClientId: str
-    ClientSecret: str
+    ClientId: typing.Optional[str]
+    ClientSecret: typing.Optional[str]
+    RefreshToken: typing.Optional[str]
+    RootDir:typing.Optional[str]
 
 
 class AppsOnCloudModel:

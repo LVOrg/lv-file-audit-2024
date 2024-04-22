@@ -93,14 +93,41 @@ def cy_open_file(*args, **kwargs):
     send_kwargs = {**send_kwargs, **kwargs}
 
     file_path = send_kwargs["file"]
-    if isinstance(file_path,str) and (file_path.startswith("http://") or file_path.startswith("https://")):
-        from cy_file_cryptor import remote_file
-        ret_fs = remote_file.do_open(
-            url_file= file_path,
-            original_open_file=original_open_file,
-            send_kwargs=send_kwargs
-        )
-        return ret_fs
+    if isinstance(file_path,str) and file_path.startswith("google://"):
+        token=  kwargs.get("token")
+        client_id = kwargs.get("client_id")
+        client_secret = kwargs.get("client_secret")
+        if token is None:
+            raise Exception("require token")
+        if client_id is None:
+            raise Exception("require client_id")
+        if client_secret is None:
+            raise Exception("require client_secret")
+        if send_kwargs.get("mode")=="wb":
+            import cy_file_cryptor.google_drive_upload
+            ret = cy_file_cryptor.google_drive_upload.create_upload_stream(
+                file_path=file_path,
+                token = token,
+                client_id = client_id,
+                client_secret =client_secret
+            )
+            return ret
+        if send_kwargs.get("mode") == "rb":
+            import cy_file_cryptor.google_drive_download
+            ret = cy_file_cryptor.google_drive_download.create_download_stream(
+                file_path=file_path,
+                token=token,
+                client_id=client_id,
+                client_secret=client_secret
+            )
+            return ret
+
+
+
+
+
+
+
     if isinstance(file_path,str) and file_path.startswith("mongodb://"):
         from cy_file_cryptor import mongodb_file
         return mongodb_file.do_open(

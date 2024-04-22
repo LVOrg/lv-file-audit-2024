@@ -18,7 +18,7 @@ from fastapi import (
     Response, Body
 )
 from cy_xdoc.auths import Authenticate
-
+from google.oauth2 import service_account
 router = APIRouter()
 controller = Controller(router)
 from cy_controllers.common.base_controller import BaseController
@@ -37,14 +37,31 @@ class GoogleController(BaseController):
     @controller.route.get(
         "/api/{app_name}/after-google-login", summary="after login to google"
     )
-    def after_login_google(self, app_name: str) -> str:
-        # code="4/0AeaYSHB7RHy_Chta27XKeYlvTL_R8AU4JaAlqT1nISgyRHJBxdoH4k5QsShnMUwRc4pcTQ"
+    def after_login_google(self, app_name: str) :
+
         code = self.request.query_params.get("code")
-        access_token_key= self.g_drive_service.get_access_token(
-            code=code,
-            client_id="437264324741-r6ppgq59tcu264tufv0sbba014mrtc68.apps.googleusercontent.com",
-            client_secret="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"
-        )
+        client_id,client_secret = self.g_drive_service.get_id_and_secret(app_name)
+        if client_id and client_secret:
+            access_token_key= self.g_drive_service.get_access_token(
+                code=code,
+                client_id=client_id,
+                client_secret=client_secret
+            )
+            #google.auth.exceptions.RefreshError: The credentials do not contain the necessary fields need to refresh the access token.
+            # You must specify
+            # refresh_token,
+            # token_uri,
+            # client_id,
+            # and client_secret.
+
+            refresh_token= access_token_key.get("refresh_token")
+            self.g_drive_service.save_refresh_access_token(
+                app_name = app_name,
+                refresh_token = refresh_token
+            )
+            return access_token_key
+        else:
+            return "Error"
 
         return code
 

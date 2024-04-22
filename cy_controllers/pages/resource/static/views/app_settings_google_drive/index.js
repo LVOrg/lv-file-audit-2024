@@ -10,21 +10,24 @@ var appGoogleDriveSettingsView = await View(import.meta, class EditAppView exten
         }
     }
     onInit() {
+           this.data= {
+                ClientSecret:"",
+                ClientId:""
+           };
+           this.$applyAsync();
 //        this.doEditApp(getPaths()[2])
+    }
+    getGoogleLoginUrl() {
+        var baseUrl=$("head base").attr("href")
+        return baseUrl+ `/api/${this.appName}/google-login`
     }
     async doEditApp(appName) {
         this.clientSecretInputType='password'
         var me=this;
-        me.app = await api.post(`admin/apps/get/${appName}`, {
+        me.data = await api.post(`${appName}/google-drive-settings/get`, {
 
-        })
-        if((!me.app.Apps)||(me.app.Apps==null)){
-            me.app.Apps= {
-                Azure:{
-                    Name: null
-                }
-            }
-        }
+        });
+        me.appName=appName;
         me.$applyAsync();
     }
     async doNewApp() {
