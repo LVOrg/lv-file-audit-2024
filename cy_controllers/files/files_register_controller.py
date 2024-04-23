@@ -188,10 +188,10 @@ class FilesRegisterController(BaseController):
         Default encrypt content is settings True
         """
         Data.encryptContent = Data.encryptContent or True
-        if Data.storageType is None or Data.storageType not in ["onedrive", "local"]:
+        if Data.storageType is None or Data.storageType not in ["onedrive", "local", "google-drive"]:
             ret_quit = RegisterUploadInfoResult()
             ret_quit.Error = Error()
-            ret_quit.Error.Message = f"Missing field storageType. storageType must be local or onedrive"
+            ret_quit.Error.Message = f"Missing field storageType. storageType must be local,onedrive or google-drive"
             ret_quit.Error.Code = "MissingField"
             return ret_quit
         if Data.storageType == "onedrive":
@@ -199,6 +199,25 @@ class FilesRegisterController(BaseController):
                 self.fucking_azure_account_service.acquire_token(
                     app_name=app_name
                 )
+                Data.encryptContent = True
+            except FuckingWhoreMSApiCallException as e:
+                ret_quit = RegisterUploadInfoResult()
+                ret_quit.Error = Error()
+                ret_quit.Error.Message = e.message
+                ret_quit.Error.Code = e.code
+                return ret_quit
+        if Data.storageType == "google-drive":
+            try:
+                client_id, secret_key = self.g_drive_service.get_id_and_secret(
+                    app_name=app_name
+                )
+                if client_id is None:
+                    ret_quit = RegisterUploadInfoResult()
+                    ret_quit.Error = Error()
+                    ret_quit.Error.Message = f"Tenant {app_name} did not set. The bestows is deny."
+                    ret_quit.Error.Code = "MissSettings"
+                    return ret_quit
+                Data.encryptContent = True
             except FuckingWhoreMSApiCallException as e:
                 ret_quit = RegisterUploadInfoResult()
                 ret_quit.Error = Error()
@@ -224,8 +243,8 @@ class FilesRegisterController(BaseController):
                 storage_type=Data.storageType,
                 onedriveScope=Data.onedriveScope,
                 onedrive_password=Data.onedrivePassword,
-                onedrive_expiration = Data.onedriveExpiration,
-                is_encrypt_content = Data.encryptContent
+                onedrive_expiration=Data.onedriveExpiration,
+                is_encrypt_content=Data.encryptContent
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
@@ -233,7 +252,7 @@ class FilesRegisterController(BaseController):
         except FuckingWhoreMSApiCallException as e:
             ret_data = RegisterUploadInfoResult()
             ret_data.Error = Error(
-                Code= e.code,
+                Code=e.code,
                 Message=e.message
             )
             return ret_data

@@ -362,6 +362,7 @@ class FilesUploadController(BaseController):
                 if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"), dict) and (
                         upload_item["SkipActions"].get("All", False) == False
                 )):
+
                     await self.post_msg_upload_file_async(
                         app_name=app_name,
                         upload_id=UploadId,
@@ -431,10 +432,16 @@ class FilesUploadController(BaseController):
                         ret.Error.Code = e.code
                         ret.Error.Message = e.message
                         return ret
+                if upload_item.StorageType=="google-drive":
+                    self.g_drive_service.sync_to_drive(
+                        app_name = app_name,
+                        upload_item = upload_item
+                    )
                 self.delete_cache_upload_register(
                     app_name=app_name,
                     upload_id=UploadId
                 )
+
 
             return ret_data
 

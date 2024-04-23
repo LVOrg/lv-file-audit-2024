@@ -1,12 +1,9 @@
 import os.path
 import pathlib
 import typing
-
+import json
 import fastapi
 import requests
-from pydrive.auth import GoogleAuth
-import google_auth_oauthlib.flow
-import urllib3.util
 import urllib.parse
 
 import cy_docs
@@ -18,12 +15,20 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import hashlib
 from google.oauth2 import service_account
-
+from gradio_client import Client
+import cy_utils
+from cyx.processing_file_manager_services import ProcessManagerService
+from cyx.local_api_services import LocalAPIService
+from cyx.common import config
 class GDriveService:
-    def __init__(self, memcache_service=cy_kit.singleton(MemcacheServices)):
+    def __init__(self,
+                 memcache_service=cy_kit.singleton(MemcacheServices),
+                 local_api_service=cy_kit.singleton(LocalAPIService)
+                 ):
         self.working_dir = pathlib.Path(__file__).parent.parent.__str__()
         self.memcache_service = memcache_service
         self.cache_key_of_refresh_token = f"{type(self).__module__}_{type(self).__name__}"
+        self.local_api_service=local_api_service
         # self.gauth.settings['client_config_backend']='settings'
 
     def do_auth(self, client_id: str, client_secret: str, redirect_uri):
@@ -186,3 +191,32 @@ class GDriveService:
             self.memcache_service.set_str(f"{self.cache_key_of_refresh_token}_{app_name}_root_folder", ret)
         self.create_folder(app_name, ret)
         return ret
+
+    def sync_to_drive(self, app_name, upload_item):
+        download_url, rel_path, download_file, token, share_id = self.local_api_service.get_download_path(upload_item, app_name)
+        google_path = self.get_root_folder(app_name)+rel_path[len(app_name):]
+        full_path= os.path.join("/mnt/files",rel_path)
+        client_id,secret_key = self.get_id_and_secret(app_name)
+        process_services_host = config.process_services_host or "http://localhost"
+        g_token = self.get_refresh_access_token(app_name)
+
+        try:
+            txt_json = json.dumps(dict(
+                token=g_token,
+                file_path=full_path,
+                app_name=app_name,
+                google_path=google_path,
+                client_id=client_id,
+                secret_key=secret_key,
+                memcache_server= config.cache_server
+
+            ))
+            print(txt_json)
+            client = Client(f"{process_services_host}:1115/")
+            result = client.predict(
+                txt_json,
+                api_name="/predict"
+            )
+        except Exception as ex:
+            raise ex
+
