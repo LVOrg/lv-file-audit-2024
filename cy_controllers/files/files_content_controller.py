@@ -141,12 +141,13 @@ class FilesContentController(BaseController):
             )
         if upload.StorageType=="google-drive":
             upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id==upload_id)
-            return  self.g_drive_service.get_content(
-                app_name=app_name,
-                client_file_name=upload.FileName,
-                cloud_id= upload[Repository.files.fields.CloudId],
-                request=self.request
-            )
+            if upload[Repository.files.fields.CloudId] is not None:
+                return  self.g_drive_service.get_content(
+                    app_name=app_name,
+                    client_file_name=upload.FileName,
+                    cloud_id= upload[Repository.files.fields.CloudId],
+                    request=self.request
+                )
         if not upload.IsPublic:
             if self.request.query_params.get("local-share-id") and self.request.query_params.get("app-name"):
                 check_data = self.local_api_service.check_local_share_id(
