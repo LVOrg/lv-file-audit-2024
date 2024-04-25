@@ -29,6 +29,8 @@ from googleapiclient.http import HttpRequest as gRequest
 from googleapiclient.errors import HttpError
 
 from cy_xdoc.services.files import FileServices
+
+
 class GDriveService:
     def __init__(self,
                  memcache_service=cy_kit.singleton(MemcacheServices),
@@ -40,19 +42,20 @@ class GDriveService:
         self.cache_key_of_refresh_token = f"{type(self).__module__}_{type(self).__name__}"
         self.local_api_service = local_api_service
         self.file_services = file_services
+        self.cache_key_of_id_and_secret = f"{type(self).__module__}/{type(self).__name__}/id_and_secret"
         # self.gauth.settings['client_config_backend']='settings'
 
     def do_auth(self, client_id: str, client_secret: str, redirect_uri):
 
         self.gauth.LocalWebserverAuth()
 
-    def get_login_url(self, request: fastapi.Request, app_name, client_id) -> object:
+    def get_login_url(self, request: fastapi.Request, app_name) -> object:
 
         """
 
         :return:
         """
-
+        client_id, client_secret = self.get_id_and_secret(app_name)
         redirect_uri = f'https://{request.url.hostname}/' + request.url.path.split('/')[
             1] + '/api/' + app_name + '/after-google-login'
         url_parse = [
@@ -94,13 +97,14 @@ class GDriveService:
         # fx=urllib3.util.parse_url(authorization_url)
         return authorization_url
 
-    def get_access_token(self, code, client_id, client_secret):
+    def get_access_token(self, code, client_id, client_secret, redirect_uri):
+
         data = {
             "grant_type": "authorization_code",
             "client_id": client_id,
             "client_secret": client_secret,
             "code": code,
-            "redirect_uri": "https://docker.lacviet.vn/lvfile/api/lv-docs/after-google-login"
+            "redirect_uri": redirect_uri
         }
 
         response = requests.post("https://oauth2.googleapis.com/token", data=data)
@@ -108,7 +112,26 @@ class GDriveService:
 
         return response.json()
 
+    def get_redirect_uri(self, app_name):
+        qr = Repository.apps.app("admin").context.aggregate().match(
+            Repository.apps.fields.Name == app_name
+        ).project(
+            cy_docs.fields.RedirectUri >> Repository.apps.fields.AppOnCloud.Google.RedirectUri
+        )
+        data = list(qr)
+        if len(data) == 0:
+            return None
+        else:
+            return data[0].RedirectUri
+
+    def resset_id_and_secret(self, app_name):
+        self.memcache_service.delete_key(f"{self.cache_key_of_id_and_secret}/{app_name}")
+
     def get_id_and_secret(self, app_name) -> typing.Tuple[str | None, str | None]:
+
+        ret_dict = self.memcache_service.get_dict(f"{self.cache_key_of_id_and_secret}/{app_name}")
+        if ret_dict:
+            return ret_dict["ClientId"], ret_dict["ClientSecret"]
         qr = Repository.apps.app("admin").context.aggregate().match(
             Repository.apps.fields.Name == app_name
         ).project(
@@ -120,9 +143,11 @@ class GDriveService:
             return None, None
         else:
             data = data[0]
+            self.memcache_service.set_dict(f"{self.cache_key_of_id_and_secret}/{app_name}",data.to_json_convertable(),expiration=60*60*365)
             return data.get("ClientId"), data.get("ClientSecret")
 
     def save_refresh_access_token(self, app_name, refresh_token):
+        self.resset_id_and_secret(app_name)
         Repository.apps.app("admin").context.update(
             Repository.apps.fields.Name == app_name,
             Repository.apps.fields.AppOnCloud.Google.RefreshToken << refresh_token
@@ -205,6 +230,7 @@ class GDriveService:
     def sync_to_drive(self, app_name, upload_item):
         download_url, rel_path, download_file, token, share_id = self.local_api_service.get_download_path(upload_item,
                                                                                                           app_name)
+
         def running():
             google_path = self.get_root_folder(app_name) + rel_path[len(app_name):]
             full_path = os.path.join("/mnt/files", rel_path)
@@ -220,7 +246,7 @@ class GDriveService:
                     google_path=google_path,
                     client_id=client_id,
                     secret_key=secret_key,
-                    memcache_server= "172.16.13.72:11213" #config.cache_server
+                    memcache_server="172.16.13.72:11213"  #config.cache_server
 
                 ))
                 print(txt_json)
@@ -241,15 +267,16 @@ class GDriveService:
                     # )
                 )
 
-                upload_item[Repository.files.fields.CloudId]=result
-                self.file_services.cache_upload_register_set(upload_item.Id,upload_item)
+                upload_item[Repository.files.fields.CloudId] = result
+                self.file_services.cache_upload_register_set(upload_item.Id, upload_item)
             except Exception as ex:
                 raise ex
 
         threading.Thread(target=running).start()
-    def get_access_token_from_refresh_token(self,app_name):
+
+    def get_access_token_from_refresh_token(self, app_name):
         refresh_token = self.get_refresh_access_token(app_name)
-        client_id, client_secret =self.get_id_and_secret(app_name)
+        client_id, client_secret = self.get_id_and_secret(app_name)
         body = {
             'grant_type': 'refresh_token',
             'client_id': client_id,
@@ -257,11 +284,12 @@ class GDriveService:
             'refresh_token': refresh_token
         }
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        token_uri="https://oauth2.googleapis.com/token"
+        token_uri = "https://oauth2.googleapis.com/token"
         response = requests.post(token_uri, headers=headers, data=body)
-        data= response.json()
+        data = response.json()
         access_token = data.get('access_token')
         return access_token
+
     def get_service(self, token, client_id, client_secret) -> Resource:
         credentials = OAuth2Credentials(
             token=token,
@@ -273,7 +301,16 @@ class GDriveService:
         service = build('drive', 'v3', credentials=credentials)
         return service
 
-    def set_public_visibility(self,resource_id,service:Resource):
+    def get_service_by_app_name(self, app_name) -> Resource:
+        token = self.get_refresh_access_token(app_name)
+        client_id, client_secret = self.get_id_and_secret(app_name)
+        return self.get_service(
+            token=token,
+            client_id=client_id,
+            client_secret=client_secret
+        )
+
+    def set_public_visibility(self, resource_id, service: Resource):
         # Replace with your credentials file path
         # Update permission to 'anyoneWithLink'
         permission = {'role': 'reader', 'type': 'anyoneWithLink'}
@@ -283,6 +320,7 @@ class GDriveService:
             print(f"File visibility set to 'anyoneWithLink' for resource ID: {resource_id}")
         except HttpError as error:
             print(f"API error: {error}")
+
     def get_public_url(self, resource_id, token, client_id, client_secret):
 
         # Define the Drive API service
@@ -307,24 +345,22 @@ class GDriveService:
         else:
             return None
 
-    def get_content(self, app_name:str, cloud_id:str,client_file_name:str, request:fastapi.requests.Request):
+    def get_content(self, app_name: str, cloud_id: str, client_file_name: str, request: fastapi.requests.Request):
         import requests
         import mimetypes
         from fastapi.responses import StreamingResponse
         # url = f"https://drive.google.com/file/d/{cloud_id}/view?usp=drivesdk"
-        content_type,_ = mimetypes.guess_type(client_file_name)
+        content_type, _ = mimetypes.guess_type(client_file_name)
         uri = f"https://www.googleapis.com/drive/v3/files/{cloud_id}?alt=media"
         access_token = self.get_access_token_from_refresh_token(app_name)
         headers = {
             'Authorization': f'Bearer {access_token}'
         }
         if request.headers.get("range"):
-            headers["range"]=request.headers["range"]
-        response = requests.get(uri,headers=headers,stream=True)
+            headers["range"] = request.headers["range"]
+        response = requests.get(uri, headers=headers, stream=True)
         # response.headers["Content-Type"] = content_type
         # response.headers["Accept-Ranges"] = "bytes"
-
-
 
         # response.headers["Content-Range"] = request.headers.get('range')
         if response.headers.get("Content-Disposition"):

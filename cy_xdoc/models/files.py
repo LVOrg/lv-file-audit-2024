@@ -397,3 +397,12 @@ class ContentHistory:
 class DocLocalShareInfo:
     LocalShareId: str
     UploadId: str
+
+
+@cy_docs.define(
+    name="LvXDocGoogleFolderMappings",
+    uniques=["Location"],
+    indexes=["CloudId"])
+class GoogleFolderMappings:
+    Location: str
+    CloudId: str

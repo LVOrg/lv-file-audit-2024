@@ -44,11 +44,17 @@ class GoogleSettingsController(BaseController):
     )
     def google_drive_settings_update(self, app_name: str,settings:GoogleAuthCredentials=Body()):
         try:
+            redirect_uri = f'https://{self.request.url.hostname}/' + self.request.url.path.split('/')[
+                1] + '/api/' + app_name + '/after-google-login'
             Repository.apps.app('admin').context.update(
                 Repository.apps.fields.Name==app_name,
-                Repository.apps.fields.AppOnCloud.Google.ClientId<<settings.ClientId,
-                Repository.apps.fields.AppOnCloud.Google.ClientSecret << settings.ClientSecret
+                Repository.apps.fields.AppOnCloud.Google<< dict(
+                    ClientId=settings.ClientId,
+                    ClientSecret=settings.ClientSecret,
+                    RedirectUri=redirect_uri
+                )
             )
+
             return dict(
                 ok=True
             )

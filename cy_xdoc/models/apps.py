@@ -31,11 +31,13 @@ class AppGoogle:
     ClientSecret: typing.Optional[str]
     RefreshToken: typing.Optional[str]
     RootDir:typing.Optional[str]
+    RedirectUri: typing.Optional[str]
 
 
 class AppsOnCloudModel:
     Azure: typing.Optional[AppMicrosoftAzure]
     Google: typing.Optional[AppGoogle]
+
 
 
 @cy_docs.define(

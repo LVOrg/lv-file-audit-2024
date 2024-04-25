@@ -41,11 +41,13 @@ class GoogleController(BaseController):
 
         code = self.request.query_params.get("code")
         client_id,client_secret = self.g_drive_service.get_id_and_secret(app_name)
+        redirect_uri = self.g_drive_service.get_redirect_uri(app_name)
         if client_id and client_secret:
             access_token_key= self.g_drive_service.get_access_token(
                 code=code,
                 client_id=client_id,
-                client_secret=client_secret
+                client_secret=client_secret,
+                redirect_uri=redirect_uri
             )
             #google.auth.exceptions.RefreshError: The credentials do not contain the necessary fields need to refresh the access token.
             # You must specify
@@ -73,11 +75,10 @@ class GoogleController(BaseController):
 
         :return:
         """
-
+        client_id, client_secret = self.g_drive_service.get_id_and_secret(app_name)
         url= self.g_drive_service.get_login_url(
             request= self.request,
-            app_name=app_name,
-            client_id ="437264324741-r6ppgq59tcu264tufv0sbba014mrtc68.apps.googleusercontent.com"
+            app_name=app_name
         )
         response = Response()
         response.status_code = 302
