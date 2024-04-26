@@ -178,8 +178,8 @@ class GoogleDirectoryService:
         #     return folder_id
 
         # lock = RedisSpinLock(self.redis_client, lock_path)
-
-        with RedisLock(self.redis_client, f"{type(self).__module__}{type(self).__name__}_create_folders"):
+        parent_path= "/".join(directory_path.split('/')[0:1])
+        with RedisLock(self.redis_client, f"{type(self).__module__}{type(self).__name__}_create_folders/{parent_path}"):
             lock_path = f"google-drive://{app_name}/{directory_path}"
             service = self.g_drive_service.get_service_by_app_name(app_name)
             parent_id = self.__do_create_folder__(
