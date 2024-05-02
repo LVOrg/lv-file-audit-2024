@@ -8,6 +8,7 @@ import os
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
+import cyx.check_start_up
 print(os.getenv("DB__CNN"))
 sys.path.append("/app")
 import cyx.framewwork_configs
