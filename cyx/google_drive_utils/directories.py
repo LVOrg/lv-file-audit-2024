@@ -10,27 +10,25 @@ from cyx.cache_service.memcache_service import MemcacheServices
 import hashlib
 from cyx.repository import Repository
 from cyx.distribute_locking.distribute_lock_services import DistributeLockService
-from redis_lock import RedisLock
 
 from cyx.common import config
-from redis import Redis
 import threading
+
 my_lock = threading.Lock()
+
+
 class GoogleDirectoryService:
     def __init__(self,
                  g_drive_service=cy_kit.singleton(GDriveService),
                  memcache_service=cy_kit.singleton(MemcacheServices),
-                 distribute_lock_service = cy_kit.singleton(DistributeLockService)
+                 distribute_lock_service=cy_kit.singleton(DistributeLockService)
                  ):
         self.g_drive_service = g_drive_service
         self.memcache_service = memcache_service
         self.cache_key = f"{type(GoogleDirectoryService).__module__}"
         self.distribute_lock_service = distribute_lock_service
-        self.distribute_lock_service.start()
         self.local_cache = {}
-        redis_host = config.redis_server.split(':')[0]  # Replace with your Redis host
-        redis_port = int(config.redis_server.split(':')[1])  # Replace with your Redis port
-        self.redis_client = Redis(host=redis_host, port=redis_port)
+
     def check_folder_structure(self, app_name: str, directory_path: typing.List[str], parent_id=None):
         """
         Checks if folders exist recursively based on path segments.
@@ -57,8 +55,6 @@ class GoogleDirectoryService:
                 else:
                     return
 
-
-
     def __check_folder__(self, service: Resource, name: str, parent_id=None):
         if parent_id is None:
             q = f"name = '{name}' and mimeType = 'application/vnd.google-apps.folder'  and trashed=false"
@@ -70,6 +66,7 @@ class GoogleDirectoryService:
             return None, None
         else:
             return items[0]['id'], items[0]['name']
+
     def __check_folder_id__(self, service, folder_id):
         try:
             folder = service.files().get(fileId=folder_id).execute()
@@ -84,6 +81,7 @@ class GoogleDirectoryService:
                 return False
             else:
                 return False
+
     def __create_folder__(self, service: Resource, name: str, parent_id=None):
         id, _ = self.__check_folder__(service, name, parent_id)
         if id is None:
@@ -100,14 +98,15 @@ class GoogleDirectoryService:
                 raise ex
 
         return id
-    def __create_folders_list__(self, service: Resource, folders,db_context,parent_id=None):
-        if len(folders)==1:
-            item = db_context.context.find_one(Repository.google_folders.fields.Location==folders[0]+"/")
+
+    def __create_folders_list__(self, service: Resource, folders, db_context, parent_id=None):
+        if len(folders) == 1:
+            item = db_context.context.find_one(Repository.google_folders.fields.Location == folders[0] + "/")
             if item is None:
                 try:
                     db_context.context.insert_one(
-                        Repository.google_folders.fields.Location<<folders[0]+"/",
-                        Repository.google_folders.fields.CloudId<<"."
+                        Repository.google_folders.fields.Location << folders[0] + "/",
+                        Repository.google_folders.fields.CloudId << "."
                     )
                 except:
                     db_context.context.update(
@@ -118,22 +117,23 @@ class GoogleDirectoryService:
             else:
                 qr = f"name = '{folders[0]}' and trashed=false"
                 data_check = service.files().list(q=qr).execute()["files"]
-                if any([x for x in data_check if x['id']==item.CloudId]) and len(data_check)>0:
+                if any([x for x in data_check if x['id'] == item.CloudId]) and len(data_check) > 0:
                     return item.CloudId
                 else:
 
-                    folder_id = self.__create_folder__(service,folders[0],parent_id)
+                    folder_id = self.__create_folder__(service, folders[0], parent_id)
                     db_context.context.update(
                         Repository.google_folders.fields.Location == folders[0] + "/",
                         Repository.google_folders.fields.CloudId << folder_id
                     )
                     return folder_id
         else:
-            parent_id = self.__create_folders_list__(service,folders[0:-1],db_context,parent_id)
-            if folders[-1]=="26":
+            parent_id = self.__create_folders_list__(service, folders[0:-1], db_context, parent_id)
+            if folders[-1] == "26":
                 print("OK")
-            ret = self.__create_folders_list__(service,[folders[-1]],db_context,parent_id)
+            ret = self.__create_folders_list__(service, [folders[-1]], db_context, parent_id)
             return ret
+
     def __do_create_folder__(self, service, app_name, directory_path):
         directories = directory_path.split('/')
         parent_id = None
@@ -147,7 +147,6 @@ class GoogleDirectoryService:
                 qr = f"name='{x}' and trashed=false and mimeType='application/vnd.google-apps.folder' and parents='{parent_id}'"
             resources = service.files().list(q=qr).execute()["files"]
 
-
             if len(resources) > 0:
                 parent_id = resources[0]["id"]
                 current_paths += [x]
@@ -160,27 +159,28 @@ class GoogleDirectoryService:
                 if len(check_resources) == 0:
                     parent_location = "/".join(check_paths[:-1])
 
-                    parent_id=self.__do_create_folder__(service=service, app_name=app_name, directory_path=parent_location)
+                    parent_id = self.__do_create_folder__(service=service, app_name=app_name,
+                                                          directory_path=parent_location)
                     parent_id = self.__create_folder__(service, x, parent_id)
                 else:
                     parent_id = folder_id
 
-
                 current_paths += [x]
 
         return parent_id
-    def create_folders(self, app_name: str, directory_path: str)->str:
+
+    def create_folders(self, app_name: str, directory_path: str) -> str:
         # folders = self.get_all_folders(app_name)
-        from redis_lock import RedisSpinLock
+
 
         # folder_id = self.get_from_cache(app_name,directory_path)
         # if folder_id:
         #     return folder_id
 
         # lock = RedisSpinLock(self.redis_client, lock_path)
-        parent_path= "/".join(directory_path.split('/')[0:1])
-        with RedisLock(self.redis_client, f"{type(self).__module__}{type(self).__name__}_create_folders/{parent_path}"):
-            lock_path = f"google-drive://{app_name}/{directory_path}"
+        parent_path = "/".join(directory_path.split('/')[0:1])
+        lock_path = f'{type(self).__module__}_{type(self).__name__}'
+        with self.distribute_lock_service.accquire(lock_path):
             service = self.g_drive_service.get_service_by_app_name(app_name)
             parent_id = self.__do_create_folder__(
                 service=service,
@@ -188,6 +188,22 @@ class GoogleDirectoryService:
                 directory_path=directory_path
             )
             return parent_id
+        # try:
+        #     if self.distribute_lock_service.acquire_lock(lock_path):
+        #         service = self.g_drive_service.get_service_by_app_name(app_name)
+        #         parent_id = self.__do_create_folder__(
+        #             service=service,
+        #             app_name=app_name,
+        #             directory_path=directory_path
+        #         )
+        #         return parent_id
+        #     else:
+        #         print("Failed to acquire lock, retrying...")
+        # finally:
+        #     self.distribute_lock_service.release_lock(lock_path)
+
+
+
 
     def get_cache_id_delete(self, app_name, directory_path):
         key = f"{self.cache_key}/{app_name}/{directory_path}"
@@ -197,7 +213,7 @@ class GoogleDirectoryService:
             self.local_cache[key] = id
         return id
 
-    def __list_trashed_folders__(self,service,parent_id=None):
+    def __list_trashed_folders__(self, service, parent_id=None):
         """Retrieves a list of all trashed folders using pagination.
 
         Args:
@@ -229,33 +245,33 @@ class GoogleDirectoryService:
             else:
                 try:
                     root_node = service.files().get(fileId=parent_id).execute()
-                    if root_node.get("name")=="My Drive":
+                    if root_node.get("name") == "My Drive":
                         print("XX")
                     fxx = service.files().list(q=f"name='{root_node['name']}' and trashed=true").execute()
                     if fxx["files"].__contains__(root_node):
                         ret = [root_node]
                         return ret
-                    elif root_node.get("parents") and len(root_node.get("parents"))>0:
-                        lst = self.__check_folder_id__(service,root_node.get("parents"))
+                    elif root_node.get("parents") and len(root_node.get("parents")) > 0:
+                        lst = self.__check_folder_id__(service, root_node.get("parents"))
                         return lst
                     else:
-                        return  []
+                        return []
 
                 except Exception as ex:
                     print(ex)
 
-        ext_list=[]
-        check=  {}
+        ext_list = []
+        check = {}
         for x in trashed_folders:
-            if x.get("parents") and len(x.get("parents"))>0:
-                p_id= x["parents"][0]
+            if x.get("parents") and len(x.get("parents")) > 0:
+                p_id = x["parents"][0]
                 if check.get(p_id) is None:
-                    lst = self.__list_trashed_folders__(service,parent_id=p_id)
-                    check[p_id]=p_id
-                    ext_list+=lst
-        return trashed_folders+ext_list
+                    lst = self.__list_trashed_folders__(service, parent_id=p_id)
+                    check[p_id] = p_id
+                    ext_list += lst
+        return trashed_folders + ext_list
 
-    def get_all_folders(self, app_name)->typing.Tuple[int,dict,dict]:
+    def get_all_folders(self, app_name) -> typing.Tuple[int, dict, dict]:
         """
         This method get all directories in Google Driver of tenant was embody by app_name
         return total folders, nested folder structure and tabular list
@@ -265,7 +281,7 @@ class GoogleDirectoryService:
         page_token = None
         all_folders = []
         service = self.g_drive_service.get_service_by_app_name(app_name)
-        folders_in_trash =self.__list_trashed_folders__(service)
+        folders_in_trash = self.__list_trashed_folders__(service)
         # trash_node,_ = self.extract_to_struct(folders_in_trash)
         # trash_list = self.extract_to_list(trash_node)
         while True:
@@ -279,64 +295,64 @@ class GoogleDirectoryService:
             page_token = results.get('nextPageToken')
             if not page_token:
                 break
-        root_folder= None
+        root_folder = None
         for x in folders_in_trash:
             if all_folders.__contains__(x):
                 all_folders.remove(x)
-        totals= len(all_folders)
-        if totals==0:
-            return 0,{},[]
-        cal_folders =[]
+        totals = len(all_folders)
+        if totals == 0:
+            return 0, {}, []
+        cal_folders = []
         for folder in all_folders:
             if folder.get("parents"):
-                parent_id= folder.get("parents")[0]
-                parent_list = [x for x in all_folders if x["id"]==parent_id]
-                if len(parent_list)>0:
-                    cal_folders+=[folder]+parent_list
+                parent_id = folder.get("parents")[0]
+                parent_list = [x for x in all_folders if x["id"] == parent_id]
+                if len(parent_list) > 0:
+                    cal_folders += [folder] + parent_list
                 else:
                     print(folder)
             else:
-                cal_folders+=[folder]
-        all_folders=cal_folders+[service.files().get(fileId="root").execute()]
+                cal_folders += [folder]
+        all_folders = cal_folders + [service.files().get(fileId="root").execute()]
         ret, folder_list = self.extract_to_struct(all_folders)
         folder_list = self.extract_to_list(ret)
-        return totals,ret,folder_list
+        return totals, ret, folder_list
 
-    def extract_to_struct(self, all_folders,parent_node=None):
+    def extract_to_struct(self, all_folders, parent_node=None):
         if parent_node is None:
             nodes = [x for x in all_folders if x.get("parents") is None]
-            if len(nodes)>0:
-                node =nodes[0]
+            if len(nodes) > 0:
+                node = nodes[0]
                 all_folders.remove(node)
-                children,all_folders = self.extract_to_struct(all_folders,node)
-                node["children"]=children
-                return node,all_folders
+                children, all_folders = self.extract_to_struct(all_folders, node)
+                node["children"] = children
+                return node, all_folders
             else:
-                return  None,all_folders
+                return None, all_folders
         else:
-            nodes = [x for x in all_folders if x.get("parents") and x.get("parents")[0]==parent_node["id"]]
+            nodes = [x for x in all_folders if x.get("parents") and x.get("parents")[0] == parent_node["id"]]
             for x in nodes:
                 children, all_folders = self.extract_to_struct(all_folders, x)
                 x["children"] = children
 
                 all_folders.remove(x)
 
-            return nodes,all_folders
+            return nodes, all_folders
 
-    def extract_to_list(self, node, parent_location=None, get_root= True):
-        ret= []
+    def extract_to_list(self, node, parent_location=None, get_root=True):
+        ret = []
         root = None
         if get_root:
             if node is None:
-                return  None
-            if node.get("children") and len(node.get("children"))>0:
+                return None
+            if node.get("children") and len(node.get("children")) > 0:
                 root = node.get("children")[0]
 
         else:
             root = node
         location = root.get("name")
         if parent_location is not None:
-            location=f"{parent_location}/{location}"
+            location = f"{parent_location}/{location}"
         ret += [dict(
             location=location,
             id=root.get("id")
@@ -344,8 +360,8 @@ class GoogleDirectoryService:
         for x in root.get("children"):
             if parent_location is None:
                 parent_location = root.get("name")
-            ret_list = self.extract_to_list(x,f"{parent_location}",get_root=False)
-            ret+=ret_list
+            ret_list = self.extract_to_list(x, f"{parent_location}", get_root=False)
+            ret += ret_list
         return ret
 
     def __resync_folders__(self, app_name):
@@ -358,29 +374,13 @@ class GoogleDirectoryService:
             )
 
     def get_from_cache(self, app_name, directory_path):
-        cache_key = self.get_cache_id(app_name,directory_path)
+        cache_key = self.get_cache_id(app_name, directory_path)
         return self.memcache_service.get_str(cache_key)
-    def set_to_cache(self, app_name, directory_path,resource_id):
-        cache_key = self.get_cache_id(app_name,directory_path)
-        return self.memcache_service.set_str(cache_key,resource_id,expiration=60*24*30)
+
+    def set_to_cache(self, app_name, directory_path, resource_id):
+        cache_key = self.get_cache_id(app_name, directory_path)
+        return self.memcache_service.set_str(cache_key, resource_id, expiration=60 * 24 * 30)
 
     def remove_cache(self, app_name, directory_path):
-        cache_key = self.get_cache_id(app_name,directory_path)
+        cache_key = self.get_cache_id(app_name, directory_path)
         self.memcache_service.remove(cache_key)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

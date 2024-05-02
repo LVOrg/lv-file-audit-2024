@@ -240,7 +240,7 @@ process_services:
       type: tika
 process_services_host: http://172.16.13.72
 process_services_host_: "http://localhost"
-redis_server: 172.16.13.72:6379
+distribute_lock_server: 172.16.13.72:6379
 
 
 
