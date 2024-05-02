@@ -147,6 +147,9 @@ class GDriveService:
             return data.get("ClientId"), data.get("ClientSecret")
 
     def save_refresh_access_token(self, app_name, refresh_token):
+        if not isinstance(refresh_token,str):
+            print("warning refresh_token mus be str")
+            return
         self.resset_id_and_secret(app_name)
         Repository.apps.app("admin").context.update(
             Repository.apps.fields.Name == app_name,
@@ -157,8 +160,6 @@ class GDriveService:
             key=f"{self.cache_key_of_refresh_token}_{app_name}_refresh_token",
             value=refresh_token
         )
-        root_dir = self.get_root_folder(app_name)
-        print(root_dir)
 
     def get_refresh_access_token(self, app_name):
         ret = self.memcache_service.get_str(f"{self.cache_key_of_refresh_token}_{app_name}_refresh_token")
@@ -281,7 +282,8 @@ class GDriveService:
             'grant_type': 'refresh_token',
             'client_id': client_id,
             'client_secret': client_secret,
-            'refresh_token': refresh_token
+            'refresh_token': refresh_token,
+            'expire':100000
         }
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         token_uri = "https://oauth2.googleapis.com/token"
@@ -300,15 +302,25 @@ class GDriveService:
         )
         service = build('drive', 'v3', credentials=credentials)
         return service
-
-    def get_service_by_app_name(self, app_name) -> Resource:
-        token = self.get_refresh_access_token(app_name)
+    def get_service_by_token(self, app_name,token) -> Resource:
         client_id, client_secret = self.get_id_and_secret(app_name)
         return self.get_service(
             token=token,
             client_id=client_id,
             client_secret=client_secret
         )
+    def get_service_by_app_name(self, app_name) -> Resource:
+        # refresh_token = self.get_refresh_access_token(app_name)
+        token = self.get_access_token_from_refresh_token(app_name)
+
+        client_id, client_secret = self.get_id_and_secret(app_name)
+        ret = self.get_service(
+            token=token,
+            client_id=client_id,
+            client_secret=client_secret
+        )
+        # self.save_refresh_access_token(app_name,refresh_token)
+        return ret
 
     def set_public_visibility(self, resource_id, service: Resource):
         # Replace with your credentials file path

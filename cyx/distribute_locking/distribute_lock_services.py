@@ -1,3 +1,4 @@
+import threading
 import time
 import typing
 
@@ -9,37 +10,55 @@ import hashlib
 
 import time
 
+cache_local = {}
 
-cache_local= {}
+from redis import Redis, StrictRedis
+from kazoo.client import KazooClient,KazooState
 
-from redis import Redis,StrictRedis
+__zk__: KazooClient = None
+__lock__ = dict()
+__local__lock__: threading.Lock = threading.Lock()
+
 class DistributeLockService:
     def __init__(self):
+
         self.distribute_lock_server = config.distribute_lock_server
-        self.conn : StrictRedis  = None
+
         self.do_start()
-        self.lock= None
-    @retry(delay=0.5,tries=100)
+        self.lock = None
+
+    # @retry(delay=0.5, tries=100)
     def do_start(self):
-        host,port = tuple(self.distribute_lock_server.split(":"))
-        self.conn = StrictRedis(host=host,port=int(port))
+        global __zk__
+        if __zk__ is None:
+            __zk__ = KazooClient(self.distribute_lock_server)
+            __zk__.start()
 
+    # def accquire(self,lock_path)->redis_lock.Lock:
+    #     return  redis_lock.Lock(self.conn,lock_path)
 
-    def accquire(self,lock_path)->redis_lock.Lock:
-        return  redis_lock.Lock(self.conn,lock_path)
+    def acquire_lock(self, app_name):
+        global __lock__
+        global __local__lock__
+        ret = None
+        if __lock__.get(app_name) is None:
+            __local__lock__.acquire()
+            try:
+                __lock__[app_name] = __zk__.Lock(app_name)
+                ret =  __lock__[app_name].acquire(timeout=30)
+                __lock__[app_name] = ret
+            finally:
+                __local__lock__.release()
+        return __lock__[app_name]
 
+        # if cache_local.get(lock_path) is None:
+        #     cache_local[lock_path] = redis_lock.Lock(self.conn, lock_path)
+        # return  cache_local[lock_path].acquire(blocking=False,timeout=10)
+        # # if self.lock is None:
+        # #     self.lock = redis_lock.Lock(self.conn, lock_path)
+        # # return self.lock.acquire(blocking=False,timeout=10)
 
-    def acquire_lock(self,lock_path):
-        if cache_local.get(lock_path) is None:
-            cache_local[lock_path] = redis_lock.Lock(self.conn, lock_path)
-        return  cache_local[lock_path].acquire(blocking=False,timeout=10)
-        # if self.lock is None:
-        #     self.lock = redis_lock.Lock(self.conn, lock_path)
-        # return self.lock.acquire(blocking=False,timeout=10)
-
-
-
-    def release_lock(self,lock_path):
-        if isinstance(cache_local.get(lock_path),redis_lock.Lock):
-            cache_local.get(lock_path).release()
-            del  cache_local[lock_path]
+    def release_lock(self, lock_path):
+        global __lock__
+        if __lock__.get(lock_path) and hasattr(__lock__.get(lock_path), "release"):
+            __lock__.get(lock_path).release()

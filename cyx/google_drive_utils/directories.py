@@ -2,7 +2,7 @@ import threading
 import time
 import typing
 from googleapiclient.discovery import build, Resource
-
+from functools import cache
 import cy_docs
 import cy_kit
 from cyx.g_drive_services import GDriveService
@@ -142,6 +142,10 @@ class GoogleDirectoryService:
         for x in directories:
 
             check_paths += [x]
+            # directory_id = self.get_from_cache(app_name, check_paths)
+            # if directory_id is not None:
+            #     parent_id = directory_id
+            #     continue
             qr = f"name='{x}' and trashed=false and mimeType='application/vnd.google-apps.folder'"
             if parent_id:
                 qr = f"name='{x}' and trashed=false and mimeType='application/vnd.google-apps.folder' and parents='{parent_id}'"
@@ -149,6 +153,7 @@ class GoogleDirectoryService:
 
             if len(resources) > 0:
                 parent_id = resources[0]["id"]
+                self.set_to_cache(app_name, check_paths, parent_id)
                 current_paths += [x]
             else:
                 folder_id = self.__create_folder__(service, x, parent_id)
@@ -164,7 +169,7 @@ class GoogleDirectoryService:
                     parent_id = self.__create_folder__(service, x, parent_id)
                 else:
                     parent_id = folder_id
-
+                self.set_to_cache(app_name,check_paths,parent_id)
                 current_paths += [x]
 
         return parent_id
@@ -180,14 +185,28 @@ class GoogleDirectoryService:
         # lock = RedisSpinLock(self.redis_client, lock_path)
         parent_path = "/".join(directory_path.split('/')[0:1])
         lock_path = f'{type(self).__module__}_{type(self).__name__}'
-        with self.distribute_lock_service.accquire(lock_path):
-            service = self.g_drive_service.get_service_by_app_name(app_name)
-            parent_id = self.__do_create_folder__(
-                service=service,
-                app_name=app_name,
-                directory_path=directory_path
-            )
-            return parent_id
+        try:
+            if self.distribute_lock_service.acquire_lock(app_name):
+                service = self.g_drive_service.get_service_by_app_name(app_name)
+                parent_id = self.__do_create_folder__(
+                    service = service,
+                    app_name=app_name,
+                    directory_path=directory_path
+                )
+                return parent_id
+        except Exception as ex:
+            raise ex
+        finally:
+            self.distribute_lock_service.release_lock(lock_path)
+
+        # with self.distribute_lock_service.accquire(lock_path):
+        #     service = self.g_drive_service.get_service_by_app_name(app_name)
+        #     parent_id = self.__do_create_folder__(
+        #         service=service,
+        #         app_name=app_name,
+        #         directory_path=directory_path
+        #     )
+        #     return parent_id
         # try:
         #     if self.distribute_lock_service.acquire_lock(lock_path):
         #         service = self.g_drive_service.get_service_by_app_name(app_name)
@@ -373,14 +392,18 @@ class GoogleDirectoryService:
                 Repository.google_folders.fields.CloudId << x["id"]
             )
 
-    def get_from_cache(self, app_name, directory_path):
-        cache_key = self.get_cache_id(app_name, directory_path)
+    def get_from_cache(self, app_name, directories:typing.List[str]):
+        cache_key = self.get_cache_id(app_name, "/".join(directories))
         return self.memcache_service.get_str(cache_key)
 
-    def set_to_cache(self, app_name, directory_path, resource_id):
-        cache_key = self.get_cache_id(app_name, directory_path)
+    def set_to_cache(self, app_name, directories:typing.List[str], resource_id):
+        cache_key = self.get_cache_id(app_name,  "/".join(directories))
         return self.memcache_service.set_str(cache_key, resource_id, expiration=60 * 24 * 30)
 
     def remove_cache(self, app_name, directory_path):
         cache_key = self.get_cache_id(app_name, directory_path)
         self.memcache_service.remove(cache_key)
+    @cache
+    def get_cache_id(self, app_name, path:str):
+        ret= hashlib.sha256(f"{app_name}/{path}".encode()).hexdigest()
+        return ret
