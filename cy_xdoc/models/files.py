@@ -377,6 +377,9 @@ class DocUploadRegister:
     LvOcrErrorLogs: typing.Optional[str]
     IsLvOcrError: typing.Optional[bool]
     ProcessInfo: typing.Optional[dict]
+    url_google_upload:  typing.Optional[str]
+    google_file_id: typing.Optional[str]
+    google_folder_id:typing.Optional[str]
 
 
 @cy_docs.define(

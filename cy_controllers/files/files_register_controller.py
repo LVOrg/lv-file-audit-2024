@@ -41,6 +41,7 @@ class RegisterUploadInfo(BaseModel):
     onedriveExpiration: typing.Optional[datetime.datetime]
     onedrivePassword: typing.Optional[str]
     encryptContent: typing.Optional[bool]
+    googlePath: typing.Optional[str]
 
 
 class RegisterUploadResult(BaseModel):
@@ -169,6 +170,7 @@ class FilesRegisterController(BaseController):
             :return:
             """
         request_user = self.memcache_service.get_dict("request_user")
+        url_google_upload, google_file_id = None, None
 
         # async with semaphore:
         #     if request_user is None:
@@ -183,6 +185,7 @@ class FilesRegisterController(BaseController):
         #         )
         #     request_user[self.request.client.host] = request_count + 1
         #     self.memcache_service.set_dict("request_user", request_user)
+        folder_id = None
         Data.storageType = Data.storageType or "local"
         """
         Default encrypt content is settings True
@@ -207,6 +210,39 @@ class FilesRegisterController(BaseController):
                 ret_quit.Error.Code = e.code
                 return ret_quit
         if Data.storageType == "google-drive":
+            if Data.googlePath is None or len(Data.googlePath)==0:
+                ret_quit = RegisterUploadInfoResult()
+                ret_quit.Error = Error()
+                ret_quit.Error.Message = f"Google drive upload require googlePath field"
+                ret_quit.Error.Code = "MissField"
+                return ret_quit
+            else:
+                self.distribute_lock_service.acquire_lock(app_name)
+                try:
+                    is_exist,folder_id= self.google_directory_service.check_before_upload(app_name=app_name, directory = Data.googlePath, file_name= Data.FileName)
+                    if is_exist:
+                        ret_quit = RegisterUploadInfoResult()
+                        ret_quit.Error = Error()
+                        ret_quit.Error.Message = f"{Data.googlePath}/{Data.FileName} is already in Google drive"
+                        ret_quit.Error.Code = "DuplicateFile"
+                        return ret_quit
+                    else:
+                        url_google_upload, google_file_id = self.google_directory_service.register_upload_file(
+                            app_name=app_name,
+                            directory_id = folder_id,
+                            file_name= Data.FileName,
+                            file_size=  Data.FileSize
+                        )
+                except Exception as ex:
+                    ret_quit = RegisterUploadInfoResult()
+                    ret_quit.Error = Error()
+                    ret_quit.Error.Message = f"Unknown server error"
+                    ret_quit.Error.Code = "system"
+                    raise ex
+                    print(repr(ex))
+                    return ret_quit
+                finally:
+                    self.distribute_lock_service.release_lock(app_name)
             try:
                 client_id, secret_key = self.g_drive_service.get_id_and_secret(
                     app_name=app_name
@@ -244,7 +280,10 @@ class FilesRegisterController(BaseController):
                 onedriveScope=Data.onedriveScope,
                 onedrive_password=Data.onedrivePassword,
                 onedrive_expiration=Data.onedriveExpiration,
-                is_encrypt_content=Data.encryptContent
+                is_encrypt_content=Data.encryptContent,
+                url_google_upload = url_google_upload,
+                google_file_id = google_file_id,
+                google_folder_id = folder_id
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())

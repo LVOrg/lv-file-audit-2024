@@ -87,7 +87,8 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
                     storageType: this.data.storageType,
                     onedriveScope: this.data.onedriveScope,
                     onedriveExpiration: this.data.onedriveExpiration,
-                    encryptContent: true
+                    encryptContent: true,
+                    googlePath: this.data.googlePath
                 },
                 SkipOptions: this.Options
             });

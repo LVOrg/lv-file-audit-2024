@@ -1,3 +1,4 @@
+import io
 import threading
 import time
 import typing
@@ -407,3 +408,39 @@ class GoogleDirectoryService:
     def get_cache_id(self, app_name, path:str):
         ret= hashlib.sha256(f"{app_name}/{path}".encode()).hexdigest()
         return ret
+
+    def check_before_upload(self, app_name, directory, file_name)->typing.Tuple[bool,str]:
+        service = self.g_drive_service.get_service_by_app_name(app_name)
+        folder_id = self.__do_create_folder__(service, app_name, directory)
+        data = service.files().list(q=f"name ='{file_name}' and parents='{folder_id}' and trashed=false").execute()["files"]
+        if len(data) > 0:
+            return True,folder_id
+        return False,folder_id
+
+    def register_upload_file(self, app_name, directory_id, file_name:str,file_size):
+        token = self.g_drive_service.get_access_token_from_refresh_token(app_name)
+        import requests
+        import json
+        headers = {"Authorization": f"Bearer " + token, "Content-Type": "application/json"}
+        import mimetypes
+        t, _ = mimetypes.guess_type(file_name)
+        params = {
+            "name": f"{file_name}",
+            "mimeType": t,
+            "parents":[directory_id]
+        }
+        r = requests.post(
+            f"https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable",
+            headers=headers,
+            data=json.dumps(params)
+        )
+        fs = io.BytesIO()
+        # fs.write(1)
+        location = r.headers['Location']
+        r = requests.put(
+            location,
+            headers=headers,
+            data=fs
+        )
+        print(r.json())
+        return location,r.json()["id"]

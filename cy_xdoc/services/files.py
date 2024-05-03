@@ -255,7 +255,10 @@ class FileServices:
                                         skip_option: typing.Optional[dict] = None,
                                         onedrive_password: typing.Optional[str] = None,
                                         onedrive_expiration: typing.Optional[str] = None,
-                                        is_encrypt_content: typing.Optional[bool] = False
+                                        is_encrypt_content: typing.Optional[bool] = False,
+                                        url_google_upload: typing.Optional[str] = None,
+                                        google_file_id: typing.Optional[str] = None,
+                                        google_folder_id: typing.Optional[str] = None
                                         ):
         return self.add_new_upload_info(
             app_name=app_name,
@@ -272,7 +275,10 @@ class FileServices:
             onedriveScope=onedriveScope,
             onedrive_password=onedrive_password,
             onedrive_expiration=onedrive_expiration,
-            is_encrypt_content = is_encrypt_content
+            is_encrypt_content = is_encrypt_content,
+            url_google_upload = url_google_upload,
+            google_file_id = google_file_id,
+            google_folder_id = google_folder_id
 
         )
 
@@ -291,7 +297,10 @@ class FileServices:
                             skip_option: typing.Optional[dict] = None,
                             onedrive_password: typing.Optional[str] = None,
                             onedrive_expiration: typing.Optional[str] = None,
-                            is_encrypt_content: typing.Optional[bool] = False):
+                            is_encrypt_content: typing.Optional[bool] = False,
+                            url_google_upload: typing.Optional[str]= None,
+                            google_file_id : typing.Optional[str] = None,
+                            google_folder_id: typing.Optional[str] = None):
         __registerde_on__ = datetime.datetime.utcnow()
         id = str(uuid.uuid4())
         _has_thumb_ = False
@@ -344,6 +353,9 @@ class FileServices:
             cache_doc[doc.fields.FileName] = client_file_name
             cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
             cache_doc[doc.fields.IsEncryptContent] = is_encrypt_content
+            cache_doc[doc.fields.url_google_upload] = url_google_upload
+            cache_doc[doc.fields.google_file_id] = google_file_id
+            cache_doc[doc.fields.google_folder_id] = google_folder_id
 
             cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
             if len(os.path.splitext(client_file_name)[1].split('.')) > 1:
@@ -460,7 +472,10 @@ class FileServices:
                         doc.fields.MsgRequires << require_msg_process,
                         doc.fields.MainFileId << f"{local_path_dir}/{client_file_name}",
                         doc.fields.ThumbFileId << main_thumb_file,
-                        doc.fields.IsEncryptContent << is_encrypt_content
+                        doc.fields.IsEncryptContent << is_encrypt_content,
+                        doc.fields.url_google_upload<< url_google_upload,
+                        doc.fields.google_file_id <<google_file_id,
+                        doc.fields.google_folder_id << google_folder_id
                     )
                 except Exception as e:
                     time.sleep(0.1)

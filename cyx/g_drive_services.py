@@ -233,25 +233,32 @@ class GDriveService:
                                                                                                           app_name)
 
         def running():
-            google_path = self.get_root_folder(app_name) + rel_path[len(app_name):]
+
             full_path = os.path.join("/mnt/files", rel_path)
             client_id, secret_key = self.get_id_and_secret(app_name)
             process_services_host = config.process_services_host or "http://localhost"
-            g_token = self.get_refresh_access_token(app_name)
-
+            g_token = self.get_access_token_from_refresh_token(app_name)
+            url_google_upload = upload_item.url_google_upload
+            google_file_id= upload_item.google_file_id
             try:
                 txt_json = json.dumps(dict(
                     token=g_token,
                     file_path=full_path,
                     app_name=app_name,
-                    google_path=google_path,
+                    url_google_upload=url_google_upload,
+                    google_file_id= google_file_id,
                     client_id=client_id,
                     secret_key=secret_key,
-                    memcache_server="172.16.13.72:11213"  #config.cache_server
+                    google_file_name = upload_item.FileName,
+                    memcache_server= config.cache_server,
+                    folder_id= upload_item.google_folder_id,
+
+
+                    #config.cache_server
 
                 ))
                 print(txt_json)
-                client = Client(f"{process_services_host}:1115/")
+                client = Client(f"{process_services_host}:1116/")
                 result = client.predict(
                     txt_json,
                     api_name="/predict"
@@ -270,6 +277,10 @@ class GDriveService:
 
                 upload_item[Repository.files.fields.CloudId] = result
                 self.file_services.cache_upload_register_set(upload_item.Id, upload_item)
+                try:
+                    os.remove(full_path)
+                except:
+                    pass
             except Exception as ex:
                 raise ex
 

@@ -32,6 +32,12 @@
                 <option value="google-drive">Google drive</option>
             </select>
         </div>
+                <label ng-if="data.storageType=='google-drive'">
+                    {{$res("Path")}}:
+                </label>
+                <div ng-if="data.storageType=='google-drive'">
+                    <input ng-model="data.googlePath"/>
+                </div>
         <label>
             {{$res("Scope")}}:
         </label>
