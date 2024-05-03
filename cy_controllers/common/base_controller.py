@@ -58,6 +58,8 @@ from cyx.extract_content_service import ExtractContentService
 from cyx.g_drive_services import GDriveService
 from cyx.distribute_locking.distribute_lock_services import DistributeLockService
 from cyx.google_drive_utils.directories import GoogleDirectoryService
+from cyx.ms.ms_auth_services import MSAuthService
+from cyx.ms.ms_commom_service import MSCommonService
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -96,6 +98,7 @@ class BaseController:
     g_drive_service:GDriveService = cy_kit.singleton(GDriveService)
     distribute_lock_service:DistributeLockService = cy_kit.singleton(DistributeLockService)
     google_directory_service:GoogleDirectoryService = cy_kit.singleton(GoogleDirectoryService)
-
+    ms_service:MSAuthService = cy_kit.singleton(MSAuthService)
+    ms_common_service:MSCommonService = cy_kit.singleton(MSCommonService)
     def __init__(self, request: Request):
         self.request = request

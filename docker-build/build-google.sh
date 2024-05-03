@@ -16,7 +16,7 @@ COPY ./../cy-commands /cmd
 RUN apt clean && apt autoclean
 ENTRYPOINT [\"python3\",\"/cmd/google_drive.py\"]
 ">>$web_api_thumb_file
-web_api_thumb_core_tag=1
+web_api_thumb_core_tag=4
 web_api_thumb_tag_build="fs.google."$(tag $web_api_thumb_core_tag)
 web_api_thumb_image="$repository/fs:"web_api_thumb_tag_build
 buildFunc $web_api_thumb_file $repository $image_name $web_api_thumb_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"

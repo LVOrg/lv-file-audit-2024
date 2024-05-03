@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gg-test
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: gg-test
+
+  namespace: gg-test
+  labels:
+    app: gg-test
+spec:
+  volumes:
+    - name: tmp-files
+      emptyDir: {}
+    - name: socat-share
+      emptyDir: {}
+    - name: storage-files
+      nfs:
+        server: 192.168.18.36
+        path: /codx-file-storage/files
+  containers:
+    - name: gg-test
+      image: nttlong/fs:fs.google.amd.2
+      volumeMounts:
+        - name: tmp-files
+          mountPath: /tmp-files
+        - name: socat-share
+          mountPath: /socat-share
+        - name: storage-files
+          mountPath: /mnt/files
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gg-test-service
+  namespace: gg-test
+  labels:
+    app: gg-test-service
+spec:
+  ports:
+    - name: '1115'
+      protocol: TCP
+      port: 1115
+  selector:
+    app: gg-test
+  type: NodePort

@@ -13,6 +13,7 @@ class AppMicrosoftAzure:
     ClientId: str
     TenantId: str
     UrlLogin: typing.Optional[str]
+    RedirectUrl: typing.Optional[str]
     PersonalAccountUrlLogin: typing.Optional[str]
     BusinessAccountUrlLogin: typing.Optional[str]
     ClientSecret: typing.Optional[str]

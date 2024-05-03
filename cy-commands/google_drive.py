@@ -46,59 +46,62 @@ def upload_file(client_id:str,client_secret:str,token:str,file_id:str, filepath:
         print(f"An error occurred: {e}")
         return None
 def process_text(text):
-    # import requests
-    # import os
-    data = json.loads(text)
-    token= data.get("token")
-    app_name = data.get("app_name")
-    client_id= data.get('client_id')
-    secret_key= data.get('secret_key')
-    file_path = data.get('file_path')
-    google_folder_id = data.get('folder_id')
-    google_file_name= data["google_file_name"]
-    google_file_id = data.get('google_file_id')
-    url_google_upload = data.get('url_google_upload')
-    memcache_server= data.get('memcache_server')
-    import cy_file_cryptor.context
-    import cy_file_cryptor.wrappers
-    # memcache_server="172.16.13.72:11213"
-    cy_file_cryptor.context.set_server_cache(data.get('memcache_server'))
+    try:
+        # import requests
+        # import os
+        data = json.loads(text)
+        token= data.get("token")
+        app_name = data.get("app_name")
+        client_id= data.get('client_id')
+        secret_key= data.get('secret_key')
+        file_path = data.get('file_path')
+        google_folder_id = data.get('folder_id')
+        google_file_name= data["google_file_name"]
+        google_file_id = data.get('google_file_id')
+        url_google_upload = data.get('url_google_upload')
+        memcache_server= data.get('memcache_server')
+        import cy_file_cryptor.context
+        import cy_file_cryptor.wrappers
+        # memcache_server="172.16.13.72:11213"
+        cy_file_cryptor.context.set_server_cache(data.get('memcache_server'))
 
-    upload_file(
-        client_id=client_id,
-        client_secret=secret_key,
-        token=token,
-        file_id=google_file_id,
-        filepath=file_path,
-        google_file_name = google_file_name
-    )
+        upload_file(
+            client_id=client_id,
+            client_secret=secret_key,
+            token=token,
+            file_id=google_file_id,
+            filepath=file_path,
+            google_file_name = google_file_name
+        )
 
-    import cy_file_cryptor.wrappers
-    # filesize = os.path.getsize(file_path)
-    # headers = {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
-    # import mimetypes
-    # t, _ = mimetypes.guess_type(file_path)
-    # params = {
-    #     "name": google_file_name,
-    #     "mimeType": t,
-    #     "parents":[google_folder_id]
-    # }
-    # r = requests.post(
-    #     "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable",
-    #     headers=headers,
-    #     data=json.dumps(params)
-    # )
-    # location = r.headers['Location']
-    # headers = {"Content-Range": f"bytes {0}-{filesize - 1}/{filesize}"}
-    # r = requests.put(
-    #     location,
-    #     headers=headers,
-    #     data=open(file_path,"rb"),
-    #     stream=True
-    # )
-    #
-    # return r.text
-    return google_file_id
+        import cy_file_cryptor.wrappers
+        # filesize = os.path.getsize(file_path)
+        # headers = {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
+        # import mimetypes
+        # t, _ = mimetypes.guess_type(file_path)
+        # params = {
+        #     "name": google_file_name,
+        #     "mimeType": t,
+        #     "parents":[google_folder_id]
+        # }
+        # r = requests.post(
+        #     "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable",
+        #     headers=headers,
+        #     data=json.dumps(params)
+        # )
+        # location = r.headers['Location']
+        # headers = {"Content-Range": f"bytes {0}-{filesize - 1}/{filesize}"}
+        # r = requests.put(
+        #     location,
+        #     headers=headers,
+        #     data=open(file_path,"rb"),
+        #     stream=True
+        # )
+        #
+        # return r.text
+        return google_file_id
+    except Exception as ex:
+        print(repr(ex))
 
 
 
@@ -112,7 +115,7 @@ iface = gr.Interface(
     description="Enter text and see it processed!",
 
 )
-
+print(f"run on 0.0.0.0:{1116}")
 iface.launch(
     server_name="0.0.0.0",  # Here's where you specify server name
     server_port=1116

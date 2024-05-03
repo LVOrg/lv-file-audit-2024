@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distribute-lock
+  namespace: {{ .Values.namespace}}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: distribute-lock
+  template:
+    metadata:
+      labels:
+        app: distribute-lock
+    spec:
+      containers:
+      - name: distribute-lock
+        image: zookeeper:latest
+        ports:
+        - containerPort: 2181
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: distribute-lock-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: distribute-lock-service
+spec:
+  ports:
+    - name: '2181'
+      protocol: TCP
+      port: 2181
+  selector:
+    app: distribute-lock
+  type: NodePort

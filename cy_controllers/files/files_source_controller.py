@@ -95,6 +95,7 @@ class FilesSourceController(BaseController):
         upload_info = await doc_context.context.find_one_async(
             doc_context.fields.id == UploadId
         )
+
         if upload_info is None:
             return None
         mt, _ = mimetypes.guess_type(upload_info[doc_context.fields.FileName])
@@ -163,6 +164,18 @@ class FilesSourceController(BaseController):
 
                 return ret
             except FileNotFoundError:
+                UploadData = await Repository.files.app(data.appName).context.find_one_async(
+                    Repository.files.fields.id == data.uploadId
+                )
+                if not UploadData:
+                    raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
+                if UploadData.StorageType == "google-drive" and UploadData.CloudId:
+                    return self.g_drive_service.get_content(
+                        app_name=data.appName,
+                        cloud_id=UploadData.CloudId,
+                        client_file_name=UploadData.FileName,
+                        request=self.request
+                    )
                 raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
         if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():
             raise HTTPException(

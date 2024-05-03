@@ -22,18 +22,31 @@ services:
       - "1113:1113"
     volumes:
       - /socat-share:/socat-share
-#  tika:
-#    image: apache/tika
-#    container_name: tika-9998
-#    ports:
-#      - "9998:9998"
-#  thumb:
-#    image: docker.io/nttlong/fs:fs.thumbs.amd.1
-#    container_name: thumb-1114
-#    ports:
-#      - "1114:1114"
-#    volumes:
-#      - /mnt/files:/mnt/files
+  google-drive:
+    image: docker.io/nttlong/fs:fs.google.amd.2
+    container_name: google-drive-1115  # Corrected container name to match command
+    ports:
+      - "1116:1116"
+    volumes:
+      - /socat-share:/socat-share
+  distribute-lock:
+    image: zookeeper
+    container_name: distribute-lock
+    ports:
+      - "2181:2181"
+
+  tika:
+    image: apache/tika
+    container_name: tika-9998
+    ports:
+      - "9998:9998"
+  thumb:
+    image: docker.io/nttlong/fs:fs.thumbs.amd.1
+    container_name: thumb-1114
+    ports:
+      - "1114:1114"
+    volumes:
+      - /mnt/files:/mnt/files
 #  web:
 #    image: docker.io/nttlong/fs:fs.tiny.amd.19.2
 #    container_name: web-8012

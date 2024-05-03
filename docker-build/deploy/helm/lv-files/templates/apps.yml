@@ -70,6 +70,8 @@ spec:
             - vn_suggest_url=$(vn_suggest_url)
             - tika_server=$(tika_server)
             - file_storage_path=/mnt/files
+            - process_services_host=http://localhost
+            - distribute_lock_server=distribute-lock-service.{{$value.namespace}}:2181
         {{end}}
           volumeMounts:
             - name: tmp-files
