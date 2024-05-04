@@ -49,12 +49,22 @@ class MSSettings(BaseController):
     @controller.router.post(
         path="/api/{app_name}/ms/settings/get"
     )
-    def settings_get(self, app_name: str, tenantId: str, clientId: str = Body(embed=True),
-                        clientSecret: str = Body(embed=True)):
+    async def settings_get(self, app_name: str):
 
-        tenant_id,client_id,client_secret = self.ms_common_service.settings_get(app_name)
+        tenant_id,client_id,client_secret,redirect_url = await self.ms_common_service.settings_get(app_name)
         return dict(
             tenantId= tenant_id,
             clientID=client_id,
-            clientSecret=client_secret
+            clientSecret=client_secret,
+            redirectUrl=redirect_url
         )
+
+    @controller.router.post(
+        path="/api/{app_name}/ms/auth/get-login-url"
+    )
+    def get_login_url(self, app_name: str, scopes: typing.List[str] = Body(...)):
+        url, error = self.ms_common_service.get_url(app_name=app_name, scopes=scopes)
+        if error:
+            return error
+        else:
+            return url

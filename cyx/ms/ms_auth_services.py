@@ -23,9 +23,11 @@ class MSAuthService:
             raise Exception(ret.get("error_description"))
         token = ret.get('access_token')
         payload = jwt.decode(token, verify=False)
-        return ret.get('access_token'), payload.get("roles")
+        return ret.get('access_token'), payload.get("roles") or []
     def get_url_login(self, tenant_id: str, client_id: str, redirect_uri: str, scopes: typing.List[str]):
-        txt_scope = " ".join(scopes + ["offline_access"])
+
+        #"openid offline_access https://graph.microsoft.com/user.read"
+        txt_scope = " ".join([x.lower() for x in scopes] + ["offline_access","openid"])
 
         url_format = (f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"
                       f"client_id={client_id}&"
