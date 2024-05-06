@@ -58,11 +58,12 @@ class GDriveService:
         client_id, client_secret = self.get_id_and_secret(app_name)
         redirect_uri = f'https://{request.url.hostname}/' + request.url.path.split('/')[
             1] + '/api/' + app_name + '/after-google-login'
+        scopes = ["https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/drive"]
         url_parse = [
             f"response_type=code",
             f"client_id={client_id}",
             f"redirect_uri={urllib.parse.quote_plus(redirect_uri)}",
-            f"scope={urllib.parse.quote_plus('https://www.googleapis.com/auth/drive')}",
+            f"scope={urllib.parse.quote_plus(' '.join(scopes))}",
             f"state=ok",
             f"access_type=offline",
             f"include_granted_scopes=true",
@@ -303,7 +304,7 @@ class GDriveService:
         access_token = data.get('access_token')
         return access_token
 
-    def get_service(self, token, client_id, client_secret) -> Resource:
+    def get_service(self, token, client_id, client_secret,g_service_name:str="v3/drive") -> Resource:
         credentials = OAuth2Credentials(
             token=token,
             refresh_token=token,  # Assuming you have a refresh token (optional)
@@ -311,7 +312,8 @@ class GDriveService:
             client_id=client_id,
             client_secret=client_secret
         )
-        service = build('drive', 'v3', credentials=credentials)
+        version,service_name  = tuple(g_service_name.split('/'))
+        service = build(service_name, version, credentials=credentials)
         return service
     def get_service_by_token(self, app_name,token) -> Resource:
         client_id, client_secret = self.get_id_and_secret(app_name)
@@ -320,7 +322,13 @@ class GDriveService:
             client_id=client_id,
             client_secret=client_secret
         )
-    def get_service_by_app_name(self, app_name) -> Resource:
+    def get_service_by_app_name(self, app_name,g_service_name="v3/drive") -> Resource:
+        """
+
+        :param app_name:
+        :param g_service_name: g_service_name is combination of google service version and Google service name Example "v3/drive" or "v1/mail"
+        :return:
+        """
         # refresh_token = self.get_refresh_access_token(app_name)
         token = self.get_access_token_from_refresh_token(app_name)
 
@@ -328,7 +336,8 @@ class GDriveService:
         ret = self.get_service(
             token=token,
             client_id=client_id,
-            client_secret=client_secret
+            client_secret=client_secret,
+            g_service_name = g_service_name
         )
         # self.save_refresh_access_token(app_name,refresh_token)
         return ret

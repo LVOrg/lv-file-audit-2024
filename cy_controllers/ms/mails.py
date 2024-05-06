@@ -36,16 +36,17 @@ class MSMail(BaseController):
     @controller.router.post(
         path="/api/{app_name}/ms/mail/send"
     )
-    def mail_send(self,app_name:str,recipient_email:str=Body(embed=True), subject:str=Body(embed=True), body:str=Body(embed=True)):
+    def mail_send(self,app_name:str,recipient_email:str=Body(embed=True), subject:str=Body(embed=True), body:str=Body(embed=True),
+                  file:  typing.Annotated[UploadFile | None, File(description="Some description")] = None):
         data  = {
-              "Message": {
-                  "Subject": subject,
-                  "Body": {
-                      "Content": body,
-                      "ContentType": "Text"  # Can be "Html" for HTML content
+              "message": {
+                  "subject": subject,
+                  "body": {
+                      "content": body,
+                      "contentType": "Text"  # Can be "Html" for HTML content
                   },
-                  "ToRecipients": [
-                      {"EmailAddress": {"Address": recipient_email}}
+                  "toRecipients": [
+                      {"emailAddress": {"address": recipient_email}}
                   ],
                   # "Attachments": [
                   #     {
@@ -56,11 +57,27 @@ class MSMail(BaseController):
                   # ]
               }
           }
+        content_type=None
+
+
+
+        if file:
+            import base64
+            data["message"]["attachments"]= [
+                      {
+                        "@odata.type": "#microsoft.graph.fileAttachment",
+                        "name": file.filename,
+                        "contentType": file.content_type,
+                        "contentBytes":base64.b64encode(file.file.read() ).decode("utf-8")
+                      }
+                    ]
+
         ret,error = self.ms_common_service.call_graph_api(
             app_name=app_name,
             method="post",
             grap_api="me/sendMail",
-            data=data
+            data=data,
+            content_type=content_type
         )
         if error:
             return error

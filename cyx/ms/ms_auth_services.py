@@ -1,3 +1,4 @@
+import datetime
 import typing
 import json
 import requests
@@ -62,3 +63,52 @@ class MSAuthService:
             response_data = response.json()
             access_token = response_data["access_token"]
             return access_token
+
+    def get_access_token_from_refresh_token(self,
+                                            client_id: str,
+                                            client_secret: str,
+                                            tenant_id: str,
+                                            refresh_token: str,
+                                            redirect_uri: str,
+                                            scope: str
+                                            )->typing.Tuple[str|None,datetime.datetime|None,dict|None]:
+        """
+        Obtains a new access token using a refresh token for Microsoft Graph API.
+
+        Args:
+            client_id: Client ID (App ID) of your Azure AD application.
+            client_secret: Client Secret of your Azure AD application.
+            tenant_id: Tenant ID (Directory ID) of your Azure AD application.
+            refresh_token: Refresh token obtained during the initial authentication flow.
+
+        Returns:
+            access_token and expires_in in second, dict of error if has error else error is Non
+        """
+
+        # Microsoft token endpoint URL
+        token_url = f"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+
+        # Request body parameters
+        data = {
+            "grant_type": "refresh_token",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "refresh_token": refresh_token,
+            "redirect_uri":redirect_uri,
+            "scope":scope
+        }
+
+        # Send POST request to token endpoint
+        response = requests.post(token_url, data=data)
+
+        # Check for successful response
+        response_data = response.json()
+
+        if response_data.get('error'):
+            return None,None,dict(error=response_data.get('error'),description=response_data.get('error_description'))
+        utc_expire = datetime.datetime.utcnow()+datetime.timedelta(seconds=int(response_data.get("expires_in")))
+        return response_data.get("access_token"), utc_expire,None
+    def get_token_info(self,access_token:str)->dict:
+        payload = jwt.decode(access_token, verify=False)
+        return payload
+

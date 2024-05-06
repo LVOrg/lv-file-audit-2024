@@ -21,10 +21,12 @@ class AppMicrosoftAzure:
     AccessToken: typing.Optional[str]
     RefreshToken: typing.Optional[str]
     TokenId: typing.Optional[str]
+    UtcExpire: typing.Optional[datetime]
     AuthCode: typing.Optional[str]
     UserName: typing.Optional[str]
     Password: typing.Optional[str]
     RootDir: typing.Optional[str]
+    Scope:typing.Optional[str]
 
 
 class AppGoogle:
