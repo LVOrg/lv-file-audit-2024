@@ -209,29 +209,7 @@
             </div>
         </div>-->
     </div>
-    <div>
-        <div style="padding-right:20px">
-            <p ng-if="(!currentApp.AppOnCloud)||(!currentApp.AppOnCloud.Azure)" style="text-align:right">
-                <a href="javascript:void(0);" ng-click="doEditAppFromFileExplorer(currentAppName).then()">
-                    Link to MS One drive. How does that shit work?
-                </a>
-            </p>
 
-            <p ng-if="currentApp.AppOnCloud.Azure" style="text-align:right">
-                <span>Login to MS</span>
-                <a target="_blank" ng-href="{{currentApp.AppOnCloud.Azure.PersonalAccountUrlLogin}}">Personal</a>
-                <span>&nbsp;</span>
-                <span>or</span>
-                <span>&nbsp;</span>
-                <a target="_blank" ng-href="{{currentApp.AppOnCloud.Azure.BusinessAccountUrlLogin}}">Business</a>
-                <span>&nbsp;account&nbsp;</span>
-                <a href="javascript:void(0);" ng-click="doEditAppFromFileExplorer(currentAppName).then()">
-                    Re-Config that shit!
-                </a>
-            </p>
-
-        </div>
-    </div>
     <div class="dock full">
         <div rcmpct-lazy-scroll source="listOfFiles" item-var="p" class="row" on-request-data="doLoadMore" page-size="20">
             <rcmpct-template>

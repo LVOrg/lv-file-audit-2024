@@ -49,7 +49,7 @@ class GDriveService:
 
         self.gauth.LocalWebserverAuth()
 
-    def get_login_url(self, request: fastapi.Request, app_name) -> object:
+    def get_login_url(self, request: fastapi.Request, app_name,scopes:typing.List[str]) -> object:
 
         """
 
@@ -58,12 +58,12 @@ class GDriveService:
         client_id, client_secret = self.get_id_and_secret(app_name)
         redirect_uri = f'https://{request.url.hostname}/' + request.url.path.split('/')[
             1] + '/api/' + app_name + '/after-google-login'
-        scopes = ["https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/drive"]
+        full_scopes = [f"https://www.googleapis.com/auth/{x}" for x in scopes]
         url_parse = [
             f"response_type=code",
             f"client_id={client_id}",
             f"redirect_uri={urllib.parse.quote_plus(redirect_uri)}",
-            f"scope={urllib.parse.quote_plus(' '.join(scopes))}",
+            f"scope={urllib.parse.quote_plus(' '.join(full_scopes))}",
             f"state=ok",
             f"access_type=offline",
             f"include_granted_scopes=true",

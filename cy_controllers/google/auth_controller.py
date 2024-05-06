@@ -38,7 +38,13 @@ class GoogleController(BaseController):
         "/api/{app_name}/after-google-login", summary="after login to google"
     )
     def after_login_google(self, app_name: str) :
-
+        hrml=("<p>Here are some security tips to keep your account safe:</p>"
+              "<ul>"
+              " <li>Never share your login credentials with anyone.</li>"
+              "<li>Be cautious of suspicious emails or websites asking for your Google login.</li>"
+              "<li>Consider enabling two-factor authentication for your Google account for an extra layer of security.</li>"
+              "</ul>"
+              )
         code = self.request.query_params.get("code")
         client_id,client_secret = self.g_drive_service.get_id_and_secret(app_name)
         redirect_uri = self.g_drive_service.get_redirect_uri(app_name)
@@ -61,28 +67,35 @@ class GoogleController(BaseController):
                 app_name = app_name,
                 refresh_token = refresh_token
             )
-            return access_token_key
+            html_content = (f"<html>"
+                            f"  <body>"
+                            f"{hrml}"
+                            f"  </body>"
+                            f"</html>")
+            return Response(content=html_content, media_type="text/html")
         else:
             return "Error"
 
         return code
 
-    @controller.route.get(
-        "/api/{app_name}/google-login", summary="after login to google"
+    @controller.route.post(
+        "/api/{app_name}/google/auth/get-login-url"
     )
-    def login(self,app_name:str):
+    def login(self,app_name:str,scopes:typing.List[str]=Body(embed=True)):
         """
 
         :return:
         """
-        client_id, client_secret = self.g_drive_service.get_id_and_secret(app_name)
+        # client_id, client_secret = self.g_drive_service.get_id_and_secret(app_name)
         url= self.g_drive_service.get_login_url(
             request= self.request,
-            app_name=app_name
+            app_name=app_name,
+            scopes=scopes
         )
-        response = Response()
-        response.status_code = 302
-        response.headers["Location"] = url
-        return response
+        return url
+        # response = Response()
+        # response.status_code = 302
+        # response.headers["Location"] = url
+        # return response
 
 

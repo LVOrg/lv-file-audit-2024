@@ -108,13 +108,13 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
             var azureLogin = await api.post(`${this.currentAppName}/azure/get_login_url`, {
 
             });
-            if (azureLogin.error) {
-                this.currentApp.AzureLoginUrl = undefined;
-            }
-            else {
-                this.currentApp.AzureLoginUrl = azureLogin.loginUrl;
-            }
-            console.log(this.currentApp)
+//            if (azureLogin.error) {
+//                this.currentApp.AzureLoginUrl = undefined;
+//            }
+//            else {
+//                this.currentApp.AzureLoginUrl = azureLogin.loginUrl;
+//            }
+//            console.log(this.currentApp)
             this.listOfFiles = await api.post(`${this.currentAppName}/files`, {
                 DocType: me.filterByDocType,
                 PageIndex: 0,
