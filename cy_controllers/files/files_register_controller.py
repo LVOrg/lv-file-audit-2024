@@ -219,7 +219,16 @@ class FilesRegisterController(BaseController):
             else:
                 self.distribute_lock_service.acquire_lock(app_name)
                 try:
-                    is_exist,folder_id= self.google_directory_service.check_before_upload(app_name=app_name, directory = Data.googlePath, file_name= Data.FileName)
+                    is_exist,folder_id, error= self.google_directory_service.check_before_upload(
+                        app_name=app_name,
+                        directory = Data.googlePath,
+                        file_name= Data.FileName)
+                    if error:
+                        ret_quit = RegisterUploadInfoResult()
+                        ret_quit.Error = Error()
+                        ret_quit.Error.Message = error.get("Message")
+                        ret_quit.Error.Code = error.get("Code")
+                        return ret_quit
                     if is_exist:
                         ret_quit = RegisterUploadInfoResult()
                         ret_quit.Error = Error()
@@ -233,20 +242,26 @@ class FilesRegisterController(BaseController):
                             file_name= Data.FileName,
                             file_size=  Data.FileSize
                         )
-                except Exception as ex:
-                    ret_quit = RegisterUploadInfoResult()
-                    ret_quit.Error = Error()
-                    ret_quit.Error.Message = f"Unknown server error"
-                    ret_quit.Error.Code = "system"
-                    raise ex
-                    print(repr(ex))
-                    return ret_quit
+                # except Exception as ex:
+                #     ret_quit = RegisterUploadInfoResult()
+                #     ret_quit.Error = Error()
+                #     ret_quit.Error.Message = f"Unknown server error"
+                #     ret_quit.Error.Code = "system"
+                #     raise ex
+                #     print(repr(ex))
+                #     return ret_quit
                 finally:
                     self.distribute_lock_service.release_lock(app_name)
             try:
-                client_id, secret_key = self.g_drive_service.get_id_and_secret(
+                client_id, secret_key, _, error = self.g_drive_service.get_id_and_secret(
                     app_name=app_name
                 )
+                if isinstance(error,dict):
+                    ret_quit = RegisterUploadInfoResult()
+                    ret_quit.Error = Error()
+                    ret_quit.Error.Message = error.get("Message")
+                    ret_quit.Error.Code = error.get("Code")
+                    return ret_quit
                 if client_id is None:
                     ret_quit = RegisterUploadInfoResult()
                     ret_quit.Error = Error()

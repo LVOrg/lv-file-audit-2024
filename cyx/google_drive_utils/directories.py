@@ -30,7 +30,7 @@ class GoogleDirectoryService:
         self.distribute_lock_service = distribute_lock_service
         self.local_cache = {}
 
-    def check_folder_structure(self, app_name: str, directory_path: typing.List[str], parent_id=None):
+    def check_folder_structure(self, app_name: str, directory_path: typing.List[str], parent_id=None)->typing.Tuple[typing.Any,dict|None]:
         """
         Checks if folders exist recursively based on path segments.
         """
@@ -39,7 +39,9 @@ class GoogleDirectoryService:
         q = f"name = '{directory_path[0]}' and mimeType = 'application/vnd.google-apps.folder'"
         #  results = service.files().list(q=f"'{parent_id}' in parents", fields="nextPageToken, files(id, name)").execute()
 
-        service = self.g_drive_service.get_service_by_app_name(app_name)
+        service,error = self.g_drive_service.get_service_by_app_name(app_name)
+        if error:
+            return  None,error
         results = service.files().list(q=q, fields="nextPageToken, files(id, name)", spaces="drive").execute()
         items = results.get('files', [])
 
@@ -175,7 +177,13 @@ class GoogleDirectoryService:
 
         return parent_id
 
-    def create_folders(self, app_name: str, directory_path: str) -> str:
+    def create_folders(self, app_name: str, directory_path: str) ->typing.Tuple[str|None,dict|None]:
+        """
+
+        :param app_name:
+        :param directory_path:
+        :return: folder_id, error
+        """
         # folders = self.get_all_folders(app_name)
 
 
@@ -188,13 +196,15 @@ class GoogleDirectoryService:
         lock_path = f'{type(self).__module__}_{type(self).__name__}'
         try:
             if self.distribute_lock_service.acquire_lock(app_name):
-                service = self.g_drive_service.get_service_by_app_name(app_name)
+                service, error = self.g_drive_service.get_service_by_app_name(app_name)
+                if error:
+                    return None, error
                 parent_id = self.__do_create_folder__(
                     service = service,
                     app_name=app_name,
                     directory_path=directory_path
                 )
-                return parent_id
+                return parent_id, None
         except Exception as ex:
             raise ex
         finally:
@@ -291,7 +301,7 @@ class GoogleDirectoryService:
                     ext_list += lst
         return trashed_folders + ext_list
 
-    def get_all_folders(self, app_name) -> typing.Tuple[int, dict, dict]:
+    def get_all_folders(self, app_name) -> typing.Tuple[int|None, dict|None, dict|None,dict|None]:
         """
         This method get all directories in Google Driver of tenant was embody by app_name
         return total folders, nested folder structure and tabular list
@@ -300,7 +310,9 @@ class GoogleDirectoryService:
         """
         page_token = None
         all_folders = []
-        service = self.g_drive_service.get_service_by_app_name(app_name)
+        service, error = self.g_drive_service.get_service_by_app_name(app_name)
+        if error:
+            return None,None,None,error
         folders_in_trash = self.__list_trashed_folders__(service)
         # trash_node,_ = self.extract_to_struct(folders_in_trash)
         # trash_list = self.extract_to_list(trash_node)
@@ -336,7 +348,7 @@ class GoogleDirectoryService:
         all_folders = cal_folders + [service.files().get(fileId="root").execute()]
         ret, folder_list = self.extract_to_struct(all_folders)
         folder_list = self.extract_to_list(ret)
-        return totals, ret, folder_list
+        return totals, ret, folder_list, None
 
     def extract_to_struct(self, all_folders, parent_node=None):
         if parent_node is None:
@@ -409,16 +421,28 @@ class GoogleDirectoryService:
         ret= hashlib.sha256(f"{app_name}/{path}".encode()).hexdigest()
         return ret
 
-    def check_before_upload(self, app_name, directory, file_name)->typing.Tuple[bool,str]:
-        service = self.g_drive_service.get_service_by_app_name(app_name)
+    def check_before_upload(self, app_name, directory, file_name)->typing.Tuple[bool|None,str|None,dict|None]:
+        """
+        Check folder in google if it is existing return True, google Folder Id, error is None
+        :param app_name:
+        :param directory:
+        :param file_name:
+        :return: IsExit: bool, Folder_id:str ,error: dict
+        """
+        service,error = self.g_drive_service.get_service_by_app_name(app_name)
+        if error:
+            return  None,None,error
         folder_id = self.__do_create_folder__(service, app_name, directory)
+
         data = service.files().list(q=f"name ='{file_name}' and parents='{folder_id}' and trashed=false").execute()["files"]
         if len(data) > 0:
-            return True,folder_id
-        return False,folder_id
+            return True,folder_id,None
+        return False,folder_id, None
 
-    def register_upload_file(self, app_name, directory_id, file_name:str,file_size):
-        token = self.g_drive_service.get_access_token_from_refresh_token(app_name)
+    def register_upload_file(self, app_name, directory_id, file_name:str,file_size)->dict|None:
+        token,error = self.g_drive_service.get_access_token_from_refresh_token(app_name)
+        if error:
+            return error
         import requests
         import json
         headers = {"Authorization": f"Bearer " + token, "Content-Type": "application/json"}
@@ -442,5 +466,4 @@ class GoogleDirectoryService:
             headers=headers,
             data=fs
         )
-        print(r.json())
         return location,r.json()["id"]

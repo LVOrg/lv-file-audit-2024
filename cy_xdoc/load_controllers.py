@@ -33,7 +33,7 @@ from cy_controllers.google.auth_controller import GoogleController
 from cy_controllers.google.google_settings_controller import GoogleSettingsController
 from cy_controllers.ms.ms_controller_auth import MSAuth
 from cy_controllers.ms.settings import MSSettings
-from cy_controllers.ms.mails import MSMail
+from cy_controllers.cloud.mails import CloudMailController
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
 controllers_list=[
@@ -59,7 +59,7 @@ controllers_list=[
         GoogleSettingsController,
         MSAuth,
         MSSettings,
-        MSMail,
+        CloudMailController,
         PagesController
 
     ]

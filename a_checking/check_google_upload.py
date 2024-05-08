@@ -5,7 +5,7 @@ g=  cy_kit.singleton(GDriveService)
 import json
 import os
 file_path =f"/home/vmadmin/python/cy-py/a-working/test.jpg"
-token = g.get_access_token_from_refresh_token("lv-docs")
+token, error = g.get_access_token_from_refresh_token("lv-docs")
 import requests
 headers = {"Authorization": "Bearer "+token, "Content-Type": "application/json"}
 import mimetypes

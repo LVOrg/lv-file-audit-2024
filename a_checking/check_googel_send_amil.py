@@ -14,7 +14,9 @@ def create_message(sender, to, subject, body):
   }
   return message
 
-service = g.get_service_by_app_name("lv-docs",g_service_name="v1/gmail")
+service,error = g.get_service_by_app_name("lv-docs",g_service_name="v1/gmail")
+if error:
+    print(error)
 def send_email(service, user_id, message):
   """
   Sends an email using the provided service object and message structure.

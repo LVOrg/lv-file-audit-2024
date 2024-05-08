@@ -8,7 +8,7 @@ cy_file_cryptor.context.set_server_cache("172.16.13.72:11211")
 import cy_file_cryptor.wrappers
 from cyx.g_drive_services import GDriveService
 gs = cy_kit.singleton(GDriveService)
-client_id, client_secret = gs.get_id_and_secret("lv-docs")
+client_id, client_secret,email,error = gs.get_id_and_secret("lv-docs")
 token  =gs.get_refresh_access_token("lv-docs")
 file_upload=f"/mnt/files/lv-docs/2024/04/24/pdf/b6a0de2a-c597-4aca-bf33-b2c78eec4573/hạ long 3n2đ - saigontourist cap nhat 22 04 2024.pdf"
 with open(

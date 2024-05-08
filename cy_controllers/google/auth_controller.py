@@ -46,7 +46,18 @@ class GoogleController(BaseController):
               "</ul>"
               )
         code = self.request.query_params.get("code")
-        client_id,client_secret = self.g_drive_service.get_id_and_secret(app_name)
+        client_id,client_secret,_,error = self.g_drive_service.get_id_and_secret(app_name)
+        if isinstance(error,dict):
+            error_html=(f"<p>"
+                        f"<label>Error&nbsp;:</label><b>{error.get('Code')}</b>"
+                        f"{error.get('Message')}"
+                        f"</p>")
+            html_content = (f"<html>"
+                            f"  <body>"
+                            f"{error_html}"
+                            f"  </body>"
+                            f"</html>")
+            return Response(content=html_content, media_type="text/html")
         redirect_uri = self.g_drive_service.get_redirect_uri(app_name)
         if client_id and client_secret:
             access_token_key= self.g_drive_service.get_access_token(
@@ -79,20 +90,31 @@ class GoogleController(BaseController):
         return code
 
     @controller.route.post(
-        "/api/{app_name}/google/auth/get-login-url"
+        "/api/{app_name}/cloud/google/get-login-url"
     )
-    def login(self,app_name:str,scopes:typing.List[str]=Body(embed=True)):
+    def cloud_google_get_login_url(self,
+                                   app_name:str,
+                                   scopes:typing.List[str]=Body(embed=True)):
         """
-
+        Get url of Google consent login </br>
+        Nhận url đăng nhập đồng ý của Google </br>
+        scopes: example "gmail.send","drive" see in https://console.cloud.google.com/ </br>
         :return:
         """
         # client_id, client_secret = self.g_drive_service.get_id_and_secret(app_name)
-        url= self.g_drive_service.get_login_url(
+        url,error= self.g_drive_service.get_login_url(
             request= self.request,
             app_name=app_name,
             scopes=scopes
         )
-        return url
+        if error:
+            return dict(
+                Error=error
+            )
+        else:
+            return dict(
+                Data=url
+            )
         # response = Response()
         # response.status_code = 302
         # response.headers["Location"] = url

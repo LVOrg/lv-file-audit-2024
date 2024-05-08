@@ -35,6 +35,7 @@ class AppGoogle:
     RefreshToken: typing.Optional[str]
     RootDir:typing.Optional[str]
     RedirectUri: typing.Optional[str]
+    Email: typing.Optional[str]
 
 
 class AppsOnCloudModel:

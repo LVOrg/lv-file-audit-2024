@@ -60,6 +60,7 @@ from cyx.distribute_locking.distribute_lock_services import DistributeLockServic
 from cyx.google_drive_utils.directories import GoogleDirectoryService
 from cyx.ms.ms_auth_services import MSAuthService
 from cyx.ms.ms_commom_service import MSCommonService
+from cyx.cloud.cloud_service_utils import CloudServiceUtils
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -100,5 +101,6 @@ class BaseController:
     google_directory_service:GoogleDirectoryService = cy_kit.singleton(GoogleDirectoryService)
     ms_service:MSAuthService = cy_kit.singleton(MSAuthService)
     ms_common_service:MSCommonService = cy_kit.singleton(MSCommonService)
+    cloud_service_utils: CloudServiceUtils = cy_kit.singleton(CloudServiceUtils)
     def __init__(self, request: Request):
         self.request = request
