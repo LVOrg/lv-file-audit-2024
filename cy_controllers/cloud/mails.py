@@ -43,7 +43,8 @@ class CloudMailController(BaseController):
                         cc:str = Body(embed=True,default=None,description="CC to"),
                         subject:str=Body(embed=True),
                         body:str=Body(embed=True),
-                        files:  list[UploadFile] = File(...)):
+                        files:  list[UploadFile] = File(...),
+                        calender: typing.Optional[UploadFile]= File(None)):
         """
         :param app_name:
         :param cloud_name: value must be 'Google','Azure' or 'AWS'
@@ -88,6 +89,7 @@ class CloudMailController(BaseController):
             cc=cc.split(','),
             subject=subject,
             body = body,
-            files = files
+            files = files,
+            calender = calender
 
         )

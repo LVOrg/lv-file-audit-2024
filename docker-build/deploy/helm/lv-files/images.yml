@@ -1,4 +1,4 @@
-main: nttlong/fs:fs.tiny.amd.20.2
+main: nttlong/fs:fs.tiny.amd.21.1
 office: nttlong/fs:fs.office.amd.1.5
 video: nttlong/fs:fs.video.amd.1
 pdf: nttlong/fs:fs.pdf.amd.2

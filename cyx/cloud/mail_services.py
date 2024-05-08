@@ -12,7 +12,7 @@ class MailService:
         self.google= google
         self.azure = azure
 
-    def send(self, app_name:str, cloud_name:str, recipient_emails:typing.List[str], cc:typing.List[str], subject:str, body:str, files):
+    def send(self, app_name:str, cloud_name:str, recipient_emails:typing.List[str], cc:typing.List[str], subject:str, body:str, files,calender):
         if cloud_name == "Google":
             ret,error = self.google.send(
                 app_name=app_name,
@@ -20,7 +20,8 @@ class MailService:
                 cc= cc,
                 subject = subject,
                 body=body,
-                files=files
+                files=files,
+                calender=calender
             )
             if error:
                 return  dict(

@@ -10,10 +10,10 @@ from fastapi import UploadFile
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from ics import Calendar, Event
-
+import starlette.datastructures
 import email.encoders as encoders
 from datetime import datetime
-def create_message(sender, to, cc, subject, body, files:typing.List[UploadFile]):
+def create_message(sender, to, cc, subject, body, files:typing.List[UploadFile],calender:UploadFile|None):
     """
 
     :param sender:
@@ -37,37 +37,23 @@ def create_message(sender, to, cc, subject, body, files:typing.List[UploadFile])
     # Add plain text body
     body_part = mimetext.MIMEText(body, 'plain')
     message.attach(body_part)
+    if calender:
+        attachment_part = MIMEBase('text', 'calendar; method=REQUEST;charset=utf-8')
+        # attachment_part = MIMEBase('text', 'calendar;charset=utf-8')
+        # ics_content = file.file.read()
+        # encoded_content = base64.b64encode(ics_content).decode()
+
+        attachment_part.set_payload(calender.file.read())
+        attachment_part.add_header('Content-Disposition', f'attachment; filename="{calender.filename}"')
+        message.attach(attachment_part)
     if files:
         for file in files:
-            if pathlib.Path(file.filename).suffix == ".ics":
-                """
-                calendar_part = mimetext.MIMEText("", "calendar", _charset="utf-8")
-                calendar_part.set_payload(stream.read())  # Assuming 'stream' is a file-like object
-                encoders.encode_base64(calendar_part)  # Encode the content (optional, depends on your needs)
-                
-                # Set filename and disposition
-                calendar_part.add_header('Content-Disposition', f'attachment; filename="{attachModel.FileName}"')
+            content_type, _ = mimetypes.guess_type(file.filename)
+            attachment = email.mime.base.MIMEBase(content_type, 'octet-stream')
+            attachment.set_payload(base64.b64encode(file.file.read()))
+            attachment.add_header('Content-Disposition', f'attachment; filename="{file.filename}"')
+            message.attach(attachment)
 
-                """
-                # calendar_part = mimetext.MIMEText("", "calendar", _charset="utf-8")
-                # calendar_part.set_payload(file.file.read())
-                # # encoders.encode_base64(calendar_part)
-                # calendar_part.add_header(f'Content-Disposition', f'attachment; filename="{file.filename}"')
-                # message.attach(calendar_part)
-                attachment_part = MIMEBase('text', 'calendar; method=REQUEST;charset=utf-8')
-                # ics_content = file.file.read()
-                # encoded_content = base64.b64encode(ics_content).decode()
-
-                attachment_part.set_payload(file.file.read())
-                attachment_part.add_header('Content-Disposition', f'attachment; filename="{file.filename}"')
-                message.attach(attachment_part)
-
-            else:
-                content_type, _ = mimetypes.guess_type(file.filename)
-                attachment = email.mime.base.MIMEBase(content_type, 'octet-stream')
-                attachment.set_payload(base64.b64encode(file.file.read()))
-                attachment.add_header('Content-Disposition', f'attachment; filename="{file.filename}"')
-                message.attach(attachment)
     return message, None
     # Add calendar attachment
 
