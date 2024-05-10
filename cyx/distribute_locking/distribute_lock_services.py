@@ -14,7 +14,7 @@ cache_local = {}
 
 from redis import Redis, StrictRedis
 from kazoo.client import KazooClient,KazooState
-
+from kazoo.recipe.lock import Lock
 __zk__: KazooClient = None
 __lock__ = dict()
 __local__lock__: threading.Lock = threading.Lock()
@@ -37,19 +37,13 @@ class DistributeLockService:
     # def accquire(self,lock_path)->redis_lock.Lock:
     #     return  redis_lock.Lock(self.conn,lock_path)
 
-    def acquire_lock(self, app_name):
+    def acquire_lock(self, lock_path):
         global __lock__
         global __local__lock__
         ret = None
-        if __lock__.get(app_name) is None:
-            __local__lock__.acquire()
-            try:
-                __lock__[app_name] = __zk__.Lock(app_name)
-                ret =  __lock__[app_name].acquire(timeout=30)
-                __lock__[app_name] = ret
-            finally:
-                __local__lock__.release()
-        return __lock__[app_name]
+        if not __lock__.get(lock_path) or not hasattr(__lock__.get(lock_path),"acquire"):
+            __lock__[lock_path] = __zk__.Lock(lock_path)
+        return __lock__[lock_path].acquire(timeout=30)
 
         # if cache_local.get(lock_path) is None:
         #     cache_local[lock_path] = redis_lock.Lock(self.conn, lock_path)
@@ -60,5 +54,6 @@ class DistributeLockService:
 
     def release_lock(self, lock_path):
         global __lock__
-        if __lock__.get(lock_path) and hasattr(__lock__.get(lock_path), "release"):
+        if __lock__.get(lock_path) and hasattr(__lock__.get(lock_path),"release"):
             __lock__.get(lock_path).release()
+            __lock__[lock_path]=False

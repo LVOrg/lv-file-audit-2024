@@ -1,3 +1,4 @@
+import datetime
 import io
 import threading
 import time
@@ -30,33 +31,17 @@ class GoogleDirectoryService:
         self.distribute_lock_service = distribute_lock_service
         self.local_cache = {}
 
-    def check_folder_structure(self, app_name: str, directory_path: typing.List[str], parent_id=None)->typing.Tuple[typing.Any,dict|None]:
+    def check_folder_structure(self, app_name: str, directory_path: typing.List[str])->typing.Tuple[typing.Any,dict|None]:
         """
         Checks if folders exist recursively based on path segments.
         """
-        # Get child files/folders within the current folder
-        q = f"mimeType = 'application/vnd.google-apps.folder' and name = '{directory_path[0]}' in parents"
-        q = f"name = '{directory_path[0]}' and mimeType = 'application/vnd.google-apps.folder'"
-        #  results = service.files().list(q=f"'{parent_id}' in parents", fields="nextPageToken, files(id, name)").execute()
-
-        service,error = self.g_drive_service.get_service_by_app_name(app_name)
+        tree,tree_hash,error = self.get_all_folders(app_name)
         if error:
-            return  None,error
-        results = service.files().list(q=q, fields="nextPageToken, files(id, name)", spaces="drive").execute()
-        items = results.get('files', [])
+            return None,error
+        else:
+            full_path = f"my drive/{directory_path}".lower()
+            return tree_hash.get(full_path) is not None, None
 
-        # Check each child item
-        for item in items:
-            if item['mimeType'] == 'application/vnd.google-apps.folder':
-                # Check if folder name matches current path segment
-                if item['name'] == directory_path[0]:
-                    # If it matches, continue checking subfolders recursively
-                    remaining_path = directory_path[1:]
-                    if remaining_path:
-                        self.check_folder_structure(service, item['id'], remaining_path)
-
-                else:
-                    return
 
     def __check_folder__(self, service: Resource, name: str, parent_id=None):
         if parent_id is None:
@@ -138,7 +123,7 @@ class GoogleDirectoryService:
             return ret
 
     def __do_create_folder__(self, service, app_name, directory_path):
-        directories = directory_path.split('/')
+        directories =[ x for x in  directory_path.split('/') if len(x)>0]
         parent_id = None
         current_paths = []
         check_paths = []
@@ -301,100 +286,22 @@ class GoogleDirectoryService:
                     ext_list += lst
         return trashed_folders + ext_list
 
-    def get_all_folders(self, app_name) -> typing.Tuple[int|None, dict|None, dict|None,dict|None]:
+    def get_all_folders(self, app_name) -> typing.Tuple[dict|None,dict|None,dict|None]:
         """
         This method get all directories in Google Driver of tenant was embody by app_name
-        return total folders, nested folder structure and tabular list
+        return folder_tree,folder_hash, error
         :param app_name: tenant name
-        :return:
+        :return: folder_tree,folder_hash, error
         """
-        page_token = None
-        all_folders = []
         service, error = self.g_drive_service.get_service_by_app_name(app_name)
         if error:
-            return None,None,None,error
-        folders_in_trash = self.__list_trashed_folders__(service)
-        # trash_node,_ = self.extract_to_struct(folders_in_trash)
-        # trash_list = self.extract_to_list(trash_node)
-        while True:
-            # Use files().list() with filter for folders
-            results = service.files().list(q="mimeType = 'application/vnd.google-apps.folder'",
-                                           fields="nextPageToken, files(id, name,parents,kind)",
-                                           pageSize=100,  # Adjust page size as needed
-                                           pageToken=page_token).execute()
-            folders = results.get('files', [])
-            all_folders.extend(folders)
-            page_token = results.get('nextPageToken')
-            if not page_token:
-                break
-        root_folder = None
-        for x in folders_in_trash:
-            if all_folders.__contains__(x):
-                all_folders.remove(x)
-        totals = len(all_folders)
-        if totals == 0:
-            return 0, {}, []
-        cal_folders = []
-        for folder in all_folders:
-            if folder.get("parents"):
-                parent_id = folder.get("parents")[0]
-                parent_list = [x for x in all_folders if x["id"] == parent_id]
-                if len(parent_list) > 0:
-                    cal_folders += [folder] + parent_list
-                else:
-                    print(folder)
-            else:
-                cal_folders += [folder]
-        all_folders = cal_folders + [service.files().get(fileId="root").execute()]
-        ret, folder_list = self.extract_to_struct(all_folders)
-        folder_list = self.extract_to_list(ret)
-        return totals, ret, folder_list, None
+            return None,None,error
+        return self.__get_all_folders__(service)
 
-    def extract_to_struct(self, all_folders, parent_node=None):
-        if parent_node is None:
-            nodes = [x for x in all_folders if x.get("parents") is None]
-            if len(nodes) > 0:
-                node = nodes[0]
-                all_folders.remove(node)
-                children, all_folders = self.extract_to_struct(all_folders, node)
-                node["children"] = children
-                return node, all_folders
-            else:
-                return None, all_folders
-        else:
-            nodes = [x for x in all_folders if x.get("parents") and x.get("parents")[0] == parent_node["id"]]
-            for x in nodes:
-                children, all_folders = self.extract_to_struct(all_folders, x)
-                x["children"] = children
 
-                all_folders.remove(x)
 
-            return nodes, all_folders
 
-    def extract_to_list(self, node, parent_location=None, get_root=True):
-        ret = []
-        root = None
-        if get_root:
-            if node is None:
-                return None
-            if node.get("children") and len(node.get("children")) > 0:
-                root = node.get("children")[0]
 
-        else:
-            root = node
-        location = root.get("name")
-        if parent_location is not None:
-            location = f"{parent_location}/{location}"
-        ret += [dict(
-            location=location,
-            id=root.get("id")
-        )]
-        for x in root.get("children"):
-            if parent_location is None:
-                parent_location = root.get("name")
-            ret_list = self.extract_to_list(x, f"{parent_location}", get_root=False)
-            ret += ret_list
-        return ret
 
     def __resync_folders__(self, app_name):
         Repository.google_folders.app(app_name).context.delete({})
@@ -421,7 +328,7 @@ class GoogleDirectoryService:
         ret= hashlib.sha256(f"{app_name}/{path}".encode()).hexdigest()
         return ret
 
-    def check_before_upload(self, app_name, directory, file_name)->typing.Tuple[bool|None,str|None,dict|None]:
+    def check_before_upload(self, app_name, directory:str, file_name)->typing.Tuple[bool|None,str|None,dict|None]:
         """
         Check folder in google if it is existing return True, google Folder Id, error is None
         :param app_name:
@@ -429,20 +336,44 @@ class GoogleDirectoryService:
         :param file_name:
         :return: IsExit: bool, Folder_id:str ,error: dict
         """
+
         service,error = self.g_drive_service.get_service_by_app_name(app_name)
         if error:
             return  None,None,error
-        folder_id = self.__do_create_folder__(service, app_name, directory)
+        t= datetime.datetime.utcnow()
+        folder_tree, folder_list,error = self.__get_all_folders__(service)
+        n=(datetime.datetime.utcnow()-t)
+        print(n.total_seconds())
+        root = folder_tree
+        ret_id = None
+        is_continue = True
+        check_key= f"my drive"
+        for x in directory.split('/'):
+            check_key=check_key+"/"+x.lower()
+            if folder_list.get(check_key):
+                ret_id = folder_list[check_key]['id']
+            else:
+                ret_id = self.__create_folder__(service, x,ret_id)
 
-        data = service.files().list(q=f"name ='{file_name}' and parents='{folder_id}' and trashed=false").execute()["files"]
+        # folder_id = self.__do_create_folder__(service, app_name, directory)
+        #
+        data = service.files().list(q=f"name ='{file_name}' and parents='{ret_id}' and trashed=false").execute()["files"]
         if len(data) > 0:
-            return True,folder_id,None
-        return False,folder_id, None
+            return True,ret_id,None
+        return False,ret_id, None
 
-    def register_upload_file(self, app_name, directory_id, file_name:str,file_size)->dict|None:
+    def register_upload_file(self, app_name, directory_id, file_name:str,file_size)->typing.Tuple[str|None,str|None, dict|None]:
+        """
+        Register upload file and return file_id,upload_location,error
+        :param app_name:
+        :param directory_id:
+        :param file_name:
+        :param file_size:
+        :return:
+        """
         token,error = self.g_drive_service.get_access_token_from_refresh_token(app_name)
         if error:
-            return error
+            return None,None, error
         import requests
         import json
         headers = {"Authorization": f"Bearer " + token, "Content-Type": "application/json"}
@@ -466,4 +397,80 @@ class GoogleDirectoryService:
             headers=headers,
             data=fs
         )
-        return location,r.json()["id"]
+        return r.json()["id"],location,None
+
+    def __get_all_folders__(self, service:Resource):
+
+        """
+        This method get all directories in Google Driver of tenant was embody by app_name
+        return folder_tree,folder_hash, error
+        :param app_name: tenant name
+        :return: folder_tree,folder_hash, error
+        """
+
+        page_token = None
+        all_folders = []
+
+        root = service.files().get(fileId="root").execute()
+
+        folders_in_trash = self.__list_trashed_folders__(service)
+        # trash_node,_ = self.extract_to_struct(folders_in_trash)
+        # trash_list = self.extract_to_list(trash_node)
+        while True:
+            # Use files().list() with filter for folders
+            results = service.files().list(q="mimeType = 'application/vnd.google-apps.folder'",
+                                           fields="nextPageToken, files(id, name,parents,kind)",
+                                           pageSize=100,  # Adjust page size as needed
+                                           pageToken=page_token).execute()
+            folders = results.get('files', [])
+            all_folders.extend(folders)
+            page_token = results.get('nextPageToken')
+            if not page_token:
+                break
+        root_folder = None
+        for x in folders_in_trash:
+            if all_folders.__contains__(x):
+                all_folders.remove(x)
+        totals = len(all_folders)
+        if totals == 0:
+            return None, None
+        cal_folders = []
+
+        def get_tree(folders_list, root_folder, parent_path: str = None):
+            ret = dict(
+                id=root_folder["id"],
+                name=root_folder["name"]
+            )
+            key = f"{parent_path.lower() + '/' if parent_path else ''}{root_folder['name'].lower()}"
+
+            ret_list = {key: root_folder}
+            children = [x for x in folders_list if x["parents"][0] == root_folder["id"]]
+            ret["children"] = []
+            while len(children) > 0:
+                c = children.pop()
+                ret["children"] += [c]
+                folders_list.remove(c)
+            for x in ret["children"]:
+                n_children, n_list, sub_list = get_tree(folders_list, x, key)
+                ret_list = {**ret_list, **sub_list}
+                x["children"] = n_children
+
+            return ret, folders_list, ret_list
+
+        ret, _, tabular_list = get_tree(all_folders, root)
+        return ret, tabular_list, None
+
+    def get_thumbnail_url_by_file_id(self, app_name, file_id)->typing.Tuple[str|None,dict|None]:
+        service,error = self.g_drive_service.get_service_by_app_name(app_name)
+        if error:
+            return None,error
+        ret,error = self.get_thumbnail_url_by_file_id_with_service(service,file_id)
+
+    def get_thumbnail_url_by_file_id_with_service(self, service:Resource, file_id)->typing.Tuple[str|None,dict|None]:
+        file_metadata = service.files().get(fileId=file_id, fields="thumbnailLink").execute()
+        if file_metadata.get('thumbnailLink'):
+            # Construct potential thumbnail URL pattern (replace with actual domain if different)
+            return file_metadata.get('thumbnailLink'),None
+        else:
+            return None,None
+

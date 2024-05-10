@@ -380,5 +380,13 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
             var win = await geminiAssistant.asWindow();
             win.doMaximize();
     }
+    async doLoadCloudGoogleConfigAsync(){
+        var me=this;
+        var r = await import("../cloud-config-google/index.js");
+            var cloudConfigGoogle = await r.default();
+//            cloudConfigGoogle.setInfo(this.currentAppName,item,this);
+            var win = await cloudConfigGoogle.asWindow();
+            win.doMaximize();
+    }
 });
 export default filesView;

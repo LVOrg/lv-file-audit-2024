@@ -409,3 +409,19 @@ class DocLocalShareInfo:
 class GoogleFolderMappings:
     Location: str
     CloudId: str
+
+@cy_docs.define(
+    name= "lvXDocCloudSync",
+    uniques=["UploadId,CloudName"],
+    indexes=["UploadId","CloudName","CreatedOn","FinishedOn"]
+)
+class CloudFileSync:
+    UploadId:str
+    CloudName:str
+    CreatedOn:datetime.datetime
+    FinishedOn: datetime.datetime
+    ErrorOn: datetime.datetime
+    SyncCount: int
+    IsError: bool
+    ErrorContent: str
+    Status: int

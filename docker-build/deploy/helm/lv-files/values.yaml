@@ -29,4 +29,4 @@ storage:
   server: ????
   directory: ????
   name: storage-files
-processMsg: ["content","image","index"]
+processMsg: ["content","image","index","google-file-sync"]

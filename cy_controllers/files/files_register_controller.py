@@ -198,18 +198,21 @@ class FilesRegisterController(BaseController):
             ret_quit.Error.Code = "MissingField"
             return ret_quit
         if Data.storageType == "onedrive":
-            try:
-                self.fucking_azure_account_service.acquire_token(
-                    app_name=app_name
-                )
-                Data.encryptContent = True
-            except FuckingWhoreMSApiCallException as e:
+            if not self.cloud_service_utils.is_ready_for(app_name=app_name,cloud_name="Azure"):
                 ret_quit = RegisterUploadInfoResult()
                 ret_quit.Error = Error()
-                ret_quit.Error.Message = e.message
-                ret_quit.Error.Code = e.code
+                ret_quit.Error.Message = f"Azure did not bestow for {app_name}"
+                ret_quit.Error.Code = "AzureWasNotReady"
                 return ret_quit
+
+
         if Data.storageType == "google-drive":
+            if not self.cloud_service_utils.is_ready_for(app_name=app_name,cloud_name="Google"):
+                ret_quit = RegisterUploadInfoResult()
+                ret_quit.Error = Error()
+                ret_quit.Error.Message = f"Google did not bestow for {app_name}"
+                ret_quit.Error.Code = "GoogleWasNotReady"
+                return ret_quit
             if Data.googlePath is None or len(Data.googlePath)==0:
                 ret_quit = RegisterUploadInfoResult()
                 ret_quit.Error = Error()
@@ -217,6 +220,22 @@ class FilesRegisterController(BaseController):
                 ret_quit.Error.Code = "MissField"
                 return ret_quit
             else:
+                total_space, error = self.cloud_service_utils.drive_service.get_available_space(
+                    app_name=app_name,
+                    cloud_name="Google"
+                )
+                if error:
+                    ret_quit = RegisterUploadInfoResult()
+                    ret_quit.Error = Error()
+                    ret_quit.Error.Message = error.get("Message")
+                    ret_quit.Error.Code = error.get("Code")
+                    return ret_quit
+                if total_space< Data.FileSize:
+                    ret_quit = RegisterUploadInfoResult()
+                    ret_quit.Error = Error()
+                    ret_quit.Error.Message = "Not enough space to do that"
+                    ret_quit.Error.Code = "NotEnoughSpace"
+                    return ret_quit
                 self.distribute_lock_service.acquire_lock(app_name)
                 try:
                     is_exist,folder_id, error= self.google_directory_service.check_before_upload(
@@ -236,12 +255,18 @@ class FilesRegisterController(BaseController):
                         ret_quit.Error.Code = "DuplicateFile"
                         return ret_quit
                     else:
-                        url_google_upload, google_file_id = self.google_directory_service.register_upload_file(
+                        google_file_id,url_google_upload,error = self.google_directory_service.register_upload_file(
                             app_name=app_name,
                             directory_id = folder_id,
                             file_name= Data.FileName,
                             file_size=  Data.FileSize
                         )
+                        if error:
+                            ret_quit = RegisterUploadInfoResult()
+                            ret_quit.Error = Error()
+                            ret_quit.Error.Message = error["Message"]
+                            ret_quit.Error.Code = error["Code"]
+                            return ret_quit
                 # except Exception as ex:
                 #     ret_quit = RegisterUploadInfoResult()
                 #     ret_quit.Error = Error()

@@ -1,4 +1,4 @@
-namespace: default-99
+namespace: lv-file
 appConfig:
   name: lv-file
   host:
@@ -17,4 +17,4 @@ storage:
   server: 192.168.18.36
   directory: /codx-file-storage/files
   name: storage-files
-
+replicas: 4

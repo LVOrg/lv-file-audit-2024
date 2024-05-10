@@ -34,6 +34,7 @@ from cy_controllers.google.google_settings_controller import GoogleSettingsContr
 from cy_controllers.ms.ms_controller_auth import MSAuth
 from cy_controllers.ms.settings import MSSettings
 from cy_controllers.cloud.mails import CloudMailController
+from cy_controllers.cloud.drivers import CloudDriveController
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
 controllers_list=[
@@ -60,7 +61,8 @@ controllers_list=[
         MSAuth,
         MSSettings,
         CloudMailController,
-        PagesController
+        PagesController,
+        CloudDriveController
 
     ]
 def load_controller(app,host_dir):

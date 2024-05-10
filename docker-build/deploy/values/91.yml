@@ -20,3 +20,4 @@ storage:
   directory: /codx-file-storage/files
   name: storage-files
 
+replicas: 4

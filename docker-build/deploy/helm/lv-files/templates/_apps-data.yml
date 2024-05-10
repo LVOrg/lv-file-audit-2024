@@ -48,8 +48,6 @@ apps:
           image: {{.images.office }}
         - name: tika
           image: {{ $imagesObject.tika }}
-        - name: google-drive
-          image: {{ $imagesObject.googleDrive }}
     {{- range $key, $value := .values.processMsg }}
     {{- $app:= (index $processesMsgConfig $value) }}
     {{ if $app }}

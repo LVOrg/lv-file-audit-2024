@@ -252,25 +252,25 @@ class FilesUploadController(BaseController):
                 app_name=app_name,
                 upload_id=UploadId
             )
-            if upload_item.StorageType == "onedrive":
-                from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
-                try:
-                    res_upload = self.fucking_azure_onedrive_service.upload_content(
-                        session_url=upload_item.OnedriveSessionUrl,
-                        content=content_part,
-                        chunk_size=upload_item.ChunkSizeInBytes,
-                        file_size=upload_item.SizeInBytes,
-                        chunk_index=Index
-                    )
-                    print(res_upload)
-                except FuckingWhoreMSApiCallException as e:
-                    ret_error = UploadFilesChunkInfoResult()
-                    ret_error.Error = ErrorResult(
-                        Code=e.code,
-                        Message=e.message,
-                        Fields=["Error from microsoft onedrive"]
-                    )
-                    return ret_error
+            # if upload_item.StorageType == "onedrive":
+            #     from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+            #     try:
+            #         res_upload = self.fucking_azure_onedrive_service.upload_content(
+            #             session_url=upload_item.OnedriveSessionUrl,
+            #             content=content_part,
+            #             chunk_size=upload_item.ChunkSizeInBytes,
+            #             file_size=upload_item.SizeInBytes,
+            #             chunk_index=Index
+            #         )
+            #         print(res_upload)
+            #     except FuckingWhoreMSApiCallException as e:
+            #         ret_error = UploadFilesChunkInfoResult()
+            #         ret_error.Error = ErrorResult(
+            #             Code=e.code,
+            #             Message=e.message,
+            #             Fields=["Error from microsoft onedrive"]
+            #         )
+            #         return ret_error
 
             if upload_item is None:
                 del FilePart
@@ -404,39 +404,22 @@ class FilesUploadController(BaseController):
             ret_data = ret.to_pydantic()
 
             if status == 1:
-                if upload_item.StorageType == "onedrive":
-                    try:
-                        share_info = self.fucking_azure_onedrive_service.get_share_info(
-                            app_name=app_name,
-                            upload_id=UploadId,
-                            client_file_name=upload_item.FileName,
-                            scope= upload_item.OnedriveScope,
-                            expiration = upload_item.OnedriveExpiration,
-                            password = upload_item.OnedrivePassword
+                map = {
+                    "onedrive": "Azure",
+                    "google-drive": "Google",
+                    "s3":"AWS"
+                }
+                if map.get(upload_item.StorageType):
 
-                        )
-                        context = self.mongodb_service.db(app_name).get_document_context(DocUploadRegister)
-                        context.context.update(
-                            cy_docs.fields._id == UploadId,
-                            context.fields.RemoteUrl << share_info.ContentUrl,
-                            context.fields.OnedriveWebUrl << share_info.WebUrl,
-                            context.fields.OnedriveShareId << share_info.ShareId,
-                            context.fields.OnedriveAccessItem << share_info.AccessItem,
-                            context.fields.OnedriveId << share_info.Id
-                        )
-                        upload_item.RemoteUrl = share_info.ContentUrl
 
-                    except FuckingWhoreMSApiCallException as e:
-                        ret = UploadFilesChunkInfoResult()
-                        ret.Error = ErrorResult()
-                        ret.Error.Code = e.code
-                        ret.Error.Message = e.message
-                        return ret
-                if upload_item.StorageType=="google-drive":
-                    self.g_drive_service.sync_to_drive(
-                        app_name = app_name,
-                        upload_item = upload_item
+
+                    self.cloud_service_utils.do_sync_data(
+                        app_name=app_name,
+                        cloud_name=map.get(upload_item.StorageType),
+                        upload_item= upload_item
+
                     )
+
                 self.delete_cache_upload_register(
                     app_name=app_name,
                     upload_id=UploadId
@@ -446,16 +429,16 @@ class FilesUploadController(BaseController):
             return ret_data
 
         except Exception as ex:
-            self.logger_service.error(ex, more_info=dict(
-                app_name=app_name,
-                UploadId=UploadId,
-                Index=Index
-            ))
+            # self.logger_service.error(ex, more_info=dict(
+            #     app_name=app_name,
+            #     UploadId=UploadId,
+            #     Index=Index
+            # ))
             import traceback
             ret = UploadFilesChunkInfoResult()
             ret.Error = ErrorResult()
             ret.Error.Code = "System"
-            ret.Error.Message = str(type(ex))
+            ret.Error.Message =repr(ex)
             return ret
 
     async def push_temp_file_async(self, app_name, content, upload_id, file_ext):

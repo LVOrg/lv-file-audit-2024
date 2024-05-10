@@ -147,6 +147,18 @@
             <rcmpct-template>
                 <div class="layout-rows header-panel">
                     <div>
+                        <div class="dropdown">
+                          <button class="btn btn-secondary dropdown-toggle" type="button" id="cloudDropdown" data-toggle="dropdown" aria-expanded="false">
+                            Cloud Providers
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="cloudDropdown">
+                            <li><a class="dropdown-item" href="javascript:void(0);" ng-click="doLoadCloudGoogleConfigAsync().then()">Google Cloud</a></li>
+                            <li><a class="dropdown-item" href="#">Microsoft Azure</a></li>
+                            <li><a class="dropdown-item" href="#">Amazon Web Services</a></li>
+                          </ul>
+                        </div>
+                    </div>
+                    <div>
                         <label>{{$res("Select tenant")}}</label>
                     </div>
                     <div class="dock full">

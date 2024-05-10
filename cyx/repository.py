@@ -3,7 +3,7 @@ import cy_kit
 from cy_xdoc.models.apps import App
 from cy_xdoc.models.files import DocUploadRegister, ContentHistory,DocLocalShareInfo
 from cy_xdoc.models.settings import GlobalSettings
-from cy_xdoc.models.files import GoogleFolderMappings
+from cy_xdoc.models.files import GoogleFolderMappings,CloudFileSync
 
 class Repository:
     apps = RepositoryContext[App](App)
@@ -12,3 +12,4 @@ class Repository:
     global_settings = RepositoryContext[GlobalSettings](GlobalSettings)
     doc_local_share_info = RepositoryContext[DocLocalShareInfo](DocLocalShareInfo)
     google_folders = RepositoryContext[GoogleFolderMappings](GoogleFolderMappings)
+    cloud_file_sync = RepositoryContext[CloudFileSync](CloudFileSync)

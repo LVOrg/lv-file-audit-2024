@@ -30,7 +30,7 @@ from googleapiclient.errors import HttpError
 from fastapi import HTTPException
 
 from cy_xdoc.services.files import FileServices
-
+from cyx.repository import Repository
 
 class GDriveService:
     def __init__(self,
@@ -184,7 +184,7 @@ class GDriveService:
             ).first_item()
 
             if data is None or data.secret_client is None:
-                return None, dict(Code="GoogleWasNotFound",Description=f"'Google do not bestow {app_name}")
+                return None, dict(Code="GoogleWasNotFound",Message=f"'Google do not bestow {app_name}")
             else:
                 refresh_token = data.refresh_token
                 self.memcache_service.set_str(
@@ -254,12 +254,18 @@ class GDriveService:
     def sync_to_drive(self, app_name, upload_item)->dict|None:
         download_url, rel_path, download_file, token, share_id = self.local_api_service.get_download_path(upload_item,
                                                                                                           app_name)
-        g_token, error = self.get_access_token_from_refresh_token(app_name)
-        return error
+
         def running():
+            g_token, error = self.get_access_token_from_refresh_token(app_name)
+            if error:
+                Repository.cloud_file_sync.app(app_name=app_name).context.update(
+                    Repository.cloud_file_sync.fields.UploadId==upload_item.Id,
+                    Repository.cloud_file_sync.fields.IsError<<True,
+                    Repository.cloud_file_sync.fields.ErrorContent<< json.dumps(error, indent=4)
+                )
 
             full_path = os.path.join("/mnt/files", rel_path)
-            client_id, secret_key = self.get_id_and_secret(app_name)
+            client_id, secret_key,email,error = self.get_id_and_secret(app_name)
             process_services_host = config.process_services_host or "http://localhost"
 
 
@@ -289,24 +295,25 @@ class GDriveService:
                 )
                 Repository.files.app(app_name).context.update(
                     Repository.files.fields.Id == upload_item.Id,
-                    # Repository.files.fields.StorageType << "Google-drive",
                     Repository.files.fields.CloudId << result
-                    # Repository.files.fields.CloudUrl << self.get_public_url(
-                    #     resource_id=result,
-                    #     token=g_token,
-                    #     client_id=client_id,
-                    #     client_secret=secret_key
-                    # )
+
                 )
 
                 upload_item[Repository.files.fields.CloudId] = result
                 self.file_services.cache_upload_register_set(upload_item.Id, upload_item)
+                Repository.cloud_file_sync.app(app_name=app_name).context.delete(
+                    Repository.cloud_file_sync.fields.UploadId == upload_item.Id
+                )
                 try:
                     os.remove(full_path)
                 except:
                     pass
             except Exception as ex:
-                raise ex
+                Repository.cloud_file_sync.app(app_name=app_name).context.update(
+                    Repository.cloud_file_sync.fields.UploadId == upload_item.Id,
+                    Repository.cloud_file_sync.fields.IsError << True,
+                    Repository.cloud_file_sync.fields.ErrorContent << repr(ex)
+                )
 
         threading.Thread(target=running).start()
 

@@ -125,6 +125,9 @@ from enum import Enum
 
 PROCESSING_FILE = "PROCESSING_FILE"
 
+MSG_CLOUD_GOOGLE_DRIVE_SYNC="cloud.google.drive.sync"
+MSG_CLOUD_ONE_DRIVE_SYNC="cloud.one.drive.sync"
+MSG_CLOUD_S3_SYNC="cloud.s3.sync"
 
 class MsgEnum(Enum):
     EXTRACT_TEXT_FROM_VIDEO = "EXTRACT_TEXT_FROM_VIDEO"
