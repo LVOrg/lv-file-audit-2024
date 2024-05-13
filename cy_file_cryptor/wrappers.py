@@ -63,6 +63,8 @@ def hash_file(filename, hash_function=hashlib.sha256):
 
 
 def cy_open_file(*args, **kwargs):
+
+
     is_encrypt = False
     chunk_size = -1
     if kwargs.get("encrypt") == True:
@@ -121,13 +123,6 @@ def cy_open_file(*args, **kwargs):
                 client_secret=client_secret
             )
             return ret
-
-
-
-
-
-
-
     if isinstance(file_path,str) and file_path.startswith("mongodb://"):
         from cy_file_cryptor import mongodb_file
         return mongodb_file.do_open(
@@ -135,6 +130,16 @@ def cy_open_file(*args, **kwargs):
             original_open_file=original_open_file,
             *args,**kwargs
         )
+    if isinstance(file_path,str) and (file_path.startswith("http://") or file_path.startswith("https://")):
+        from cy_file_cryptor.remote_file import do_open
+        ret = do_open(
+            url_file=file_path,
+            original_open_file=original_open_file,
+            filename=kwargs.get("download_filename"),
+            send_kwargs=send_kwargs
+        )
+        return ret
+
     file_size = 0
     if os.path.isfile(file_path):
         file_size = os.path.getsize(file_path)

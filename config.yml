@@ -175,12 +175,14 @@ rabbitmq:
   port: 30672
 #  msg: v99-dev
   msg: xyzdsc-2024
+  username: guest
+  password: guest
 broker:
   is_use: true
   servers: 172.16.7.99:30992
   msg: xdoc
 #  temp_directory: ./brokers/tmp-files
-cache_server: localhost:11211
+cache_server: localhost:11212
 logs_url: https://hooks.slack.com/services/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
 
 services:

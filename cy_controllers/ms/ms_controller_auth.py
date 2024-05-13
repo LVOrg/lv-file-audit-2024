@@ -33,7 +33,7 @@ from cy_xdoc.auths import Authenticate
 @controller.resource()
 class MSAuth(BaseController):
     @controller.router.get(
-        path="/api/{app_name}/after-ms-login"
+        path="/api/{app_name}/cloud/azure/get-login-url"
     )
     async def one_drive_folder_list(self, app_name: str):
         query = self.request.query_params or {}

@@ -1,6 +1,16 @@
 from cyx.common import config
 from memcache import Client
 from kazoo.client import KazooClient
+import requests
+import time
+def check_url(url,method="get"):
+    response = getattr(requests,method)(url)
+    while response.status_code!=200:
+        print(f"{url} is unavailable")
+        print("re-connect on next 5 seconds")
+        time.sleep(5)
+        response = getattr(requests,method)(url)
+    print(f"{url} is available")
 
 def check_memcache():
     ok = False
@@ -30,6 +40,6 @@ def check_zookeeper():
             # Close the Kazoo client connection
             zk.stop()
     print(f"zookeeper is ok {distribute_lock_server}")
-
+check_url("https://api.trogiupluat.vn/swagger/index.html")
 check_memcache()
 check_zookeeper()

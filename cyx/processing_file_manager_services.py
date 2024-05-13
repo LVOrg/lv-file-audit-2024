@@ -33,7 +33,7 @@ class ProcessManagerService:
             )
 
     def submit_error(self, data, app_name, action_type, error):
-        print(error)
+
         if not isinstance(error,str):
             error = traceback.format_exc()
         if data.ProcessInfo is None:

@@ -9,7 +9,43 @@ import requests
 working_dir = pathlib.Path(__file__).parent.__str__()
 TEM_DIR = None
 
+class CallAPIException(Exception):
+  """
+  Custom exception for errors during Web API calls.
+  """
 
+  def __init__(self, message: str, url: str = None, status_code: int = None):
+    """
+    Args:
+        message: The error message describing the issue.
+        url (optional): The URL of the Web API that caused the error.
+        status_code (optional): The HTTP status code returned by the Web API, if available.
+    """
+    super().__init__(message)
+    self.url = url
+    self.status_code = status_code
+    self.message=message
+
+  def __repr__(self):
+      """
+          Overrides the default string representation for informative messages.
+          """
+      message = f"Call to Web API failed: {self.message}"
+      if self.url:
+          message += f"\n  URL: {self.url}"
+      if self.status_code:
+          message += f"\n  Status Code: {self.status_code}"
+      return message
+  def __str__(self):
+    """
+    Overrides the default string representation for informative messages.
+    """
+    message = f"Call to Web API failed: {self.message}"
+    if self.url:
+      message += f"\n  URL: {self.url}"
+    if self.status_code:
+      message += f"\n  Status Code: {self.status_code}"
+    return message
 def __verify_temp_dir__():
     global TEM_DIR
     if TEM_DIR is None:
@@ -115,26 +151,35 @@ def socat_ping(port):
 
 def call_web_api(data, action_type, url_file, download_file=None):
     """Calls a web API using the provided data.
-
-  Args:
+    Args:
       data (dict): A dictionary containing API details like URL, headers, file path (optional), and response key (optional).
-
-  Returns:
-      dict: The parsed JSON response data (if successful) or None (if error).
+    :exception CallAPIException
+    Returns:
+        dict: The parsed JSON response data (if successful) or None (if error).
   """
 
     # Extract URL, headers, and file upload information
 
     url = data['url']
     headers = data['headers']
-    with open(url_file, "rb") as sf:
+    # if not headers.get("Content-Type"):
+    #     headers["Content-Type"] = "application/json; charset=utf-8"
+    download_filename = pathlib.Path(download_file).name
+    with open(url_file, "rb",download_filename=download_filename) as sf:
         sf.name = download_file
         files = {'file': sf}
 
         # Send the POST request
         response = requests.post(url, headers=headers, files=files)
-        response.raise_for_status()
+
         res_data = response.json()
+        if response.status_code!=200:
+            msg = json.dumps(res_data,indent=4)
+            raise CallAPIException(
+                message = f"{url} return error\n: {msg}",
+                url=url,
+                status_code=response.status_code
+            )
         res_keys = data["response"].split(".")
         ret_value = res_data
         for x in res_keys:
@@ -146,6 +191,14 @@ def call_web_api(data, action_type, url_file, download_file=None):
 
 
 def call_local_tika(action, action_type, url_file, download_file):
+    """
+
+    :param action:
+    :param action_type:
+    :param url_file:
+    :param download_file:
+    :return:
+    """
 
 
     from cyx.common import config

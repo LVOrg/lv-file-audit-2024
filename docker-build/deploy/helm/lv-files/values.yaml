@@ -24,6 +24,8 @@ rabbit:
   server: rabbitmq.rabbitmq-dev
   port: 5672
   prefixMsg: xyzdsc-2024 # default value is msg: xyzdsc-2024
+  username: ???
+  password: ????
 replicas: 1
 storage:
   server: ????

@@ -335,17 +335,17 @@ class FileServices:
         )
         fucking_session_url = None
         fucking_onedrive_item = None
-        if storage_type == "onedrive":
-            fucking_session_url = self.onedrive_service.get_upload_session(
-                app_name=app_name,
-                upload_id=id,
-                client_file_name=client_file_name
-            )
-            fucking_onedrive_item = self.onedrive_service.get_access_item(
-                app_name=app_name,
-                upload_id=id,
-                client_file_name=client_file_name
-            )
+        # if storage_type == "onedrive":
+        #     fucking_session_url = self.onedrive_service.get_upload_session(
+        #         app_name=app_name,
+        #         upload_id=id,
+        #         client_file_name=client_file_name
+        #     )
+        #     fucking_onedrive_item = self.onedrive_service.get_access_item(
+        #         app_name=app_name,
+        #         upload_id=id,
+        #         client_file_name=client_file_name
+        #     )
 
         def cahe_register():
             cache_doc = cy_docs.DocumentObject()

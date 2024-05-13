@@ -4,7 +4,7 @@ import requests
 
 
 class IORemote(object):
-    def __init__(self, url_file: str, original_open_file, send_kwargs):
+    def __init__(self, url_file: str,filename:str, original_open_file, send_kwargs):
         self.url_file = url_file
         self.original_open_file = original_open_file
         self.send_kwargs = send_kwargs
@@ -15,10 +15,11 @@ class IORemote(object):
             self.header = {**self.header, **self.send_kwargs.get('header')}
         self.response = None
         self.file_size = None
+        self.filename = filename
 
     def __enter__(self):
         self.header["Range"] = 'bytes=0-0'
-        self.response = requests.get(self.url_file, headers=self.header)
+        self.response = requests.get(self.url_file, headers=self.header,stream=True)
         self.response.raise_for_status()  # Raise an exception for non-200 status codes
 
         if 'content-range' in self.response.headers:

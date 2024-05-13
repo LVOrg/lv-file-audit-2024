@@ -51,10 +51,10 @@ class OnedriveService:
             ret.remaining = ret_data.get("quota").get("remaining", 0)
         return ret
 
-    def upload_file(self, app_name: str, file: UploadFile):
-        token = self.fucking_azure_account_service.acquire_token(
-            app_name=app_name
-        )
+    # def upload_file(self, app_name: str, file: UploadFile):
+    #     token = self.fucking_azure_account_service.acquire_token(
+    #         app_name=app_name
+    #     )
     def clear_cache(self, app_name):
         cache_key = f"{__file__}/{app_name}/get_root_folder"
         self.memcache_service.remove(cache_key)
