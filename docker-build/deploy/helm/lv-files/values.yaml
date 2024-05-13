@@ -31,4 +31,4 @@ storage:
   server: ????
   directory: ????
   name: storage-files
-processMsg: ["content","image","index","google-file-sync"]
+processMsg: ["re-do-all","content","image","index","google-file-sync"]

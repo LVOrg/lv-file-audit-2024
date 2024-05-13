@@ -7,6 +7,7 @@ from itertools import accumulate
 
 sys.path.append("/app")
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
+import cy_jobs.cy_job_libs
 import typing
 import uuid
 
@@ -51,7 +52,10 @@ def get_docs_miss_msg(app_name: str, action_type: str | None = None, limit=10):
         filter = filter_info | filter_msg
     else:
         filter = filter_info
+    #Repository.files.fields.ProcessInfo.Content.IsError==True
     context = Repository.files.app(app_name).context
+    filter = filter | (Repository.files.fields.ProcessInfo.content.IsError==True)
+    filter = filter | (Repository.files.fields.ProcessInfo.image.IsError == True)
     arg = context.aggregate().match(
         filter
     ).sort(
@@ -80,6 +84,8 @@ while True:
                 if file_ext is None:
                     file_ext = pathlib.Path(file[Repository.files.fields.FileNameLower]).suffix.replace(".", "")
                 doc_type = get_doc_type(file_ext)
+                if file[Repository.files.fields.ProcessInfo]:
+                    print(file[Repository.files.fields.ProcessInfo])
                 Repository.files.app(app.Name).context.update(
                     Repository.files.fields.id== file.id,
                     Repository.files.fields.DocType<<(doc_type[0].upper()+doc_type[1:])

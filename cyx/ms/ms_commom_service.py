@@ -9,6 +9,15 @@ from cyx.repository import Repository
 from fastapi.requests import Request
 import requests
 
+class MSAuthenticateInfo:
+    access_token:str
+    refresh_token:str
+    id_token:str
+    scope:str
+    expires_in:str
+    expire_on: datetime.datetime
+
+
 
 class MSCommonService:
     def __init__(self,
@@ -119,8 +128,7 @@ class MSCommonService:
     def get_cache_key(self, app_name):
         return f"{type(self).__module__}/{type(self).__name__}/{app_name}"
 
-    def get_token_from_app_by_verify_code(self, app_name, verify_code) -> typing.Tuple[
-        str | None, str | None, str | None, str | None, datetime.datetime | None, dict | None]:
+    def get_token_from_app_by_verify_code(self, app_name, verify_code) -> typing.Tuple[MSAuthenticateInfo|None,dict|None]:
         """
         The fucking function will verify code and  return access_token, refresh_token,id_token,scope
         :param app_name:
@@ -151,14 +159,19 @@ class MSCommonService:
         if response.status_code == 200:
             res_json = response.json()
             expires_in = datetime.datetime.utcnow() + datetime.timedelta(seconds=int(res_json["ext_expires_in"]))
-            return res_json["access_token"], res_json.get("refresh_token"), res_json.get("id_token"), res_json.get(
-                "scope"), expires_in, None
+            ret =MSAuthenticateInfo()
+            for k,v in res_json.items():
+                setattr(ret,k,v)
+            ret.expire_on =expires_in
+            return ret,None
         else:
             res_data = response.json()
             if res_data.get("error"):
-                return None, None, None, None, None, dict(error=res_data.get("error"),
-                                                          description=res_data.get("error_description"))
-            return None, None, None, None, None, response.json()
+                return None, dict(
+                    error=res_data.get("error"),
+                    description=res_data.get("error_description")
+                )
+            return None, response.json()
 
     def authenticate_update(self,
                             app_name:str,

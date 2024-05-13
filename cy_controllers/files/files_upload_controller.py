@@ -275,13 +275,11 @@ class FilesUploadController(BaseController):
             if upload_item is None:
                 del FilePart
                 del content_part
-                return cy_docs.DocumentObject(
-                    Error=dict(
-                        Message="Upload was not found or has been remove",
-                        Code="ItemWasNotFound"
-
-                    )
-                ).to_pydantic()
+                ret = UploadFilesChunkInfoResult()
+                ret.Error =ErrorResult()
+                ret.Error.Code="ItemWasNotFound"
+                ret.Message="Upload was not found or has been remove"
+                return ret
             upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
             file_size = upload_item.SizeInBytes
             # path_to_broker_share = os.path.join(path_to_broker_share,f"{UploadId}.{upload_item.get(docs.Files.FileExt.__name__)}")

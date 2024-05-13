@@ -55,12 +55,13 @@ controllers_list=[
         WOPIController,
         Office365Controller,
         AuthController,
-        FilesLocalController,
+
         GoogleController,
         GoogleSettingsController,
         MSAuth,
         MSSettings,
         CloudMailController,
+        FilesLocalController,
         PagesController,
         CloudDriveController
 

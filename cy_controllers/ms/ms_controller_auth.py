@@ -74,3 +74,58 @@ class MSAuth(BaseController):
             return Response(content=json.dumps(error), media_type="application/json")
             # url, error = self.ms_common_service.get_url(app_name=app_name, scopes=scopes)
 
+    @controller.router.get(
+        path="/api/{app_name}/after-ms-login"
+    )
+    def after_ms_login(self,app_name:str):
+        if self.request.query_params.get("error"):
+            error_html = (f"<p>"
+                          f"<label>Error&nbsp;:</label><b>{self.request.query_params.get('error')}</b></br>"
+                          f"{self.request.query_params.get('error_description')}"
+                          f"</p>")
+            html_content = (f"<html>"
+                            f"  <body>"
+                            f"{error_html}"
+                            f"  </body>"
+                            f"</html>")
+            return Response(content=html_content, media_type="text/html")
+        code = self.request.query_params.get("code")
+        # tenant_id,client_id,client_secret,redirect_url = self.ms_common_service.settings_get(app_name)
+        # token_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+        auth_info,error = self.ms_common_service.get_token_from_app_by_verify_code(app_name,code)
+        if error:
+            error_html = (f"<p>"
+                          f"<label>Error&nbsp;:</label><b>{error.get('Code')}</b></br>"
+                          f"{error.get('Message')}"
+                          f"</p>")
+            html_content = (f"<html>"
+                            f"  <body>"
+                            f"{error_html}"
+                            f"  </body>"
+                            f"</html>")
+            return Response(content=html_content, media_type="text/html")
+        # Data for the token request
+
+        self.ms_common_service.authenticate_update(
+            app_name=app_name,
+            access_token=auth_info.access_token,
+            refresh_token=auth_info.refresh_token,
+            id_token=auth_info.id_token,
+            scope=auth_info.scope,
+            utc_expire=auth_info.expire_on
+
+        )
+
+        msg_content= (f'<!DOCTYPE html><html lang="en">'
+                      f'<head>'
+                      f'    <meta charset="UTF-8">'
+                      f'    <meta name="viewport" content="width=device-width, initial-scale=1.0">'
+                      f'    <title>Microsoft Azure Consent Successful</title>'
+                      f'</head>'
+                      f'<body>'
+                      f'    <h1>Microsoft Azure Consent Successful</h1>'
+                      f'    <p>You have successfully granted the necessary permissions for your account. You can now close this browser window.</p>'
+                      f'    <p><b>Thank you!</b></p></html>')
+
+
+        return Response(content=msg_content, media_type="text/html")

@@ -132,10 +132,13 @@ def cy_open_file(*args, **kwargs):
         )
     if isinstance(file_path,str) and (file_path.startswith("http://") or file_path.startswith("https://")):
         from cy_file_cryptor.remote_file import do_open
+        remote_file_name = kwargs.get("download_filename")
+        if not remote_file_name:
+            remote_file_name = pathlib.Path(file_path.split('?')[0]).name
         ret = do_open(
             url_file=file_path,
             original_open_file=original_open_file,
-            filename=kwargs.get("download_filename"),
+            filename=remote_file_name,
             send_kwargs=send_kwargs
         )
         return ret

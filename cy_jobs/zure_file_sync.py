@@ -89,6 +89,8 @@ cloud_upload_azure_service = cy_kit.singleton(CloudUploadAzureService)
 while True:
     try:
         msg = consumer.get_msg(False)
+        if not msg:
+            continue
         download_url, rel_path, download_file, token, share_id = local_api_service.get_download_path(msg.data,
                                                                                                      msg.app_name)
         full_path = os.path.join("/mnt/files",rel_path)

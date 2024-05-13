@@ -1,4 +1,4 @@
-main: nttlong/fs:fs.tiny.amd.21.11
+main: nttlong/fs:fs.tiny.amd.21.13
 office: nttlong/fs:fs.office.amd.1.5
 video: nttlong/fs:fs.video.amd.1
 pdf: nttlong/fs:fs.pdf.amd.2
@@ -7,6 +7,10 @@ thumb: nttlong/fs:fs.thumbs.amd.2
 googleDrive: nttlong/fs:fs.google.amd.4
 check_key: ^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$
 processesMsgConfig:
+  re-do-all:
+    entrypoint:
+      - python3
+      - /app/cy_jobs/re_do_all.py
   content:
     entrypoint:
       - python3

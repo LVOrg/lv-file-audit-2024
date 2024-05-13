@@ -7,7 +7,9 @@ import hashlib
 import pathlib
 import shutil
 
-
+import cy_file_cryptor.context
+from cyx.common import config
+cy_file_cryptor.context.set_server_cache(config.cache_server)
 class LocalFileCachingService:
     """
     Provides methods for caching files from an NFS server to a local directory.
@@ -83,6 +85,7 @@ class LocalFileCachingService:
                 raise OSError(f"Failed to manage cache space: {err}")
 
         try:
+
             with open(server_file_path,"rb") as fs:
                 with open(cached_file_path,"wb") as fc:
                     fc.write(fs.read())

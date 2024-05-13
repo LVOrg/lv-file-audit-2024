@@ -47,11 +47,11 @@ services:
       - "1114:1114"
     volumes:
       - /mnt/files:/mnt/files
-#  memcached:
-#    image: memcached
-#    container_name: memcached-11211
-#    ports:
-#      - "11212:11211"
+  memcached:
+    image: memcached
+    container_name: memcached-11211
+    ports:
+      - "11212:11211"
 
 #  web:
 #    image: docker.io/nttlong/fs:fs.tiny.amd.19.2
