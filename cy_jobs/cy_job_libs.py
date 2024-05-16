@@ -24,9 +24,10 @@ import mimetypes
 from cy_xdoc.services.search_engine import SearchEngine
 import gradio_client
 print(gradio_client.__version__)
-
+from cyx.cloud.azure.azure_utils_services import AzureUtilsServices
 from gradio_client import Client
 from cyx.processing_file_manager_services import ProcessManagerService
+from cyx.google_drive_utils.directories import GoogleDirectoryService
 from cyx.common import config
 import cy_file_cryptor.context
 from kazoo.client import KazooClient
@@ -74,12 +75,15 @@ check_zookeeper()
 cy_file_cryptor.context.set_server_cache(config.cache_server)
 import cy_file_cryptor.wrappers
 class JobLibs:
-    shared_storage_service = cy_kit.singleton(ShareStorageService)
-    content_service = cy_kit.singleton(ContentService)
+    shared_storage_service:ShareStorageService = cy_kit.singleton(ShareStorageService)
+    content_service:ContentService = cy_kit.singleton(ContentService)
     # logger=cy_kit.singleton(LoggerService),
-    local_api_service = cy_kit.singleton(LocalAPIService)
+    local_api_service:LocalAPIService = cy_kit.singleton(LocalAPIService)
     search_engine = cy_kit.singleton(SearchEngine)
-    process_manager_service = cy_kit.singleton(ProcessManagerService)
+    process_manager_service:ProcessManagerService = cy_kit.singleton(ProcessManagerService)
+    azure_utils_services:AzureUtilsServices = cy_kit.singleton(AzureUtilsServices)
+    google_directory_service:GoogleDirectoryService = cy_kit.singleton(GoogleDirectoryService)
+
     @staticmethod
     def get_doc_type(file_ext: str) -> str:
         file_ext = file_ext.lower()

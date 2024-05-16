@@ -1,4 +1,5 @@
 namespace: files
+auto_ssl_redirect: off
 appConfig:
   name: lv-file
   host:
@@ -7,6 +8,7 @@ appConfig:
     protocol: https
   ingress:
       pathType: Prefix
+  requireService: true
 db:
   mongodb: ????
   manage: 'lv-docs'
@@ -31,4 +33,4 @@ storage:
   server: ????
   directory: ????
   name: storage-files
-processMsg: ["re-do-all","content","image","index","google-file-sync"]
+processMsg: ["re-do-all","content","image","index","google-file-sync","google-folder-sync","onedrive-file-sync"]

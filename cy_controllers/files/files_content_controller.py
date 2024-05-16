@@ -1,5 +1,6 @@
 import pathlib
 import sys
+import traceback
 import typing
 from cyx.repository import Repository
 from fastapi_router_controller import Controller
@@ -133,21 +134,35 @@ class FilesContentController(BaseController):
             response = Response(content="Resource not found", status_code=404)
             return response
         if upload.StorageType == "onedrive":
-            return self.fucking_azure_onedrive_service.get_content(
-                app_name=app_name,
-                upload_id=upload_id,
-                request=self.request,
-                client_file_name=upload.FileName
-            )
+            upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id == upload_id)
+            if upload[Repository.files.fields.CloudId] is not None:
+                try:
+                    m,_ =mimetypes.guess_type(directory)
+                    return self.azure_utils_service.get_content(
+                        app_name=app_name,
+                        cloud_file_id=upload[Repository.files.fields.CloudId],
+                        content_type=m,
+                        request=self.request
+                    )
+                except:
+                    from  fastapi.responses import HTMLResponse
+                    return HTMLResponse(content=traceback.format_exc(),status_code=500)
+                # return self.fucking_azure_onedrive_service.get_content(
+                #     app_name=app_name,
+                #     upload_id=upload_id,
+                #     request=self.request,
+                #     client_file_name=upload.FileName
+                # )
         if upload.StorageType=="google-drive":
             upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id==upload_id)
             if upload[Repository.files.fields.CloudId] is not None:
-                return  self.g_drive_service.get_content(
+                ret =  self.g_drive_service.get_content(
                     app_name=app_name,
                     client_file_name=upload.FileName,
                     cloud_id= upload[Repository.files.fields.CloudId],
                     request=self.request
                 )
+                return ret
         if not upload.IsPublic:
             if self.request.query_params.get("local-share-id") and self.request.query_params.get("app-name"):
                 check_data = self.local_api_service.check_local_share_id(

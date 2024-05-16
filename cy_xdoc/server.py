@@ -3,8 +3,7 @@ import json
 import pathlib
 import sys
 import os
-
-
+import traceback
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
@@ -59,6 +58,7 @@ for k,v in config_list:
 if hasattr(config,"auto_ssl_redirect") and  config.auto_ssl_redirect=="on":
     if not config.host_url.startswith("https://"):
         config.host_url = "https://"+config.host_url[len("http://"):]
+
 from cyx.common.base import DbConnect
 
 cnn = cy_kit.singleton(DbConnect)
@@ -121,6 +121,12 @@ async def estimate_time(request: fastapi.Request, next):
             res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
             return res
         res = await apply_time(res)
+    except Exception as ex:
+        from  fastapi.responses import HTMLResponse
+        return HTMLResponse(
+            content=traceback.format_exc(),
+            status_code=500
+        )
     except FileNotFoundError as e:
         # logger.error(e, more_info= dict(
         #     url= request.url.path

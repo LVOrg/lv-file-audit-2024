@@ -72,6 +72,7 @@ spec:
             - file_storage_path=/mnt/files
             - process_services_host=http://localhost
             - distribute_lock_server=distribute-lock-service.{{$value.namespace}}:2181
+            - use_ssl=$(use_ssl)
         {{end}}
           volumeMounts:
             - name: tmp-files

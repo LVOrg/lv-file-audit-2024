@@ -36,7 +36,10 @@ class AppGoogle:
     RootDir:typing.Optional[str]
     RedirectUri: typing.Optional[str]
     Email: typing.Optional[str]
-
+    AccessToken :typing.Optional[str]
+    ExpiresIn :typing.Optional[int]
+    Scope: typing.Optional[str]
+    TokenType : typing.Optional[str]
 
 class AppsOnCloudModel:
     Azure: typing.Optional[AppMicrosoftAzure]

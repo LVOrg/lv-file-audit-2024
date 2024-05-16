@@ -11,6 +11,8 @@ from msgraph import GraphServiceClient
 from azure.identity.aio import ClientSecretCredential
 from cyx.cloud.azure.azure_utils import call_ms_func
 
+from fastapi.responses import JSONResponse
+
 
 class AzureInfo:
     tenant_id: str
@@ -49,16 +51,14 @@ class AzureUtilsServices:
                                             azure_info.client_secret)
         return credential, None
 
-    def acquire_token(self, app_name) -> typing.Tuple[AccquireTokenInfo | None, dict | None]:
-        key = f"{self.cache_key}/{app_name}/token"
-        ret = self.mem_cache_services.get_object(key, AccquireTokenInfo)
-        if ret is not None and (datetime.datetime.utcnow() - ret.expires_on).total_seconds() > 5:
-            return ret, None
-
+    def __get_token_info__(self, app_name):
         azure_info, error = self.get_azure_info(app_name)
-        # post_url = f"https://login.microsoftonline.com/{fucking_ms_app_azure_tenant_id}/oauth2/v2.0/token"
-        # if fucking_ms_app_azure_is_personal:
         post_url = f"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+        if (not  hasattr(azure_info,"refresh_token") or
+                not hasattr(azure_info,"client_id") or
+                not hasattr(azure_info,"scope")
+                or not hasattr(azure_info,"client_secret")) :
+            return None, dict(Code="InvalidSettings",Message=f"Azure settings for {app_name} is invalid")
         res = requests.post(
             url=post_url,
             data=dict(
@@ -79,12 +79,30 @@ class AzureUtilsServices:
             for k, v in data.items():
                 setattr(ret, k, v)
             ret.expires_on = datetime.datetime.utcnow() + datetime.timedelta(seconds=int(ret.expires_in))
-            self.mem_cache_services.set_object(key, ret)
             return ret, None
+
+    def acquire_token(self, app_name, reset=False) -> typing.Tuple[AccquireTokenInfo | None, dict | None]:
+        key = f"{self.cache_key}/{app_name}/token"
+        if not reset:
+
+            ret = self.mem_cache_services.get_object(key, AccquireTokenInfo)
+            if ret is not None and (datetime.datetime.utcnow() - ret.expires_on).total_seconds() > 5:
+                return ret, None
+            token_info, error = self.__get_token_info__(app_name)
+            if error:
+                return None, error
+            self.mem_cache_services.set_object(key, token_info)
+            return token_info, None
+        else:
+            token_info, error = self.__get_token_info__(app_name)
+            if error:
+                return None, error
+            self.mem_cache_services.set_object(key, token_info)
+            return token_info, None
 
     def get_azure_info(self, app_name) -> typing.Tuple[AzureInfo | None, dict | None]:
         """
-        Get all info has been setup for app
+        Get all info has been set up for app
         :param app_name:
         :return: azure_info, error
         """
@@ -114,30 +132,6 @@ class AzureUtilsServices:
             self.mem_cache_services.set_object(f"{self.cache_key}/{app_name}", ret)
             return ret, None
 
-    # def get_upload_session(self, app_name: str, upload_id: str, client_file_name: str) -> str:
-    #     access_info,error = self.get_azure_info(app_name)
-    #     if error:
-    #         return None,error
-    #     # token = self.fucking_azure_account_service.acquire_token(
-    #     #     app_name=app_name
-    #     # )
-    #     # drive_item_id = self.get_root_folder(
-    #     #     app_name=app_name
-    #     # )
-    #     res_upload_session = call_ms_func(
-    #         method="post",
-    #         token=token,
-    #         body={
-    #             "item": {
-    #                 "@microsoft.graph.conflictBehavior": "rename"
-    #             },
-    #             "deferCommit": False
-    #         },
-    #         api_url=f"/me/drive/items/root:/{drive_item_id}/{upload_id}/{client_file_name}:/createUploadSession",
-    #         request_content_type="application/json",
-    #         return_type=dict
-    #     )
-    #     return res_upload_session.get("uploadUrl")
     def get_all_folders(self, app_name, parent_id: str = "root", parent_path: str = None) -> typing.Tuple[
         AccquireTokenInfo | None, dict | None, dict | None]:
 
@@ -196,3 +190,76 @@ class AzureUtilsServices:
         else:
             self.mem_cache_services.set_str(key, res['id'])
             return res['id'], None
+
+    def get_content(self, app_name, cloud_file_id, content_type, request):
+        from fastapi.responses import StreamingResponse
+        cache_key = f"{__file__}/{type(self).__name__}/get_content/{app_name}/{cloud_file_id}"
+        content_url = f"https://graph.microsoft.com/v1.0/me/drive/items/{cloud_file_id}/content"
+        from requests import get
+        token_info, error = self.acquire_token(app_name)
+        if error:
+            return JSONResponse(content=error, status_code=404)
+        token = token_info.access_token
+        HEADERS = {
+            'Authorization': 'Bearer ' + token,
+
+        }
+        if request.headers.get('range'):
+            HEADERS = {
+                'range': request.headers.get('range'),
+                'Authorization': 'Bearer ' + token
+
+            }
+        expire_time = request.headers.get('Expires')
+        import requests
+        response = requests.get(content_url, stream=True, headers=HEADERS, verify=False)
+        if response.status_code == 401:
+            token_info, error = self.acquire_token(app_name,reset=True)
+            if error:
+                return JSONResponse(content=error,status_code=500)
+            token = token_info.access_token
+            HEADERS["Authorization"] = f'Bearer {token}'
+            response = requests.get(content_url, stream=True, headers=HEADERS, verify=False)
+        if response.status_code >= 300:
+            from fastapi.responses import HTMLResponse
+            return HTMLResponse(content=response.text, status_code=response.status_code)
+
+        if response.headers.get('Content-Location'):
+            self.mem_cache_services.set_str(cache_key, response.headers.get('Content-Location'), 60)
+        if response.status_code == 404:
+            self.mem_cache_services.remove(cache_key)
+
+            response = get(content_url, stream=True, headers=HEADERS, verify=False)
+
+            if response.headers.get('Content-Location'):
+                self.mem_cache_services.set_str(cache_key, response.headers.get('Content-Location'), 60)
+        # Set response headers for streaming
+        response.headers["Content-Type"] = content_type
+        response.headers["Accept-Ranges"] = "bytes"
+        # response.headers["Content-Range"] = request.headers.get('range')
+        if response.headers.get("Content-Disposition"):
+            del response.headers['Content-Disposition']
+
+        # Return StreamingResponse object
+        return StreamingResponse(
+            content=response.iter_content(chunk_size=1024 * 4),
+            headers=response.headers,
+            media_type=content_type,
+            status_code=response.status_code
+        )
+
+    # def get_url_content(self, app_name, upload_id, client_file_name):
+    #     URL = 'https://graph.microsoft.com/v1.0/'
+    #
+    #
+    #     access_item = f":/roor/{upload_id}/{client_file_name}:"
+    #     # access_item = self.get_access_item(
+    #     #     app_name=app_name,
+    #     #     upload_id=upload_id,
+    #     #     client_file_name=client_file_name
+    #     # )
+    #     ret = f"{URL}me/drive/root{access_item}/content"
+    #     return ret
+
+    def get_access_item(self, app_name, upload_id, client_file_name):
+        pass

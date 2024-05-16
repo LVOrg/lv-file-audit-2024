@@ -11,6 +11,8 @@ class DriveServiceGoogle:
         :param app_name:
         :return:
         """
+        info,error = self.g_drive_service.get_access_token_from_access_token(app_name )
+
         service, error = self.g_drive_service.get_service_by_app_name(app_name=app_name, g_service_name="v3/drive")
         if error:
             return None, error

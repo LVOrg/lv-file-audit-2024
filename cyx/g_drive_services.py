@@ -1,3 +1,4 @@
+import datetime
 import os.path
 import pathlib
 import threading
@@ -31,6 +32,20 @@ from fastapi import HTTPException
 
 from cy_xdoc.services.files import FileServices
 from cyx.repository import Repository
+import requests
+import mimetypes
+from fastapi.responses import StreamingResponse
+
+
+class GoogleSettingsInfo:
+    refresh_token: str
+    access_token: str
+    expires_in: int
+    scope: str
+    token_type: str
+    client_secret: str
+    email: str
+
 
 class GDriveService:
     def __init__(self,
@@ -59,7 +74,7 @@ class GDriveService:
         """
         client_id, client_secret, _, error = self.get_id_and_secret(app_name)
         if error:
-            return  None,error
+            return None, error
         redirect_uri = f'https://{request.url.hostname}/' + request.url.path.split('/')[
             1] + '/api/' + app_name + '/after-google-login'
         full_scopes = [urllib.parse.quote_plus(f"https://www.googleapis.com/auth/{x}") for x in scopes]
@@ -132,16 +147,18 @@ class GDriveService:
     def resset_id_and_secret(self, app_name):
         self.memcache_service.delete_key(f"{self.cache_key_of_id_and_secret}/{app_name}")
 
-    def get_id_and_secret(self, app_name) -> typing.Tuple[str | None, str | None, str | None, dict | None]:
+    def get_id_and_secret(self, app_name, from_cache: bool = True) -> typing.Tuple[
+        str | None, str | None, str | None, dict | None]:
         """
         Get ClientId, ClientSecret, Email and error
         :param app_name:
         :return: client_id, client_secret, email , error
         """
-
-        ret_dict = self.memcache_service.get_dict(f"{self.cache_key_of_id_and_secret}/{app_name}")
-        if ret_dict and ret_dict.get("ClientId") and ret_dict.get("ClientSecret") and ret_dict.get("Email"):
-            return ret_dict["ClientId"], ret_dict["ClientSecret"], ret_dict["Email"], None
+        ret_dict = None
+        if from_cache:
+            ret_dict = self.memcache_service.get_dict(f"{self.cache_key_of_id_and_secret}/{app_name}")
+            if ret_dict and ret_dict.get("ClientId") and ret_dict.get("ClientSecret") and ret_dict.get("Email"):
+                return ret_dict["ClientId"], ret_dict["ClientSecret"], ret_dict["Email"], None
         data = Repository.apps.app("admin").context.aggregate().match(
             Repository.apps.fields.Name == app_name
         ).project(
@@ -158,14 +175,20 @@ class GDriveService:
                                            expiration=60 * 60 * 365)
             return data.ClientId, data.ClientSecret, data.Email, None
 
-    def save_refresh_access_token(self, app_name, refresh_token):
+    def save_refresh_access_token(self, app_name, refresh_token, access_token, expires_in, scope, token_type):
+        reset_key = f"{type(self).__module__}/{type(self).__name__}/get_settings/{app_name}"
+        self.memcache_service.delete_key(reset_key)
         if not isinstance(refresh_token, str):
             print("warning refresh_token mus be str")
             return
         self.resset_id_and_secret(app_name)
         Repository.apps.app("admin").context.update(
             Repository.apps.fields.Name == app_name,
-            Repository.apps.fields.AppOnCloud.Google.RefreshToken << refresh_token
+            Repository.apps.fields.AppOnCloud.Google.RefreshToken << refresh_token,
+            Repository.apps.fields.AppOnCloud.Google.AccessToken << access_token,
+            Repository.apps.fields.AppOnCloud.Google.ExpiresIn << expires_in,
+            Repository.apps.fields.AppOnCloud.Google.Scope << scope,
+            Repository.apps.fields.AppOnCloud.Google.TokenType << token_type,
 
         )
         self.memcache_service.set_str(
@@ -173,18 +196,21 @@ class GDriveService:
             value=refresh_token
         )
 
-    def get_refresh_access_token(self, app_name)->typing.Tuple[str|None,dict|None]:
-        ret = self.memcache_service.get_str(f"{self.cache_key_of_refresh_token}_{app_name}_refresh_token")
+    def get_refresh_access_token(self, app_name, from_cache: bool = True) -> typing.Tuple[str | None, dict | None]:
+        ret = None
+        if from_cache:
+            ret = self.memcache_service.get_str(f"{self.cache_key_of_refresh_token}_{app_name}_refresh_token")
         if not ret:
             data = Repository.apps.app("admin").context.aggregate().match(
                 Repository.apps.fields.Name == app_name
             ).project(
                 cy_docs.fields.refresh_token >> Repository.apps.fields.AppOnCloud.Google.RefreshToken,
                 cy_docs.fields.secret_client >> Repository.apps.fields.AppOnCloud.Google.ClientSecret
+
             ).first_item()
 
             if data is None or data.secret_client is None:
-                return None, dict(Code="GoogleWasNotFound",Message=f"'Google do not bestow {app_name}")
+                return None, dict(Code="GoogleWasNotFound", Message=f"'Google do not bestow {app_name}")
             else:
                 refresh_token = data.refresh_token
                 self.memcache_service.set_str(
@@ -226,7 +252,7 @@ class GDriveService:
                 Message=repr(ex)
             )
 
-    def get_root_folder(self, app_name)->typing.Tuple[str|None,dict|None]:
+    def get_root_folder(self, app_name) -> typing.Tuple[str | None, dict | None]:
         ret = self.memcache_service.get_str(f"{self.cache_key_of_refresh_token}_{app_name}_root_folder")
         if not ret:
             qr = Repository.apps.app('admin').context.aggregate().match(
@@ -248,10 +274,10 @@ class GDriveService:
             self.memcache_service.set_str(f"{self.cache_key_of_refresh_token}_{app_name}_root_folder", ret)
         error = self.create_folder(app_name, ret)
         if error:
-            return None,error
-        return ret,None
+            return None, error
+        return ret, None
 
-    def sync_to_drive(self, app_name, upload_item)->dict|None:
+    def sync_to_drive(self, app_name, upload_item) -> dict | None:
         download_url, rel_path, download_file, token, share_id = self.local_api_service.get_download_path(upload_item,
                                                                                                           app_name)
 
@@ -259,15 +285,14 @@ class GDriveService:
             g_token, error = self.get_access_token_from_refresh_token(app_name)
             if error:
                 Repository.cloud_file_sync.app(app_name=app_name).context.update(
-                    Repository.cloud_file_sync.fields.UploadId==upload_item.Id,
-                    Repository.cloud_file_sync.fields.IsError<<True,
-                    Repository.cloud_file_sync.fields.ErrorContent<< json.dumps(error, indent=4)
+                    Repository.cloud_file_sync.fields.UploadId == upload_item.Id,
+                    Repository.cloud_file_sync.fields.IsError << True,
+                    Repository.cloud_file_sync.fields.ErrorContent << json.dumps(error, indent=4)
                 )
 
             full_path = os.path.join("/mnt/files", rel_path)
-            client_id, secret_key,email,error = self.get_id_and_secret(app_name)
+            client_id, secret_key, email, error = self.get_id_and_secret(app_name)
             process_services_host = config.process_services_host or "http://localhost"
-
 
             url_google_upload = upload_item.url_google_upload
             google_file_id = upload_item.google_file_id
@@ -317,15 +342,15 @@ class GDriveService:
 
         threading.Thread(target=running).start()
 
-    def get_access_token_from_refresh_token(self, app_name) -> typing.Tuple[str | None, dict | None]:
+    def get_access_token_from_access_token(self, app_name) -> typing.Tuple[str | None, dict | None]:
         """
         get access token by using refresh token
         :param app_name:
         :return: access_token, erro
         """
-        refresh_token, error = self.get_refresh_access_token(app_name)
+        info, error = self.get_settings(app_name)
         if error:
-            return  None,error
+            return None, error
         client_id, client_secret, _, error = self.get_id_and_secret(app_name)
         if error:
             return None, error
@@ -333,14 +358,57 @@ class GDriveService:
             'grant_type': 'refresh_token',
             'client_id': client_id,
             'client_secret': client_secret,
-            'refresh_token': refresh_token,
-            'expire': 100000
+            'refresh_token': info.access_token
         }
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         token_uri = "https://oauth2.googleapis.com/token"
         response = requests.post(token_uri, headers=headers, data=body)
         data = response.json()
         access_token = data.get('access_token')
+        return access_token, None
+
+    def get_access_token_from_refresh_token(self, app_name, from_cache: bool = True) -> typing.Tuple[
+        str | None, dict | None]:
+        """
+        get access token by using refresh token
+        :param app_name:
+        :return: access_token, erro
+        """
+        access_token = None
+        key = f"{type(self).__module__}/{type(self).__name__}/get_access_token_from_refresh_token"
+        if from_cache:
+            data = self.memcache_service.get_dict(key)
+            if isinstance(data, dict):
+                if isinstance(data.get("expires_on"), datetime.datetime):
+                    if (data.get("expires_on")-datetime.datetime.utcnow()).total_seconds() > 5:
+                        return data.get("access_token"),None
+
+        refresh_token, error = self.get_refresh_access_token(app_name, from_cache)
+        if error:
+            return None, error
+        client_id, client_secret, _, error = self.get_id_and_secret(app_name, from_cache)
+        if error:
+            return None, error
+        body = {
+            'grant_type': 'refresh_token',
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'refresh_token': refresh_token
+        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        token_uri = "https://oauth2.googleapis.com/token"
+        response = requests.post(token_uri, headers=headers, data=body)
+        data = response.json()
+        if data.get("error"):
+            return None, dict(Code=error.get("error"), Message=data.get("error_description"))
+        access_token = data.get('access_token')
+        expires_in = data.get("expires_in")
+        expires_on = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
+        self.memcache_service.set_dict(key, dict(
+            access_token=access_token,
+            expires_on=expires_on
+        ))
+
         return access_token, None
 
     def get_service(self, token, client_id, client_secret, g_service_name: str = "v3/drive") -> Resource:
@@ -351,23 +419,26 @@ class GDriveService:
             client_id=client_id,
             client_secret=client_secret
         )
+        if not isinstance(g_service_name,str):
+            return None
         version, service_name = tuple(g_service_name.split('/'))
         service = build(service_name, version, credentials=credentials)
         return service
 
-    def get_service_by_token(self, app_name, token) -> typing.Tuple[Resource|None,dict|None]:
-        client_id, client_secret,_,error = self.get_id_and_secret(app_name)
-        if isinstance(error,dict):
-            return None,error
+    def get_service_by_token(self, app_name, token) -> typing.Tuple[Resource | None, dict | None]:
+        client_id, client_secret, _, error = self.get_id_and_secret(app_name)
+        if isinstance(error, dict):
+            return None, error
 
         ret = self.get_service(
             token=token,
             client_id=client_id,
             client_secret=client_secret
         )
-        return ret,None
+        return ret, None
 
-    def get_service_by_app_name(self, app_name, g_service_name="v3/drive") -> typing.Tuple[Resource|None,dict|None]:
+    def get_service_by_app_name(self, app_name, g_service_name="v3/drive", from_cache: bool = True) -> typing.Tuple[
+        Resource | None, dict | None]:
         """
 
         :param app_name:
@@ -375,13 +446,17 @@ class GDriveService:
         :return:
         """
         # refresh_token = self.get_refresh_access_token(app_name)
-        token,error = self.get_access_token_from_refresh_token(app_name)
-        if isinstance(error,dict):
-            return  None,error
+        assert isinstance(g_service_name,str),"g_service_name must be str"
 
-        client_id, client_secret,_,error = self.get_id_and_secret(app_name)
+        self.get_settings(app_name)
+        # token, error = self.get_access_token_from_refresh_token(app_name)
+        token, error = self.get_access_token_from_refresh_token(app_name, from_cache)
+        if isinstance(error, dict):
+            return None, error
+
+        client_id, client_secret, _, error = self.get_id_and_secret(app_name, from_cache)
         if error:
-            return None,error
+            return None, error
         ret = self.get_service(
             token=token,
             client_id=client_id,
@@ -389,7 +464,7 @@ class GDriveService:
             g_service_name=g_service_name
         )
         # self.save_refresh_access_token(app_name,refresh_token)
-        return ret,None
+        return ret, None
 
     def set_public_visibility(self, resource_id, service: Resource):
         # Replace with your credentials file path
@@ -426,15 +501,14 @@ class GDriveService:
         else:
             return None
 
-    def get_content(self, app_name: str, cloud_id: str, client_file_name: str, request: fastapi.requests.Request)->dict|None:
-        import requests
-        import mimetypes
-        from fastapi.responses import StreamingResponse
+    def get_content(self, app_name: str, cloud_id: str, client_file_name: str,
+                    request: fastapi.requests.Request) -> typing.Union[dict, StreamingResponse] | None:
+
         # url = f"https://drive.google.com/file/d/{cloud_id}/view?usp=drivesdk"
         content_type, _ = mimetypes.guess_type(client_file_name)
         uri = f"https://www.googleapis.com/drive/v3/files/{cloud_id}?alt=media"
         access_token, error = self.get_access_token_from_refresh_token(app_name)
-        if isinstance(error,dict):
+        if isinstance(error, dict):
             raise HTTPException(status_code=505, detail=error)
 
         headers = {
@@ -459,3 +533,38 @@ class GDriveService:
             media_type=content_type,
             status_code=response.status_code
         )
+
+    def get_settings(self, app_name) -> typing.Tuple[GoogleSettingsInfo | None, dict | None]:
+        key = f"{type(self).__module__}/{type(self).__name__}/get_settings/{app_name}"
+        ret = self.memcache_service.get_object(key, GoogleSettingsInfo)
+        if ret:
+            return ret, None
+        else:
+            """
+            refresh_token: str
+            access_token: str
+            expires_in: int
+            scope: str
+            token_type: str
+            """
+            ret = GoogleSettingsInfo()
+            data_item = Repository.apps.app("admin").context.aggregate().match(
+                Repository.apps.fields.Name == app_name
+            ).project(
+                cy_docs.fields.refresh_token >> Repository.apps.fields.AppOnCloud.Google.RefreshToken,
+                cy_docs.fields.access_token >> Repository.apps.fields.AppOnCloud.Google.AccessToken,
+                cy_docs.fields.expires_in >> Repository.apps.fields.AppOnCloud.Google.ExpiresIn,
+                cy_docs.fields.scope >> Repository.apps.fields.AppOnCloud.Google.Scope,
+                cy_docs.fields.token_type >> Repository.apps.fields.AppOnCloud.Google.TokenType,
+                cy_docs.fields.client_secret >> Repository.apps.fields.AppOnCloud.Google.ClientSecret,
+                cy_docs.fields.email >> Repository.apps.fields.AppOnCloud.Google.Email
+
+            ).first_item()
+            if not data_item:
+                return None, dict(Code="GoogleLinkIsNotReady", Message=f"Google did not bestow {app_name}")
+            elif data_item.get("client_secret") is None:
+                return None, dict(Code="GoogleLinkIsNotReady", Message=f"Google did not bestow {app_name}")
+            for k, v in data_item.items():
+                setattr(ret, k, v)
+            self.memcache_service.set_object(key, ret)
+            return ret, None

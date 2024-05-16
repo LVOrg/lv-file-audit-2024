@@ -22,13 +22,15 @@ class CloudUploadGoogleService:
         )
         if error:
             return None, error
-        self.do_upload_by_using_service(service=service,
+        _,error = self.do_upload_by_using_service(service=service,
                                         file_path=file_path,
                                         google_file_name=google_file_name,
                                         google_file_id=google_file_id)
+        if error:
+            return  None,error
         return google_file_id, None
 
-    def do_upload_by_using_service(self, service, file_path, google_file_name, google_file_id):
+    def do_upload_by_using_service(self, service, file_path, google_file_name, google_file_id)->typing.Tuple[str|None,dict|None]:
 
         body = {'name': google_file_name}
 
@@ -42,11 +44,20 @@ class CloudUploadGoogleService:
         file_size = os.stat(file_path).st_size
         bar = tqdm(total=file_size)
         previous_value = 0
+        import google.auth.exceptions
         while response is None:
-            status, response = request.next_chunk()
-            if status:
-                # Print progress bar or update progress bar UI element (implementation not shown here)
-                bar.update(status.resumable_progress - previous_value)
-                previous_value = status.resumable_progress
+            try:
+                status, response = request.next_chunk()
+                if status:
+                    # Print progress bar or update progress bar UI element (implementation not shown here)
+                    bar.update(status.resumable_progress - previous_value)
+                    previous_value = status.resumable_progress
+            except google.auth.exceptions.RefreshError as ex:
+                return None,dict(
+                    Code="RequireRefreshToken",
+                    Message = ex.args[0]
+
+                )
+
         bar.update(file_size)
-        return google_file_id
+        return google_file_id, None

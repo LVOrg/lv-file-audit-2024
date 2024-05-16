@@ -61,6 +61,7 @@ from cyx.google_drive_utils.directories import GoogleDirectoryService
 from cyx.ms.ms_auth_services import MSAuthService
 from cyx.ms.ms_commom_service import MSCommonService
 from cyx.cloud.cloud_service_utils import CloudServiceUtils
+from cyx.cloud.azure.azure_utils_services import AzureUtilsServices
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -102,5 +103,7 @@ class BaseController:
     ms_service:MSAuthService = cy_kit.singleton(MSAuthService)
     ms_common_service:MSCommonService = cy_kit.singleton(MSCommonService)
     cloud_service_utils: CloudServiceUtils = cy_kit.singleton(CloudServiceUtils)
+    azure_utils_service: AzureUtilsServices = cy_kit.singleton(AzureUtilsServices)
+
     def __init__(self, request: Request):
         self.request = request

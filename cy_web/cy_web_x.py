@@ -1149,12 +1149,15 @@ def add_cors(origins: List[str]):
         )
 
 from  starlette.requests import Request
-def get_host_url(request:Request) -> str:
+def get_host_url(request:Request,use_ssl:bool=False) -> str:
     global web_application
     if isinstance(web_application, WebApp):
         scheme = request.headers.get("x-forwarded-proto", request.base_url.components.scheme)
         netloc = request.base_url.components.netloc
-        return f"{scheme}://{netloc}{get_host_dir()}"
+        if not use_ssl:
+            return f"{scheme}://{netloc}{get_host_dir()}"
+        else:
+            return f"https://{netloc}{get_host_dir()}"
 
 
 def get_host_dir() -> str:

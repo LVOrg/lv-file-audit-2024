@@ -74,9 +74,17 @@ class GoogleController(BaseController):
             # and client_secret.
 
             refresh_token= access_token_key.get("refresh_token")
+            access_token= access_token_key.get("access_token")
+            expires_in=access_token_key.get("expires_in")
+            scope = access_token_key.get("scope")
+            token_type= access_token_key.get("token_type")
             self.g_drive_service.save_refresh_access_token(
                 app_name = app_name,
-                refresh_token = refresh_token
+                refresh_token = refresh_token,
+                access_token = access_token,
+                expires_in = expires_in,
+                scope = scope,
+                token_type =token_type
             )
             html_content = (f"<html>"
                             f"  <body>"

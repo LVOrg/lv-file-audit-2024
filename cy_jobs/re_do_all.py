@@ -171,15 +171,28 @@ while True:
                                 )}
                             )
                         else:
-                            files_context.context.update(
-                                files_context.fields.id == file.id,
-                                getattr(files_context.fields.ProcessInfo, action_key) << dict(
-                                    IsError=False,
-                                    Error="",
-                                    UpdateTime=datetime.datetime.utcnow(),
+                            import pymongo.errors
+                            try:
+                                files_context.context.update(
+                                    files_context.fields.id == file.id,
+                                    getattr(files_context.fields.ProcessInfo, action_key) << dict(
+                                        IsError=False,
+                                        Error="",
+                                        UpdateTime=datetime.datetime.utcnow(),
 
+                                    )
                                 )
-                            )
+                            except pymongo.errors.WriteError:
+                                files_context.context.update(
+                                    files_context.fields.id == file.id,
+                                    files_context.fields.ProcessInfo << {action_key: dict(
+
+                                        IsError=False,
+                                        Error="",
+                                        UpdateTime=datetime.datetime.utcnow(),
+
+                                    )}
+                                )
 
                     except Exception as ex:
                         print(ex)

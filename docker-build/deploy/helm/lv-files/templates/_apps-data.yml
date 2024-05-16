@@ -32,6 +32,7 @@ apps:
           ip: {{$appConfig.host.name}}
         {{end}}
         {{end}}
+        requireService: {{$appConfig.requireService}}
 
       storage:
         name: {{ .values.storage.name}}
