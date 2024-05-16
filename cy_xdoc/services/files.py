@@ -591,7 +591,8 @@ class FileServices:
 
         if upload is None:
             return
-
+        doc = self.db_connect.db(app_name).doc(DocUploadRegister)
+        ret = doc.context.delete(cy_docs.fields._id == upload_id)
         delete_file_list = upload.AvailableThumbs or []
         delete_file_list_by_id = []
         if upload.MainFileId is not None: delete_file_list_by_id = [str(upload.MainFileId)]
@@ -606,8 +607,8 @@ class FileServices:
             self.search_engine.delete_doc(app_name, upload_id)
         except Exception as ex:
             print(f"warning:\n{repr(ex)}")
-        doc = self.db_connect.db(app_name).doc(DocUploadRegister)
-        ret = doc.context.delete(cy_docs.fields._id == upload_id)
+
+
 
         return ret.deleted_count
 

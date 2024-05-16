@@ -32,8 +32,10 @@ def call_ms_func(method: str,
 
     else:
         response = http_method(URL + api_url, headers=HEADERS)
-
-    res = response.json()
+    try:
+        res = response.json()
+    finally:
+        res = {}
     if isinstance(res.get("error"),dict):
         if res.get("error").get("code"):
             return None, dict(Code=res.get("error").get("code"), Message= res.get("error").get("message"))

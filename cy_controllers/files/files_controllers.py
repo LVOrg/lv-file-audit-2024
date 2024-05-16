@@ -212,7 +212,6 @@ class FilesController(BaseController):
     @controller.router.post("/api/{app_name}/files/delete")
     def files_delete(self, app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> controller_model_files.DeleteFileResult:
-        ret = controller_model_files.DeleteFileResult()
         try:
             cloud_name,error = self.cloud_service_utils.get_cloud_name_of_upload(app_name=app_name,upload_id=UploadId)
             if error:
@@ -223,8 +222,9 @@ class FilesController(BaseController):
                 return ret
             if cloud_name!="local":
                 ret,error = self.cloud_service_utils.drive_service.remove_upload(app_name=app_name,upload_id=UploadId,cloud_name=cloud_name)
-            ret =self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
-            ret.AffectedCount = 1
+            affected_count =self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
+            ret = controller_model_files.DeleteFileResult()
+            ret.AffectedCount =affected_count
             return ret
         except Exception as e:
             ret = controller_model_files.DeleteFileResult()
