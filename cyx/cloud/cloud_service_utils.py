@@ -1,3 +1,5 @@
+import typing
+
 import cy_docs
 import cy_kit
 from cyx.cache_service.memcache_service import MemcacheServices
@@ -5,16 +7,21 @@ from cyx.repository import Repository
 from cyx.cloud.mail_services import MailService
 from cyx.cloud.drive_services import DriveService
 from cyx.cloud.cloud_file_sync_service import FileSync
+
+
 class CloudServiceUtils:
     def __init__(self,
                  memcache_service: MemcacheServices = cy_kit.singleton(MemcacheServices),
                  mail_service: MailService = cy_kit.singleton(MailService),
                  drive_service: DriveService = cy_kit.singleton(DriveService),
-                 file_sync:FileSync = cy_kit.singleton(FileSync)
+                 file_sync: FileSync = cy_kit.singleton(FileSync)
                  ):
         self.memcache_service = memcache_service
         self.mail_service = mail_service
         self.drive_service = drive_service
+        """
+        Drive service for google-drive and onedrive
+        """
         self.file_sync = file_sync
         self.cache_key = f"{type(self).__module__}/{type(self).__name__}/check-ready"
 
@@ -43,10 +50,34 @@ class CloudServiceUtils:
             self.memcache_service.set_dict(self.cache_key, ret)
         return ret[app_name]
 
-    def do_sync_data(self, app_name:str, cloud_name:str,upload_item):
+    def do_sync_data(self, app_name: str, cloud_name: str, upload_item):
         return self.file_sync.do_sync(
             app_name=app_name,
             cloud_name=cloud_name,
             upload_item=upload_item
 
         )
+
+    def get_cloud_name_of_upload(self, app_name: str, upload_id) -> typing.Tuple[str | None, dict | None]:
+        """
+        Detect location of  resource is 'Google' ,"Azure' or 'AWS'
+        :param app_name:
+        :param upload_id:
+        :return:
+        """
+        upload_item = Repository.files.app(app_name).context.find_one(
+            Repository.files.fields.Id == upload_id
+        )
+        if upload_item is None:
+            return None, dict(
+                Code="ItemWasNotFound",
+                Message=f"{upload_id} was not found in {app_name}"
+            )
+        if upload_item[Repository.files.fields.StorageType] == "google-drive":
+            return "Google", None
+        if upload_item[Repository.files.fields.StorageType] == "onedrive":
+            return "Azure", None
+        if upload_item[Repository.files.fields.StorageType] == "s3":
+            return "AWS", None
+        else:
+            return "local",None

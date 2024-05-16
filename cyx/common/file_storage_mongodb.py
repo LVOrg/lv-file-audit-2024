@@ -227,9 +227,12 @@ class MongoDbFileService(Base):
     def delete_files_by_id(self, app_name: str, ids: typing.List[str], run_in_thread: bool):
         bson_id = [id for id in ids if bson.is_valid(id.encode())]
         def run():
-            fs = gridfs.GridFS(self.client.get_database(self.db_name(app_name)))
-            for x in bson_id:
-                fs.delete(bson.ObjectId(x))
+            try:
+                fs = gridfs.GridFS(self.client.get_database(self.db_name(app_name)))
+                for x in bson_id:
+                    fs.delete(bson.ObjectId(x))
+            finally:
+                return
 
         if run_in_thread:
             threading.Thread(target=run, args=()).start()
@@ -238,11 +241,17 @@ class MongoDbFileService(Base):
 
     def delete_files(self, app_name, files: typing.List[str], run_in_thread: bool):
         def run():
-            fs = gridfs.GridFS(self.client.get_database(self.db_name(app_name)))
-            for x in files:
-                f = fs.find_one({"rel_file_path": x})
-                if f:
-                    fs.delete(f._id)
+            try:
+                fs = gridfs.GridFS(self.client.get_database(self.db_name(app_name)))
+                for x in files:
+                    try:
+                        f = fs.find_one({"rel_file_path": x})
+                        if f:
+                            fs.delete(f._id)
+                    except Exception as ex:
+                        print(f"warning:\n{repr(ex)}")
+            except Exception as ex:
+                print(f"warning:\n{repr(ex)}")
 
         if run_in_thread:
             threading.Thread(target=run, args=()).start()

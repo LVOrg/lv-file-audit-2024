@@ -1,5 +1,8 @@
+import typing
+import json
 import cy_kit
 from cyx.g_drive_services import GDriveService
+import googleapiclient.errors
 class DriveServiceGoogle:
     def __init__(self, g_drive_service:GDriveService = cy_kit.singleton(GDriveService)):
         self.g_drive_service= g_drive_service
@@ -22,4 +25,30 @@ class DriveServiceGoogle:
             return None,None
         else:
             return int(about.get("storageQuota").get("limit"))-int(about.get('storageQuota').get('usage')), None
+
+    def remove_upload(self, app_name, file_id)->typing.Tuple[bool,dict|None]:
+        """
+        Delete file in Google by file_id
+        :param app_name:
+        :param file_id:
+        :return:
+        """
+        service, error = self.g_drive_service.get_service_by_app_name(app_name)
+        if error:
+            return  False,error
+        try:
+            res =service.files().delete(fileId=file_id).execute()
+            return True,None
+        except googleapiclient.errors.HttpError as ex:
+            try:
+                res =json.loads(ex.content.decode())
+                if isinstance(res.get('error'),dict):
+                    return False, dict(Code=res.get('error').get('code'), Message=res.get('error').get('message'))
+                else:
+                    return False, dict(Code="ErrorFromGoogle", Message=ex.content.decode())
+            finally:
+                return False, dict(Code="ErrorFromGoogle", Message=ex.content.decode())
+        except Exception as ex:
+            return False, dict(Code="Error",Message= repr(ex))
+
 

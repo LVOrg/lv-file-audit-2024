@@ -214,24 +214,24 @@ class FilesController(BaseController):
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> controller_model_files.DeleteFileResult:
         ret = controller_model_files.DeleteFileResult()
         try:
-            self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
+            cloud_name,error = self.cloud_service_utils.get_cloud_name_of_upload(app_name=app_name,upload_id=UploadId)
+            if error:
+                ret = controller_model_files.DeleteFileResult()
+                ret.Error = ErrorInfo()
+                ret.Error.Code = error.get("Code")
+                ret.Error.Message = error.get("Message")
+                return ret
+            if cloud_name!="local":
+                ret,error = self.cloud_service_utils.drive_service.remove_upload(app_name=app_name,upload_id=UploadId,cloud_name=cloud_name)
+            ret =self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
             ret.AffectedCount = 1
             return ret
-        except FuckingWhoreMSApiCallException as e:
-            ret.Error = controller_model_files.ErrorInfo()
-            ret.Error.Code = e.code,
-            ret.Error.Message = e.message
-            return ret
         except Exception as e:
-            self.logger_service.error(e)
-            return responses.JSONResponse(
-                content=dict(
-                    Code="system",
-                    Message=str(e)
-
-                ),
-                status_code=500
-            )
+            ret = controller_model_files.DeleteFileResult()
+            ret.Error=ErrorInfo()
+            ret.Error.Code="system"
+            ret.Error.Message= repr(e)
+            return ret
 
     @controller.router.post("/api/{app_name}/content/save")
     def file_content_save(

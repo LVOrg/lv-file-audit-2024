@@ -63,7 +63,7 @@ COPY ./../cy_jobs /app/cy_jobs
 #RUN python3 -m pip install gradio==3.50.2
 #RUN python3 -m pip install gradio-client==0.15.1
 RUN apt clean && apt autoclean">>$web_api_file
-web_api_tag=34
+web_api_tag=35
 web_api_tag_build="fs.tiny."$(tag $web_api_core_tag).$web_api_tag
 web_api_image=web:"apps".$web_api_core_tag_build
 buildFunc $web_api_file $repository $image_name $web_api_tag_build "python:3.10-alpine" "alpine"

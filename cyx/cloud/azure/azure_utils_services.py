@@ -82,11 +82,22 @@ class AzureUtilsServices:
             return ret, None
 
     def acquire_token(self, app_name, reset=False) -> typing.Tuple[AccquireTokenInfo | None, dict | None]:
+        """
+        This method get access token of a certain app. For Azure before call any GraphAPI. please. call this method \n
+        first for access token. Yeah! this method priority get from cache first if the return token from cache was on \n
+        time return that value instead acquire new access token If thou want to reset cache Get token info of app \n
+        where link to Azure :param app_name: :param reset: :return: acquire_token_info, error
+        ------------------\n
+        Phương pháp này nhận mã thông báo truy cập của một ứng dụng nhất định. Đối với Azure trước khi gọi bất kỳ GraphAPI nào. Xin vui lòng. gọi phương thức này \n
+        đầu tiên cho mã thông báo truy cập. Vâng! Phương thức này ưu tiên nhận từ bộ đệm trước nếu bộ đệm biểu mẫu mã thông báo trả về được bật \n
+        thời gian trả lại giá trị đó thay vì nhận mã thông báo truy cập mới Nếu bạn muốn đặt lại bộ đệm Nhận thông tin mã thông báo của ứng dụng \n
+        nơi liên kết đến Azure :param app_name: :param reset: :return: Acacqui_token_info, lỗi
+        """
         key = f"{self.cache_key}/{app_name}/token"
         if not reset:
 
             ret = self.mem_cache_services.get_object(key, AccquireTokenInfo)
-            if ret is not None and (datetime.datetime.utcnow() - ret.expires_on).total_seconds() > 5:
+            if ret is not None and (ret.expires_on-datetime.datetime.utcnow()).total_seconds() > 5:
                 return ret, None
             token_info, error = self.__get_token_info__(app_name)
             if error:

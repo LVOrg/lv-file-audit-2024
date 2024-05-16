@@ -591,24 +591,21 @@ class FileServices:
 
         if upload is None:
             return
-        if upload[collection.fields.StorageType] == "onedrive":
-            try:
-                self.onedrive_service.delete_upload(
-                    app_name=app_name,
-                    upload_id=upload_id
-                )
-            except FuckingWhoreMSApiCallException as e:
-                if e.status == 404:
-                    pass
+
         delete_file_list = upload.AvailableThumbs or []
         delete_file_list_by_id = []
         if upload.MainFileId is not None: delete_file_list_by_id = [str(upload.MainFileId)]
         if upload.OCRFileId is not None: delete_file_list_by_id += [str(upload.OCRFileId)]
         if upload.ThumbFileId is not None: delete_file_list_by_id += [str(upload.ThumbFileId)]
-
-        self.file_storage_service.delete_files(app_name=app_name, files=delete_file_list, run_in_thread=True)
-        self.file_storage_service.delete_files_by_id(app_name=app_name, ids=delete_file_list_by_id, run_in_thread=True)
-        self.search_engine.delete_doc(app_name, upload_id)
+        try:
+            self.file_storage_service.delete_files(app_name=app_name, files=delete_file_list, run_in_thread=True)
+            self.file_storage_service.delete_files_by_id(app_name=app_name, ids=delete_file_list_by_id, run_in_thread=True)
+        except Exception as ex:
+            print(f"warning:\n{repr(ex)}")
+        try:
+            self.search_engine.delete_doc(app_name, upload_id)
+        except Exception as ex:
+            print(f"warning:\n{repr(ex)}")
         doc = self.db_connect.db(app_name).doc(DocUploadRegister)
         ret = doc.context.delete(cy_docs.fields._id == upload_id)
 
