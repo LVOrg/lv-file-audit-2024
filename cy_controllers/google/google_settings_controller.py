@@ -41,7 +41,9 @@ class GoogleSettingsController(BaseController):
         self.request = request
 
     @controller.route.post(
-        "/api/{app_name}/cloud/google-settings/update", summary="Update settings for google drive"
+        "/api/{app_name}/cloud/google-settings/update",
+        summary="Update settings for google drive",
+        tags=["CLOUD-GOOGLE"]
     )
     def google_drive_settings_update(self, app_name: str,settings:GoogleAuthCredentials=Body()):
         regex = r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"

@@ -60,6 +60,8 @@ spec:
             - rabbitmq.server=$(rabbitmq.server)
             - rabbitmq.port=$(rabbitmq.port)
             - rabbitmq.msg=$(rabbitmq.msg)
+            - rabbitmq.username=$(rabbitmq.username)
+            - rabbitmq.password=$(rabbitmq.password)
             - cache_server=$(cache_server)
             - workers=$(workers)
             - server_type=$(server_type.hypercorn)

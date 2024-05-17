@@ -78,14 +78,17 @@ class WOPIController(BaseController):
         return ret
 
     @controller.route.get(
-        "/api/{app_name}/wopi/files/{fileid}", summary="Re run index search"
+        "/api/{app_name}/wopi/files/{fileid}", summary="Re run index search",
+        tags=["WOPI"]
     )
-    async def wopi_get_file(self, app_name: str, fileid: str, access_token: str) -> WopiFileInfo:
-        return await self.__wopi_get_file_async__(app_name,fileid,access_token)
+    async def wopi_get_file(self, app_name: str, fileid: str) :
+        return {"file_content": "dadada"}
+        # return await self.__wopi_get_file_async__(app_name,fileid,access_token)
     @controller.route.post(
-        "/api/{app_name}/wopi/files/{fileid}", summary="Re run index search"
+        "/api/{app_name}/wopi/files/{fileid}", summary="Re run index search",
+        tags=["WOPI"]
     )
-    async def wopi_get_file_post(self, app_name: str, fileid: str,access_token) -> WopiFileInfo:
+    async def wopi_get_file_post(self, app_name: str, fileid: str) :
         return await self.__wopi_get_file_async__(app_name,fileid,access_token)
 
     async def __wopi_get_file_content_async__(self, app_name: str, fileid: str):
@@ -115,7 +118,8 @@ class WOPIController(BaseController):
         return response
 
     @controller.route.get(
-        "/api/{app_name}/wopi/files/{fileid}/contents", summary="Re run index search"
+        "/api/{app_name}/wopi/files/{fileid}/contents", summary="Re run index search",
+        tags=["WOPI"]
     )
     async def wopi_get_file_content(self, app_name: str, fileid: str):
         return await self.__wopi_get_file_content_async__(
@@ -123,7 +127,8 @@ class WOPIController(BaseController):
             fileid=fileid
         )
     @controller.route.post(
-        "/api/{app_name}/wopi/files/{fileid}/contents", summary="Re run index search"
+        "/api/{app_name}/wopi/files/{fileid}/contents", summary="Re run index search",
+        tags=["WOPI"]
     )
     async def wopi_save_file_content(self, app_name: str, fileid: str):
         print('Update file with new contents. Implements the PutFile WOPI call')

@@ -34,7 +34,7 @@ def call_ms_func(method: str,
         response = http_method(URL + api_url, headers=HEADERS)
     try:
         res = response.json()
-    finally:
+    except:
         res = {}
     if isinstance(res.get("error"),dict):
         if res.get("error").get("code"):

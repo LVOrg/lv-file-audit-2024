@@ -119,7 +119,7 @@ class FilesRegisterController(BaseController):
     ]
 
     @controller.route.post(
-        "/api/{app_name}/files/register", summary="register Upload file"
+        "/api/{app_name}/files/register", summary="register Upload file",tags=["FILES"]
     )
     async def register_async(self,
                              app_name: str,

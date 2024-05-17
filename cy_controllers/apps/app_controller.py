@@ -35,7 +35,10 @@ class AppsController(BaseController):
         self.request = request
 
     @controller.route.post(
-        "/api/apps/{app_name}/re_index", summary="Re run index search"
+        "/api/apps/{app_name}/re_index", summary="Re run index search",
+        tags=["APPS"]
+
+
     )
     def re_index(self, app_name: str) -> str:
         import cyx.common.msg
@@ -87,14 +90,17 @@ class AppsController(BaseController):
             )
             return ret
 
-    @controller.route.post("/api/admin/apps/register", summary="App register")
+    @controller.route.post("/api/admin/apps/register", summary="App register",
+        tags=["APPS"])
     def app_register(self, Data: AppInfoRegister=Body(embed=True)) -> AppInfoRegisterResult:
         return self.do_app_register(Data)
 
-    @controller.route.post("/api/apps/admin/register", summary="App register")
+    @controller.route.post("/api/apps/admin/register", summary="App register",
+        tags=["APPS"])
     def app_register(self, Data: AppInfoRegister = Body(embed=True)) -> AppInfoRegisterResult:
         return self.do_app_register(Data)
-    @controller.route.post("/api/admin/apps/update/{app_name}", summary="update_app")
+    @controller.route.post("/api/admin/apps/update/{app_name}", summary="update_app",
+        tags=["APPS"])
     def app_update(self, app_name: str, Data: AppInfoRegister=Body(embed=True)) -> AppInfoRegisterResult:
 
         import cy_xdoc
@@ -141,7 +147,8 @@ class AppsController(BaseController):
             )
             return ret
 
-    @controller.route.post("/api/admin/apps/get/{app_name}")
+    @controller.route.post("/api/admin/apps/get/{app_name}",
+        tags=["APPS"])
     def get_info(self, app_name: str) -> AppInfo:
         """
         get application info if not exist return { AppId:null}
@@ -157,7 +164,8 @@ class AppsController(BaseController):
         else:
             return cy_docs.create_empty_pydantic(AppInfo)
 
-    @controller.route.post("/api/admin/apps")
+    @controller.route.post("/api/admin/apps",
+        tags=["APPS"])
     def get_list_of_apps(self) -> typing.List[AppInfo]:
         """
         Get list of application. Every tenant has one application in file system

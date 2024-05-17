@@ -62,6 +62,7 @@ from cyx.ms.ms_auth_services import MSAuthService
 from cyx.ms.ms_commom_service import MSCommonService
 from cyx.cloud.cloud_service_utils import CloudServiceUtils
 from cyx.cloud.azure.azure_utils_services import AzureUtilsServices
+from cyx.cloud.azure.office365_services import MSOffice365Service
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -104,6 +105,7 @@ class BaseController:
     ms_common_service:MSCommonService = cy_kit.singleton(MSCommonService)
     cloud_service_utils: CloudServiceUtils = cy_kit.singleton(CloudServiceUtils)
     azure_utils_service: AzureUtilsServices = cy_kit.singleton(AzureUtilsServices)
+    ms_office_365_service: MSOffice365Service = cy_kit.singleton(MSOffice365Service)
 
     def __init__(self, request: Request):
         self.request = request

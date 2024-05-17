@@ -44,7 +44,8 @@ class FilesContentController(BaseController):
         return "OK"
 
     @controller.router.get(
-        "/api/{app_name}/thumb/{directory:path}"
+        "/api/{app_name}/thumb/{directory:path}",
+        tags=["FILES-CONTENT"]
     )
     async def get_thumb(self, app_name: str, directory: str):
         """
@@ -120,7 +121,8 @@ class FilesContentController(BaseController):
         return ret
 
     @controller.router.get(
-        "/api/{app_name}/file/{directory:path}"
+        "/api/{app_name}/file/{directory:path}",
+        tags=["FILES-CONTENT"]
     )
     async def get_content(self, app_name: str, directory: str):
         # if len(directory.split('/'))>2:
@@ -232,33 +234,34 @@ class FilesContentController(BaseController):
             ret.headers["Content-Disposition"] = f"attachment; filename={file_name_form_url}"
         return ret
 
-    @controller.router.get("/api/{app_name}/file-ocr/{directory:path}")
-    async def get_content_orc(self, app_name: str, directory: str):
-        """
-        Xem hoặc tải nội dung file
-        :param app_name:
-        :return:
-        """
-        mime_type, _ = mimetypes.guess_type(directory)
-        upload_id = directory.split('/')[0]
-        upload = self.file_service.get_upload_register(app_name=app_name, upload_id=upload_id)
-        if upload is None:
-            return fastapi.Response(status_code=401)
-        if upload.get("OCRFileId") is None:
-            return fastapi.Response(status_code=401)
-        fs = self.file_storage_service.get_file_by_id(
-            app_name=app_name,
-            id=upload.OCRFileId
+    # @controller.router.get("/api/{app_name}/file-ocr/{directory:path}",
+    #     tags=["FILES-CONTENT"])
+    # async def get_content_orc(self, app_name: str, directory: str):
+    #     """
+    #     Xem hoặc tải nội dung file
+    #     :param app_name:
+    #     :return:
+    #     """
+    #     mime_type, _ = mimetypes.guess_type(directory)
+    #     upload_id = directory.split('/')[0]
+    #     upload = self.file_service.get_upload_register(app_name=app_name, upload_id=upload_id)
+    #     if upload is None:
+    #         return fastapi.Response(status_code=401)
+    #     if upload.get("OCRFileId") is None:
+    #         return fastapi.Response(status_code=401)
+    #     fs = self.file_storage_service.get_file_by_id(
+    #         app_name=app_name,
+    #         id=upload.OCRFileId
+    #
+    #     )
+    #
+    #     if fs is None:
+    #         return fastapi.Response(status_code=401)
+    #     mime_type, _ = mimetypes.guess_type(directory)
+    #     ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+    #     return ret
 
-        )
-
-        if fs is None:
-            return fastapi.Response(status_code=401)
-        mime_type, _ = mimetypes.guess_type(directory)
-        ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
-        return ret
-
-    @controller.router.get("/api/{app_name}/thumbs/{directory:path}")
+    @controller.router.get("/api/{app_name}/thumbs/{directory:path}",tags=["FILES-CONTENT"])
     async def get_thumb_of_files(self, app_name: str, directory: str):
         """
         Xem hoặc tải nội dung file
@@ -358,7 +361,7 @@ class FilesContentController(BaseController):
             response = Response(content="Resource not found", status_code=404)
             return response
 
-    @controller.router.post("/api/{app_name}/content/readable")
+    @controller.router.post("/api/{app_name}/content/readable",tags=["FILES-CONTENT"])
     def get_content_readable(
             self,
             app_name: str,

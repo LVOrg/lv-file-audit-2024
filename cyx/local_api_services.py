@@ -88,6 +88,12 @@ class LocalAPIService:
             raise e
 
     def get_download_path(self, upload_item, app_name) -> typing.Tuple[ str | None, str | None, str | None, str | None, str | None]:
+        """
+        Get all info of server_file, rel_file_path, download_file_path, token, local_share_id
+        :param upload_item:
+        :param app_name:
+        :return: server_file, rel_file_path, download_file_path, token, local_share_id
+        """
         rel_file_path = None
         server_file, rel_file_path, download_file_path, token, local_share_id = None, None, None, None, None
         try:

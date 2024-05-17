@@ -32,7 +32,8 @@ def get_placeholder_value(placeholder):
     Returns:
         The placeholder value.
     """
-    ph = placeholder[1:placeholder.find("=")]
+    ph = placeholder[1:placeholder.find("=")+1]
+    key = placeholder[placeholder.find("=") + 1:].rstrip('>').rstrip('&')
     result = ""
     switch = {
         "BUSINESS_USER": ph + "1",
@@ -48,5 +49,5 @@ def get_placeholder_value(placeholder):
         "PERFSTATS": "",
         "VALIDATOR_TEST_CATEGORY": ph + "OfficeOnline",
     }
-    result = switch.get(placeholder)
+    result = switch.get(key)
     return result

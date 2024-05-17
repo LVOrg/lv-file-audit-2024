@@ -55,7 +55,7 @@ apps:
     - name: {{$value}}
       image: {{ $imagesObject.main }}
       namespace: {{ $valuesObject.namespace }}
-      replicas: 1
+      replicas: {{$app.replicas}}
       entrypoint:
         {{- range $km,$e := $app.entrypoint }}
         - {{$e}}

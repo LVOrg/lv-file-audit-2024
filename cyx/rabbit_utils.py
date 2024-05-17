@@ -25,15 +25,20 @@ class Consumer:
         return method,properties,body
 
     def do_init(self):
-        auth = pika.PlainCredentials(config.rabbitmq.username, config.rabbitmq.password)
+        print(f"{config.rabbitmq.username}")
+        auth = pika.PlainCredentials(
+            config.rabbitmq.username, config.rabbitmq.password
+        )
 
         connection_parameters = pika.ConnectionParameters(
-            host=config.rabbitmq.server, port=config.rabbitmq.port,
+            host=config.rabbitmq.server,
+            port=config.rabbitmq.port,
             virtual_host="/",
             credentials=auth,
             heartbeat=30,
             retry_delay=10,
-            blocked_connection_timeout=10
+            blocked_connection_timeout=10,
+
         )
         # xyzdsc-2024.cloud.google.drive.sync
         # Define the queue to consume messages from

@@ -22,7 +22,7 @@ class GlobalSettingsController(BaseController):
         Depends(Authenticate)
     ]
 
-    @controller.router.post("/api/global/settings/update")
+    @controller.router.post("/api/global/settings/update",tags=["CLOUD-GOOGLE"])
     async def update_settings_async(self, data: SettingInfo = Body(embed=True)):
         ret =await  self.global_settings_service.update_or_create_async(
 

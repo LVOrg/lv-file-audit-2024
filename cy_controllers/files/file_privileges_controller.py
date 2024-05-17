@@ -112,7 +112,8 @@ class FilesPrivilegesController(BaseController):
             )
         return AddPrivilegesResult(is_ok=True)
 
-    @controller.router.post("/api/{app_name}/files/remove_privileges")
+    @controller.router.post("/api/{app_name}/files/remove_privileges",
+        tags=["PRIVILEGES"])
     async def remove_privileges(
             self,
             app_name: str,
@@ -159,7 +160,7 @@ class FilesPrivilegesController(BaseController):
             )
         return AddPrivilegesResult(is_ok=True)
 
-    @controller.router.post("/api/{app_name}/files/update_privileges")
+    @controller.router.post("/api/{app_name}/files/update_privileges",tags=["PRIVILEGES"])
     def files_update_privileges(
             self,
             app_name: str,
@@ -208,7 +209,7 @@ class FilesPrivilegesController(BaseController):
             )
         return AddPrivilegesResult(is_ok=True)
 
-    @controller.router.post("/api/{app_name}/privileges/update")
+    @controller.router.post("/api/{app_name}/privileges/update",tags=["PRIVILEGES"])
     def update_privileges(
             self,
             app_name: str,
@@ -255,7 +256,7 @@ class FilesPrivilegesController(BaseController):
 
             )
         return AddPrivilegesResult(is_ok=True)
-    @controller.router.post("/api/{app_name}/privileges/remove")
+    @controller.router.post("/api/{app_name}/privileges/remove",tags=["PRIVILEGES"])
     async def remove_privileges(
             self,
             app_name: str,
@@ -302,7 +303,7 @@ class FilesPrivilegesController(BaseController):
             )
         return AddPrivilegesResult(is_ok=True)
 
-    @controller.router.post("/api/{app_name}/privileges/add")
+    @controller.router.post("/api/{app_name}/privileges/add",tags=["PRIVILEGES"])
     async def add_privileges(
             self,
             app_name: str,

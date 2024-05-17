@@ -380,7 +380,8 @@ class DocUploadRegister:
     url_google_upload:  typing.Optional[str]
     google_file_id: typing.Optional[str]
     google_folder_id:typing.Optional[str]
-
+    cloud_sync_time: typing.Optional[datetime.datetime]
+    LossContentFile: typing.Optional[bool]
 
 @cy_docs.define(
     name="LvFilesHistoryCheckoutV1",

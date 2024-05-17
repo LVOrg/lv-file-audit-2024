@@ -62,25 +62,28 @@ class CloudUploadAzureService:
         file_size = os.path.getsize(file_path)
         with open(file_path, 'rb') as file:
 
-            chunk_size = 1024 * 32  # 1 MB chunks\
+            chunk_size = 1024 * 512  # 1 MB chunks\
 
             # progress_bar = tqdm(total=file_size, unit='B', unit_scale=True)
             for start_byte in range(0, file_size, chunk_size):
-                end_byte = min(start_byte + chunk_size, file_size) - 1
+                chunk = file.read(chunk_size)
+                upload_size = len(chunk)
+                end_byte = min(start_byte + upload_size, file_size) - 1
                 #f'bytes {_from}-{_to-1}/{file_size}'
                 content_range = f"bytes {start_byte}-{end_byte}/{file_size}"
                 headers = {
                     'Content-Type': 'application/octet-stream',
-                    'Content-Length': str(chunk_size),
+                    'Content-Length': str(upload_size),
                     'Content-Range': content_range
                 }
-                chunk = file.read(chunk_size)
-                upload_size+=len(chunk)
-                response = requests.put(uploadUrl, headers=headers, data=chunk,stream=False)
+
+
+
 
 
                 count=10
                 try:
+                    response = requests.put(uploadUrl, headers=headers, data=chunk, stream=False)
                     res_data = response.json()
                     count=0
                     print("\033c", end="")
@@ -148,9 +151,32 @@ class CloudUploadAzureService:
 
 
     def check_server_path_by_access_token(self, access_token, path)->typing.Tuple[str|None, dict|None]:
-        dirs = path.split('/')
+        dirs =[x for x in  path.split('/') if len(x)>0]
+        if len(dirs) == 1:
+            folder_id, error = self.get_folder_id(access_token, dirs[0])
+            if error:
+                return None,error
+            if folder_id is not None:
+                return folder_id,None
+            res, error = call_ms_func(
+                method="post",
+                api_url="me/drive/root/children",
+                token=access_token,
+                body={
+                    "name": dirs[0],
+                    "folder": {}
+                },
+                request_content_type="application/json"
+
+            )
+            if error:
+                return None,error
+            else:
+                return res["id"],None
+
         folder_id, error = self.get_folder_id(access_token, "/".join(dirs))
         if error:
+
             return None, error
         elif folder_id is not None:
             return folder_id, None

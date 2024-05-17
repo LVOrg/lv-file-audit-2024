@@ -12,6 +12,8 @@ data:
   rabbitmq.port: '{{ .Values.rabbit.port }}'
   rabbitmq.server: '{{ .Values.rabbit.server }}'
   rabbitmq.msg: '{{ .Values.rabbit.prefixMsg }}'
+  rabbitmq.username: '{{ .Values.rabbit.username }}'
+  rabbitmq.password: '{{ .Values.rabbit.password }}'
   cache_server: '{{.Values.cache.appName}}-service.{{.Values.namespace}}:11211'
   workers: '1'
   worker_class.uvicorn: 'UvicornWorker' #UvicornH11Worker

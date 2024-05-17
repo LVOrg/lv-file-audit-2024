@@ -77,7 +77,8 @@ import cyx.common.msg
 @controller.resource()
 class FilesLocalController(BaseController):
     @controller.route.post(
-        "/api/sys/admin/content-share/{rel_path:path}", summary=""
+        "/api/sys/admin/content-share/{rel_path:path}", summary="",
+        tags=["LOCAL"]
     )
     async def save_raw_content(self,
                                rel_path: str,
@@ -128,7 +129,9 @@ class FilesLocalController(BaseController):
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     @controller.route.get(
-        "/api/sys/admin/content-share/{rel_path:path}", summary="", response_class=StreamingResponse
+        "/api/sys/admin/content-share/{rel_path:path}", summary="",
+        response_class=StreamingResponse,
+        tags=["LOCAL"]
     )
     async def read_raw_content(self,
                                rel_path: str

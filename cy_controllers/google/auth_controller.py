@@ -35,7 +35,8 @@ class GoogleController(BaseController):
         self.request = request
 
     @controller.route.get(
-        "/api/{app_name}/after-google-login", summary="after login to google"
+        "/api/{app_name}/after-google-login", summary="after login to google",
+        tags = ["CLOUD-GOOGLE"]
     )
     def after_login_google(self, app_name: str) :
         hrml=("<p>Here are some security tips to keep your account safe:</p>"

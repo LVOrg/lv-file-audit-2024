@@ -11,6 +11,10 @@ Example call
 get_action("word","edit","docx")
 We will get urlsrc like below:
 'https://FFC-word-edit.officeapps.live.com/we/wordeditorframe.aspx?<ui=UI_LLCC&><rs=DC_LLCC&><dchat=DISABLE_CHAT&><hid=HOST_SESSION_ID&><sc=SESSION_CONTEXT&><wopisrc=WOPI_SOURCE&><showpagestats=PERFSTATS&><IsLicensedUser=BUSINESS_USER&><actnavid=ACTIVITY_NAVIGATION_ID&>'
+
+Production	https://onenote.officeapps.live.com/hosting/discovery
+Test/Dogfood	https://ffc-onenote.officeapps.live.com/hosting/discovery
+
 """
 import typing
 import urllib.parse
@@ -29,7 +33,12 @@ def set_mode(is_production: bool):
     __is_production__ = __is_production__
 
 
-def get_discovery() -> dict:
+def get_discovery(nocache=False) -> dict:
+    if nocache:
+        response = requests.get(__url_of_test__)
+        content = response.content
+        ret = xmltodict.parse(content)
+        return ret
     global __cache__
     if __is_production__:
         __url__ = __is_production__
@@ -110,4 +119,24 @@ def get_action_url(app_name, action, ext_file,wopi_source:str,config:typing.Opti
             par_urls += f"{k}={urllib.parse.quote(wopi_source)}&"
     par_urls = par_urls.rstrip("&")
     ret = primary_url+"?"+par_urls
+    return ret
+
+
+def get_hash_discovery(nocache=False):
+    dict_data = get_discovery(nocache)
+    ret = dict_data['wopi-discovery']['net-zone']
+    hash_ret = {}
+    for x in ret['app']:
+        for a in x['action']:
+            key=f"{x['@name'].lower()}/{a['@name'].lower()}/{a.get('@ext','-')}"
+            hash_ret[key]=a
+    return hash_ret
+
+def query_app(str_query:str,nocache=False):
+    dataset = get_hash_discovery(nocache)
+    str_query_lower = str_query.lower()
+    _ret = [{k:v} for k,v in dataset.items() if k.startswith(str_query_lower)]
+    ret = dict()
+    for x in _ret:
+        ret= {**ret,**x}
     return ret

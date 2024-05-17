@@ -35,7 +35,8 @@ class CloudDriveController(BaseController):
     ]
 
     @controller.router.post(
-        path="/api/{app_name}/cloud/drive/available-space"
+        path="/api/{app_name}/cloud/drive/available-space",
+        tags=["CLOUD"]
     )
     def cloud_drive_available_space(self,app_name:str,cloud_name:str=Body(embed=True)):
         if cloud_name not in config.clouds_support:

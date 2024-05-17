@@ -1,4 +1,4 @@
-main: nttlong/fs:fs.tiny.amd.21.35
+main: nttlong/fs:fs.tiny.amd.21.40
 office: nttlong/fs:fs.office.amd.1.5
 video: nttlong/fs:fs.video.amd.1
 pdf: nttlong/fs:fs.pdf.amd.2
@@ -11,14 +11,17 @@ processesMsgConfig:
     entrypoint:
       - python3
       - /app/cy_jobs/re_do_all.py
+    replicas: 1
   content:
     entrypoint:
       - python3
       - /app/cy_jobs/contents.py
+    replicas: 4
   image:
     entrypoint:
       - python3
       - /app/cy_jobs/images.py
+    replicas: 4
   index:
     entrypoint:
       - python3
@@ -27,10 +30,12 @@ processesMsgConfig:
     entrypoint:
       - python3
       - /app/cy_jobs/google_file_sync.py
+    replicas: 4
   onedrive-file-sync:
     entrypoint:
       - python3
       - /app/cy_jobs/azure_file_sync.py
+    replicas: 4
   google-folder-sync:
     entrypoint:
       - python3

@@ -76,7 +76,7 @@ class FilesController(BaseController):
         Depends(Authenticate)
     ]
 
-    @controller.router.post("/api/{app_name}/files/mark_delete")
+    @controller.router.post("/api/{app_name}/files/mark_delete",tags=["FILES"])
     async def mark_delete(self, app_name: str, UploadId: typing.Optional[str] = Body(...),
                           IsDelete: typing.Optional[bool] = Body(...)):
         """
@@ -108,7 +108,7 @@ class FilesController(BaseController):
         # search_engine.get_client().delete(index=fasty.configuration.search_engine.index, id=es_id)
         return dict()
 
-    @controller.router.post("/api/{app_name}/files")
+    @controller.router.post("/api/{app_name}/files",tags=["FILES"])
     async def get_list(
             self,
             app_name: str,
@@ -136,7 +136,7 @@ class FilesController(BaseController):
             self.logger_service.error(e)
             return []
 
-    @controller.router.post("/api/admin/files/move_tenant")
+    @controller.router.post("/api/admin/files/move_tenant",tags=["FILES"])
     def move_tenant(self, data: typing.Optional[DataMoveTanentParam] = Body(...)):
         Data = data.Data
         if not self.app_service.get_item(
@@ -184,7 +184,7 @@ class FilesController(BaseController):
         )
         return obsever_id
 
-    @controller.router.post("/api/{app_name}/files/clone")
+    @controller.router.post("/api/{app_name}/files/clone",tags=["FILES"])
     def clone_to_new(self,
                      app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> CloneFileResult:
@@ -209,7 +209,7 @@ class FilesController(BaseController):
                 Info=item.to_json_convertable()
             )
 
-    @controller.router.post("/api/{app_name}/files/delete")
+    @controller.router.post("/api/{app_name}/files/delete",tags=["FILES"])
     def files_delete(self, app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> controller_model_files.DeleteFileResult:
         try:
@@ -233,7 +233,7 @@ class FilesController(BaseController):
             ret.Error.Message= repr(e)
             return ret
 
-    @controller.router.post("/api/{app_name}/content/save")
+    @controller.router.post("/api/{app_name}/content/save",tags=["FILES"])
     def file_content_save(
             self,
             app_name: str,
@@ -307,7 +307,7 @@ class FilesController(BaseController):
         import cy_docs
         return data_item.to_json_convertable() if isinstance(data_item, cy_docs.DocumentObject) else data_item
 
-    @controller.router.post("/api/{app_name}/files/content-re-process")
+    @controller.router.post("/api/{app_name}/files/content-re-process",tags=["FILES"])
     def file_content_re_process(
             self,
             app_name: str,

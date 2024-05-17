@@ -80,7 +80,7 @@ class FilesSourceController(BaseController):
         Depends(Authenticate)
     ]
 
-    @controller.router.post("/api/{app_name}/files/info")
+    @controller.router.post("/api/{app_name}/files/info",tags=["SOURCE"])
     async def get_info_async(self, app_name: str,
                              UploadId: str = Body(embed=True)) -> controller_model_files.UploadInfoResult:
         """
@@ -148,7 +148,7 @@ class FilesSourceController(BaseController):
 
         return upload_info.to_pydantic()
 
-    @controller.router.post("/api/files/check_out_source")
+    @controller.router.post("/api/files/check_out_source",tags=["SOURCE"])
     async def check_out_source(self, data: CheckoutResource):
         if not self.request.headers.get("mac_address_id"):
             try:
@@ -214,7 +214,7 @@ class FilesSourceController(BaseController):
             except FileNotFoundError:
                 raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
 
-    @controller.router.post("/api/files/check_in_source")
+    @controller.router.post("/api/files/check_in_source",tags=["SOURCE"])
     async def check_in_source(self, appName: str = Body(embed=True), uploadId: str = Body(embed=True),
                               content: UploadFile = File(...)):
         try:
@@ -272,7 +272,7 @@ class FilesSourceController(BaseController):
                     except:
                         continue
 
-    @controller.router.post("/api/{app_name}/files/inspect-content")
+    @controller.router.post("/api/{app_name}/files/inspect-content",tags=["SOURCE"])
     async def inspect_content_async(self, app_name: str,
                                     UploadId: str = Body(embed=True)):
         try:
@@ -330,7 +330,7 @@ class FilesSourceController(BaseController):
                 )
             )
 
-    @controller.router.post("/api/{app_name}/files/gemini-assistant")
+    @controller.router.post("/api/{app_name}/files/gemini-assistant",tags=["SOURCE"])
     async def gemini_assistant_async(self, app_name: str,
                                      UploadId: str = Body(embed=True),
                                      Question: str = Body(embed=True)):

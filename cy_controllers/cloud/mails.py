@@ -34,7 +34,8 @@ class CloudMailController(BaseController):
         Depends(Authenticate)
     ]
     @controller.router.post(
-        path="/api/{app_name}/cloud/mail/send"
+        path="/api/{app_name}/cloud/mail/send",
+        tags = ["CLOUD"]
     )
     def cloud_mail_send(self,
                         app_name:str,
