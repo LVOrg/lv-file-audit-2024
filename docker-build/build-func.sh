@@ -11,12 +11,13 @@ buildFunc(){
   base_image=$5
   reset_after_build="$6.1."
   full_repository=$repositiory/$image_buid:$tag_build
+  full_repository_latest=$repositiory/$image_buid:latest
   echo "$full_repository is checking"
-  if [ "-$(docker manifest inspect $full_repository>/dev/nullnull;echo $?)-" = "-0-" ]; then
-    echo "$full_repository is existing skip build"
+  if docker manifest inspect "$full_repository" >/dev/null 2>&1; then
+    echo "$full_repository already exists (skipping build for non-latest tag)"
     return 0
   fi
-  build_command="docker  buildx build --build-arg BASE=$base_image  -t $full_repository  --platform=$platform ./.. -f $docker_file  --push=true --output type=registry"
+  build_command="docker  buildx build --build-arg BASE=$base_image  -t $full_repository -t $full_repository_latest --platform=$platform ./.. -f $docker_file  --push=true --output type=registry"
   echo $build_command
   eval "$build_command"
 

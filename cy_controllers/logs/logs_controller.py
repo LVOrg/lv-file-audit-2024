@@ -49,7 +49,8 @@ class LogsController:
         self.request = request
 
     @controller.route.post(
-        "/api/logs/views", summary="read log"
+        "/api/logs/views", summary="read log",
+        tags=["LOGS"]
     )
     def read_log(self,filter:typing.Optional[FilterInfo]=None) -> typing.List[LogInfo]:
         context = self.logger_service.get_mongo_db().context
@@ -93,7 +94,7 @@ class LogsController:
             return ret
 
     @controller.route.post(
-        "/api/logs/list-types", summary="list of log type"
+        "/api/logs/list-types", summary="list of log type",tags=["LOGS"]
     )
     def get_log_type(self)->typing.List[dict]:
         db = self.logger_service.get_mongo_db()

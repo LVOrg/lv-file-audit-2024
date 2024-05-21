@@ -28,9 +28,12 @@ rabbit:
   prefixMsg: xyzdsc-2024 # default value is msg: xyzdsc-2024
   username: ???
   password: ????
-replicas: 1
+replicas: 4
 storage:
   server: ????
   directory: ????
   name: storage-files
 processMsg: ["re-do-all","content","image","index","google-file-sync","google-folder-sync","onedrive-file-sync"]
+customer: "qc"
+imageTag: "latest"
+repository: "docker.io/nttlong"

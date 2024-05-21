@@ -238,7 +238,8 @@ class FilesUploadController(BaseController):
         threading.Thread(target=post_msg_upload, args=()).start()
 
     @controller.route.post(
-        "/api/{app_name}/files/upload", summary="Upload file"
+        "/api/{app_name}/files/upload", summary="Upload file",
+        tags=["FILES"]
     )
     async def upload_async(self,
                            app_name: str,

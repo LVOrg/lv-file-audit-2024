@@ -8,7 +8,20 @@ image_name="fs"
 job_core_file="job-cv2-core"
 
 #nttlong/file-svc
-repository="docker.io/nttlong"
+if [ -z "$1" ]; then
+  # No argument provided, use default repository
+  repository="docker.io/nttlong"
+else
+  # Argument provided, use it as the repository
+  repository="$1"
+fi
+if [ -z "$2" ]; then
+  # No argument provided, use default repository
+  customer="saas"
+else
+  # Argument provided, use it as the repository
+  customer="$2"
+fi
 #user="nttlong/file-svc"
 platform=linux/amd64
 
@@ -41,7 +54,14 @@ RUN apt clean && apt autoclean
 ENTRYPOINT [\"python3\",\"/cmd/video.py\"]
 ">>$job_slim_file
 video_tag=1
-video_tag_build="fs.video."$(tag $video_tag)
+if [ -z "$3" ]; then
+  # No argument provided, use default repository
+  video_tag_build=$video_tag
+else
+  # Argument provided, use it as the repository
+  video_tag_build=$3
+fi
+
 video_image=$repository/$image_name:$video_tag_build
-buildFunc $job_slim_file $repository $image_name $video_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
+buildFunc $job_slim_file $repository "lv-video-$customer" $video_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
 echo "docker run  -p 1111:1111  -v /socat-share:/socat-share  $repository/fs:$video_tag_build"

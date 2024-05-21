@@ -34,13 +34,21 @@ import elasticsearch
 class HealthCheckController(BaseController):
 
     @controller.route.get(
-        "/api/healthz", summary="/healthz"
+        "/api/healthz", summary="/healthz",
+        tags=["AAA-INFO"]
     )
     async def healthz(self) -> str:
-        return "OK"
+        return "OK version 2.2"
 
     @controller.route.get(
-        "/api/readyz", summary="/readyz"
+        "/api/get-info", summary="/healthz",
+        tags=["AAA-INFO"]
+    )
+    async def get_info(self) -> str:
+        return os.getenv("PRODUCTION_BUILT_ON") or "dev"
+    @controller.route.get(
+        "/api/readyz", summary="/readyz",
+        tags=["AAA-INFO"]
     )
     async def readyz(self) -> str:
 

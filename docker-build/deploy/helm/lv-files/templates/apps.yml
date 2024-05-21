@@ -16,7 +16,9 @@ metadata:
   namespace: {{$value.namespace}}
   annotations:
     description: {{$value.description | default "..." }}
-
+    keel.sh/releaseNotes: kubernetes-cluster-qc
+    keel.sh/policy: "glob:build-*"
+    keel.sh/approvals: "0"
 spec:
   selector:
     matchLabels:
@@ -27,6 +29,7 @@ spec:
       labels:
         app: {{$value.name}}
     spec:
+
       {{if $value.storage }}
       volumes:
         - name: tmp-files
@@ -38,9 +41,10 @@ spec:
             server: {{$value.storage.server}}
             path: {{$value.storage.directory}}
       {{end}}
+
       containers:
 
-        - image: {{ $value.image}}
+        - image:    {{ $value.image}}
           name: {{ $value.name }}
           envFrom:
             - configMapRef:
@@ -97,6 +101,8 @@ spec:
 #            - name: xdoc-storage
 #              mountPath: /app/share-storage
         {{- end }}
+      imagePullSecrets:
+        - name: harbor-secret-registry
 ---
 {{- end}}
 ---

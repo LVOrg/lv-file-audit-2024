@@ -121,12 +121,14 @@ async def estimate_time(request: fastapi.Request, next):
             res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
             return res
         res = await apply_time(res)
-    except Exception as ex:
-        from  fastapi.responses import HTMLResponse
-        return HTMLResponse(
-            content=traceback.format_exc(),
-            status_code=500
-        )
+    # except Exception as ex:
+    #     print(traceback.format_exc())
+    #
+    #     from  fastapi.responses import HTMLResponse
+    #     return HTMLResponse(
+    #         content=traceback.format_exc(),
+    #         status_code=500
+    #     )
     except FileNotFoundError as e:
         # logger.error(e, more_info= dict(
         #     url= request.url.path
@@ -137,7 +139,7 @@ async def estimate_time(request: fastapi.Request, next):
         logger.error(e, more_info= dict(
             url= request.url.path
         ))
-
+        return JSONResponse(status_code=500, content={"detail": "Server error"})
 
     """HTTP/1.1 200 OK
 

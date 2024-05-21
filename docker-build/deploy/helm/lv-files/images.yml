@@ -1,10 +1,10 @@
-main: nttlong/fs:fs.tiny.amd.21.40
-office: nttlong/fs:fs.office.amd.1.5
-video: nttlong/fs:fs.video.amd.1
-pdf: nttlong/fs:fs.pdf.amd.2
-tika: apache/tika
-thumb: nttlong/fs:fs.thumbs.amd.2
-googleDrive: nttlong/fs:fs.google.amd.4
+main: fs-tiny
+office: "docker.io/nttlong/lv-office-libs:1"
+video: "docker.io/nttlong/lv-video-libs:1"
+pdf: "docker.io/nttlong/lv-pdf-libs:1"
+tika: docker.io/apache/tika
+thumb: "docker.io/nttlong/lv-thumbs-libs:1"
+
 check_key: ^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$
 processesMsgConfig:
   re-do-all:
@@ -16,12 +16,12 @@ processesMsgConfig:
     entrypoint:
       - python3
       - /app/cy_jobs/contents.py
-    replicas: 4
+    replicas: 2
   image:
     entrypoint:
       - python3
       - /app/cy_jobs/images.py
-    replicas: 4
+    replicas: 2
   index:
     entrypoint:
       - python3
@@ -30,13 +30,14 @@ processesMsgConfig:
     entrypoint:
       - python3
       - /app/cy_jobs/google_file_sync.py
-    replicas: 4
+    replicas: 2
   onedrive-file-sync:
     entrypoint:
       - python3
       - /app/cy_jobs/azure_file_sync.py
-    replicas: 4
+    replicas: 2
   google-folder-sync:
     entrypoint:
       - python3
       - /app/cy_jobs/google_directories_sync.py
+    replicas: 2

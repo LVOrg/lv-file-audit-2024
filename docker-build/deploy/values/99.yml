@@ -17,4 +17,10 @@ storage:
   server: 192.168.18.36
   directory: /codx-file-storage/files
   name: storage-files
-replicas: 4
+replicas: 2
+rabbit:
+  username: guest
+  password: guest
+customer: "saas"
+imageTag: "latest"
+repository: "docker.lacviet.vn/xdoc"

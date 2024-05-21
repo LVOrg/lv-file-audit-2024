@@ -6,8 +6,10 @@
 ---
 apps:
     - name: {{ $appConfig.name }}
-      image: {{ .images.main }}
+
+      image: {{$valuesObject.repository}}/{{ $imagesObject.main }}-{{$valuesObject.customer}}:{{$valuesObject.imageTag}}
       namespace: {{ .values.namespace}}
+      customer:  {{ .values.customer}}
       replicas: {{.values.replicas}}
       entrypoint:
         - python3
@@ -53,7 +55,8 @@ apps:
     {{- $app:= (index $processesMsgConfig $value) }}
     {{ if $app }}
     - name: {{$value}}
-      image: {{ $imagesObject.main }}
+      customer:  {{ $valuesObject.customer}}
+      image:  {{$valuesObject.repository}}/{{ $imagesObject.main }}-{{$valuesObject.customer}}:{{$valuesObject.imageTag}}
       namespace: {{ $valuesObject.namespace }}
       replicas: {{$app.replicas}}
       entrypoint:
@@ -68,10 +71,13 @@ apps:
       libs:
         - name: pdf
           image: {{ $imagesObject.pdf }}
+          customer:  {{ $valuesObject.customer}}
         - name: video
           image: {{ $imagesObject.video }}
+          customer:  {{ $valuesObject.customer}}
         - name: office
-          image: {{$imagesObject.office }}
+          image: {{ $imagesObject.office }}
+          customer:  {{ $valuesObject.customer}}
         - name: tika
           image: {{ $imagesObject.tika }}
     {{else}}

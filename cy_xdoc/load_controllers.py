@@ -62,12 +62,13 @@ controllers_list=[
         MSSettings,
         CloudMailController,
         FilesLocalController,
-        PagesController,
         CloudDriveController
 
     ]
-def load_controller(app,host_dir):
 
+def load_controller(app,host_dir):
+    global controllers_list
+    controllers_list += [PagesController]
     for fx in controllers_list:
         try:
             app.include_router(

@@ -3,8 +3,23 @@ source build-func.sh
 image_name="fs"
 rm -f web-api-core
 #nttlong/file-svc
-repository="docker.io/nttlong"
-#user="nttlong/file-svc"
+#repository="docker.io/nttlong"
+#repository="docker.lacviet.vn/xdoc"
+if [ -z "$1" ]; then
+  # No argument provided, use default repository
+  repository="docker.io/nttlong"
+else
+  # Argument provided, use it as the repository
+  repository="$1"
+fi
+if [ -z "$2" ]; then
+  # No argument provided, use default repository
+  customer="saas"
+else
+  # Argument provided, use it as the repository
+  customer="$2"
+fi
+user="nttlong/file-svc"
 platform=linux/amd64
 web_api_core_file="web-api-core"
 
@@ -23,7 +38,7 @@ RUN apt clean && apt autoclean
 ">>$web_api_core_file
 web_api_core_tag=21
 web_api_core_tag_build="fs.tiny.core."$(tag $web_api_core_tag)
-web_api_core_image="$repository/fs:"$web_api_core_tag_build
+web_api_core_image="docker.io/nttlong/fs:"$web_api_core_tag_build
 buildFunc $web_api_core_file $repository $image_name $web_api_core_tag_build "python:3.10-alpine" "alpine"
 web_api_file="web-api"
 rm -f $web_api_file
@@ -34,6 +49,7 @@ FROM $web_api_core_image
 ARG TARGETARCH
 ARG OS
 #COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+ENV PRODUCTION_BUILT_ON=\"$(date +"%Y-%m-%d %H:%M:%S")\"
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
@@ -63,9 +79,19 @@ COPY ./../cy_jobs /app/cy_jobs
 #RUN python3 -m pip install gradio==3.50.2
 #RUN python3 -m pip install gradio-client==0.15.1
 RUN apt clean && apt autoclean">>$web_api_file
-web_api_tag=40
-web_api_tag_build="fs.tiny."$(tag $web_api_core_tag).$web_api_tag
-web_api_image=web:"apps".$web_api_core_tag_build
-buildFunc $web_api_file $repository $image_name $web_api_tag_build "python:3.10-alpine" "alpine"
+web_api_tag=1
+current_datetime=$(date +"%Y%m%d%H%M%S")
+
+if [ -z "$3" ]; then
+  # No argument provided, use default repository
+  web_api_tag_build=$web_api_core_tag.$current_datetime
+else
+  # Argument provided, use it as the repository
+  web_api_tag_build=$web_api_tag
+fi
+web_api_tag_build=build-$web_api_core_tag.$current_datetime
+
+web_api_image="fs-tiny":$web_api_core_tag_build
+buildFunc $web_api_file $repository "fs-tiny-$customer" $web_api_tag_build "python:3.10-alpine" "alpine"
 echo "in order to test:"
 echo "docker run -v $(pwd)/..:/app -p 8012:8012 $repository/$image_name:$web_api_tag_build"
