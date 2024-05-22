@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import typing
 
 import requests
@@ -10,7 +11,7 @@ from cyx.repository import Repository
 from msgraph import GraphServiceClient
 from azure.identity.aio import ClientSecretCredential
 from cyx.cloud.azure.azure_utils import call_ms_func
-
+from cyx.cloud_cache_services import CloudCacheService
 from fastapi.responses import JSONResponse
 
 
@@ -37,9 +38,12 @@ from cyx.cache_service.memcache_service import MemcacheServices
 
 
 class AzureUtilsServices:
-    def __init__(self, mem_cache_services: MemcacheServices = cy_kit.singleton(MemcacheServices)):
+    def __init__(self,
+                 mem_cache_services: MemcacheServices = cy_kit.singleton(MemcacheServices),
+                 cloud_cache_service: CloudCacheService = cy_kit.singleton(CloudCacheService)):
         self.cache_key = f"{type(self).__module__}/{type(self).__name__}/v1"
         self.mem_cache_services = mem_cache_services
+        self.cloud_cache_service = cloud_cache_service
 
     def get_credential(self, app_name: str) -> typing.Tuple[ClientSecretCredential | None, dict | None]:
         azure_info, error = self.get_azure_info(app_name)
@@ -54,11 +58,11 @@ class AzureUtilsServices:
     def __get_token_info__(self, app_name):
         azure_info, error = self.get_azure_info(app_name)
         post_url = f"https://login.microsoftonline.com/common/oauth2/v2.0/token"
-        if (not  hasattr(azure_info,"refresh_token") or
-                not hasattr(azure_info,"client_id") or
-                not hasattr(azure_info,"scope")
-                or not hasattr(azure_info,"client_secret")) :
-            return None, dict(Code="InvalidSettings",Message=f"Azure settings for {app_name} is invalid")
+        if (not hasattr(azure_info, "refresh_token") or
+                not hasattr(azure_info, "client_id") or
+                not hasattr(azure_info, "scope")
+                or not hasattr(azure_info, "client_secret")):
+            return None, dict(Code="InvalidSettings", Message=f"Azure settings for {app_name} is invalid")
         res = requests.post(
             url=post_url,
             data=dict(
@@ -97,7 +101,7 @@ class AzureUtilsServices:
         if not reset:
 
             ret = self.mem_cache_services.get_object(key, AccquireTokenInfo)
-            if ret is not None and (ret.expires_on-datetime.datetime.utcnow()).total_seconds() > 5:
+            if ret is not None and (ret.expires_on - datetime.datetime.utcnow()).total_seconds() > 5:
                 return ret, None
             token_info, error = self.__get_token_info__(app_name)
             if error:
@@ -202,8 +206,22 @@ class AzureUtilsServices:
             self.mem_cache_services.set_str(key, res['id'])
             return res['id'], None
 
-    def get_content(self, app_name, cloud_file_id, content_type, request):
+    async def get_content_async(self, app_name, upload_id: str, cloud_file_id, content_type: str, request, nocache=False,download_only=False):
+        import cy_web
         from fastapi.responses import StreamingResponse
+        if not nocache:
+            cache_file_path = self.cloud_cache_service.get_from_cache(upload_id)
+            if cache_file_path:
+                fs = open(cache_file_path, "rb")
+
+                def get_size():
+                    return os.stat(cache_file_path).st_size
+
+                setattr(fs, "get_size", get_size)
+                ret = await cy_web.cy_web_x.streaming_async(
+                    fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
+                )
+                return ret
         cache_key = f"{__file__}/{type(self).__name__}/get_content/{app_name}/{cloud_file_id}"
         content_url = f"https://graph.microsoft.com/v1.0/me/drive/items/{cloud_file_id}/content"
         from requests import get
@@ -225,12 +243,12 @@ class AzureUtilsServices:
         import requests
         response = requests.get(content_url, stream=True, headers=HEADERS, verify=False)
         if response.status_code == 401:
-            token_info, error = self.acquire_token(app_name,reset=True)
+            token_info, error = self.acquire_token(app_name, reset=True)
             if error:
-                return JSONResponse(content=error,status_code=500)
+                return JSONResponse(content=error, status_code=500)
             token = token_info.access_token
             HEADERS["Authorization"] = f'Bearer {token}'
-            response = requests.get(content_url, stream=True, headers=HEADERS, verify=False)
+            response = requests.get(content_url, stream=True, headers=HEADERS)
         if response.status_code >= 300:
             from fastapi.responses import HTMLResponse
             return HTMLResponse(content=response.text, status_code=response.status_code)
@@ -240,7 +258,7 @@ class AzureUtilsServices:
         if response.status_code == 404:
             self.mem_cache_services.remove(cache_key)
 
-            response = get(content_url, stream=True, headers=HEADERS, verify=False)
+            response = get(content_url, stream=True, headers=HEADERS)
 
             if response.headers.get('Content-Location'):
                 self.mem_cache_services.set_str(cache_key, response.headers.get('Content-Location'), 60)
@@ -248,9 +266,11 @@ class AzureUtilsServices:
         response.headers["Content-Type"] = content_type
         response.headers["Accept-Ranges"] = "bytes"
         # response.headers["Content-Range"] = request.headers.get('range')
-        if response.headers.get("Content-Disposition"):
+        if response.headers.get("Content-Disposition") and not download_only:
             del response.headers['Content-Disposition']
-
+        if content_type.startswith("image/"):
+            self.cloud_cache_service.cache_content(app_name=app_name, upload_id=upload_id, url=content_url,
+                                                   cloud_id=cloud_file_id, header=HEADERS)
         # Return StreamingResponse object
         return StreamingResponse(
             content=response.iter_content(chunk_size=1024 * 4),

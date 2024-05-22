@@ -1,9 +1,9 @@
 main: fs-tiny
-office: "docker.io/nttlong/lv-office-libs:1"
-video: "docker.io/nttlong/lv-video-libs:1"
-pdf: "docker.io/nttlong/lv-pdf-libs:1"
-tika: docker.io/apache/tika
-thumb: "docker.io/nttlong/lv-thumbs-libs:1"
+office: "nttlong/lv-office-libs:1"
+video: "nttlong/lv-video-libs:1"
+pdf: "nttlong/lv-pdf-libs:1"
+tika: apache/tika:latest
+thumb: "nttlong/lv-thumbs-libs:1"
 
 check_key: ^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$
 processesMsgConfig:

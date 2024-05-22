@@ -170,11 +170,24 @@ class FilesSourceController(BaseController):
                 if not UploadData:
                     raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
                 if UploadData.StorageType == "google-drive" and UploadData.CloudId:
-                    return self.g_drive_service.get_content(
+                    m,_ = mimetypes.guess_type(UploadData.FileName)
+                    return await self.g_drive_service.get_content_async(
                         app_name=data.appName,
                         cloud_id=UploadData.CloudId,
                         client_file_name=UploadData.FileName,
-                        request=self.request
+                        request=self.request,
+                        upload_id=data.uploadId,
+                        content_type=m
+
+                    )
+                if UploadData.StorageType == "onedrive" and UploadData.CloudId:
+                    m, _ = mimetypes.guess_type(UploadData.FileName)
+                    return await self.azure_utils_service.get_content_async(
+                        app_name=data.appName,
+                        cloud_file_id=UploadData.CloudId,
+                        content_type=m,
+                        request=self.request,
+                        upload_id=data.uploadId
                     )
                 raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
         if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():

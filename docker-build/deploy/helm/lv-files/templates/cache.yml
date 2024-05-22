@@ -21,7 +21,7 @@ spec:
           effect: "NoSchedule"
       containers:
       - name: file-cache
-        image: memcached:latest
+        image: bitnami/memcached:latest
         ports:
         - containerPort: 11211
 ---
@@ -34,9 +34,10 @@ metadata:
     app: {{ .Values.cache.appName }}-service
 spec:
   ports:
-    - name: '11211'
-      protocol: TCP
+    - protocol: TCP
       port: 11211
+      targetPort: 11211
+      nodePort: 32222
   selector:
     app: {{ .Values.cache.appName}}
   type: NodePort

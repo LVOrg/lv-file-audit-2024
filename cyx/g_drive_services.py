@@ -46,12 +46,13 @@ class GoogleSettingsInfo:
     client_secret: str
     email: str
 
-
+from cyx.cloud_cache_services import CloudCacheService
 class GDriveService:
     def __init__(self,
                  memcache_service=cy_kit.singleton(MemcacheServices),
                  local_api_service=cy_kit.singleton(LocalAPIService),
-                 file_services=cy_kit.singleton(FileServices)
+                 file_services=cy_kit.singleton(FileServices),
+                 cloud_cache_service: CloudCacheService = cy_kit.singleton(CloudCacheService)
                  ):
         self.working_dir = pathlib.Path(__file__).parent.parent.__str__()
         self.memcache_service = memcache_service
@@ -59,6 +60,7 @@ class GDriveService:
         self.local_api_service = local_api_service
         self.file_services = file_services
         self.cache_key_of_id_and_secret = f"{type(self).__module__}/{type(self).__name__}/id_and_secret"
+        self.cloud_cache_service=cloud_cache_service
         # self.gauth.settings['client_config_backend']='settings'
 
     def do_auth(self, client_id: str, client_secret: str, redirect_uri):
@@ -400,7 +402,24 @@ class GDriveService:
         response = requests.post(token_uri, headers=headers, data=body)
         data = response.json()
         if data.get("error"):
-            return None, dict(Code=error.get("error"), Message=data.get("error_description"))
+            refresh_token_nocache, error = self.get_refresh_access_token(app_name, from_cache=False)
+            if error:
+                return None, error
+            client_id_nocache, client_secret_nocache, _, error = self.get_id_and_secret(app_name, from_cache=False)
+            if error:
+                return None, error
+            body = {
+                'grant_type': 'refresh_token',
+                'client_id': client_id_nocache,
+                'client_secret': client_secret_nocache,
+                'refresh_token': refresh_token_nocache
+            }
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            token_uri = "https://oauth2.googleapis.com/token"
+            response = requests.post(token_uri, headers=headers, data=body)
+            data = response.json()
+            if data.get("error"):
+                return None, dict(Code=data.get("error"), Message=data.get("error_description"))
         access_token = data.get('access_token')
         expires_in = data.get("expires_in")
         expires_on = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
@@ -501,10 +520,31 @@ class GDriveService:
         else:
             return None
 
-    def get_content(self, app_name: str, cloud_id: str, client_file_name: str,
-                    request: fastapi.requests.Request) -> typing.Union[dict, StreamingResponse] | None:
+    async def get_content_async(self,
+                                app_name: str,
+                                upload_id:str,
+                                cloud_id: str,
+                                client_file_name: str,
+                                content_type:str,
+                                request: fastapi.requests.Request,
+                                nocache=False,
+                                download_only=False) -> typing.Union[dict, StreamingResponse] | None:
 
         # url = f"https://drive.google.com/file/d/{cloud_id}/view?usp=drivesdk"
+        if not nocache and not download_only:
+            cache_file_path = self.cloud_cache_service.get_from_cache(upload_id)
+            if cache_file_path:
+                import cy_web
+                fs = open(cache_file_path, "rb")
+
+                def get_size():
+                    return os.stat(cache_file_path).st_size
+
+                setattr(fs, "get_size", get_size)
+                ret = await cy_web.cy_web_x.streaming_async(
+                    fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
+                )
+                return ret
         content_type, _ = mimetypes.guess_type(client_file_name)
         uri = f"https://www.googleapis.com/drive/v3/files/{cloud_id}?alt=media"
         access_token, error = self.get_access_token_from_refresh_token(app_name)
@@ -521,12 +561,16 @@ class GDriveService:
         # response.headers["Accept-Ranges"] = "bytes"
 
         # response.headers["Content-Range"] = request.headers.get('range')
-        if response.headers.get("Content-Disposition"):
+        if response.headers.get("Content-Disposition") and not download_only:
             del response.headers['Content-Disposition']
         if response.headers.get("Content-Encoding"):
             del response.headers["Content-Encoding"]
         response.headers["Accept-Ranges"] = "bytes"
         # Return StreamingResponse object
+
+        if content_type.startswith("image/"):
+            self.cloud_cache_service.cache_content(app_name=app_name, upload_id=upload_id, url=uri,
+                                                   cloud_id=cloud_id, header=headers)
         return StreamingResponse(
             content=response.iter_content(chunk_size=1024 * 4),
             headers=response.headers,

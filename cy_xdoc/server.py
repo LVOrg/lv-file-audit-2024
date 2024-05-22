@@ -7,10 +7,16 @@ import traceback
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
-import cyx.check_start_up
+
 print(os.getenv("DB__CNN"))
 sys.path.append("/app")
+import cy_kit
+from cyx.runtime_config_services import RuntimeConfigService
+runtime_config_service = cy_kit.singleton(RuntimeConfigService)
+runtime_config_service.load(sys.argv)
+import cyx.check_start_up
 import cyx.framewwork_configs
+
 
 import cyx.common
 from cyx.common import config
@@ -28,7 +34,7 @@ cy_file_cryptor.settings.set_encrypt_folder_path(config.file_storage_path)
 
 import fastapi
 import datetime
-import cy_kit
+
 
 import cy_web
 from cyx.common.msg import MessageService

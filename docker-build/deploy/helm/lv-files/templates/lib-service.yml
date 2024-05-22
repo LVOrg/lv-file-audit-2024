@@ -1,0 +1,41 @@
+{{- $namespace :=.Values.namespace  }}
+{{- range $key, $value := .Values.debugLibs }}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: lv-{{ $value.name}}
+  namespace: {{$namespace}}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lv-{{ $value.name}}
+  template:
+    metadata:
+      labels:
+        app: lv-{{ $value.name}}
+    spec:
+      containers:
+        - name: office
+          image: nttlong/lv-office-libs:1
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-{{ $value.name}}-service
+  namespace: {{$namespace}}
+  labels:
+    app: lv-{{ $value.name}}-service
+spec:
+  ports:
+    - protocol: TCP
+      port: {{ $value.port}}
+      targetPort: {{ $value.port}}
+      nodePort: {{ $value.nodePort}}
+  type: NodePort
+  selector:
+    app: lv-{{ $value.name}}
+---
+{{- end }}

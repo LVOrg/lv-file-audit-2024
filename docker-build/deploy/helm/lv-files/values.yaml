@@ -31,9 +31,32 @@ rabbit:
 replicas: 4
 storage:
   server: ????
-  directory: ????
+  directory: ????fice
   name: storage-files
 processMsg: ["re-do-all","content","image","index","google-file-sync","google-folder-sync","onedrive-file-sync"]
 customer: "qc"
 imageTag: "latest"
 repository: "docker.io/nttlong"
+debugLibs:
+  - name: office
+    image: nttlong/lv-office-libs:1
+    port: 1113
+    nodePort: 31113
+  - name: tika
+    image: apache/tika:latest
+    port: 9998
+    nodePort: 31998
+  - name: thumbs
+    image: nttlong/lv-thumbs-libs:1
+    port: 1114
+    nodePort: 31114
+  - name: video
+    image: nttlong/lv-video-libs:1
+    port: 1111
+    nodePort: 31111
+  - name: pdf
+    image: nttlong/lv-pdf-libs:1
+    port: 1112
+    nodePort: 31112
+  #1112
+  #1111

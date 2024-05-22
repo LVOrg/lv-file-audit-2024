@@ -63,6 +63,7 @@ from cyx.ms.ms_commom_service import MSCommonService
 from cyx.cloud.cloud_service_utils import CloudServiceUtils
 from cyx.cloud.azure.azure_utils_services import AzureUtilsServices
 from cyx.cloud.azure.office365_services import MSOffice365Service
+from cyx.cloud_cache_services import CloudCacheService
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -106,6 +107,7 @@ class BaseController:
     cloud_service_utils: CloudServiceUtils = cy_kit.singleton(CloudServiceUtils)
     azure_utils_service: AzureUtilsServices = cy_kit.singleton(AzureUtilsServices)
     ms_office_365_service: MSOffice365Service = cy_kit.singleton(MSOffice365Service)
+    cloud_cache_service:CloudCacheService = cy_kit.singleton(CloudCacheService)
 
     def __init__(self, request: Request):
         self.request = request

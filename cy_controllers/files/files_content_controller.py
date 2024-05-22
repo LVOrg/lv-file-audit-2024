@@ -127,6 +127,30 @@ class FilesContentController(BaseController):
     async def get_content(self, app_name: str, directory: str):
         # if len(directory.split('/'))>2:
         #     directory = directory.split('/')[0]+"/"+directory.split('/')[1]
+        cloud_info = self.cloud_cache_service.get_request_from_cache(app_name=app_name,directory=directory)
+        if cloud_info:
+            if cloud_info.storage_type=="onedrive":
+                return await self.azure_utils_service.get_content_async(
+                    app_name=app_name,
+                    cloud_file_id=cloud_info.cloud_id,
+                    content_type=cloud_info.content_type,
+                    request=self.request,
+                    upload_id=cloud_info.upload_id,
+                    download_only=self.request.query_params.get('download') is not None,
+
+                )
+            if cloud_info.storage_type=="google-drive":
+                ret = await self.g_drive_service.get_content_async(
+                    app_name=app_name,
+                    client_file_name=cloud_info.file_name,
+                    upload_id=cloud_info.upload_id,
+                    cloud_id=cloud_info.cloud_id,
+                    request=self.request,
+                    content_type=cloud_info.content_type,
+                    download_only=self.request.query_params.get('download') is not None
+                )
+                return ret
+
         cache_dir = self.file_cacher_service.get_path(os.path.join(app_name, "images"))
         upload_id = directory.split('/')[0]
         upload = self.file_service.get_upload_register_with_cache(app_name, upload_id)
@@ -136,15 +160,28 @@ class FilesContentController(BaseController):
             response = Response(content="Resource not found", status_code=404)
             return response
         if upload.StorageType == "onedrive":
+
             upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id == upload_id)
             if upload[Repository.files.fields.CloudId] is not None:
                 try:
                     m,_ =mimetypes.guess_type(directory)
-                    return self.azure_utils_service.get_content(
+                    self.cloud_cache_service.cache_request(
+                        app_name=app_name,
+                        directory=directory,
+                        storage_type=upload.StorageType,
+                        cloud_id=upload[Repository.files.fields.CloudId],
+                        content_type=m,
+                        upload_id=upload_id,
+                        file_name= upload[Repository.files.fields.FileName]
+
+                    )
+                    return await self.azure_utils_service.get_content_async(
                         app_name=app_name,
                         cloud_file_id=upload[Repository.files.fields.CloudId],
                         content_type=m,
-                        request=self.request
+                        request=self.request,
+                        upload_id= upload_id,
+                        download_only=self.request.query_params.get('download') is not None
                     )
                 except:
                     from  fastapi.responses import HTMLResponse
@@ -158,11 +195,25 @@ class FilesContentController(BaseController):
         if upload.StorageType=="google-drive":
             upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id==upload_id)
             if upload[Repository.files.fields.CloudId] is not None:
-                ret =  self.g_drive_service.get_content(
+                m, _ = mimetypes.guess_type(directory)
+                self.cloud_cache_service.cache_request(
+                    app_name=app_name,
+                    directory=directory,
+                    storage_type=upload.StorageType,
+                    cloud_id=upload[Repository.files.fields.CloudId],
+                    content_type=m,
+                    upload_id=upload_id,
+                    file_name=upload[Repository.files.fields.FileName]
+
+                )
+                ret = await self.g_drive_service.get_content_async(
                     app_name=app_name,
                     client_file_name=upload.FileName,
+                    upload_id= upload_id,
                     cloud_id= upload[Repository.files.fields.CloudId],
-                    request=self.request
+                    request=self.request,
+                    content_type=m,
+                    download_only=self.request.query_params.get('download') is not None
                 )
                 return ret
         if not upload.IsPublic:
