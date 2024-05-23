@@ -182,7 +182,7 @@ broker:
   servers: 172.16.7.99:30992
   msg: xdoc
 #  temp_directory: ./brokers/tmp-files
-cache_server: localhost:11212
+cache_server: localhost:11211
 logs_url: https://hooks.slack.com/services/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
 
 services:

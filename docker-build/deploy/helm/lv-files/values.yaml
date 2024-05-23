@@ -9,6 +9,7 @@ appConfig:
   ingress:
       pathType: Prefix
   requireService: true
+  replicas: 4
 db:
   mongodb: ????
   manage: 'lv-docs'
@@ -28,7 +29,7 @@ rabbit:
   prefixMsg: xyzdsc-2024 # default value is msg: xyzdsc-2024
   username: ???
   password: ????
-replicas: 4
+replicas: 1
 storage:
   server: ????
   directory: ????fice

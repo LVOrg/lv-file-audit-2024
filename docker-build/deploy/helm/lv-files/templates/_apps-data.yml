@@ -10,7 +10,7 @@ apps:
       image: {{$valuesObject.repository}}/{{ $imagesObject.main }}-{{$valuesObject.customer}}:{{$valuesObject.imageTag}}
       namespace: {{ .values.namespace}}
       customer:  {{ .values.customer}}
-      replicas: {{.values.replicas}}
+      replicas: {{$appConfig.replicas}}
       entrypoint:
         - python3
         - /app/cy_xdoc/server.py

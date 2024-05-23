@@ -14,7 +14,9 @@ import cy_kit
 from cyx.runtime_config_services import RuntimeConfigService
 runtime_config_service = cy_kit.singleton(RuntimeConfigService)
 runtime_config_service.load(sys.argv)
-import cyx.check_start_up
+skip_checking = os.getenv("BUILD_IMAGE_TAG") is None
+if not skip_checking:
+    import cyx.check_start_up
 import cyx.framewwork_configs
 
 
@@ -136,10 +138,18 @@ async def estimate_time(request: fastapi.Request, next):
     #         status_code=500
     #     )
     except FileNotFoundError as e:
+        image_tag:str = os.getenv("BUILD_IMAGE_TAG") or "-qc"
+        if image_tag.endswith("-qc"):
+            from fastapi.responses import HTMLResponse
+            return HTMLResponse(
+                    content=traceback.format_exc(),
+                    status_code=500
+                )
+        else:
         # logger.error(e, more_info= dict(
         #     url= request.url.path
         # ))
-        return JSONResponse(status_code=404, content={"detail": "Resource not found"})
+            return JSONResponse(status_code=404, content={"detail": "Resource not found"})
 
     except Exception as e:
         logger.error(e, more_info= dict(

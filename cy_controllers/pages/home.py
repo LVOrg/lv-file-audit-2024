@@ -181,7 +181,13 @@ class PagesController:
         /home/vmadmin/python/cy-py/cy_controllers/pages/resource/html/index.html
         """
         app_data = get_meta_data(self.request)
-        res = cy_web.render_template("index.html", {"request": self.request, "app": app_data})
+        app_data["version"]=os.getenv("PRODUCTION_BUILT_ON") or "dev"
+        res = cy_web.render_template("index.html",
+                                     {
+                                         "request": self.request, "app": app_data,
+                                         "version": os.getenv("PRODUCTION_BUILT_ON") or "dev"
+                                        }
+                                     )
         token_service.set_cookie(res,token_service.generate_token(app=application,username=username))
         return res
 

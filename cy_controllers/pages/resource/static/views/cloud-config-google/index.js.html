@@ -1,3 +1,47 @@
-<div>
-    test
+<div class="dock full layout-columns">
+    <style>
+        .app-form .app-label {
+            white-space: nowrap
+        }
+    </style>
+    <div class="dock full ">
+
+    </div>
+    <div class="layout-rows">
+        <div class="dock full ">
+
+    </div>
+        <div class="app-form layout-columns" style="min-width:600px">
+                <div>
+                <rcmpct-grid cols="50% 300px" style="gap:3px">
+                        <div class="app-label">Client Id :</div> <input type="text" ng-model="data.ClientId">
+                        <div class="app-label">Client secret :</div> <input type="text" ng-model="data.ClientSecret">
+                    <div class="app-label">Redirect Uri :</div> <input type="text" ng-model="data.RedirectUri">
+
+                        <div class="app-label">Email :</div> <input type="text" ng-model="data.Email">
+                        <div class="app-label">Access Token :</div> <textarea ng-model="data.AccessToken"></textarea>
+                        <div class="app-label">Refresh Token :</div> <textarea ng-model="data.RefreshToken"></textarea>
+                </rcmpct-grid>
+                    </div>
+            <div class="dock full" style="margin-top:4px">
+                <div class="layout-rows">
+                    <div class="dock full"></div><div>
+                <div style="padding:4px">
+                    <button ng-click="doUpdateAsync().then()">Save</button>
+                </div>
+                <div style="padding:4px">
+                    <button ng-click="doUpdateAndConsentAsync().then()">Save and consent</button>
+                </div>
+                </div>
+
+            </div>
+            </div>
+        </div>
+        <div class="dock full ">
+
+    </div>
+    </div>
+    <div class="dock full ">
+
+    </div>
 </div>

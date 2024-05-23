@@ -23,9 +23,10 @@ spec:
  selector:
    app: {{$value.name}}
  ports:
- - port: 8082
-   targetPort: 80
-   protocol: TCP
+   - name: {{$value.name}}
+     port: 80
+     targetPort: 80
+     protocol: TCP
 {{ if $value.service.nodePort }}
    nodePort: {{$value.service.nodePort}}
 {{end}}

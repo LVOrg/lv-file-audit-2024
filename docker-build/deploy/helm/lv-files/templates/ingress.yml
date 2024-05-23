@@ -30,7 +30,7 @@ spec:
               service:
                 name: {{$value.name}}-service
                 port:
-                  number: 8082
+                  number: 80
 
       {{ if $isNotUseIp }}
     host: {{$value.service.ingress.ip}}

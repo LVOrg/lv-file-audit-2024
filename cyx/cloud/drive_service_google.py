@@ -14,17 +14,35 @@ class DriveServiceGoogle:
         :param app_name:
         :return:
         """
-        info,error = self.g_drive_service.get_access_token_from_access_token(app_name )
+        try:
+            # info,error = self.g_drive_service.get_access_token_from_access_token(app_name )
 
-        service, error = self.g_drive_service.get_service_by_app_name(app_name=app_name, g_service_name="v3/drive")
-        if error:
-            return None, error
-        fields = 'quotaBytesTotal,quotaBytesUsed'
-        about = service.about().get(fields="storageQuota").execute()
-        if not about.get("storageQuota").get("limit"):
-            return None,None
-        else:
-            return int(about.get("storageQuota").get("limit"))-int(about.get('storageQuota').get('usage')), None
+            service, error = self.g_drive_service.get_service_by_app_name(app_name=app_name, g_service_name="v3/drive")
+            if error:
+                return None, error
+            fields = 'quotaBytesTotal,quotaBytesUsed'
+            about = service.about().get(fields="storageQuota").execute()
+            if not about.get("storageQuota").get("limit"):
+                return None,None
+            else:
+                return int(about.get("storageQuota").get("limit"))-int(about.get('storageQuota').get('usage')), None
+        except googleapiclient.errors.HttpError as ex:
+            try:
+                # info, error = self.g_drive_service.get_access_token_from_access_token(app_name,nocache=True)
+                service, error = self.g_drive_service.get_service_by_app_name(app_name=app_name, g_service_name="v3/drive",from_cache=False)
+                if error:
+                    return None, error
+                fields = 'quotaBytesTotal,quotaBytesUsed'
+                about = service.about().get(fields="storageQuota").execute()
+                if not about.get("storageQuota").get("limit"):
+                    return None, None
+                else:
+                    return int(about.get("storageQuota").get("limit")) - int(about.get('storageQuota').get('usage')), None
+            except googleapiclient.errors.HttpError as ex:
+                error = json.loads(ex.content.decode())
+                if error.get("error"):
+                    error=error.get("error")
+                return None,dict(Code=error.get("code"),Message=error.get("message"))
 
     def remove_upload(self, app_name, file_id)->typing.Tuple[bool,dict|None]:
         """

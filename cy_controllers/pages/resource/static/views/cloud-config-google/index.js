@@ -23,22 +23,50 @@ var googleConfig = await View(import.meta, class FilesView extends BaseScope {
         $(r).css({
             "max-height": $(document).height() - 100
         })
-
-
-        this.listOfApp = await api.post(`admin/apps`, {
-
-        })
-        this.appsMap = {}
-        for (var i = 0; i < this.listOfApp.length; i++) {
-            this.appsMap[this.listOfApp[i].Name.toLowerCase()] = this.listOfApp[i];
-        }
-        this.currentApp = this.listOfApp[0];
-        this.currentAppName = this.currentApp.Name;
-        this.filterByDocType = "AllTypes"
-        await this.doLoadAllFiles();
         this.$applyAsync();
+        this.data = {}
         debugger;
     }
+    async setInfoAsync(appName){
+    //https://docker.lacviet.vn/lvfile/api/lv-docs/cloud/google-settings/get
+        this.appName=appName
+        this.data = await api.post(`${this.appName}/cloud/google-settings/get`, {
+            Token: window.token
+        });
+        this.$applyAsync();
+    }
+    async getGoogleLoginConsentAsync() {
+    ///lvfile/api/{app_name}/cloud/google/get-login-url
+    //https://docker.lacviet.vn/lvfile/api/lv-docs/cloud/google/get-login-url
+        var url = await api.post(`${this.appName}/cloud/google/get-login-url`, {
 
+            scopes:[
+                 "gmail.send","drive"
+            ]
+
+        });
+        var windowName = "_blank";  // Name of the popup window
+        var windowFeatures = "width=600,height=400";  // Size and other features (optional)
+
+        window.open(url.Data, windowName, windowFeatures);
+
+    }
+    async doUpdateAndConsentAsync() {
+        await this.doUpdateAsync();
+        await this.getGoogleLoginConsentAsync();
+    }
+    async doUpdateAsync() {
+        await api.post(`${this.appName}/cloud/google-settings/update`, {
+            Token: window.token,
+            ClientId: this.data.ClientId,
+            ClientSecret: this.data.ClientSecret,
+            Email: this.data.Email,
+            AccessToken: this.data.AccessToken,
+            RefreshToken: this.data.RefreshToken
+
+        });
+
+        this.$applyAsync();
+    }
 });
 export default googleConfig;

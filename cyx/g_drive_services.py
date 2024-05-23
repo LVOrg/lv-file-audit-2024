@@ -45,6 +45,7 @@ class GoogleSettingsInfo:
     token_type: str
     client_secret: str
     email: str
+    client_id:str
 
 from cyx.cloud_cache_services import CloudCacheService
 class GDriveService:
@@ -74,12 +75,16 @@ class GDriveService:
 
         :return:
         """
-        client_id, client_secret, _, error = self.get_id_and_secret(app_name)
+        client_id, client_secret, _, error = self.get_id_and_secret(app_name,from_cache=False)
+        if client_id=="195042738785-dvqhu9vrm99d4c34umu7p1ggtm8f4csv.apps.googleusercontent.com":
+            print("OK")
+        if client_secret=="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":
+            print("OK")
         if error:
             return None, error
         redirect_uri = f'https://{request.url.hostname}/' + request.url.path.split('/')[
             1] + '/api/' + app_name + '/after-google-login'
-        full_scopes = [urllib.parse.quote_plus(f"https://www.googleapis.com/auth/{x}") for x in scopes]
+        full_scopes = [urllib.parse.quote_plus(f"https://www.googleapis.com/auth/{x}") for x in scopes]+["openid","email"]
         url_parse = [
             f"response_type=code",
             f"client_id={client_id}",
@@ -344,16 +349,16 @@ class GDriveService:
 
         threading.Thread(target=running).start()
 
-    def get_access_token_from_access_token(self, app_name) -> typing.Tuple[str | None, dict | None]:
+    def get_access_token_from_access_token(self, app_name, nocache=False) -> typing.Tuple[str | None, dict | None]:
         """
         get access token by using refresh token
         :param app_name:
         :return: access_token, erro
         """
-        info, error = self.get_settings(app_name)
+        info, error = self.get_settings(app_name,nocache)
         if error:
             return None, error
-        client_id, client_secret, _, error = self.get_id_and_secret(app_name)
+        client_id, client_secret, _, error = self.get_id_and_secret(app_name,from_cache=not nocache)
         if error:
             return None, error
         body = {
@@ -467,7 +472,7 @@ class GDriveService:
         # refresh_token = self.get_refresh_access_token(app_name)
         assert isinstance(g_service_name,str),"g_service_name must be str"
 
-        self.get_settings(app_name)
+        # self.get_settings(app_name,nocache=not from_cache)
         # token, error = self.get_access_token_from_refresh_token(app_name)
         token, error = self.get_access_token_from_refresh_token(app_name, from_cache)
         if isinstance(error, dict):
@@ -578,37 +583,74 @@ class GDriveService:
             status_code=response.status_code
         )
 
-    def get_settings(self, app_name) -> typing.Tuple[GoogleSettingsInfo | None, dict | None]:
+    def get_settings(self, app_name,nocache=False) -> typing.Tuple[GoogleSettingsInfo | None, dict | None]:
         key = f"{type(self).__module__}/{type(self).__name__}/get_settings/{app_name}"
-        ret = self.memcache_service.get_object(key, GoogleSettingsInfo)
-        if ret:
-            return ret, None
-        else:
-            """
-            refresh_token: str
-            access_token: str
-            expires_in: int
-            scope: str
-            token_type: str
-            """
-            ret = GoogleSettingsInfo()
-            data_item = Repository.apps.app("admin").context.aggregate().match(
-                Repository.apps.fields.Name == app_name
-            ).project(
-                cy_docs.fields.refresh_token >> Repository.apps.fields.AppOnCloud.Google.RefreshToken,
-                cy_docs.fields.access_token >> Repository.apps.fields.AppOnCloud.Google.AccessToken,
-                cy_docs.fields.expires_in >> Repository.apps.fields.AppOnCloud.Google.ExpiresIn,
-                cy_docs.fields.scope >> Repository.apps.fields.AppOnCloud.Google.Scope,
-                cy_docs.fields.token_type >> Repository.apps.fields.AppOnCloud.Google.TokenType,
-                cy_docs.fields.client_secret >> Repository.apps.fields.AppOnCloud.Google.ClientSecret,
-                cy_docs.fields.email >> Repository.apps.fields.AppOnCloud.Google.Email
+        if not nocache:
+            ret = self.memcache_service.get_object(key, GoogleSettingsInfo)
+            if ret:
+                return ret, None
+        ret = GoogleSettingsInfo()
+        data_item = Repository.apps.app("admin").context.aggregate().match(
+            Repository.apps.fields.Name == app_name
+        ).project(
+            cy_docs.fields.refresh_token >> Repository.apps.fields.AppOnCloud.Google.RefreshToken,
+            cy_docs.fields.access_token >> Repository.apps.fields.AppOnCloud.Google.AccessToken,
+            cy_docs.fields.expires_in >> Repository.apps.fields.AppOnCloud.Google.ExpiresIn,
+            cy_docs.fields.scope >> Repository.apps.fields.AppOnCloud.Google.Scope,
+            cy_docs.fields.token_type >> Repository.apps.fields.AppOnCloud.Google.TokenType,
+            cy_docs.fields.client_secret >> Repository.apps.fields.AppOnCloud.Google.ClientSecret,
+            cy_docs.fields.email >> Repository.apps.fields.AppOnCloud.Google.Email,
+            cy_docs.fields.client_id >> Repository.apps.fields.AppOnCloud.Google.ClientId,
 
-            ).first_item()
-            if not data_item:
-                return None, dict(Code="GoogleLinkIsNotReady", Message=f"Google did not bestow {app_name}")
-            elif data_item.get("client_secret") is None:
-                return None, dict(Code="GoogleLinkIsNotReady", Message=f"Google did not bestow {app_name}")
-            for k, v in data_item.items():
-                setattr(ret, k, v)
-            self.memcache_service.set_object(key, ret)
-            return ret, None
+        ).first_item()
+        if not data_item:
+            return None, dict(Code="GoogleLinkIsNotReady", Message=f"Google did not bestow {app_name}")
+        elif data_item.get("client_secret") is None:
+            return None, dict(Code="GoogleLinkIsNotReady", Message=f"Google did not bestow {app_name}")
+        for k, v in data_item.items():
+            setattr(ret, k, v)
+        self.memcache_service.set_object(key, ret)
+        return ret, None
+
+
+    def get_user_info(self,app_name:str):
+
+
+        token, error =self.get_refresh_access_token(app_name=app_name)
+        headers = {"Authorization": f"Bearer {token}"}
+        user_info_url = "https://openidconnect.googleapis.com/v1/userinfo"
+        res= requests.get(user_info_url, headers=headers)
+        info,error=self.get_settings(app_name)
+        if error:
+            return error
+        REFRESH_TOKEN = info.refresh_token
+        CLIENT_ID = info.client_id
+        CLIENT_SECRET = info.client_secret  # Keep this confidential!
+
+        # Step 1: Get a new access token
+        token_url = "https://oauth2.googleapis.com/token"
+        data = {
+            "grant_type": "refresh_token",
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "refresh_token": REFRESH_TOKEN
+        }
+
+        response = requests.post(token_url, data=data)
+
+        if response.status_code == 200:
+            access_token = response.json()["access_token"]
+
+            # Step 2: Access user info using the access token
+            user_info_url = "https://openidconnect.googleapis.com/userinfo/v2/me"  # Example endpoint
+            headers = {"Authorization": f"Bearer {info.access_token}"}
+
+            user_info_response = requests.get(user_info_url, headers=headers)
+
+            if user_info_response.status_code == 200:
+                user_info = user_info_response.json()
+                print(f"User Info: {user_info}")
+            else:
+                print(f"Error retrieving user info: {user_info_response.text}")
+        else:
+            print(f"Error getting access token: {response.text}")

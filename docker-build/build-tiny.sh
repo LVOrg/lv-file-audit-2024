@@ -50,6 +50,7 @@ ARG TARGETARCH
 ARG OS
 #COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 ENV PRODUCTION_BUILT_ON=\"$(date +"%Y-%m-%d %H:%M:%S")\"
+ENV BUILD_IMAGE_TAG=\"$web_api_core_tag_build\"
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es

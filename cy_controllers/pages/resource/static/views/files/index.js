@@ -205,9 +205,10 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
 
         var r = await import("../file-info/index.js");
         var viewer = await r.default();
-        await viewer.loadDetailInfo(this.currentAppName, item.UploadId)
+
         var win = await viewer.asWindow();
-        win.doMaximize()
+        win.doMaximize();
+        await viewer.loadDetailInfo(this.currentAppName, item.UploadId)
         console.log(win);
     }
     async doReadableContent(item) {
@@ -384,7 +385,7 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         var me=this;
         var r = await import("../cloud-config-google/index.js");
             var cloudConfigGoogle = await r.default();
-//            cloudConfigGoogle.setInfo(this.currentAppName,item,this);
+            await cloudConfigGoogle.setInfoAsync(this.currentAppName);
             var win = await cloudConfigGoogle.asWindow();
             win.doMaximize();
     }

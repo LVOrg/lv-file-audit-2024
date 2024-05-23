@@ -155,6 +155,7 @@ class BaseView {
         this.urlLocation = urlLocal;
         this.templateUrl = this.url + ".html";
 
+
         var urlId = URL.createObjectURL(new Blob([this.templateUrl]));
         var id = urlId.split('/')[urlId.split('/').length - 1];
         this.id = id;
@@ -173,8 +174,12 @@ class BaseView {
         catch(e){
 
         }
-        
+
         this.$i18n=this.__merege__(dataApp,dataPage);
+        if(window.buildVersion){
+            this.url=this.url+"?build-version="+window.buildVersion;
+            this.templateUrl=this.templateUrl+"?build-version="+window.buildVersion;
+        }
         this.$applyAsync();
         
 
@@ -387,12 +392,15 @@ class BaseView {
     }
 }
 function View(url, classView) {
+
+
      async function applyResolve(scope) {
         scope = scope || angular.element(document.body).scope().$root;
 
          var subScope = scope.$new(true);
          
         subScope = combine(subScope, classView)
+
         await subScope.setUrl(url);
         return subScope;
     };

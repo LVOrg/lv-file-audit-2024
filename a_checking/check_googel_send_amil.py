@@ -3,18 +3,19 @@ import base64
 import cy_kit
 from  cyx.g_drive_services import GDriveService
 g= cy_kit.singleton(GDriveService)
-def create_message(sender, to, subject, body):
-  """
-  Creates a dictionary representing the email message structure.
-  """
-  message = {
-      'raw': base64.urlsafe_b64encode(
-          f"From: {sender}\nTo: {to}\nSubject: {subject}\n\n{body}".encode('utf-8')
-      ).decode('utf-8')
-  }
-  return message
+g.get_user_info(app_name="lv-docs")
+# def create_message(sender, to, subject, body):
+#   """
+#   Creates a dictionary representing the email message structure.
+#   """
+#   message = {
+#       'raw': base64.urlsafe_b64encode(
+#           f"From: {sender}\nTo: {to}\nSubject: {subject}\n\n{body}".encode('utf-8')
+#       ).decode('utf-8')
+#   }
+#   return message
 
-service,error = g.get_service_by_app_name("lv-docs",g_service_name="v1/gmail")
+service,error = g.get_service_by_app_name("lv-docs",g_service_name="v1/userinfo")
 if error:
     print(error)
 def send_email(service, user_id, message):

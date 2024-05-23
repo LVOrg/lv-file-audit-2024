@@ -47,6 +47,20 @@ class GoogleController(BaseController):
               "</ul>"
               )
         code = self.request.query_params.get("code")
+        if not self.request.query_params or not code:
+            error_html = ("<p>It looks like you call this page without google consent login. The page will automatically "
+                    "summon after google consent login. </p>"
+                    "<ul>"
+                    f" <li>After do prover settings in tenant '{app_name}' </li>"
+                    "<li>Update the codx app will automatically redirect to this pag</li>"
+                    "</ul>"
+                    )
+            html_content = (f"<html>"
+                            f"  <body>"
+                            f"{error_html}"
+                            f"  </body>"
+                            f"</html>")
+            return Response(content=html_content, media_type="text/html")
         client_id,client_secret,_,error = self.g_drive_service.get_id_and_secret(app_name)
         if isinstance(error,dict):
             error_html=(f"<p>"
@@ -99,7 +113,19 @@ class GoogleController(BaseController):
         return code
 
     @controller.route.post(
-        "/api/{app_name}/cloud/google/get-login-url"
+        "/api/{app_name}/cloud/google/get-google-redirect-uri",
+        tags=["CLOUD-GOOGLE"]
+    )
+    def get_google_after_login_url(self,app_name):
+        url = self.g_drive_service.get_redirect_uri(
+            request=self.request,
+            app_name=app_name
+        )
+        return url
+
+    @controller.route.post(
+        "/api/{app_name}/cloud/google/get-login-url",
+        tags = ["CLOUD-GOOGLE"]
     )
     def cloud_google_get_login_url(self,
                                    app_name:str,

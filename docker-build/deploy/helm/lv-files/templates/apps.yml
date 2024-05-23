@@ -46,6 +46,8 @@ spec:
 
         - image:    {{ $value.image}}
           name: {{ $value.name }}
+          ports:
+            - containerPort: 80
           envFrom:
             - configMapRef:
                 name: lv-file
@@ -80,6 +82,7 @@ spec:
             - distribute_lock_server=distribute-lock-service.{{$value.namespace}}:2181
             - use_ssl=$(use_ssl)
         {{end}}
+
           volumeMounts:
             - name: tmp-files
               mountPath: /tmp-files

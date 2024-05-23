@@ -29,6 +29,8 @@ class GoogleAuthCredentials(BaseModel):
   ClientId: str
   ClientSecret: str
   Email:str
+  AccessToken:typing.Optional[str]
+  RefreshToken:typing.Optional[str]
 from fastapi import Body
 from cyx.repository import Repository
 @controller.resource()
@@ -64,15 +66,30 @@ class GoogleSettingsController(BaseController):
         try:
             redirect_uri = f'https://{self.request.url.hostname}/' + self.request.url.path.split('/')[
                 1] + '/api/' + app_name + '/after-google-login'
-            Repository.apps.app('admin').context.update(
-                Repository.apps.fields.Name==app_name,
-                Repository.apps.fields.AppOnCloud.Google<< dict(
-                    ClientId=settings.ClientId,
-                    ClientSecret=settings.ClientSecret,
-                    RedirectUri=redirect_uri,
-                    Email = settings.Email
+            print(settings.RefreshToken)
+            if settings.AccessToken:
+                Repository.apps.app('admin').context.update(
+                    Repository.apps.fields.Name==app_name,
+                    Repository.apps.fields.AppOnCloud.Google<< dict(
+                        ClientId=settings.ClientId,
+                        ClientSecret=settings.ClientSecret,
+                        RedirectUri=redirect_uri,
+                        Email = settings.Email,
+                        AccessToken= settings.AccessToken,
+                        RefreshToken = settings.RefreshToken
+                    )
                 )
-            )
+            else:
+                Repository.apps.app('admin').context.update(
+                    Repository.apps.fields.Name == app_name,
+                    Repository.apps.fields.AppOnCloud.Google << dict(
+                        ClientId=settings.ClientId,
+                        ClientSecret=settings.ClientSecret,
+                        RedirectUri=redirect_uri,
+                        Email=settings.Email
+                    )
+                )
+
 
             return dict(
                 ok=True
@@ -86,7 +103,8 @@ class GoogleSettingsController(BaseController):
             )
 
     @controller.route.post(
-        "/api/{app_name}/cloud/google-settings/get", summary="Update settings for google drive"
+        "/api/{app_name}/cloud/google-settings/get", summary="Update settings for google drive",
+        tags=["CLOUD-GOOGLE"]
     )
     def google_drive_settings_get(self, app_name: str):
         ret = Repository.apps.app('admin').context.aggregate().match(
@@ -94,10 +112,10 @@ class GoogleSettingsController(BaseController):
         ).project(
             cy_docs.fields.ClientId>>Repository.apps.fields.AppOnCloud.Google.ClientId,
             cy_docs.fields.ClientSecret>>Repository.apps.fields.AppOnCloud.Google.ClientSecret,
-            cy_docs.fields.Email >> Repository.apps.fields.Email
-        )
-        ret=list(ret)
-        if len(ret)>0:
-            return ret[0]
-        return None
+            cy_docs.fields.Email >> Repository.apps.fields.AppOnCloud.Google.Email,
+            cy_docs.fields.AccessToken >> Repository.apps.fields.AppOnCloud.Google.AccessToken,
+            cy_docs.fields.RefreshToken>> Repository.apps.fields.AppOnCloud.Google.RefreshToken,
+            cy_docs.fields.RedirectUri >> Repository.apps.fields.AppOnCloud.Google.RedirectUri
+        ).first_item()
+        return ret
 
