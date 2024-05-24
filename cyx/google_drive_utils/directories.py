@@ -465,7 +465,7 @@ class GoogleDirectoryService:
                 all_folders.remove(x)
         totals = len(all_folders)
         if totals == 0:
-            return None, None
+            return {}, {}, None
         cal_folders = []
 
         def get_tree(folders_list, root_folder, parent_path: str = None):

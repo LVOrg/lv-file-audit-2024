@@ -75,6 +75,9 @@
       <excludeFolder url="file://$MODULE_DIR$/env-img" />
       <excludeFolder url="file://$MODULE_DIR$/env-img-process" />
       <excludeFolder url="file://$MODULE_DIR$/venv-google" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-remote-office" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-remote-office-38" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-remote-office-39" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (cy-py)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

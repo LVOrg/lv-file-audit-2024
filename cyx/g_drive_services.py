@@ -382,7 +382,7 @@ class GDriveService:
         :return: access_token, erro
         """
         access_token = None
-        key = f"{type(self).__module__}/{type(self).__name__}/get_access_token_from_refresh_token"
+        key = f"{type(self).__module__}/{type(self).__name__}/{app_name}/get_access_token_from_refresh_token"
         if from_cache:
             data = self.memcache_service.get_dict(key)
             if isinstance(data, dict):

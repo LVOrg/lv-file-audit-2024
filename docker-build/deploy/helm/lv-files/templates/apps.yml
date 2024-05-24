@@ -59,8 +59,12 @@ spec:
             - process_services_host=http://localhost
             - bind=0.0.0.0:80
             - content_segment_len=9
+            {{ if eq (toString $value.isUseES) "false" }}
+            - elastic_search=false
+            {{else}}
             - elastic_search.server=$(elastic_search.server)
             - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            {{end}}
             - db=$(db)
             - admin_db_name=$(admin_db_name)
             - rabbitmq.server=$(rabbitmq.server)

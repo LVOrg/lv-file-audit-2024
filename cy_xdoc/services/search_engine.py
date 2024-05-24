@@ -52,6 +52,8 @@ class SearchEngine:
                  # vn=cy_kit.singleton(VnSegmenterService),
                  # vn_predictor=cy_kit.singleton(cyx.vn_predictor.VnPredictor),
                  logger=cy_kit.singleton(LoggerService)):
+        if isinstance(cyx.common.config.elastic_search,bool):
+            return
         self.logger = logger
         self.config = cyx.common.config
         self.client = elasticsearch.Elasticsearch(

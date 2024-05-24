@@ -1,6 +1,6 @@
 import datetime
 import gc
-
+from cyx.common import config
 from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
@@ -190,6 +190,8 @@ class FilesUploadController(BaseController):
         """
         try:
             def update_search_engine_content():
+                if isinstance(config.elastic_search, bool):
+                    return
 
                 self.file_service.search_engine.update_content(
                     app_name=app_name,

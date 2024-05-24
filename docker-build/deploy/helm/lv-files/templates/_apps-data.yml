@@ -11,6 +11,7 @@ apps:
       namespace: {{ .values.namespace}}
       customer:  {{ .values.customer}}
       replicas: {{$appConfig.replicas}}
+      isUseES: {{$valuesObject.search}}
       entrypoint:
         - python3
         - /app/cy_xdoc/server.py
@@ -59,6 +60,7 @@ apps:
       image:  {{$valuesObject.repository}}/{{ $imagesObject.main }}-{{$valuesObject.customer}}:{{$valuesObject.imageTag}}
       namespace: {{ $valuesObject.namespace }}
       replicas: {{$app.replicas}}
+      isUseES: {{$valuesObject.search}}
       entrypoint:
         {{- range $km,$e := $app.entrypoint }}
         - {{$e}}

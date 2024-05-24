@@ -7,8 +7,12 @@ metadata:
 data:
   admin_db_name: {{ .Values.db.manage }}
   db: {{urlquery  .Values.db.mongodb }}
+  {{ if eq (toString .Values.search) "false" }}
+  elastic_search: 'false'
+  {{else}}
   elastic_search.prefix_index: '{{.Values.search.prefix_index}}'
   elastic_search.server: '{{.Values.search.server}}'
+  {{end}}
   rabbitmq.port: '{{ .Values.rabbit.port }}'
   rabbitmq.server: '{{ .Values.rabbit.server }}'
   rabbitmq.msg: '{{ .Values.rabbit.prefixMsg }}'

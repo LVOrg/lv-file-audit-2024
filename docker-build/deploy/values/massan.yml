@@ -1,9 +1,9 @@
 appConfig:
+  replicas: 3
   host:
     name: "eoffice-uat.masanappslab.com"
     path: lvfile
     protocol: https
-  replicas: 4
   ingress:
 db:
   mongodb: "mongodb://admin:Masan#123@10.10.59.112:27017"
@@ -14,15 +14,9 @@ rabbit:
   username: 'codx'
   password: 'Masan#123'
 replicas: 1
-search:
-  server: "codx-es-http.elastic-search.svc.cluster.local:9200"
+search: false
 storage:
   directory: "/share/xdoc/temp"
   name: storage-files
   server: "10.10.59.112"
-processMsg: ["re-do-all","content","image","index","google-file-sync"]
-
-customer: "massan"
-imageTag: "latest"
-repository: "docker.lacviet.vn/xdoc"
-debugLibs: []
+processMsg: ["image","index","google-file-sync"]
