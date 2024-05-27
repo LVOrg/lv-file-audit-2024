@@ -61,51 +61,59 @@ class FilesContentController(BaseController):
         is_file_not_found = False
         file_path = await self.thumb_service.get_async(app_name,directory,700)
         if file_path is not None:
-            image_file_path = self.local_file_caching_service.cache_file(
-                file_path
-            )
-            mt, _ = mimetypes.guess_type(image_file_path)
-            return FileResponse(image_file_path)
-
-        if file_path is not None:
-            mt,_ = mimetypes.guess_type(file_path)
-            return  FileResponse(path= file_path,media_type=mt)
-        try:
-
-            thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
-            cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
-            if cache_thumb_path and os.path.isfile(cache_thumb_path):
-                return FileResponse(cache_thumb_path)
-
-            upload_id = directory.split('/')[0]
-            fs = await self.file_service.get_main_main_thumb_file_async(app_name, upload_id)
-            print(fs)
 
 
-            if fs is None:
-                return Response(
-                    status_code=404
-                )
-            import inspect
-            if inspect.iscoroutinefunction(fs.read):
-                content = await fs.read(fs.get_size())
-            else:
-                content = fs.read(fs.get_size())
-            fs.seek(0)
-            cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
-            del content
-            mime_type, _ = mimetypes.guess_type(directory)
-            ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+            ret = await cy_web.cy_web_x.streaming_async(file_path, self.request, "image/webp")
             return ret
-        except gridfs.errors.NoFile as e:
-            is_file_not_found = True
+            # image_file_path = self.local_file_caching_service.cache_file(
+            #     file_path
+            # )
+            # mt, _ = mimetypes.guess_type(image_file_path)
+            # return FileResponse(image_file_path)
+        else:
+            return Response(
+                        status_code=404
+                    )
 
-        except FileNotFoundError as e:
-            is_file_not_found = True
-        if is_file_not_found:
-
-            response = Response(content="Resource not found", status_code=404)
-            return response
+        # if file_path is not None:
+        #     mt,_ = mimetypes.guess_type(file_path)
+        #     return  FileResponse(path= file_path,media_type=mt)
+        # try:
+        #
+        #     thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
+        #     cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
+        #     if cache_thumb_path and os.path.isfile(cache_thumb_path):
+        #         return FileResponse(cache_thumb_path)
+        #
+        #     upload_id = directory.split('/')[0]
+        #     fs = await self.file_service.get_main_main_thumb_file_async(app_name, upload_id)
+        #     print(fs)
+        #
+        #
+        #     if fs is None:
+        #         return Response(
+        #             status_code=404
+        #         )
+        #     import inspect
+        #     if inspect.iscoroutinefunction(fs.read):
+        #         content = await fs.read(fs.get_size())
+        #     else:
+        #         content = fs.read(fs.get_size())
+        #     fs.seek(0)
+        #     cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
+        #     del content
+        #     mime_type, _ = mimetypes.guess_type(directory)
+        #     ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+        #     return ret
+        # except gridfs.errors.NoFile as e:
+        #     is_file_not_found = True
+        #
+        # except FileNotFoundError as e:
+        #     is_file_not_found = True
+        # if is_file_not_found:
+        #
+        #     response = Response(content="Resource not found", status_code=404)
+        #     return response
 
     def get_full_path_of_local_from_cache(self, upload):
         key = f"{self.config.file_storage_path}/{__file__}/{type(self).__name__}/get_full_path_of_local_from_cache/{upload.id}"

@@ -15,13 +15,14 @@ from cyx.runtime_config_services import RuntimeConfigService
 runtime_config_service = cy_kit.singleton(RuntimeConfigService)
 runtime_config_service.load(sys.argv)
 skip_checking = os.getenv("BUILD_IMAGE_TAG") is None
-if not skip_checking:
-    import cyx.check_start_up
+
 import cyx.framewwork_configs
 
 
 import cyx.common
 from cyx.common import config
+if not skip_checking or (hasattr(config,"check_startup") and config.check_startup):
+    import cyx.check_start_up
 # if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
 import cy_file_cryptor.wrappers
 from PIL import Image

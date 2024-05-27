@@ -198,7 +198,7 @@ class FileServices:
         except gridfs.errors.NoFile as e:
             return None
 
-    async def get_main_main_thumb_file_async(self, app_name: str, upload_id: str):
+    async def get_main_main_thumb_file_async_delete(self, app_name: str, upload_id: str):
         doc_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         upload = await doc_context.context.find_one_async(
             doc_context.fields.id == upload_id

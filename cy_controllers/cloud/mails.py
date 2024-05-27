@@ -33,11 +33,14 @@ class CloudMailController(BaseController):
     dependencies = [
         Depends(Authenticate)
     ]
+    # dependencies = [
+    #     Depends(Authenticate)
+    # ]
     @controller.router.post(
         path="/api/{app_name}/cloud/mail/send",
         tags = ["CLOUD"]
     )
-    def cloud_mail_send(self,
+    async def cloud_mail_send_async(self,
                         app_name:str,
                         cloud_name:str = Body(embed=True,description="value must be 'Google','Azure' or 'AWS'"),
                         recipient_emails:str=Body(embed=True,description="list of email to send, seperated by '.'"),
@@ -45,11 +48,15 @@ class CloudMailController(BaseController):
                         subject:str=Body(embed=True),
                         body:str=Body(embed=True),
                         files:  list[UploadFile] = File(...),
+                        uploadIds:typing.Optional[str]=Body(default=None,description="Attachmnet by uploadId. "
+                                                                                             "Given text seperated by"
+                                                                                             " comma"),
                         calender: typing.Optional[UploadFile]= File(None)):
         """
+        :param uploadIds: text with separated by comma
         :param app_name:
         :param cloud_name: value must be 'Google','Azure' or 'AWS'
-        :param recipient_email:
+        :param recipient_email: Separated by comma Ex: user1@mail-server.com, user2@mail-server.com,...
         :param subject:
         :param body:
         :param files:
@@ -87,7 +94,7 @@ class CloudMailController(BaseController):
             app_name=app_name,
             cloud_name=cloud_name,
             recipient_emails=recipient_emails,
-            cc=cc.split(','),
+            cc=(cc or "").split(','),
             subject=subject,
             body = body,
             files = files,

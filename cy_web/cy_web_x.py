@@ -1233,6 +1233,8 @@ def get_jwt_algorithm():
 import starlette.requests
 
 
+
+
 def validate_token_in_request(self, request):
     token = None
     if (hasattr(request,"cookies")
@@ -1281,7 +1283,7 @@ def validate_token_in_request(self, request):
                 detail="Not authenticated",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    except jose.exceptions.JWTError:
+    except jose.exceptions.JWTError as ex:
         raise HTTPException(
             status_code=401,
             detail="Not authenticated",
@@ -1642,7 +1644,15 @@ async def streaming_async(fsg, request, content_type, streaming_buffering=1024 *
     :param streaming_buffering: support 4k
     :return:
     """
-    file_size = fsg.get_size()
+    if isinstance(fsg,str):
+        if os.path.isfile(fsg):
+            file_size = os.stat(fsg).st_size
+            content_type,_ = mimetypes.guess_type(fsg)
+            fsg = open(fsg, "rb")
+        else:
+            raise FileNotFoundError("File was not found")
+    else:
+        file_size = fsg.get_size()
 
     range_header = request.headers.get("range")
     headers = {

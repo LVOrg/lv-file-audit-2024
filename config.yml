@@ -98,6 +98,7 @@ jwt:
   secret_key: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
   algorithm: HS256
   access_token_expire_minutes: 480
+  secret_user: 01f31140-b790-4855-93d8-45155bfa2660
 #tmp_upload_dir: ./tmp
 elastic_search__:
   server:
@@ -197,7 +198,7 @@ file_storage_encrypt: true
 dataset_path: "/mnt/files/dataset"
 server_thumb_office: "http://172.16.7.99:31792"
 server_thumb_office_: "http://0.0.0.0:8014"
-private_web_api: http://172.16.7.99/lvfile
+private_web_api: http://localhost:8012/lvfile
 #private_web_api: http://172.16.13.72:8012/lvfile
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/tmp /home/vmadmin/python/cy-py/share-storage
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/from-192-168-18-36/files
@@ -248,6 +249,8 @@ clouds_support:
   - Google
   - Azure
   - WAS
+check_startup: true
+remote_office: http://localhost:8081
 
 
 

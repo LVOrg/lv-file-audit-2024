@@ -17,22 +17,26 @@ class LocalAPIService:
         self.cache = {}
         self.private_web_api = config.private_web_api
 
-    def get_access_token(self, username: str, password: str) -> str:
-        if isinstance(self.cache.get(f"{username}/{password}"), str):
-            return self.cache.get(f"{username}/{password}")
-        else:
-            url = f"{self.private_web_api}/api/accounts/token"
-            data = {"username": username, "password": password}  # Replace with your form data
+    def create_access_token(self):
+        from jose import JWTError, jwt
+        """
+        jwt:
+          secret_key: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+          algorithm: HS256
+          access_token_expire_minutes: 480
+        """
+        jwt_secret_key= config.jwt.secret_key
+        algorithm = config.jwt.algorithm
+        username=config.jwt.secret_user
+        payload = {
+            "audience": username
+        }
 
-            # Send a POST request with form data
-            response = requests.post(url, data=data)
-            if response.status_code == 200:
-                ret_data = json.loads(response.content.decode())
-                if isinstance(ret_data.get("access_token"), str):
-                    self.cache[f"{username}/{password}"] = ret_data.get("access_token")
-                return self.cache.get(f"{username}/{password}")
-            else:
-                return None
+        encoded_token = jwt.encode(payload, jwt_secret_key, algorithm=algorithm)
+        return encoded_token
+    def get_access_token(self, username: str, password: str) -> str:
+        return self.create_access_token()
+
 
     def generate_local_share_id(self, app_name: str, upload_id: str) -> str:
         context = Repository.doc_local_share_info.app(

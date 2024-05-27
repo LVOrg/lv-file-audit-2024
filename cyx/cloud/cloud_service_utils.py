@@ -58,16 +58,17 @@ class CloudServiceUtils:
 
         )
 
-    def get_cloud_name_of_upload(self, app_name: str, upload_id) -> typing.Tuple[str | None, dict | None]:
+    def get_cloud_name_of_upload(self, upload_item=None, app_name: str=None, upload_id=None) -> typing.Tuple[str | None, dict | None]:
         """
         Detect location of  resource is 'Google' ,"Azure' or 'AWS'
         :param app_name:
         :param upload_id:
         :return:
         """
-        upload_item = Repository.files.app(app_name).context.find_one(
-            Repository.files.fields.Id == upload_id
-        )
+        if upload_item is None:
+            upload_item = Repository.files.app(app_name).context.find_one(
+                Repository.files.fields.Id == upload_id
+            )
         if upload_item is None:
             return None, dict(
                 Code="ItemWasNotFound",

@@ -1,6 +1,7 @@
 import sys
 import pathlib
 import traceback
+import typing
 import uuid
 import hashlib
 import urllib.request
@@ -10,11 +11,13 @@ import os.path
 from tqdm import tqdm
 from fastapi import FastAPI, Body
 import tempfile
-temp_path = os.path.join(pathlib.Path(__file__).parent.__str__(),"tmp-upload")
+
 temp_processing_file = os.path.join("/mnt/files","__lv-files-tmp__")
+temp_path = os.path.join(temp_processing_file,"tmp-upload")
 os.makedirs(temp_processing_file,exist_ok=True)
 os.makedirs(temp_path,exist_ok=True)
 tempfile.tempdir = temp_path
+from remote_server_libs.utils import download_file
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, HTTPException
 __memcache_server__ = "localhost:11211"
@@ -61,49 +64,64 @@ async def image_from_office(officeFile: UploadFile = File(...) ):
         # "width": resized_img.width,
         # "height": resized_img.height,
     }
+@app.get("/hz")
+async def hz():
+    return "OK"
 @app.post("/image-from-office-from-share-file")
 async def image_from_office_from_share_file(
-        location:str=Body(embed=True)
+        local_file:typing.Optional[str]=Body(embed=True,default=None),
+        remote_file:typing.Optional[str]=Body(embed=True,default=None),
+        memcache_server:str=Body(embed=True)
+
 
 ):
-    hash_object = hashlib.sha256(location.encode())
-    load_file_name = hash_object.hexdigest()
+    import cy_file_cryptor.context
+    cy_file_cryptor.context.set_server_cache(memcache_server)
     dir_of_file = temp_processing_file
-    file_name = f"{load_file_name}{pathlib.Path(location).suffix}"
-    if location.startswith("http://") or location.startswith("https://"):
-        with urllib.request.urlopen(location) as response:
-            if response.status>=200 and response.status<300:
-                  with open(file_name, 'wb') as f:
-                      f.write(response.read())
-            else:
-                return dict(error=dict(code="FileNotFound", message=f"{location} was not found"))
-    elif not os.path.isfile(location):
-        return dict(error=dict(code="FileNotFound",message=f"{location} was not found"))
+    process_file = None
+    if isinstance(local_file,str):
+        if os.path.isfile(local_file):
+            hash_object = hashlib.sha256(local_file.encode())
+            load_file_name = hash_object.hexdigest()
+
+            process_file = f"{load_file_name}{pathlib.Path(local_file).suffix}"
+            with open(process_file,"wb") as fw:
+                with open(local_file,"rb") as fr:
+                    data = fr.read(1024*1024)
+                    while data:
+                        fw.write(data)
+                        del data
+                        data = fr.read(1024 * 1024)
 
 
-    os.makedirs(dir_of_file,exist_ok=True)
-    true_file = os.path.join(dir_of_file,file_name)
-    with open(true_file,"wb") as fs_to:
-        with open(location,"rb") as fs:
-            data = fs.read(1020**2)
-            while data:
-                fs_to.write(data)
-                del data
-                data = fs.read(1020 ** 2)
-
+    if process_file is None:
+        if remote_file.startswith("http://") or remote_file.startswith("https://"):
+            hash_object = hashlib.sha256(remote_file.encode())
+            load_file_name = hash_object.hexdigest()
+            process_file = f"{load_file_name}{pathlib.Path(local_file).suffix}"
+            process_file, error =download_file.download_file_with_progress(
+                url=remote_file, filename=process_file
+            )
+            if error:
+                return error
+    if process_file is None:
+        return dict(code="FileNotFound",message="File was not found")
     command = ["/usr/bin/soffice",
                "--headless",
                "--convert-to",
                "png", "--outdir",
                f"{dir_of_file}",
-               f"{true_file}"]
+               f"{process_file}"]
     txt_command = " ".join(command)
     libs.execute_command_with_polling(txt_command)
-    ret_file = os.path.join(dir_of_file,load_file_name)+".png"
+    process_file_name = pathlib.Path(process_file).stem
+
+    ret_file = os.path.join(dir_of_file,process_file_name)+".png"
     if os.path.isfile(ret_file):
-        return dict(image_filr=ret_file, content_file=true_file )
+        os.remove(process_file)
+        return dict(image_file=ret_file, content_file=process_file )
     else:
-        return dict(error=dict(code="CanNotRender",message=f"{location} can not render"))
+        return dict(error=dict(code="CanNotRender",message=f"{local_file} or {remote_file} can not render"))
 
 if __name__ == "__main__":
     port = 8001

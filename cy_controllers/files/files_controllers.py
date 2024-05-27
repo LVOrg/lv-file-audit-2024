@@ -1,6 +1,7 @@
 import datetime
 import gc
 import os
+import pathlib
 import typing
 import uuid
 
@@ -38,6 +39,7 @@ from fastapi.requests import Request
 import traceback
 import humanize
 from cyx.repository import Repository
+
 router = APIRouter()
 controller = Controller(router)
 import threading
@@ -76,7 +78,7 @@ class FilesController(BaseController):
         Depends(Authenticate)
     ]
 
-    @controller.router.post("/api/{app_name}/files/mark_delete",tags=["FILES"])
+    @controller.router.post("/api/{app_name}/files/mark_delete", tags=["FILES"])
     async def mark_delete(self, app_name: str, UploadId: typing.Optional[str] = Body(...),
                           IsDelete: typing.Optional[bool] = Body(...)):
         """
@@ -108,7 +110,7 @@ class FilesController(BaseController):
         # search_engine.get_client().delete(index=fasty.configuration.search_engine.index, id=es_id)
         return dict()
 
-    @controller.router.post("/api/{app_name}/files",tags=["FILES"])
+    @controller.router.post("/api/{app_name}/files", tags=["FILES"])
     async def get_list(
             self,
             app_name: str,
@@ -136,7 +138,7 @@ class FilesController(BaseController):
             self.logger_service.error(e)
             return []
 
-    @controller.router.post("/api/admin/files/move_tenant",tags=["FILES"])
+    @controller.router.post("/api/admin/files/move_tenant", tags=["FILES"])
     def move_tenant(self, data: typing.Optional[DataMoveTanentParam] = Body(...)):
         Data = data.Data
         if not self.app_service.get_item(
@@ -184,7 +186,7 @@ class FilesController(BaseController):
         )
         return obsever_id
 
-    @controller.router.post("/api/{app_name}/files/clone",tags=["FILES"])
+    @controller.router.post("/api/{app_name}/files/clone", tags=["FILES"])
     def clone_to_new(self,
                      app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> CloneFileResult:
@@ -209,31 +211,56 @@ class FilesController(BaseController):
                 Info=item.to_json_convertable()
             )
 
-    @controller.router.post("/api/{app_name}/files/delete",tags=["FILES"])
+    @controller.router.post("/api/{app_name}/files/delete", tags=["FILES"])
     def files_delete(self, app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> controller_model_files.DeleteFileResult:
+
+        upload_item = Repository.files.app(app_name).context.find_one(
+            Repository.files.fields.Id == UploadId
+        )
+        server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
+            upload_item=upload_item,
+            app_name=app_name
+        )
+        abs_file=os.path.join("/mnt/files",rel_file_path)
+        abs_dir = pathlib.Path(abs_file).parent.__str__()
+
+        import shutil
         try:
-            cloud_name,error = self.cloud_service_utils.get_cloud_name_of_upload(app_name=app_name,upload_id=UploadId)
+            shutil.rmtree(abs_dir)
+            print(f"Directory '{abs_dir}' deleted successfully.")
+        except OSError as e:
+            print(f"Error deleting directory '{abs_dir}': {e}")
+        if upload_item is None:
+            ret = controller_model_files.DeleteFileResult()
+            ret.AffectedCount = 0
+            return ret
+        try:
+            cloud_name, error = self.cloud_service_utils.get_cloud_name_of_upload(upload_item=upload_item)
             if error:
                 ret = controller_model_files.DeleteFileResult()
                 ret.Error = ErrorInfo()
                 ret.Error.Code = error.get("Code")
                 ret.Error.Message = error.get("Message")
                 return ret
-            if cloud_name!="local":
-                ret,error = self.cloud_service_utils.drive_service.remove_upload(app_name=app_name,upload_id=UploadId,cloud_name=cloud_name)
-            affected_count =self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
+            if cloud_name != "local":
+                ret, error = self.cloud_service_utils.drive_service.remove_upload(app_name=app_name, upload_id=UploadId,
+                                                                                  cloud_name=cloud_name)
+            affected_count = self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
             ret = controller_model_files.DeleteFileResult()
-            ret.AffectedCount =affected_count
+            ret.AffectedCount = affected_count
+            Repository.files.app(app_name).context.delete(
+                Repository.files.fields.Id == UploadId
+            )
             return ret
         except Exception as e:
             ret = controller_model_files.DeleteFileResult()
-            ret.Error=ErrorInfo()
-            ret.Error.Code="system"
-            ret.Error.Message= repr(e)
+            ret.Error = ErrorInfo()
+            ret.Error.Code = "system"
+            ret.Error.Message = repr(e)
             return ret
 
-    @controller.router.post("/api/{app_name}/content/save",tags=["FILES"])
+    @controller.router.post("/api/{app_name}/content/save", tags=["FILES"])
     def file_content_save(
             self,
             app_name: str,
@@ -307,7 +334,7 @@ class FilesController(BaseController):
         import cy_docs
         return data_item.to_json_convertable() if isinstance(data_item, cy_docs.DocumentObject) else data_item
 
-    @controller.router.post("/api/{app_name}/files/content-re-process",tags=["FILES"])
+    @controller.router.post("/api/{app_name}/files/content-re-process", tags=["FILES"])
     def file_content_re_process(
             self,
             app_name: str,
@@ -342,5 +369,3 @@ class FilesController(BaseController):
                 }]
 
         return ret
-
-
