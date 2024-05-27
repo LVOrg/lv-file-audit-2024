@@ -103,12 +103,6 @@ class ThumbService:
                     ret = self.do_scale_size(file_path=f"{abs_file_path}.png", size=size)
                     self.memcache_services.set_str(key, ret)
                     return ret
-
-
-
-                print(data)
-
-            print(file_type)
         # print(folder_dir)
         # if os.path.isfile(abs_file_path):
         #     print(abs_file_path)
