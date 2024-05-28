@@ -250,9 +250,9 @@ clouds_support:
   - Azure
   - WAS
 check_startup: true
-remote_office: http://172.16.13.72:8084
-remote_pdf: http://172.16.13.72:8085
-remote_video: http://172.16.13.72:8086
+remote_office: http://172.16.7.99:32206
+remote_pdf: http://172.16.7.99:32206
+remote_video: http://172.16.7.99:32206
 private_web_api: http://172.16.13.72:8012/lvfile
 
 

@@ -24,3 +24,5 @@ rabbit:
 customer: "saas"
 imageTag: "latest"
 repository: "docker.lacviet.vn/xdoc"
+processMsg_: ["re-do-all","content","image","index","google-file-sync","google-folder-sync","onedrive-file-sync"]
+processMsg: []

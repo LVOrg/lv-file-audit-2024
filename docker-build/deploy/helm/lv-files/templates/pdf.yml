@@ -1,0 +1,52 @@
+{{- $appName := "lv-pdf" }}
+{{- $image :="nttlong/lv-pdf:1"}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$appName}}
+  namespace: {{ .Values.namespace}}
+spec:
+  selector:
+    matchLabels:
+      app:  {{$appName}}
+  replicas: {{.Values.libReplicas}}
+  template:
+    metadata:
+      labels:
+        app: {{$appName}}
+    spec:
+      volumes:
+        - name: {{.Values.storage.name}}
+          nfs:
+            server: {{.Values.storage.server}}
+            path: {{.Values.storage.directory}}
+      containers:
+
+        - image: {{$image}}
+          name: {{$appName}}
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file
+          args: ["80"]
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{$appName}}-service
+  namespace:  {{ .Values.namespace}}
+  labels:
+    app: {{$appName}}-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+  selector:
+    app: {{$appName}}

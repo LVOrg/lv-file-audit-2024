@@ -80,7 +80,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv-remote-office-39" />
       <excludeFolder url="file://$MODULE_DIR$/venv-remote-pdf" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py) (5)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (cy-py)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

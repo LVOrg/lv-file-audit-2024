@@ -41,17 +41,6 @@ apps:
         name: {{ .values.storage.name}}
         server: {{ .values.storage.server}}
         directory: {{ .values.storage.directory}}
-      libs:
-        - name: pdf
-          image: {{ .images.pdf }}
-        - name: thumb
-          image: {{ .images.thumb }}
-        - name: video
-          image: {{ .images.video}}
-        - name: office
-          image: {{.images.office }}
-        - name: tika
-          image: {{ $imagesObject.tika }}
     {{- range $key, $value := .values.processMsg }}
     {{- $app:= (index $processesMsgConfig $value) }}
     {{ if $app }}

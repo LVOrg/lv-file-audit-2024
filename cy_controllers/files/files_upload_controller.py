@@ -255,25 +255,7 @@ class FilesUploadController(BaseController):
                 app_name=app_name,
                 upload_id=UploadId
             )
-            # if upload_item.StorageType == "onedrive":
-            #     from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
-            #     try:
-            #         res_upload = self.fucking_azure_onedrive_service.upload_content(
-            #             session_url=upload_item.OnedriveSessionUrl,
-            #             content=content_part,
-            #             chunk_size=upload_item.ChunkSizeInBytes,
-            #             file_size=upload_item.SizeInBytes,
-            #             chunk_index=Index
-            #         )
-            #         print(res_upload)
-            #     except FuckingWhoreMSApiCallException as e:
-            #         ret_error = UploadFilesChunkInfoResult()
-            #         ret_error.Error = ErrorResult(
-            #             Code=e.code,
-            #             Message=e.message,
-            #             Fields=["Error from microsoft onedrive"]
-            #         )
-            #         return ret_error
+
 
             if upload_item is None:
                 del FilePart
@@ -411,9 +393,6 @@ class FilesUploadController(BaseController):
                     "s3":"AWS"
                 }
                 if map.get(upload_item.StorageType):
-
-
-
                     self.cloud_service_utils.do_sync_data(
                         app_name=app_name,
                         cloud_name=map.get(upload_item.StorageType),

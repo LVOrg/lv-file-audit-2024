@@ -130,14 +130,14 @@ async def estimate_time(request: fastapi.Request, next):
             res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
             return res
         res = await apply_time(res)
-    # except Exception as ex:
-    #     print(traceback.format_exc())
-    #
-    #     from  fastapi.responses import HTMLResponse
-    #     return HTMLResponse(
-    #         content=traceback.format_exc(),
-    #         status_code=500
-    #     )
+    except Exception as ex:
+        print(traceback.format_exc())
+
+        from  fastapi.responses import HTMLResponse
+        return HTMLResponse(
+            content=traceback.format_exc(),
+            status_code=500
+        )
     except FileNotFoundError as e:
         image_tag:str = os.getenv("BUILD_IMAGE_TAG") or "-qc"
         if image_tag.endswith("-qc"):
