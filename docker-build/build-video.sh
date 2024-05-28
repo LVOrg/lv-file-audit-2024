@@ -49,9 +49,10 @@ echo "
 FROM $job_core_image
 ARG TARGETARCH
 ARG OS
-COPY ./../cy-commands /cmd
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 RUN apt clean && apt autoclean
-ENTRYPOINT [\"python3\",\"/cmd/video.py\"]
+ENTRYPOINT [\"/remote_server_libs/video.sh\"]
 ">>$job_slim_file
 video_tag=1
 if [ -z "$3" ]; then
@@ -61,7 +62,8 @@ else
   # Argument provided, use it as the repository
   video_tag_build=$3
 fi
-
+video_tag_build=$job_core_tag.1
 video_image=$repository/$image_name:$video_tag_build
-buildFunc $job_slim_file $repository "lv-video-$customer" $video_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
+buildFunc $job_slim_file $repository "lv-video" $video_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
 echo "docker run  -p 1111:1111  -v /socat-share:/socat-share  $repository/fs:$video_tag_build"
+#docker run -it -p 8001:8001  --entrypoint /bin/bash -v /home/vmadmin/python/cy-py/cy_file_cryptor:/remote_server_libs/cy_file_cryptor  -v /home/vmadmin/python/cy-py/remote_server_libs:/remote_server_libs -v /mnt/files:/mnt/files nttlong/fs:fs.cv2.core.amd.5

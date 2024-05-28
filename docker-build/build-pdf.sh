@@ -26,23 +26,15 @@ fi
 rm -f $build_file
 echo "
 FROM python:3.10.13-bullseye
-#RUN apt update && apt upgrade -y
-#RUN apt install socat -y
-RUN python3 -m pip install PyMuPDF
-RUN python3 -m pip install gradio
-COPY /../cy-commands /cmd
+COPY ./../venv-remote-pdf/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 RUN apt clean && apt autoclean
-ENTRYPOINT [\"python3\",\"/cmd/pdf.py\"]
+ENTRYPOINT [\"/remote_server_libs/pdf.sh\"]
 ">>$build_file
-ocr_core_tag=2
-if [ -z "$3" ]; then
-  # No argument provided, use default repository
-  ocr_core_tag_build=$ocr_core_tag
-else
-  # Argument provided, use it as the repository
-  ocr_core_tag_build=$3
-fi
+ocr_core_tag=1
+
 
 #ocr_core_image="$repository/fs:"$ocr_core_tag_build
-buildFunc $build_file $repository "lv-pdf-$customer" $ocr_core_tag_build "python:3.10-alpine" "alpine"
+buildFunc $build_file $repository "lv-pdf" $ocr_core_tag "python:3.10-alpine" "alpine"
 echo "docker run -p 1112:1112  -v /socat-share:/socat-share $repository/$image_name:$ocr_core_tag_build"

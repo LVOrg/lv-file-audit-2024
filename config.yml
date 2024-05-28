@@ -82,7 +82,7 @@ api_url_: http://172.16.1.210:801/api
 #host_url__:  https://fda4-115-79-200-101.ngrok-free.app/lvfile
 bind: 0.0.0.0:8012
 
-workers: 1
+workers: 2
 worker_class_: UvicornWorker #UvicornH11Worker
 worker_class__: UvicornH11Worker #UvicornH11Worker
 worker_class: uvloop
@@ -198,7 +198,7 @@ file_storage_encrypt: true
 dataset_path: "/mnt/files/dataset"
 server_thumb_office: "http://172.16.7.99:31792"
 server_thumb_office_: "http://0.0.0.0:8014"
-private_web_api: http://localhost:8012/lvfile
+
 #private_web_api: http://172.16.13.72:8012/lvfile
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/tmp /home/vmadmin/python/cy-py/share-storage
 #sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/from-192-168-18-36/files
@@ -250,8 +250,10 @@ clouds_support:
   - Azure
   - WAS
 check_startup: true
-remote_office: http://localhost:8081
-
+remote_office: http://172.16.13.72:8084
+remote_pdf: http://172.16.13.72:8085
+remote_video: http://172.16.13.72:8086
+private_web_api: http://172.16.13.72:8012/lvfile
 
 
 

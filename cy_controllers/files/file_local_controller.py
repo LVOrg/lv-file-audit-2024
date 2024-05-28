@@ -1,5 +1,6 @@
 import datetime
 import gc
+import json
 import pathlib
 import typing
 import uuid
@@ -76,58 +77,6 @@ import cyx.common.msg
 
 @controller.resource()
 class FilesLocalController(BaseController):
-    @controller.route.post(
-        "/api/sys/admin/content-share/{rel_path:path}", summary="",
-        tags=["LOCAL"]
-    )
-    async def save_raw_content(self,
-                               rel_path: str,
-
-                               content: Annotated[UploadFile, File()]
-
-                               ) -> None:
-        is_ok = False
-        local_share_id = self.request.query_params.get("local-share-id")
-        token = self.request.query_params.get("token")
-        is_ok = local_share_id or token
-        if not is_ok:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="")
-        server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
-        upload_id = pathlib.Path(rel_path).parent.name.__str__()
-        app_name = rel_path.split('/')[0]
-        if local_share_id:
-            check_data = self.local_api_service.check_local_share_id(
-                app_name=app_name,
-                local_share_id=local_share_id
-            )
-            if check_data and isinstance(check_data.UploadId, str) and check_data.UploadId != upload_id:
-                if not self.token_verifier.verify(self.share_key, token):
-                    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
-        try:
-
-
-            pos = 0
-            if self.request.headers.get("Range"):
-                range_content = self.request.headers["Range"].split("bytes=")[0]
-                pos = int(range_content.split("-")[0])
-                if len(range_content.split("-")) == 2:
-                    pos_len = int(range_content.split("-")[1]) - pos
-            if pos == 0:
-                with open(server_path, "wb", encrypt=True, chunk_size_in_kb=1024) as f:
-                    while contents := content.file.read(1024 * 1024):
-                        f.write(contents)
-            else:
-                with open(server_path, "ab", encrypt=True, chunk_in_kb=1024) as f:
-                    while contents := content.file.read(1024 * 1024):
-                        f.write(contents)
-        except FileNotFoundError:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
-
-
-        except Exception as e:
-
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
     @controller.route.get(
         "/api/sys/admin/content-share/{rel_path:path}", summary="",
         response_class=StreamingResponse,
@@ -154,7 +103,33 @@ class FilesLocalController(BaseController):
                 if not self.token_verifier.verify(self.share_key, token):
                     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
 
+        if not os.path.isfile(server_path):
 
+            UploadData = await Repository.files.app(app_name).context.find_one_async(
+                Repository.files.fields.id==upload_id
+            )
+            if UploadData is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+            if UploadData.StorageType == "google-drive" and UploadData.CloudId:
+                m, _ = mimetypes.guess_type(UploadData.FileName)
+                return await self.g_drive_service.get_content_async(
+                    app_name=app_name,
+                    cloud_id=UploadData.CloudId,
+                    client_file_name=UploadData.FileName,
+                    request=self.request,
+                    upload_id=upload_id,
+                    content_type=m
+
+                )
+            if UploadData.StorageType == "onedrive" and UploadData.CloudId:
+                m, _ = mimetypes.guess_type(UploadData.FileName)
+                return await self.azure_utils_service.get_content_async(
+                    app_name=app_name,
+                    cloud_file_id=UploadData.CloudId,
+                    content_type=m,
+                    request=self.request,
+                    upload_id=upload_id
+                )
         try:
 
 

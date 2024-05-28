@@ -3,8 +3,6 @@ import sys
 sys.path.append(pathlib.Path(__file__).parent.__str__())
 
 import uuid
-
-import gradio as gr
 import os
 import requests
 import subprocess

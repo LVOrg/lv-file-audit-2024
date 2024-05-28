@@ -3,10 +3,8 @@ class RemoteCallerService:
     def __init__(self):
         pass
 
-    def get_image_from_office(self, url, local_file, remote_file,memcache_server):
-        print(url)
-        print(local_file)
-        print(remote_file)
+    def get_image_from_office(self, url:str, local_file, remote_file,memcache_server):
+        url=url.rstrip('/')
         data = {}
 
         if local_file:
@@ -17,5 +15,5 @@ class RemoteCallerService:
         data["memcache_server"] = memcache_server
 
         # Send POST request with data (adjust based on your API logic)
-        response = requests.post(url, json=data)
+        response = requests.post(url+"/get-image", json=data)
         return response.json()

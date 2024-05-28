@@ -67,7 +67,7 @@ async def image_from_office(officeFile: UploadFile = File(...) ):
 @app.get("/hz")
 async def hz():
     return "OK"
-@app.post("/image-from-office-from-share-file")
+@app.post("/get-image")
 async def image_from_office_from_share_file(
         local_file:typing.Optional[str]=Body(embed=True,default=None),
         remote_file:typing.Optional[str]=Body(embed=True,default=None),

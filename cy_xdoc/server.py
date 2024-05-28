@@ -21,8 +21,8 @@ import cyx.framewwork_configs
 
 import cyx.common
 from cyx.common import config
-if not skip_checking or (hasattr(config,"check_startup") and config.check_startup):
-    import cyx.check_start_up
+# if not skip_checking or (hasattr(config,"check_startup") and config.check_startup):
+import cyx.check_start_up
 # if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
 import cy_file_cryptor.wrappers
 from PIL import Image

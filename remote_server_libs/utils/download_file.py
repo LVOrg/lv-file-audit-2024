@@ -2,7 +2,7 @@ import typing
 
 import requests
 from tqdm import tqdm
-
+import urllib.parse
 def download_file_with_progress(url, filename)->typing.Tuple[str|None,dict|None]:
   """
   Downloads a file from the given URL with a progress bar.
@@ -16,7 +16,8 @@ def download_file_with_progress(url, filename)->typing.Tuple[str|None,dict|None]
   """
 
   # Create response object
-  response = requests.get(url, stream=True)
+
+  response = requests.get(url, stream=True,verify=False)
 
   # Check for successful response
   if response.status_code >= 200  and response.status_code<300:

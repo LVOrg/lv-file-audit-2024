@@ -2,6 +2,7 @@ import json
 import os.path
 import pathlib
 import threading
+import traceback
 
 import cy_kit
 import cyx.common.msg
@@ -74,39 +75,67 @@ class ThumbService:
         if file_type !="image":
             image_file=f"{abs_file_path}.png"
         if os.path.isfile(image_file):
-            ret = self.do_scale_size(file_path=image_file,size=size)
-            self.memcache_services.set_str(key, ret)
-            return ret
+            try:
+                ret = self.do_scale_size(file_path=image_file,size=size)
+                self.memcache_services.set_str(key, ret)
+                return ret
+            except Exception as ex:
+                print(image_file)
         else:
 
             if file_type=="office":
                 data = self.remote_caller_service.get_image_from_office(
-                    url=f"{config.remote_office}//image-from-office-from-share-file",
+                    url=f"{config.remote_office}",
                     local_file=abs_file_path,
                     remote_file=server_file,
                     memcache_server = config.cache_server
                 )
                 if data.get("image_file"):
                     office_image_file=data.get("image_file")
+                    self.move_to_storage(
+                        from_file=office_image_file,
+                        to_file = f"{abs_file_path}.png"
+                    )
 
-                    from cy_file_cryptor.context        import create_encrypt
-                    with create_encrypt(f"{abs_file_path}.png"):
-                        with open(f"{abs_file_path}.png","wb") as fw:
-                            with open(office_image_file,"rb") as fr:
-                                data_read = fr.read(1024)
-                                while data_read:
-                                    fw.write(data_read)
-                                    del data_read
-                                    data_read = fr.read(1024)
-
-                    os.remove(office_image_file)
                     ret = self.do_scale_size(file_path=f"{abs_file_path}.png", size=size)
                     self.memcache_services.set_str(key, ret)
                     return ret
-        # print(folder_dir)
-        # if os.path.isfile(abs_file_path):
-        #     print(abs_file_path)
+            if file_type=="pdf":
+                from remote_server_libs.utils.download_file import download_file_with_progress
 
+                data = self.remote_caller_service.get_image_from_office(
+                    url=f"{config.remote_pdf}",
+                    local_file=abs_file_path,
+                    remote_file=server_file,
+                    memcache_server=config.cache_server
+                )
+                if data.get("image_file"):
+                    office_image_file=data.get("image_file")
+                    self.move_to_storage(
+                        from_file=office_image_file,
+                        to_file = f"{abs_file_path}.png"
+                    )
+
+                    ret = self.do_scale_size(file_path=f"{abs_file_path}.png", size=size)
+                    self.memcache_services.set_str(key, ret)
+                    return ret
+            if file_type=="video":
+                data = self.remote_caller_service.get_image_from_office(
+                    url=f"{config.remote_video}",
+                    local_file=abs_file_path,
+                    remote_file=server_file,
+                    memcache_server=config.cache_server
+                )
+                if data.get("image_file"):
+                    video_image_file=data.get("image_file")
+                    self.move_to_storage(
+                        from_file=video_image_file,
+                        to_file = f"{abs_file_path}.png"
+                    )
+
+                    ret = self.do_scale_size(file_path=f"{abs_file_path}.png", size=size)
+                    self.memcache_services.set_str(key, ret)
+                    return ret
         return None
     async def get_async_delete(self, app_name: str, directory: str, size: int):
 
@@ -270,6 +299,19 @@ class ThumbService:
                                 lossless=True)  # Set lossless=False for lossy compression
 
             return ret_image_path
+
+    def move_to_storage(self, from_file, to_file):
+        from cy_file_cryptor.context import create_encrypt
+        with create_encrypt(to_file):
+            with open(to_file, "wb") as fw:
+                with open(from_file, "rb") as fr:
+                    data_read = fr.read(1024)
+                    while data_read:
+                        fw.write(data_read)
+                        del data_read
+                        data_read = fr.read(1024)
+
+        os.remove(from_file)
 
 
 
