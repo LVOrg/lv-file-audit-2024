@@ -3,6 +3,8 @@ import io
 import threading
 import time
 import typing
+
+import requests
 from googleapiclient.discovery import build, Resource
 from functools import cache
 import cy_docs
@@ -366,32 +368,50 @@ class GoogleDirectoryService:
         :param file_name:
         :return: IsExit: bool, Folder_id:str ,error: dict
         """
+        token, error = self.g_drive_service.get_access_token_from_refresh_token(app_name, from_cache=True)
+        if isinstance(error, dict):
+            return None,None, error
 
-        service, error = self.g_drive_service.get_service_by_app_name(app_name)
-        if error:
-            return None, None, error
-        t = datetime.datetime.utcnow()
-        folder_tree, folder_list, error = self.__get_all_folders__(service)
-        n = (datetime.datetime.utcnow() - t)
-        print(n.total_seconds())
-        root = folder_tree
-        ret_id = None
-        is_continue = True
-        check_key = f"my drive"
-        for x in directory.split('/'):
-            check_key = check_key + "/" + x.lower()
-            if folder_list.get(check_key):
-                ret_id = folder_list[check_key]['id']
-            else:
-                ret_id = self.__create_folder__(service, x, ret_id)
+        client_id, client_secret, _, error = self.g_drive_service.get_id_and_secret(app_name, from_cache=True)
+        data = dict(
+            refresh_token=token,
+            client_id=client_id,
+            client_secret=client_secret,
+            g_directory_path=directory.lstrip('/'),
+            g_filename=file_name
+        )
+        res=requests.post(f"{config.remote_google_lock}//get-directory",json=data)
+        data=res.json()
+        if data.get("error"):
+            return None,None, data.get("error")
+        elif isinstance(data.get("result"),dict):
+            return data.get("result").get("is_exist"),data.get("result").get("folder_id"),None
 
-        # folder_id = self.__do_create_folder__(service, app_name, directory)
+        # service, error = self.g_drive_service.get_service_by_app_name(app_name)
+        # if error:
+        #     return None, None, error
+        # t = datetime.datetime.utcnow()
+        # folder_tree, folder_list, error = self.__get_all_folders__(service)
+        # n = (datetime.datetime.utcnow() - t)
+        # print(n.total_seconds())
+        # root = folder_tree
+        # ret_id = None
+        # is_continue = True
+        # check_key = f"my drive"
+        # for x in directory.split('/'):
+        #     check_key = check_key + "/" + x.lower()
+        #     if folder_list.get(check_key):
+        #         ret_id = folder_list[check_key]['id']
+        #     else:
+        #         ret_id = self.__create_folder__(service, x, ret_id)
         #
-        data = service.files().list(q=f"name ='{file_name}' and parents='{ret_id}' and trashed=false").execute()[
-            "files"]
-        if len(data) > 0:
-            return True, ret_id, None
-        return False, ret_id, None
+        # # folder_id = self.__do_create_folder__(service, app_name, directory)
+        # #
+        # data = service.files().list(q=f"name ='{file_name}' and parents='{ret_id}' and trashed=false").execute()[
+        #     "files"]
+        # if len(data) > 0:
+        #     return True, ret_id, None
+        # return False, ret_id, None
 
     def register_upload_file(self, app_name, directory_id, file_name: str, file_size) -> typing.Tuple[
         str | None, str | None, dict | None]:

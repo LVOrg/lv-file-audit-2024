@@ -1,6 +1,5 @@
-{{- $appName := "lv-pdf" }}
-{{- $image :="nttlong/lv-pdf:4"}}
-{{- $memcacheKey :="MEMCACHED_SERVER"}}
+{{- $appName := "google-lock" }}
+  {{- $image :="nttlong/google-lock:1"}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -11,7 +10,7 @@ spec:
   selector:
     matchLabels:
       app:  {{$appName}}
-  replicas: {{.Values.libReplicas}}
+  replicas: 1
   template:
     metadata:
       labels:
@@ -26,15 +25,16 @@ spec:
 
         - image: {{$image}}
           env:
-            - name: MEMCACHED_SERVER
-              value: lv-file-cache-service.{{ .Values.namespace}}:11211
+            - name: PORT
+              value: "80"
+            - name: LOCK_SERVER
+              value: distribute-lock-service.{{ .Values.namespace}}:2181
           name: {{$appName}}
           ports:
             - containerPort: 80
           envFrom:
             - configMapRef:
                 name: lv-file
-          args: ["80"]
           volumeMounts:
             - name: storage-files
               mountPath: /mnt/files

@@ -100,7 +100,7 @@ class BaseController:
     image_service:ImageService = cy_kit.singleton(ImageService)
     extract_content_service:ExtractContentService = cy_kit.singleton(ExtractContentService)
     g_drive_service:GDriveService = cy_kit.singleton(GDriveService)
-    distribute_lock_service:DistributeLockService = cy_kit.singleton(DistributeLockService)
+    # distribute_lock_service:DistributeLockService = cy_kit.singleton(DistributeLockService)
     google_directory_service:GoogleDirectoryService = cy_kit.singleton(GoogleDirectoryService)
     ms_service:MSAuthService = cy_kit.singleton(MSAuthService)
     ms_common_service:MSCommonService = cy_kit.singleton(MSCommonService)

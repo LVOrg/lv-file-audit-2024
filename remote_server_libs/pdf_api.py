@@ -25,6 +25,20 @@ import cy_file_cryptor.context
 
 import cy_file_cryptor.wrappers
 import io
+from fastapi import Request, HTTPException, Response
+@app.middleware("http")
+async def log_request(request: Request, call_next):
+    """Logs information about incoming requests."""
+    try:
+        path = request.url.path
+        method = request.method
+        headers = request.headers
+        print(f"Path: {path}, Method: {method}, Headers: {headers}")
+        response = await call_next(request)
+        return response
+    except Exception as ex:
+        print(traceback.format_exc())
+        return Response(content=traceback.format_exc(),status_code=500)
 
 
 @app.get("/hz")
@@ -40,6 +54,7 @@ async def image_from_pdf(
 
 ):
     import cy_file_cryptor.context
+    memcache_server= os.getenv("MEMCACHED_SERVER") or memcache_server
     cy_file_cryptor.context.set_server_cache(memcache_server)
     dir_of_file = temp_processing_file
     process_file = None

@@ -46,6 +46,7 @@ spec:
 
         - image:    {{ $value.image}}
           name: {{ $value.name }}
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           envFrom:
@@ -72,15 +73,15 @@ spec:
             - rabbitmq.msg=$(rabbitmq.msg)
             - rabbitmq.username=$(rabbitmq.username)
             - rabbitmq.password=$(rabbitmq.password)
-            - cache_server=$(cache_server)
-            - workers=$(workers)
+           {{ if $value.webWorker }}
+            - workers={{$value.webWorker}}
+           {{end}}
             - server_type=$(server_type.hypercorn)
             - worker_class=$(worker_class.trio)
             - timeout_keep_alive=$(timeout_keep_alive)
             - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
             - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
             - vn_suggest_url=$(vn_suggest_url)
-            - tika_server=$(tika_server)
             - file_storage_path=/mnt/files
             - process_services_host=http://localhost
             - distribute_lock_server=distribute-lock-service.{{$value.namespace}}:2181
@@ -94,20 +95,6 @@ spec:
               mountPath: /socat-share
             - name: {{ $value.storage.name }}
               mountPath: /mnt/files
-        {{- range $key, $libs := $value.libs }}
-        - name: {{$libs.name}}
-          image: {{$libs.image}}
-
-          volumeMounts:
-            - name: tmp-files
-              mountPath: /tmp-files
-            - name: socat-share
-              mountPath: /socat-share
-            - name: {{ $value.storage.name }}
-              mountPath: /mnt/files
-#            - name: xdoc-storage
-#              mountPath: /app/share-storage
-        {{- end }}
       imagePullSecrets:
         - name: harbor-secret-registry
 ---

@@ -62,7 +62,7 @@ else
   # Argument provided, use it as the repository
   video_tag_build=$3
 fi
-video_tag_build=$job_core_tag.1
+video_tag_build=$job_core_tag.2
 video_image=$repository/$image_name:$video_tag_build
 buildFunc $job_slim_file $repository "lv-video" $video_tag_build "docker.io/python:3.10.12-slim-bookworm" "debian"
 echo "docker run  -p 1111:1111  -v /socat-share:/socat-share  $repository/fs:$video_tag_build"

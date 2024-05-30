@@ -40,6 +40,7 @@ async def image_from_pdf(
 
 ):
     import cy_file_cryptor.context
+    memcache_server = os.getenv("MEMCACHED_SERVER") or memcache_server
     cy_file_cryptor.context.set_server_cache(memcache_server)
     dir_of_file = temp_processing_file
     process_file = None

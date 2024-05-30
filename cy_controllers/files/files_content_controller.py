@@ -75,45 +75,7 @@ class FilesContentController(BaseController):
                         status_code=404
                     )
 
-        # if file_path is not None:
-        #     mt,_ = mimetypes.guess_type(file_path)
-        #     return  FileResponse(path= file_path,media_type=mt)
-        # try:
-        #
-        #     thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "thumbs"))
-        #     cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
-        #     if cache_thumb_path and os.path.isfile(cache_thumb_path):
-        #         return FileResponse(cache_thumb_path)
-        #
-        #     upload_id = directory.split('/')[0]
-        #     fs = await self.file_service.get_main_main_thumb_file_async(app_name, upload_id)
-        #     print(fs)
-        #
-        #
-        #     if fs is None:
-        #         return Response(
-        #             status_code=404
-        #         )
-        #     import inspect
-        #     if inspect.iscoroutinefunction(fs.read):
-        #         content = await fs.read(fs.get_size())
-        #     else:
-        #         content = fs.read(fs.get_size())
-        #     fs.seek(0)
-        #     cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
-        #     del content
-        #     mime_type, _ = mimetypes.guess_type(directory)
-        #     ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
-        #     return ret
-        # except gridfs.errors.NoFile as e:
-        #     is_file_not_found = True
-        #
-        # except FileNotFoundError as e:
-        #     is_file_not_found = True
-        # if is_file_not_found:
-        #
-        #     response = Response(content="Resource not found", status_code=404)
-        #     return response
+
 
     def get_full_path_of_local_from_cache(self, upload):
         key = f"{self.config.file_storage_path}/{__file__}/{type(self).__name__}/get_full_path_of_local_from_cache/{upload.id}"
@@ -245,13 +207,7 @@ class FilesContentController(BaseController):
                     else:
                         return FileResponse(path=full_path)
         runtime_file_reader = None
-        # upload.IsPublic= False
 
-        # if upload and upload.FileModuleController:
-        #     try:
-        #         runtime_file_reader = cy_kit.singleton_from_path(upload.FileModuleController)
-        #     except ModuleNotFoundError as e:
-        #         runtime_file_reader = None
 
         fs = self.file_service.get_main_file_of_upload_by_rel_file_path(
             app_name=app_name,
@@ -293,32 +249,7 @@ class FilesContentController(BaseController):
             ret.headers["Content-Disposition"] = f"attachment; filename={file_name_form_url}"
         return ret
 
-    # @controller.router.get("/api/{app_name}/file-ocr/{directory:path}",
-    #     tags=["FILES-CONTENT"])
-    # async def get_content_orc(self, app_name: str, directory: str):
-    #     """
-    #     Xem hoặc tải nội dung file
-    #     :param app_name:
-    #     :return:
-    #     """
-    #     mime_type, _ = mimetypes.guess_type(directory)
-    #     upload_id = directory.split('/')[0]
-    #     upload = self.file_service.get_upload_register(app_name=app_name, upload_id=upload_id)
-    #     if upload is None:
-    #         return fastapi.Response(status_code=401)
-    #     if upload.get("OCRFileId") is None:
-    #         return fastapi.Response(status_code=401)
-    #     fs = self.file_storage_service.get_file_by_id(
-    #         app_name=app_name,
-    #         id=upload.OCRFileId
-    #
-    #     )
-    #
-    #     if fs is None:
-    #         return fastapi.Response(status_code=401)
-    #     mime_type, _ = mimetypes.guess_type(directory)
-    #     ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
-    #     return ret
+
 
     @controller.router.get("/api/{app_name}/thumbs/{directory:path}",tags=["FILES-CONTENT"])
     async def get_thumb_of_files(self, app_name: str, directory: str):
@@ -329,96 +260,22 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
-        fs = None
-        is_file_not_found = False
-        file_path = await self.thumb_service.get_customize_async(app_name, directory)
+        size= int(directory.split('/')[-1].split('.')[0])
+        file_path = await self.thumb_service.get_async(app_name, directory, size)
         if file_path is not None:
-            image_file_path = self.local_file_caching_service.cache_file(
-                file_path
-            )
-            mt, _ = mimetypes.guess_type(image_file_path)
-            return FileResponse(image_file_path)
-        try:
-            fs = self.file_storage_service.get_file_by_name(
-                app_name=app_name,
-                rel_file_path=f"thumbs/{directory}"
-            )
 
-
-            if hasattr(fs, "full_path") and os.path.isfile(fs.full_path):
-                return FileResponse(fs.full_path)
-            thumb_dir_cache = self.file_cacher_service.get_path(os.path.join(app_name, "custom_thumbs"))
-            cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
-            if cache_thumb_path:
-                return FileResponse(cache_thumb_path)
-
-            if fs is None:
-                """
-                Allow original thumb if custom size thumb not avalaable
-                Modified on: 01-05-2023
-                """
-                thumb_dir_cache = os.path.join(app_name, "custom_thumbs")
-                cache_thumb_path = cy_web.cache_content_check(thumb_dir_cache, directory.lower().replace("/", "_"))
-                if cache_thumb_path:
-                    return FileResponse(cache_thumb_path)
-
-                upload_id = directory.split('/')[0]
-
-                fs = self.file_service.get_main_main_thumb_file(app_name, upload_id)
-                if fs is None:
-                    return Response(
-                        status_code=401
-                    )
-                import inspect
-                if inspect.iscoroutinefunction(fs.read):
-                    content = await fs.read(fs.get_size())
-                else:
-                    content = fs.read(fs.get_size())
-                fs.seek(0)
-                cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
-                del content
-                mime_type, _ = mimetypes.guess_type(directory)
-                ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
-                return ret
-            content = fs.read(fs.get_size())
-            fs.seek(0)
-            cy_web.cache_content(thumb_dir_cache, directory.replace('/', '_'), content)
-            del content
-            mime_type, _ = mimetypes.guess_type(directory)
-            ret = await cy_web.cy_web_x.streaming_async(fs, self.request, mime_type)
+            ret = await cy_web.cy_web_x.streaming_async(file_path, self.request, "image/webp")
             return ret
-        except gridfs.errors.NoFile as e:
-            is_file_not_found = True
-
-        except FileNotFoundError as e:
-            is_file_not_found = True
-        if is_file_not_found:
-            upload_id = directory.split('/')[0]
-            data_info = await self.file_service.get_upload_register_async(
-                app_name=app_name,
-                upload_id=upload_id
+            # image_file_path = self.local_file_caching_service.cache_file(
+            #     file_path
+            # )
+            # mt, _ = mimetypes.guess_type(image_file_path)
+            # return FileResponse(image_file_path)
+        else:
+            return Response(
+                status_code=404
             )
-            if data_info is not None and data_info.Status == 1:
-                mt, _ = mimetypes.guess_type(data_info.FileNameLower)
-                if mt.startswith("image/"):
-                    self.msg_service.emit(
-                        app_name=app_name,
-                        message_type=cyx.common.msg.MSG_FILE_GENERATE_THUMBS,
-                        data=data_info
-                    )
-                    local_file = data_info.MainFileId.split("://")[1]
-                    local_file = os.path.join(cyx.common.config.file_storage_path,local_file)
-                    return  FileResponse(path=local_file)
-                else:
-                    self.msg_service.emit(
-                        app_name=app_name,
-                        message_type=cyx.common.msg.MSG_FILE_UPLOAD,
-                        data=data_info
-                    )
-                    response = Response(content="Resource not found", status_code=404)
-                    return response
-            response = Response(content="Resource not found", status_code=404)
-            return response
+
 
     @controller.router.post("/api/{app_name}/content/readable",tags=["FILES-CONTENT"])
     def get_content_readable(

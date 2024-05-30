@@ -32,7 +32,7 @@ COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 RUN apt clean && apt autoclean
 ENTRYPOINT [\"/remote_server_libs/pdf.sh\"]
 ">>$build_file
-ocr_core_tag=1
+ocr_core_tag=4
 
 
 #ocr_core_image="$repository/fs:"$ocr_core_tag_build

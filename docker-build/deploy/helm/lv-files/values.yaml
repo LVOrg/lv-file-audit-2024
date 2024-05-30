@@ -38,3 +38,5 @@ processMsg: ["re-do-all","content","image","index","google-file-sync","google-fo
 customer: "qc"
 imageTag: "latest"
 repository: "docker.io/nttlong"
+libReplicas: 2
+webWorker: 2

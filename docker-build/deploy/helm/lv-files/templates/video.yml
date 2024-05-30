@@ -1,5 +1,5 @@
 {{- $appName := "lv-video" }}
-  {{- $image :="nttlong/lv-video:5.1"}}
+  {{- $image :="nttlong/lv-video:5.2"}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,8 +22,10 @@ spec:
             server: {{.Values.storage.server}}
             path: {{.Values.storage.directory}}
       containers:
-
         - image: {{$image}}
+          env:
+            - name: MEMCACHED_SERVER
+              value: lv-file-cache-service.{{ .Values.namespace}}:11211
           name: {{$appName}}
           ports:
             - containerPort: 80

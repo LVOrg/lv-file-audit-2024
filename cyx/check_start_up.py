@@ -62,4 +62,4 @@ check_url(f"{config.remote_office}/hz")
 check_url(f"{config.remote_pdf}/hz")
 check_url(f"{config.remote_video}/hz")
 check_memcache()
-check_zookeeper()
+

@@ -36,10 +36,10 @@ FROM python:3.10.13-bullseye
 COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 RUN apt clean && apt autoclean
 ">>$web_api_core_file
-web_api_core_tag=21
+web_api_core_tag=22
 web_api_core_tag_build="fs.tiny.core."$(tag $web_api_core_tag)
 web_api_core_image="docker.io/nttlong/fs:"$web_api_core_tag_build
-buildFunc $web_api_core_file $repository $image_name $web_api_core_tag_build "python:3.10-alpine" "alpine"
+buildFunc $web_api_core_file "docker.io/nttlong" $image_name $web_api_core_tag_build "python:3.10-alpine" "alpine"
 web_api_file="web-api"
 rm -f $web_api_file
 du -sh $(pwd)/../env_webapi/lib/python3.10/site-packages/* | sort -h
@@ -51,6 +51,7 @@ ARG OS
 #COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 ENV PRODUCTION_BUILT_ON=\"$(date +"%Y-%m-%d %H:%M:%S")\"
 ENV BUILD_IMAGE_TAG=\"$web_api_core_tag_build\"
+RUN python3 -m pip install webp
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es

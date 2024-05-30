@@ -32,7 +32,10 @@ def do_read(fs, *args, **kwargs):
 
         pos = fs.tell()
 
-        read_len = args[0]
+        read_len = min(args[0],fs.old_file_size-pos)
+        if read_len<=0:
+            return bytes([])
+        is_finish = fs.old_file_size<=pos+read_len
         start_block_pos = (pos // block_size) * block_size
         end_block_pos = start_block_pos + block_size
         fs.seek(start_block_pos)
@@ -40,7 +43,10 @@ def do_read(fs, *args, **kwargs):
         if len(bff) == block_size:
             bff = bff[::-1]
         ret_data = bff[pos - start_block_pos:pos - start_block_pos + read_len]
+        test = len(ret_data)
         remain_len = read_len-len(ret_data)
+        # if remain_len<=0:
+        #     return bytes([])
         while remain_len>0:
 
             next_data = fs.original_read(block_size)
@@ -57,6 +63,8 @@ def do_read(fs, *args, **kwargs):
 
 
         fs.seek(pos+read_len)
+        if pos+len(ret_data)>fs.old_file_size:
+            return bytes([])
         return ret_data
 
 

@@ -16,4 +16,8 @@ class RemoteCallerService:
 
         # Send POST request with data (adjust based on your API logic)
         response = requests.post(url+"/get-image", json=data)
-        return response.json()
+        try:
+            return response.json()
+        except:
+            print(response.text)
+            return dict(error=dict(Code="RemoteERR500",Description=response.text))

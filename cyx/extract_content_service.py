@@ -1,4 +1,5 @@
 import datetime
+import os.path
 import traceback
 from cyx.common import config
 from cyx.common import get_doc_type
@@ -30,50 +31,36 @@ class ExtractContentService:
                 app_name = app_name
             )
             doc_type = cyx.common.get_doc_type(file_name)
-            if not hasattr(config.process_services,doc_type):
-                """
-                Undeclared action exit
-                """
-                return None
-
-            action_data = getattr(config.process_services,doc_type)
-            if not hasattr(action_data,"content"):
-                """
-                Undeclared action content fot this media type
-                """
-                return None
-
-            action = getattr(action_data,"content")
-            content = None
-            if action.get('type')=="tika":
-                content = cy_utils.call_local_tika(
-                    action=action,
-                    action_type="content",
-                    url_file=download_url,
-                    download_file=""
+            if doc_type=="image":
+                self.broker.emit(
+                    app_name=app_name,
+                    message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
+                    data=data
                 )
-            if action.get('type') == "web-api":
-                content = cy_utils.call_web_api(
-                    data = action,
-                    action_type="content",
-                    url_file= download_url,
-                    download_file = file_name
-
-                )
-
-            if isinstance(content,str):
+                return
+            content = cy_utils.get_content_from_tika(
+                url_file=download_url,
+                abs_file_path=os.path.join(config.file_storage_path,rel_path)
+            )
+            if isinstance(content, str):
                 self.do_update_content(
-                    data= data,
+                    data=data,
                     content=content,
                     app_name=app_name
                 )
             print("update content is OK")
-            self.process_manager_service.submit(
-                data=data,
-                app_name=app_name,
-                action_type="content"
-            )
-
+            if doc_type=="office":
+                self.process_manager_service.submit(
+                    data=data,
+                    app_name=app_name,
+                    action_type="content"
+                )
+            if doc_type=="pdf":
+                self.broker.emit(
+                    app_name=app_name,
+                    message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
+                    data=data
+                )
         except Exception as ex:
             self.process_manager_service.submit_error(
                 data=data,

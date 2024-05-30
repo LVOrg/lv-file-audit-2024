@@ -12,16 +12,21 @@ apps:
       customer:  {{ .values.customer}}
       replicas: {{$appConfig.replicas}}
       isUseES: {{$valuesObject.search}}
+      webWorker: {{$valuesObject.webWorker}}
       entrypoint:
         - python3
         - /app/cy_xdoc/server.py
         - bind=0.0.0.0:80
         - content_segment_len=9
-        - private_web_api=http://{{$appConfig.name}}-service.{{.values.namespace}}:8082/{{$appConfig.host.path}} #test-es-service.test-es-99:8082
         {{if $appConfig.host}}
         - host_url={{$appConfig.host.protocol}}://{{$appConfig.host.name}}/{{$appConfig.host.path}}
-        - private_web_api=http://localhost/{{$appConfig.host.path}}
         {{end}}
+        - private_web_api=http://{{ $appConfig.name }}-service.{{$valuesObject.namespace}}:80/{{$appConfig.host.path}}
+        - remote_office=http://lv-office-service.{{$valuesObject.namespace}}:80
+        - remote_pdf=http://lv-pdf-service.{{$valuesObject.namespace}}:80
+        - remote_video=http://lv-video-service.{{$valuesObject.namespace}}:80
+        - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
+        - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
       service:
         {{ if index $appConfig "nodePort" }}
         type: nodePort
@@ -54,23 +59,17 @@ apps:
         {{- range $km,$e := $app.entrypoint }}
         - {{$e}}
         {{- end }}
-        - private_web_api=http://{{$appConfig.name}}-service.{{$valuesObject.namespace}}:8082/{{$appConfig.host.path}}
+        - private_web_api=http://{{ $appConfig.name }}-service.{{$valuesObject.namespace}}:80/{{$appConfig.host.path}}
+        - remote_office=http://lv-office-service.{{$valuesObject.namespace}}:80
+        - remote_pdf=http://lv-pdf-service.{{$valuesObject.namespace}}:80
+        - remote_video=http://lv-video-service.{{$valuesObject.namespace}}:80
+        - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
+        - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
       storage:
         name: {{ $valuesObject.storage.name }}
         server: {{ $valuesObject.storage.server }}
         directory: {{ $valuesObject.storage.directory }}
-      libs:
-        - name: pdf
-          image: {{ $imagesObject.pdf }}
-          customer:  {{ $valuesObject.customer}}
-        - name: video
-          image: {{ $imagesObject.video }}
-          customer:  {{ $valuesObject.customer}}
-        - name: office
-          image: {{ $imagesObject.office }}
-          customer:  {{ $valuesObject.customer}}
-        - name: tika
-          image: {{ $imagesObject.tika }}
+
     {{else}}
     - name: {{$value}}
       isError: True

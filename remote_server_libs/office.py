@@ -30,6 +30,24 @@ except:
     print(traceback.format_exc())
 import cy_file_cryptor.wrappers
 import io
+from fastapi import Request, HTTPException
+@app.middleware("http")
+async def log_request(request: Request, call_next):
+    """Logs information about incoming requests."""
+    try:
+        path = request.url.path
+        method = request.method
+        headers = request.headers
+        print(f"Path: {path}, Method: {method}, Headers: {headers}")
+        response = await call_next(request)
+        return response
+    except Exception as ex:
+        print(traceback.format_exc())
+        raise ex
+
+
+
+
 @app.get("/")
 async def root():
     return {"message": "Hello World!"}
@@ -75,53 +93,57 @@ async def image_from_office_from_share_file(
 
 
 ):
-    import cy_file_cryptor.context
-    cy_file_cryptor.context.set_server_cache(memcache_server)
-    dir_of_file = temp_processing_file
-    process_file = None
-    if isinstance(local_file,str):
-        if os.path.isfile(local_file):
-            hash_object = hashlib.sha256(local_file.encode())
-            load_file_name = hash_object.hexdigest()
+    try:
+        import cy_file_cryptor.context
+        memcache_server = os.getenv("MEMCACHED_SERVER") or memcache_server
+        cy_file_cryptor.context.set_server_cache(memcache_server)
+        dir_of_file = temp_processing_file
+        process_file = None
+        if isinstance(local_file,str):
+            if os.path.isfile(local_file):
+                hash_object = hashlib.sha256(local_file.encode())
+                load_file_name = hash_object.hexdigest()
 
-            process_file = f"{load_file_name}{pathlib.Path(local_file).suffix}"
-            with open(process_file,"wb") as fw:
-                with open(local_file,"rb") as fr:
-                    data = fr.read(1024*1024)
-                    while data:
-                        fw.write(data)
-                        del data
-                        data = fr.read(1024 * 1024)
+                process_file = f"{load_file_name}{pathlib.Path(local_file).suffix}"
+                with open(process_file,"wb") as fw:
+                    with open(local_file,"rb") as fr:
+                        data = fr.read(1024*1024)
+                        while data:
+                            fw.write(data)
+                            del data
+                            data = fr.read(1024 * 1024)
 
 
-    if process_file is None:
-        if remote_file.startswith("http://") or remote_file.startswith("https://"):
-            hash_object = hashlib.sha256(remote_file.encode())
-            load_file_name = hash_object.hexdigest()
-            process_file = f"{load_file_name}{pathlib.Path(local_file).suffix}"
-            process_file, error =download_file.download_file_with_progress(
-                url=remote_file, filename=process_file
-            )
-            if error:
-                return error
-    if process_file is None:
-        return dict(code="FileNotFound",message="File was not found")
-    command = ["/usr/bin/soffice",
-               "--headless",
-               "--convert-to",
-               "png", "--outdir",
-               f"{dir_of_file}",
-               f"{process_file}"]
-    txt_command = " ".join(command)
-    libs.execute_command_with_polling(txt_command)
-    process_file_name = pathlib.Path(process_file).stem
+        if process_file is None:
+            if remote_file.startswith("http://") or remote_file.startswith("https://"):
+                hash_object = hashlib.sha256(remote_file.encode())
+                load_file_name = hash_object.hexdigest()
+                process_file = f"{load_file_name}{pathlib.Path(local_file).suffix}"
+                process_file, error =download_file.download_file_with_progress(
+                    url=remote_file, filename=process_file
+                )
+                if error:
+                    return error
+        if process_file is None:
+            return dict(code="FileNotFound",message="File was not found")
+        command = ["/usr/bin/soffice",
+                   "--headless",
+                   "--convert-to",
+                   "png", "--outdir",
+                   f"{dir_of_file}",
+                   f"{process_file}"]
+        txt_command = " ".join(command)
+        libs.execute_command_with_polling(txt_command)
+        process_file_name = pathlib.Path(process_file).stem
 
-    ret_file = os.path.join(dir_of_file,process_file_name)+".png"
-    if os.path.isfile(ret_file):
-        os.remove(process_file)
-        return dict(image_file=ret_file, content_file=process_file )
-    else:
-        return dict(error=dict(code="CanNotRender",message=f"{local_file} or {remote_file} can not render"))
+        ret_file = os.path.join(dir_of_file,process_file_name)+".png"
+        if os.path.isfile(ret_file):
+            os.remove(process_file)
+            return dict(image_file=ret_file, content_file=process_file )
+        else:
+            return dict(error=dict(code="CanNotRender",message=f"{local_file} or {remote_file} can not render"))
+    except:
+        return dict(error=dict(code="ERR500", message=traceback.format_exc()))
 
 if __name__ == "__main__":
     port = 8001

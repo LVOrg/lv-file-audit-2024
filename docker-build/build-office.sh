@@ -87,5 +87,5 @@ COPY ./../remote_server_libs /remote_server_libs
 COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 ENTRYPOINT [\"/remote_server_libs/office.sh\"]
 ">>$fs_office_file_final
-lv_libreoffice_tag=1
+lv_libreoffice_tag=3
 buildFunc $fs_office_file_final $repository "lv-libreoffice" $fs_office_tag_build$lv_libreoffice_tag "python:3.10-alpine" "alpine"

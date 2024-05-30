@@ -2,6 +2,7 @@ import json
 import os.path
 import pathlib
 import threading
+import time
 import traceback
 
 import cy_kit
@@ -14,7 +15,8 @@ from cyx.remote_caller import RemoteCallerService
 __version__ = "0.5"
 from functools import cache
 import hashlib
-
+import webp
+from PIL import Image
 from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.local_api_services import LocalAPIService
 from cyx.repository import Repository
@@ -53,7 +55,7 @@ class ThumbService:
     async def get_async(self, app_name: str, directory: str, size: int):
         key = self.get_cache_key(app_name=app_name,directory=directory,size=size)
         ret= self.memcache_services.get_str(key)
-        if ret:
+        if ret and os.path.isfile(ret):
             return ret
 
 
@@ -61,10 +63,13 @@ class ThumbService:
         upload_item = await Repository.files.app(app_name).context.find_one_async(
             Repository.files.fields.Id==upload_id
         )
+        if upload_item is None:
+            return None
         server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
             upload_item=upload_item,
             app_name=app_name
         )
+
         file_type = self.get_thumb_type(pathlib.Path(rel_file_path).suffix.lstrip("."))
         abs_file_path = os.path.join("/mnt/files",rel_file_path)
         folder_dir = pathlib.Path(abs_file_path).parent.__str__()
@@ -77,10 +82,22 @@ class ThumbService:
         if file_type !="image":
             image_file=f"{abs_file_path}.png"
         if os.path.isfile(image_file):
+            import PIL
             try:
                 ret = self.do_scale_size(file_path=image_file,size=size)
                 self.memcache_services.set_str(key, ret)
                 return ret
+            except PIL.UnidentifiedImageError:
+                os.remove(image_file)
+                self.run_generate_image(file_type=file_type,
+                                        file_process=abs_file_path,
+                                        is_in_thred=True,
+                                        app_name=app_name,
+                                        upload_id=upload_id,
+                                        size=size,
+                                        cache_key=key,
+                                        server_file=server_file,
+                                        )
             except Exception as ex:
                 print(image_file)
         else:
@@ -138,8 +155,7 @@ class ThumbService:
         :param size:
         :return:
         """
-        import webp
-        from PIL import Image
+
         Image.MAX_IMAGE_PIXELS = None
         ret_image_path = os.path.join(pathlib.Path(file_path).parent.__str__(), f"{size}.webp")
         temp_ret_image_path = os.path.join(pathlib.Path(file_path).parent.__str__(), f"{size}_tmp.webp")
@@ -163,6 +179,13 @@ class ThumbService:
 
     def move_to_storage(self, from_file, to_file):
         from cy_file_cryptor.context import create_encrypt
+        count=10
+        while count>0:
+            if os.path.isfile(from_file):
+                count=0
+            else:
+                time.sleep(1)
+                count-=1
         with create_encrypt(to_file):
             with open(to_file, "wb") as fw:
                 with open(from_file, "rb") as fr:
@@ -183,6 +206,9 @@ class ThumbService:
                     remote_file=server_file,
                     memcache_server = config.cache_server
                 )
+                if data.get("error"):
+                    print(json.dumps(data.get("error"),indent=4))
+                    return
                 if data.get("image_file"):
                     office_image_file=data.get("image_file")
                     self.move_to_storage(
@@ -194,8 +220,6 @@ class ThumbService:
                     self.memcache_services.set_str(key, ret)
                     return ret
             if file_type=="pdf":
-                from remote_server_libs.utils.download_file import download_file_with_progress
-
                 data = self.remote_caller_service.get_image_from_office(
                     url=f"{config.remote_pdf}",
                     local_file=abs_file_path,
@@ -231,9 +255,10 @@ class ThumbService:
                     return ret
 
         def running_if_fail_raise_message(abs_file_path,server_file,size,key):
+
             try:
                 running(abs_file_path, server_file, size, key)
-            except:
+            except Exception as ex:
                 upload = Repository.files.app(app_name).context.find_one(
                     Repository.files.fields.Id==upload_id
                 )
@@ -244,6 +269,11 @@ class ThumbService:
                     data=upload,
                     message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE
                 )
-        running_if_fail_raise_message(file_process,server_file,size,cache_key)
+                print(traceback.format_exc())
+        if is_in_thred:
+            th=threading.Thread(target=running_if_fail_raise_message,args=(file_process,server_file,size,cache_key,))
+            th.start()
+        else:
+            running_if_fail_raise_message(file_process,server_file,size,cache_key)
 
 

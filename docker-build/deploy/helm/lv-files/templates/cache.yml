@@ -21,7 +21,7 @@ spec:
           effect: "NoSchedule"
       containers:
       - name: file-cache
-        image: bitnami/memcached:latest
+        image: memcached:latest
         ports:
         - containerPort: 11211
 ---

@@ -1,3 +1,4 @@
+import gc
 import json
 import mimetypes
 import os.path
@@ -189,7 +190,45 @@ def call_web_api(data, action_type, url_file, download_file=None):
 
 
 
+def get_content_from_tika(url_file:str,abs_file_path:str):
+    from cyx.common import config
+    import tika.parser
+    import urllib.parse
+    fx = os.path.join(working_dir, str(uuid.uuid4()))
+    process_file = abs_file_path
+    if not os.path.isfile(process_file):
+        process_file = url_file
+    try:
+        with open(process_file, "rb") as fs:
+            with open(fx, "wb") as fsx:
+                data= fs.read(1024)
+                while data:
+                    fsx.write(data)
+                    del data
+                    gc.collect()
+                    data = fs.read(1024)
+        try:
+            headers = {
+                'maxWriteLimit': '2147483647'
+            }
 
+            ret = tika.parser.from_file(
+                filename=fx,
+                serverEndpoint=config.tika_server,
+                requestOptions={'headers': headers, 'timeout': 30000}
+            )
+
+
+            return ret['content']
+        except Exception as ex:
+            raise ex
+        finally:
+            os.remove(fx)
+    except requests.exceptions.HTTPError as ex:
+        if ex.response.status_code == 404:
+            return None
+        else:
+            raise ex
 def call_local_tika(action, action_type, url_file, download_file):
     """
 

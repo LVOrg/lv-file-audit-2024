@@ -1,0 +1,3 @@
+kubectl delete pod  content-5f64cb44cd-jvplc image-5ffd565454-jpcbb  index-564fd5987-vkrxf  lv-file-6dcd4487fd-v6t8l  -n default-99-30041 --force
+
+
