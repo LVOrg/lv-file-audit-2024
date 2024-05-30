@@ -49,6 +49,7 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
+      nodePort: 32225
   type: NodePort
   selector:
     app: {{$appName}}
