@@ -220,10 +220,7 @@ class FilesUploadController(BaseController):
                     data = data,
                     app_name = app_name
                 )
-                self.image_service.generate_image(
-                    data=data,
-                    app_name=app_name
-                )
+
 
 
 

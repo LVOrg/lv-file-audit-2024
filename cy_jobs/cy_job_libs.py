@@ -44,34 +44,7 @@ def check_memcache():
         except Exception as e:
             print(f"Error connecting to Memcached: {e}")
     print(f"Memcache server is ok run on {config.cache_server}")
-def check_zookeeper():
-    distribute_lock_server = config.distribute_lock_server
-    ok = False
-    while not ok:
-        try:
-            # Connect to Zookeeper
-            zk = KazooClient(distribute_lock_server)
-            zk.start()
-            ok = True
-
-        except Exception as e:
-            print(f"Error connecting to Zookeeper: {e}")
-
-        finally:
-            # Close the Kazoo client connection
-            zk.stop()
-    print(f"zookeeper is ok {distribute_lock_server}")
-def check_url(url,method="get"):
-    response = getattr(requests,method)(url)
-    while response.status_code!=200:
-        print(f"{url} is unavailable")
-        print("re-connect on next 5 seconds")
-        time.sleep(5)
-        response = getattr(requests,method)(url)
-    print(f"{url} is available")
-check_url("https://api.trogiupluat.vn/swagger/index.html")
 check_memcache()
-check_zookeeper()
 cy_file_cryptor.context.set_server_cache(config.cache_server)
 import cy_file_cryptor.wrappers
 class JobLibs:

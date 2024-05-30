@@ -38,16 +38,12 @@ class ExtractContentService:
                     data=data
                 )
                 return
-            content = cy_utils.get_content_from_tika(
-                url_file=download_url,
-                abs_file_path=os.path.join(config.file_storage_path,rel_path)
+            self.update_by_using_tika(
+                download_url=download_url,
+                rel_path=rel_path,
+                data=data,
+                app_name=app_name
             )
-            if isinstance(content, str):
-                self.do_update_content(
-                    data=data,
-                    content=content,
-                    app_name=app_name
-                )
             print("update content is OK")
             if doc_type=="office":
                 self.process_manager_service.submit(
@@ -86,3 +82,19 @@ class ExtractContentService:
             replace_content=True,
             data_item=data
         )
+
+    def update_by_using_tika(self,download_url,rel_path,data,app_name):
+        file_path = os.path.join(config.file_storage_path, rel_path)
+        if not os.path.isfile(file_path):
+            print("Fail")
+
+        content = cy_utils.get_content_from_tika(
+            url_file=download_url,
+            abs_file_path = os.path.join(config.file_storage_path, rel_path)
+        )
+        if isinstance(content, str):
+            self.do_update_content(
+                data=data,
+                content=content,
+                app_name=app_name
+            )

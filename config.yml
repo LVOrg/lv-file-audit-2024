@@ -110,8 +110,8 @@ elastic_search__:
   field_content: content_bm25
 elastic_search:
   server:
-    - http://172.16.7.244:9200
-#     - http://192.168.18.36:9200
+#    - http://172.16.7.244:9200
+     - http://192.168.18.36:9200
 #    - http://192.168.18.234:31949
   index: lv-files-server-v2
   prefix_index: lv-codx
