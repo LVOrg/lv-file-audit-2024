@@ -32,6 +32,7 @@ spec:
     - name: '2181'
       protocol: TCP
       port: 2181
+      nodePort: 32228
   selector:
     app: distribute-lock
   type: NodePort

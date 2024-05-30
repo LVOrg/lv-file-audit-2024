@@ -251,12 +251,15 @@ clouds_support:
   - Azure
   - WAS
 check_startup: true
-remote_office: http://172.16.7.99:32023
-remote_pdf: http://172.16.7.99:31858
-remote_video: http://172.16.7.99:31701
-remote_google_lock: http://172.16.7.99:31186
+distribute_lock_server: 172.16.7.99:32227
+remote_google_lock: http://172.16.7.99:32227
+remote_office: http://172.16.7.99:32223
+remote_pdf: http://172.16.7.99:32224
+remote_video: http://172.16.7.99:32225
+tika_server: http://172.16.7.99:32226
+
 private_web_api: http://172.16.13.72:8012/lvfile
 cache_server: localhost:11211
-distribute_lock_server: 172.16.7.99:30962
-tika_server: http://172.16.7.99:32343
+
+
 
