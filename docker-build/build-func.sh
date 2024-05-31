@@ -17,7 +17,12 @@ buildFunc(){
     echo "$full_repository already exists (skipping build for non-latest tag)"
     return 0
   fi
-  build_command="docker  buildx build --build-arg BASE=$base_image  -t $full_repository -t $full_repository_latest --platform=$platform ./.. -f $docker_file  --push=true --output type=registry"
+  if [[ "$repository" =~ ^docker\.io/ ]]; then
+    build_command="docker  buildx build --build-arg BASE=$base_image  -t $full_repository  --platform=$platform ./.. -f $docker_file  --push=true --output type=registry"
+
+  else
+    build_command="docker  buildx build --build-arg BASE=$base_image  -t $full_repository -t $full_repository_latest --platform=$platform ./.. -f $docker_file  --push=true --output type=registry"
+  fi
   echo $build_command
   eval "$build_command"
 

@@ -28,15 +28,16 @@ def create_message(sender, to, cc, subject, body, files:typing.List[UploadFile],
     import email.mime.text as mimetext
     import email.mime.multipart as mimemultipart
     from email.mime.base import MIMEBase
-
+    from email.mime.text import MIMEText
     message = mimemultipart.MIMEMultipart()
     message['From'] = sender
     message['To'] = ",".join(to)
     message['Subject'] = subject
 
     # Add plain text body
-    body_part = mimetext.MIMEText(body, 'plain')
-    message.attach(body_part)
+    html_part = MIMEText(body, 'html')
+    # body_part = mimetext.MIMEText(body, 'html')
+    message.attach(html_part)
     if calender:
         attachment_part = MIMEBase('text', 'calendar; method=REQUEST;charset=utf-8')
         # attachment_part = MIMEBase('text', 'calendar;charset=utf-8')

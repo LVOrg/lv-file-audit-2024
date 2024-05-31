@@ -22,6 +22,6 @@ else
 fi
 ./build-tiny.sh $repository $customer $version
 ./build-office.sh "docker.io/nttlong" "libs"  "1"
-./build-thumbs.sh "docker.io/nttlong" "libs" "1"
+#./build-thumbs.sh "docker.io/nttlong" "libs" "1"
 ./build-video.sh "docker.io/nttlong" "libs" "1"
 ./build-pdf.sh  "docker.io/nttlong" "libs" "1"

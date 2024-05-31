@@ -33,6 +33,20 @@ import cy_file_cryptor.context
 from kazoo.client import KazooClient
 from memcache import Client as MClient
 import requests
+import multiprocessing
+import resource
+def run_with_limited_memory(target, args, memory_limit=1024 * 1024 * 100):
+  # Set the memory resource limit for the process
+  resource.setrlimit(resource.RLIMIT_AS, (memory_limit, memory_limit))
+
+  # Create a Process object
+  process = multiprocessing.Process(target=target, args=args)
+
+  # Start the process
+  process.start()
+
+  # Wait for the process to finish (optional)
+  process.join()
 def check_memcache():
     ok = False
     while not  ok:
@@ -44,7 +58,9 @@ def check_memcache():
         except Exception as e:
             print(f"Error connecting to Memcached: {e}")
     print(f"Memcache server is ok run on {config.cache_server}")
+
 check_memcache()
+
 cy_file_cryptor.context.set_server_cache(config.cache_server)
 import cy_file_cryptor.wrappers
 class JobLibs:
