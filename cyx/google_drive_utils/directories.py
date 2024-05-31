@@ -349,6 +349,8 @@ class GoogleDirectoryService:
 
 
         service, error = self.g_drive_service.get_service_by_app_name(app_name,from_cache=from_cache)
+        if error:
+            return None, error
         folder_tree, folder_list, error = self.__get_all_folders__(service)
         if error:
             return None, error
