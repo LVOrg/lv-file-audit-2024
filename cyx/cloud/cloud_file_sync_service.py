@@ -24,6 +24,7 @@ class FileSync:
             Repository.cloud_file_sync.fields.IsError<<False
         )
         if cloud_name == "Google":
+
             self.msg.emit(
                 app_name=app_name,
                 message_type=msg.MSG_CLOUD_GOOGLE_DRIVE_SYNC,

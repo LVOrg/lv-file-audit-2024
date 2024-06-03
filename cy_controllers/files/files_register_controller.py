@@ -251,6 +251,8 @@ class FilesRegisterController(BaseController):
                         ret_quit.Error.Message = error["Message"]
                         ret_quit.Error.Code = error["Code"]
                         return ret_quit
+                    else:
+                        self.google_directory_service.make_map_file(app_name=app_name,directory=Data.googlePath,filename= Data.FileName,google_file_id= google_file_id)
 
             try:
                 client_id, secret_key, _, error = self.g_drive_service.get_id_and_secret(

@@ -476,6 +476,13 @@ class GDriveService:
         # token, error = self.get_access_token_from_refresh_token(app_name)
         token, error = self.get_access_token_from_refresh_token(app_name, from_cache)
         if isinstance(error, dict):
+            if error.get("Code")=="invalid_grant":
+                token, error = self.get_access_token_from_refresh_token(app_name, from_cache=False)
+                if error:
+                    return None, error
+                else:
+                    return token, None
+
             return None, error
 
         client_id, client_secret, _, error = self.get_id_and_secret(app_name, from_cache)

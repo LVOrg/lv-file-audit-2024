@@ -1,5 +1,7 @@
 import datetime
 import io
+import os.path
+import pathlib
 import threading
 import time
 import typing
@@ -360,6 +362,64 @@ class GoogleDirectoryService:
             ret.hash = folder_list
             self.memcache_service.set_object(key,ret)
             return ret, None
+    def make_map_file(self, app_name, directory, filename, google_file_id:str):
+        full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, directory,filename)
+        id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
+        if os.path.isfile(id_file_of_full_check_dir):
+            return
+        else:
+            os.makedirs(full_check_dir, exist_ok=True)
+            if os.path.isfile(id_file_of_full_check_dir):
+                return
+            try:
+                with open(id_file_of_full_check_dir, "wb") as fs:
+                    fs.write(google_file_id.encode())
+            except FileExistsError:
+                return
+    def make_map_folder(self, app_name, folder_path, folder_id):
+        full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, folder_path)
+        id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
+        full_mark_path = os.path.join(full_check_dir,id_file_of_full_check_dir)
+        if os.path.isfile(full_mark_path):
+            return
+        else:
+            os.makedirs(full_check_dir,exist_ok=True)
+            if os.path.isfile(full_mark_path):
+                return
+            try:
+                with open(full_mark_path,"wb") as fs:
+                    fs.write(folder_id.encode())
+            except FileExistsError:
+                return
+    def get_remote_folder_id(self, service, app_name, directory,parent_id=None):
+        if directory=="":
+            return  None,None
+        if len(directory.split('/'))==1:
+            print("OK")
+        full_check_dir = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,directory)
+        id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
+        path_to_get_folder_id = os.path.join(full_check_dir,id_file_of_full_check_dir)
+        ret_id= None
+        if os.path.isfile(path_to_get_folder_id):
+            re_update = False
+            with open(path_to_get_folder_id,"rb") as fs:
+                ret_id = fs.read().decode()
+                if len(ret_id)==0 or ret_id is None:
+                    re_update = True
+                    ret_id =self.__create_folder__(service, directory.split('/')[-1],parent_id=parent_id)
+            if re_update:
+                with open(path_to_get_folder_id, "wb") as fs:
+                    fs.write(ret_id.encode())
+            return ret_id,None
+
+        else:
+            folders= directory.split('/')
+            folder_id, error = self.get_remote_folder_id(service,app_name,"/".join(folders[0:-1]))
+            if error:
+                return None,error
+            new_folder_id = self.__create_folder__(service,folders[-1],parent_id=folder_id)
+            self.make_map_folder(app_name=app_name,folder_path ="/".join(folders),folder_id= new_folder_id)
+            return new_folder_id, None
 
     def check_before_upload(self, app_name, directory: str, file_name) -> typing.Tuple[
         bool | None, str | None, dict | None]:
@@ -370,19 +430,32 @@ class GoogleDirectoryService:
         :param file_name:
         :return: IsExit: bool, Folder_id:str ,error: dict
         """
-        token, error = self.g_drive_service.get_access_token_from_refresh_token(app_name, from_cache=True)
+        full_check_path = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,directory,file_name)
+
+        if os.path.isdir(full_check_path):
+            return True,None,None
+
+
+
+        # token, error = self.g_drive_service.get_access_token_from_refresh_token(app_name, from_cache=True)
+        service,error = self.g_drive_service.get_service_by_app_name(app_name,from_cache=False)
         if isinstance(error, dict):
             return None,None, error
 
-        client_id, client_secret, _, error = self.g_drive_service.get_id_and_secret(app_name, from_cache=True)
-        data = dict(
-            refresh_token=token,
-            client_id=client_id,
-            client_secret=client_secret,
-            g_directory_path=directory.lstrip('/'),
-            g_filename=file_name
-        )
-        res=requests.post(f"{config.remote_google_lock}//get-directory",json=data)
+        # client_id, client_secret, _, error = self.g_drive_service.get_id_and_secret(app_name, from_cache=True)
+        folder_id, error =self.get_remote_folder_id(service=service,app_name=app_name ,directory=directory)
+        if isinstance(error, dict):
+            return None, None, error
+        return False, folder_id, None
+
+        # data = dict(
+        #     refresh_token=token,
+        #     client_id=client_id,
+        #     client_secret=client_secret,
+        #     g_directory_path=directory.lstrip('/'),
+        #     g_filename=file_name
+        # )
+        # res=requests.post(f"{config.remote_google_lock}//get-directory",json=data)
         data=res.json()
         if data.get("error"):
             return None,None, data.get("error")
@@ -472,10 +545,15 @@ class GoogleDirectoryService:
         # trash_list = self.extract_to_list(trash_node)
         while True:
             # Use files().list() with filter for folders
-            results = service.files().list(q="mimeType = 'application/vnd.google-apps.folder'",
-                                           fields="nextPageToken, files(id, name,parents,kind)",
-                                           pageSize=100,  # Adjust page size as needed
-                                           pageToken=page_token).execute()
+            # results = service.files().list(q="mimeType = 'application/vnd.google-apps.folder'",
+            #                                fields="nextPageToken, files(id, name,parents,kind)",
+            #                                pageSize=100,  # Adjust page size as needed
+            #                                pageToken=page_token).execute()
+            results =service.files().list(
+                fields="nextPageToken, files(id, name, parents, kind)",
+                pageSize=100,  # Adjust page size as needed
+                pageToken=page_token
+            ).execute()
             folders = results.get('files', [])
             all_folders.extend(folders)
             page_token = results.get('nextPageToken')
@@ -528,3 +606,7 @@ class GoogleDirectoryService:
             return file_metadata.get('thumbnailLink'), None
         else:
             return None, None
+
+
+
+
