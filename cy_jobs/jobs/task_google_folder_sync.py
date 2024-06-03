@@ -56,4 +56,4 @@ def run():
             except Exception as ex:
                 print(f"Sync directory from google-drive of app {app.app_name} is fail")
                 print(traceback.format_exc())
-        time.sleep(2)
+        time.sleep(30)
