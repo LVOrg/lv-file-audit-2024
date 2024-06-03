@@ -431,9 +431,12 @@ class GoogleDirectoryService:
         :return: IsExit: bool, Folder_id:str ,error: dict
         """
         full_check_path = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,directory,file_name)
+        try:
+            os.makedirs(full_check_path)
+        except FileExistsError:
+            return True, None, None
 
-        if os.path.isdir(full_check_path):
-            return True,None,None
+
 
 
 
