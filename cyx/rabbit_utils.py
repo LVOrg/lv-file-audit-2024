@@ -5,6 +5,9 @@ import json
 class MesssageBlock:
     data: dict|None
     app_name:str|None
+    method: None
+    properties:None
+    body: None
 
 class Consumer:
     queue_name: str
@@ -57,6 +60,9 @@ class Consumer:
         dic_body = json.loads(body)
         ret.app_name= dic_body.get("app_name")
         ret.data = dic_body.get("data")
+        ret.properties=properties
+        ret.method = method
+        ret.body = body
         return ret
 
     def resume(self, msg:MesssageBlock):

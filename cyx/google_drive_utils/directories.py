@@ -23,7 +23,8 @@ import threading
 
 my_lock = threading.Lock()
 
-GOOGLE_DIRECTORIES_PRE_FIX=f"{__file__}.directories"
+GOOGLE_DIRECTORIES_PRE_FIX = f"{__file__}.directories"
+
 
 class GoogleDriveInfo:
     hash: dict
@@ -337,7 +338,8 @@ class GoogleDirectoryService:
         ret = hashlib.sha256(f"{app_name}/{path}".encode()).hexdigest()
         return ret
 
-    def get_all_folder_info(self, app_name: str,from_cache:bool=True) -> typing.Tuple[GoogleDriveInfo | None, dict | None]:
+    def get_all_folder_info(self, app_name: str, from_cache: bool = True) -> typing.Tuple[
+        GoogleDriveInfo | None, dict | None]:
         """
         Get all directories in Google Drive of app
         :param app_name:
@@ -346,12 +348,11 @@ class GoogleDirectoryService:
         key = f"{type(self).__module__}/{type(self).__name__}/get_all_folder_info/{app_name}"
         ret = None
         if from_cache:
-            ret = self.memcache_service.get_object(key,GoogleDriveInfo)
-            if isinstance(ret,GoogleDriveInfo):
+            ret = self.memcache_service.get_object(key, GoogleDriveInfo)
+            if isinstance(ret, GoogleDriveInfo):
                 return ret, None
 
-
-        service, error = self.g_drive_service.get_service_by_app_name(app_name,from_cache=from_cache)
+        service, error = self.g_drive_service.get_service_by_app_name(app_name, from_cache=from_cache)
         if error:
             return None, error
         folder_tree, folder_list, error = self.__get_all_folders__(service)
@@ -361,10 +362,12 @@ class GoogleDirectoryService:
             ret = GoogleDriveInfo()
             ret.neast = folder_tree
             ret.hash = folder_list
-            self.memcache_service.set_object(key,ret)
+            self.memcache_service.set_object(key, ret)
             return ret, None
-    def make_map_file(self, app_name, directory, filename, google_file_id:str):
-        full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, directory,filename)
+
+    def make_map_file(self, app_name, directory, filename, google_file_id: str):
+        full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, directory,
+                                      filename)
         id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
         if os.path.isfile(id_file_of_full_check_dir):
             return
@@ -377,55 +380,93 @@ class GoogleDirectoryService:
                     fs.write(google_file_id.encode())
             except FileExistsError:
                 return
+
     def make_map_folder(self, app_name, folder_path, folder_id):
         full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, folder_path)
         id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
-        full_mark_path = os.path.join(full_check_dir,id_file_of_full_check_dir)
+        full_mark_path = os.path.join(full_check_dir, id_file_of_full_check_dir)
         if os.path.isfile(full_mark_path):
             return
         else:
-            os.makedirs(full_check_dir,exist_ok=True)
+            os.makedirs(full_check_dir, exist_ok=True)
             if os.path.isfile(full_mark_path):
                 return
             try:
-                with open(full_mark_path,"wb") as fs:
+                with open(full_mark_path, "wb") as fs:
                     fs.write(folder_id.encode())
             except FileExistsError:
                 return
-    def delete_file(self,app_name, folder_path, filename):
-        full_check_dir = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,folder_path,filename)
+
+    def delete_file(self, app_name, folder_path, filename):
+        full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, folder_path,
+                                      filename)
         if os.path.isdir(full_check_dir):
             try:
                 shutil.rmtree(full_check_dir)
             except:
                 pass
-    def get_remote_folder_id(self, service, app_name, directory,parent_id=None):
-        if directory=="":
-            return None,None
-        full_check_dir = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,directory)
-        id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
-        path_to_get_folder_id = os.path.join(full_check_dir,id_file_of_full_check_dir)
-        ret_id= None
-        if os.path.isfile(path_to_get_folder_id):
-            re_update = False
-            with open(path_to_get_folder_id,"rb") as fs:
-                ret_id = fs.read().decode()
-                if len(ret_id)==0 or ret_id is None:
-                    re_update = True
-                    ret_id =self.__create_folder__(service, directory.split('/')[-1],parent_id=parent_id)
-            if re_update:
-                with open(path_to_get_folder_id, "wb") as fs:
-                    fs.write(ret_id.encode())
-            return ret_id,None
 
-        else:
-            folders= directory.split('/')
-            folder_id, error = self.get_remote_folder_id(service,app_name,"/".join(folders[0:-1]))
+    def get_remote_folder_id(self, service, app_name, directory, parent_id=None)->typing.Tuple[str|None,dict|None]:
+        """
+
+        :param service:
+        :param app_name:
+        :param directory:
+        :param parent_id:
+        :return: cloud_folder_id, error
+        """
+        if directory == "" or directory is None:
+            return None, None
+        folder_id = None
+        data = Repository.files.app(app_name).context.aggregate().match(
+            Repository.files.fields.FullPathOnCloud==directory
+        ).project(
+            cy_docs.fields.cloud_folder_id>>Repository.files.fields.google_folder_id
+        ).first_item()
+        if data is None:
+            folder_tree,folder_hash, error =self.get_all_folders(app_name)
+
             if error:
                 return None,error
-            new_folder_id = self.__create_folder__(service,folders[-1],parent_id=folder_id)
-            self.make_map_folder(app_name=app_name,folder_path ="/".join(folders),folder_id= new_folder_id)
-            return new_folder_id, None
+            if folder_hash.get(f"my drive/{directory}"):
+                folder_id = folder_hash.get(f"my drive/{directory}").get("id")
+                return folder_id, None
+            else:
+                parent_of_folder_id, error = self.get_remote_folder_id(service,"/".join(directory.split('/')[0:-1]),parent_id)
+                if error:
+                    return None,error
+                else:
+                    folder_id = self.__create_folder__(service,directory.split('/')[-1],parent_of_folder_id)
+                    return folder_id, None
+        else:
+            folder_id= data.cloud_folder_id
+            return folder_id, None
+
+
+        # full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, directory)
+        # id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
+        # path_to_get_folder_id = os.path.join(full_check_dir, id_file_of_full_check_dir)
+        # ret_id = None
+        # if os.path.isfile(path_to_get_folder_id):
+        #     re_update = False
+        #     with open(path_to_get_folder_id, "rb") as fs:
+        #         ret_id = fs.read().decode()
+        #         if len(ret_id) == 0 or ret_id is None:
+        #             re_update = True
+        #             ret_id = self.__create_folder__(service, directory.split('/')[-1], parent_id=parent_id)
+        #     if re_update:
+        #         with open(path_to_get_folder_id, "wb") as fs:
+        #             fs.write(ret_id.encode())
+        #     return ret_id, None
+        #
+        # else:
+        #     folders = directory.split('/')
+        #     folder_id, error = self.get_remote_folder_id(service, app_name, "/".join(folders[0:-1]))
+        #     if error:
+        #         return None, error
+        #     new_folder_id = self.__create_folder__(service, folders[-1], parent_id=folder_id)
+        #     self.make_map_folder(app_name=app_name, folder_path="/".join(folders), folder_id=new_folder_id)
+        #     return new_folder_id, None
 
     def check_before_upload(self, app_name, directory: str, file_name) -> typing.Tuple[
         bool | None, str | None, dict | None]:
@@ -436,35 +477,29 @@ class GoogleDirectoryService:
         :param file_name:
         :return: IsExit: bool, Folder_id:str ,error: dict
         """
-        full_check_path = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,directory,file_name)
+        full_check_path = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, directory,
+                                       file_name)
         try:
             os.makedirs(full_check_path)
         except FileExistsError:
             return True, None, None
 
-
-
-
-
         # token, error = self.g_drive_service.get_access_token_from_refresh_token(app_name, from_cache=True)
-        service,error = self.g_drive_service.get_service_by_app_name(app_name,from_cache=False)
+        service, error = self.g_drive_service.get_service_by_app_name(app_name, from_cache=False)
         if isinstance(error, dict):
-            return None,None, error
+            return None, None, error
 
         # client_id, client_secret, _, error = self.g_drive_service.get_id_and_secret(app_name, from_cache=True)
-        folder_id, error =self.get_remote_folder_id(service=service,app_name=app_name ,directory=directory)
+        folder_id, error = self.get_remote_folder_id(service=service, app_name=app_name, directory=directory)
         if isinstance(error, dict):
             return None, None, error
         return False, folder_id, None
 
-
-        data=res.json()
+        data = res.json()
         if data.get("error"):
-            return None,None, data.get("error")
-        elif isinstance(data.get("result"),dict):
-            return data.get("result").get("is_exist"),data.get("result").get("folder_id"),None
-
-
+            return None, None, data.get("error")
+        elif isinstance(data.get("result"), dict):
+            return data.get("result").get("is_exist"), data.get("result").get("folder_id"), None
 
     def register_upload_file(self, app_name, directory_id, file_name: str, file_size) -> typing.Tuple[
         str | None, str | None, dict | None]:
@@ -527,7 +562,7 @@ class GoogleDirectoryService:
             #                                fields="nextPageToken, files(id, name,parents,kind)",
             #                                pageSize=100,  # Adjust page size as needed
             #                                pageToken=page_token).execute()
-            results =service.files().list(
+            results = service.files().list(
                 fields="nextPageToken, files(id, name, parents, kind)",
                 pageSize=100,  # Adjust page size as needed
                 pageToken=page_token
@@ -584,8 +619,6 @@ class GoogleDirectoryService:
             return file_metadata.get('thumbnailLink'), None
         else:
             return None, None
-
-
 
 #export HUGGINGFACE_HUB_CACHE=/mnt/files/__dataset__/cache
 #export HUGGINGFACE_ASSETS_CACHE=/mnt/files/__dataset__/asset

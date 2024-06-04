@@ -37,10 +37,10 @@ from cy_xdoc.services.search_engine import SearchEngine
 from gradio_client import Client
 from cyx.processing_file_manager_services import ProcessManagerService
 from cyx.cloud.cloud_upload_google_service import CloudUploadGoogleService
+from cy_jobs.cy_job_libs import JobLibs
 import traceback
 import pika
 import json
-
 
 
 def is_file_deletable(filepath):
@@ -82,13 +82,17 @@ host=self.__server__,
                     retry_delay=10
 """
 from cyx.rabbit_utils import Consumer
+
 consumer = Consumer(cyx.common.msg.MSG_CLOUD_GOOGLE_DRIVE_SYNC)
 local_api_service = cy_kit.singleton(LocalAPIService)
 cloud_upload_google_service = cy_kit.singleton(CloudUploadGoogleService)
 
 while True:
     try:
-        method, properties, body = consumer.basic_get()
+        msg = consumer.get_msg()
+        if not msg:
+            continue
+        method, properties, body = msg.method,msg.properties, msg.body
         data = {}
         if method:
             try:
@@ -97,24 +101,54 @@ while True:
                 continue
             app_name = data["app_name"]
             upload_item = data["data"]
-            download_url, rel_path, download_file, token, share_id = local_api_service.get_download_path(upload_item,
-                                                                                                         app_name)
+            full_path_on_cloud = upload_item.get("FullPathOnCloud")
+            if full_path_on_cloud is None:
+                continue
+
+            cloud_dir = pathlib.Path(full_path_on_cloud).parent.__str__()
+            service, error = JobLibs.google_directory_service.g_drive_service.get_service_by_app_name(app_name)
+            if error:
+                consumer.resume(msg)
+                continue
+            download_url, rel_path, download_file, token, share_id = local_api_service.get_download_path(
+                upload_item,
+                app_name
+            )
+            cloud_folder_id, error = JobLibs.google_directory_service.get_remote_folder_id(
+                service=service,
+                app_name=app_name,
+                directory=cloud_dir
+            )
+            if error:
+                consumer.resume(msg)
+                continue
             full_path = os.path.join("/mnt/files", rel_path)
             if os.path.isfile(full_path):
                 try:
+                    google_file_id, url_google_upload, error = JobLibs.google_directory_service.register_upload_file(
+                                app_name=app_name,
+                                directory_id = cloud_folder_id,
+                                file_name= upload_item["FileName"],
+                                file_size= upload_item["SizeInBytes"]
+                            )
+                    if error:
+                        consumer.resume(msg)
+                        continue
+                    upload_item["google_file_id"] = google_file_id
                     print(f"{full_path} in {app_name} is synchronizing to Google Drive")
                     if upload_item.get("google_file_id"):
                         try:
                             ret, error = cloud_upload_google_service.do_upload(
                                 app_name=app_name,
                                 file_path=full_path,
-                                google_file_id=upload_item.get("google_file_id"),
+                                google_file_id=cloud_folder_id,
                                 google_file_name=upload_item.get("FileName")
                             )
 
                             Repository.files.app(app_name).context.update(
                                 Repository.files.fields.Id == upload_item["_id"],
-                                Repository.files.fields.CloudId << ret
+                                Repository.files.fields.CloudId << ret,
+                                Repository.files.fields.google_file_id << google_file_id
                             )
                             try:
                                 os.remove(full_path)
@@ -146,9 +180,10 @@ while True:
                         Repository.cloud_file_sync.fields.ErrorContent << traceback_str
                     )
                     print(traceback_str)
+                    consumer.resume(msg)
 
         else:
             print("No message received.")
     except Exception as ex:
-        str_err=traceback.format_exc()
+        str_err = traceback.format_exc()
         print(str_err)
