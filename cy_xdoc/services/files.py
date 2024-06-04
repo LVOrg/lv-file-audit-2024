@@ -32,7 +32,7 @@ from cyx.common import config
 from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
 from cyx.common.rabitmq_message import RabitmqMsg
-
+from cyx.repository import Repository
 
 class FileServices:
     """
@@ -258,7 +258,8 @@ class FileServices:
                                         is_encrypt_content: typing.Optional[bool] = False,
                                         url_google_upload: typing.Optional[str] = None,
                                         google_file_id: typing.Optional[str] = None,
-                                        google_folder_id: typing.Optional[str] = None
+                                        google_folder_id: typing.Optional[str] = None,
+                                        google_folder_path: typing.Optional[str] = None,
                                         ):
         return self.add_new_upload_info(
             app_name=app_name,
@@ -278,7 +279,8 @@ class FileServices:
             is_encrypt_content = is_encrypt_content,
             url_google_upload = url_google_upload,
             google_file_id = google_file_id,
-            google_folder_id = google_folder_id
+            google_folder_id = google_folder_id,
+            google_folder_path = google_folder_path
 
         )
 
@@ -300,9 +302,20 @@ class FileServices:
                             is_encrypt_content: typing.Optional[bool] = False,
                             url_google_upload: typing.Optional[str]= None,
                             google_file_id : typing.Optional[str] = None,
-                            google_folder_id: typing.Optional[str] = None):
+                            google_folder_id: typing.Optional[str] = None,
+                            google_folder_path: typing.Optional[str] = None):
         __registerde_on__ = datetime.datetime.utcnow()
-        id = str(uuid.uuid4())
+        is_new=True
+        if isinstance(google_folder_path,str):
+            data_item = Repository.files.app(app_name).context.aggregate().match(
+                Repository.files.fields.FullPathOnCloud==os.path.join(google_folder_path,client_file_name)
+            ) .project(
+                cy_docs.fields.upload_id>>Repository.files.fields.id
+            ).first_item()
+            is_new = False
+            id = data_item.upload_id
+        else:
+            id = str(uuid.uuid4())
         _has_thumb_ = False
         file_ext = pathlib.Path(client_file_name).suffix
         local_path_dir: str = self.make_local_path(
@@ -333,19 +346,7 @@ class FileServices:
             app_name=app_name,
             privileges_type_from_client=privileges_type
         )
-        fucking_session_url = None
-        fucking_onedrive_item = None
-        # if storage_type == "onedrive":
-        #     fucking_session_url = self.onedrive_service.get_upload_session(
-        #         app_name=app_name,
-        #         upload_id=id,
-        #         client_file_name=client_file_name
-        #     )
-        #     fucking_onedrive_item = self.onedrive_service.get_access_item(
-        #         app_name=app_name,
-        #         upload_id=id,
-        #         client_file_name=client_file_name
-        #     )
+
 
         def cahe_register():
             cache_doc = cy_docs.DocumentObject()
@@ -402,7 +403,7 @@ class FileServices:
             cache_doc[doc.fields.OnedriveScope] = onedriveScope
             cache_doc[doc.fields.OnedrivePassword] = onedrive_password
             cache_doc[doc.fields.OnedriveExpiration] = onedrive_expiration
-            cache_doc[doc.fields.OnedriveSessionUrl] = fucking_session_url
+            cache_doc[doc.fields.FullPathOnCloud] = os.path.join(google_folder_path,client_file_name)
 
             self.set_upload_register_to_cache(
                 app_name=app_name,
@@ -418,69 +419,121 @@ class FileServices:
             if len(os.path.splitext(server_file_name_only)[1].split('.')) > 1:
                 file_ext = os.path.splitext(client_file_name)[1].split('.')[1]
                 server_file_name = f"{id}.{file_ext}"
-            retry_count = 0
+            retry_count = 10
 
-            while retry_count < 10:
+            while retry_count >0:
                 try:
                     require_msg_process = cyx.common.msg.MSG_MATRIX.get(
                         (file_ext or "").lower()
                     )
                     main_thumb_file = f"{local_path_dir}/{client_file_name}.webp"
-
-                    doc.context.insert_one(
-                        doc.fields.id << id,
-                        doc.fields.FileName << client_file_name,
-                        doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
-                        doc.fields.FileNameLower << client_file_name.lower(),
-                        doc.fields.FileExt << file_ext,
-                        doc.fields.FullFileName << f"{id}/{server_file_name_only}",
-                        doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
-                        doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
-                        doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
-                        doc.fields.ServerFileName << server_file_name,
-                        doc.fields.AvailableThumbSize << thumbs_support,
-                        doc.fields.ChunkSizeInKB << chunk_size / 1024,
-                        doc.fields.ChunkSizeInBytes << chunk_size,
-                        doc.fields.NumOfChunks << num_of_chunks,
-                        doc.fields.NumOfChunksCompleted << 0,
-                        doc.fields.SizeInHumanReadable << humanize.filesize.naturalsize(file_size),
-                        doc.fields.SizeUploaded << 0,
-                        doc.fields.ProcessHistories << [],
-                        doc.fields.MimeType << mime_type,
-                        doc.fields.IsPublic << is_public,
-                        doc.fields.Status << 0,
-                        doc.fields.RegisterOn << datetime.datetime.utcnow(),
-                        doc.fields.RegisterOnDays << datetime.datetime.utcnow().day,
-                        doc.fields.RegisterOnMonths << datetime.datetime.utcnow().month,
-                        doc.fields.RegisterOnYears << datetime.datetime.utcnow().year,
-                        doc.fields.RegisterOnHours << datetime.datetime.utcnow().hour,
-                        doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
-                        doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
-                        doc.fields.RegisteredBy << app_name,
-                        doc.fields.HasThumb << _has_thumb_,
-                        doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
-                        doc.fields.SizeInBytes << file_size,
-                        doc.fields.Privileges << privileges_server,
-                        doc.fields.ClientPrivileges << privileges_client,
-                        doc.fields.meta_data << meta_data,
-                        doc.fields.SkipActions << skip_option,
-                        doc.fields.StorageType << storage_type,
-                        doc.fields.OnedriveScope << onedriveScope,
-                        doc.fields.OnedriveSessionUrl << fucking_session_url,
-                        doc.fields.OnedrivePassword << onedrive_password,
-                        doc.fields.OnedriveExpiration << onedrive_expiration,
-                        doc.fields.MsgRequires << require_msg_process,
-                        doc.fields.MainFileId << f"{local_path_dir}/{client_file_name}",
-                        doc.fields.ThumbFileId << main_thumb_file,
-                        doc.fields.IsEncryptContent << is_encrypt_content,
-                        doc.fields.url_google_upload<< url_google_upload,
-                        doc.fields.google_file_id <<google_file_id,
-                        doc.fields.google_folder_id << google_folder_id
-                    )
+                    if is_new:
+                        doc.context.insert_one(
+                            doc.fields.id << id,
+                            doc.fields.FileName << client_file_name,
+                            doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
+                            doc.fields.FileNameLower << client_file_name.lower(),
+                            doc.fields.FileExt << file_ext,
+                            doc.fields.FullFileName << f"{id}/{server_file_name_only}",
+                            doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
+                            doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
+                            doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
+                            doc.fields.ServerFileName << server_file_name,
+                            doc.fields.AvailableThumbSize << thumbs_support,
+                            doc.fields.ChunkSizeInKB << chunk_size / 1024,
+                            doc.fields.ChunkSizeInBytes << chunk_size,
+                            doc.fields.NumOfChunks << num_of_chunks,
+                            doc.fields.NumOfChunksCompleted << 0,
+                            doc.fields.SizeInHumanReadable << humanize.filesize.naturalsize(file_size),
+                            doc.fields.SizeUploaded << 0,
+                            doc.fields.ProcessHistories << [],
+                            doc.fields.MimeType << mime_type,
+                            doc.fields.IsPublic << is_public,
+                            doc.fields.Status << 0,
+                            doc.fields.RegisterOn << datetime.datetime.utcnow(),
+                            doc.fields.RegisterOnDays << datetime.datetime.utcnow().day,
+                            doc.fields.RegisterOnMonths << datetime.datetime.utcnow().month,
+                            doc.fields.RegisterOnYears << datetime.datetime.utcnow().year,
+                            doc.fields.RegisterOnHours << datetime.datetime.utcnow().hour,
+                            doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
+                            doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
+                            doc.fields.RegisteredBy << app_name,
+                            doc.fields.HasThumb << _has_thumb_,
+                            doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
+                            doc.fields.SizeInBytes << file_size,
+                            doc.fields.Privileges << privileges_server,
+                            doc.fields.ClientPrivileges << privileges_client,
+                            doc.fields.meta_data << meta_data,
+                            doc.fields.SkipActions << skip_option,
+                            doc.fields.StorageType << storage_type,
+                            doc.fields.OnedriveScope << onedriveScope,
+                            doc.fields.OnedrivePassword << onedrive_password,
+                            doc.fields.OnedriveExpiration << onedrive_expiration,
+                            doc.fields.MsgRequires << require_msg_process,
+                            doc.fields.MainFileId << f"{local_path_dir}/{client_file_name}",
+                            doc.fields.ThumbFileId << main_thumb_file,
+                            doc.fields.IsEncryptContent << is_encrypt_content,
+                            doc.fields.url_google_upload<< url_google_upload,
+                            doc.fields.google_file_id <<google_file_id,
+                            doc.fields.google_folder_id << google_folder_id,
+                            doc.fields.FullPathOnCloud << os.path.join(google_folder_path,client_file_name)
+                        )
+                    else:
+                        doc.context.update(
+                            doc.fields.id == id,
+                            doc.fields.FileName << client_file_name,
+                            doc.fields.FileNameOnly << pathlib.Path(client_file_name).stem,
+                            doc.fields.FileNameLower << client_file_name.lower(),
+                            doc.fields.FileExt << file_ext,
+                            doc.fields.FullFileName << f"{id}/{server_file_name_only}",
+                            doc.fields.FullFileNameLower << f"{id}/{server_file_name_only}".lower(),
+                            doc.fields.FullFileNameWithoutExtenstion << f"{id}/{pathlib.Path(server_file_name_only).stem}",
+                            doc.fields.FullFileNameWithoutExtenstionLower << f"{id}/{pathlib.Path(server_file_name_only).stem}".lower(),
+                            doc.fields.ServerFileName << server_file_name,
+                            doc.fields.AvailableThumbSize << thumbs_support,
+                            doc.fields.ChunkSizeInKB << chunk_size / 1024,
+                            doc.fields.ChunkSizeInBytes << chunk_size,
+                            doc.fields.NumOfChunks << num_of_chunks,
+                            doc.fields.NumOfChunksCompleted << 0,
+                            doc.fields.SizeInHumanReadable << humanize.filesize.naturalsize(file_size),
+                            doc.fields.SizeUploaded << 0,
+                            doc.fields.ProcessHistories << [],
+                            doc.fields.MimeType << mime_type,
+                            doc.fields.IsPublic << is_public,
+                            doc.fields.Status << 0,
+                            doc.fields.RegisterOn << datetime.datetime.utcnow(),
+                            doc.fields.RegisterOnDays << datetime.datetime.utcnow().day,
+                            doc.fields.RegisterOnMonths << datetime.datetime.utcnow().month,
+                            doc.fields.RegisterOnYears << datetime.datetime.utcnow().year,
+                            doc.fields.RegisterOnHours << datetime.datetime.utcnow().hour,
+                            doc.fields.RegisterOnMinutes << datetime.datetime.utcnow().minute,
+                            doc.fields.RegisterOnSeconds << datetime.datetime.utcnow().second,
+                            doc.fields.RegisteredBy << app_name,
+                            doc.fields.HasThumb << _has_thumb_,
+                            doc.fields.LastModifiedOn << datetime.datetime.utcnow(),
+                            doc.fields.SizeInBytes << file_size,
+                            doc.fields.Privileges << privileges_server,
+                            doc.fields.ClientPrivileges << privileges_client,
+                            doc.fields.meta_data << meta_data,
+                            doc.fields.SkipActions << skip_option,
+                            doc.fields.StorageType << storage_type,
+                            doc.fields.OnedriveScope << onedriveScope,
+                            doc.fields.OnedrivePassword << onedrive_password,
+                            doc.fields.OnedriveExpiration << onedrive_expiration,
+                            doc.fields.MsgRequires << require_msg_process,
+                            doc.fields.MainFileId << f"{local_path_dir}/{client_file_name}",
+                            doc.fields.ThumbFileId << main_thumb_file,
+                            doc.fields.IsEncryptContent << is_encrypt_content,
+                            doc.fields.url_google_upload << url_google_upload,
+                            doc.fields.google_file_id << google_file_id,
+                            doc.fields.google_folder_id << google_folder_id,
+                            doc.fields.FullPathOnCloud << os.path.join(google_folder_path, client_file_name)
+                        )
+                    retry_count=0
                 except Exception as e:
                     time.sleep(0.1)
-                    retry_count += 1
-                    if retry_count > 10:
+                    retry_count -= 1
+                    if retry_count <=0:
                         self.logger.error(e)
 
         insert_register()

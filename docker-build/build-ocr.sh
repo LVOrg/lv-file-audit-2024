@@ -1,4 +1,6 @@
 #!/bin/bash
+#docker run -it  -v $(pwd)/../cy-commands:/cmd -v $(cms)/../tmp-files:/tmp-files -p 3456:3456  -v /socat-share:/socat-share --entrypoint /bin/bash  hdgigante/python-opencv:4.9.0-debian
+
 source build-func.sh
 image_name="fs"
 rm -f build_file
@@ -6,56 +8,50 @@ rm -f build_file
 repository="docker.io/nttlong"
 #user="nttlong/file-svc"
 platform=linux/amd64
-build_file="ocr-core"
-
+build_file="ocr-processing"
+if [ -z "$1" ]; then
+  # No argument provided, use default repository
+  repository="docker.io/nttlong"
+else
+  # Argument provided, use it as the repository
+  repository="$1"
+fi
+if [ -z "$2" ]; then
+  # No argument provided, use default repository
+  customer="saas"
+else
+  # Argument provided, use it as the repository
+  customer="$2"
+fi
 rm -f $build_file
 echo "
-FROM ubuntu:20.04
-RUN apt update && apt upgrade -y
-#RUN add-apt-repository ppa:deadsnakes/ppa -y
-RUN apt install software-properties-common -y
-RUN add-apt-repository ppa:deadsnakes/ppa -y
-RUN apt update
-RUN apt install python3.9 -y
-RUN apt install libopencv-dev -y; exit 0;
+FROM python:3.10.13-bullseye
+COPY ./../venv-remote-ocr/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY ./../hf /mnt/files/__dataset__/hf
+ENV HUGGINGFACE_HUB_CACHE=/mnt/files/__dataset__/hf
 
-RUN apt install python3-opencv -y; exit 0;
-RUN  apt-get update --fix-missing
-RUN apt install libopencv-dev -y
-RUN apt install python3-opencv -y
-RUN apt install libgomp1 -y
-RUN apt install socat -y
-RUN apt install netcat -y
-RUN apt install curl -y
-RUN apt install wget -y
-RUN apt install nano -y
-RUN apt install git -y
-#RUN pip install --upgrade pip
-#COPY ./../docker-build/requirements/ocr.req.txt /app/ocr.req.txt
-#RUN python3 -m pip install -r  /app/ocr.req.txt --no-cache-dir
-COPY ./../env_ai_cloud/lib/python3.9/site-packages /usr/local/lib/python3.9/dist-packages
-RUN apt install python3-pip -y
-RUN python3.9 -m pip install pika
 RUN apt clean && apt autoclean
-COPY ./../docker-build/build-ocr-cache-dataset/cache /root/.cache
-COPY ./../docker-build/build-ocr-cache-dataset/.paddleocr /root/.paddleocr
+ENTRYPOINT [\"surya_gui\"]
 ">>$build_file
-ocr_core_tag=2
-ocr_core_tag_build="fs.ocr.core."$(tag $ocr_core_tag)
-ocr_core_image="$repository/fs:"$ocr_core_tag_build
-buildFunc $build_file $repository $image_name $ocr_core_tag_build "python:3.10-alpine" "alpine"
+ocr_core_tag=1
+#/home/vmadmin/python/cy-py/hf
+#sudo mount -t nfs 192.168.18.36:/codx-file-storage/files/__dataset__/hf /home/vmadmin/python/cy-py/hf
+#ocr_core_image="$repository/fs:"$ocr_core_tag_build
+buildFunc $build_file $repository "surya-ocr" $ocr_core_tag "python:3.10-alpine" "alpine"
+echo "docker run -p 1112:1112  -v /socat-share:/socat-share $repository/$image_name:$ocr_core_tag_build"
 
-fs_ocr_file="fs.ocr"
-rm -f $fs_ocr_file
-
-echo "ARG BASE
-FROM $ocr_core_image
-
-
-COPY ./../cy-commands /cmd
-ENTRYPOINT [\"/cmd/server.sh\"]
-">>$fs_ocr_file
-fs_ocr_tag=2
-fs_ocr_tag_build="fs.ocr."$(tag $ocr_core_tag).$fs_ocr_tag
-fs_ocr_image=web:"apps".$web_api_core_tag_build
-buildFunc $fs_ocr_file $repository $image_name $fs_ocr_tag_build "python:3.10-alpine" "alpine"
+build_ocr_file="surya-ocr-entrypoint"
+mr -f $build_ocr_file
+echo "
+FROM nttlong/surya-ocr:$ocr_core_tag
+COPY ./../venv-remote-ocr/bin /usr/local/bin
+ENV HUGGINGFACE_HUB_CACHE=/mnt/files/__dataset__/hf
+RUN apt clean && apt autoclean
+ENTRYPOINT [\"surya_gui\"]
+">>$build_ocr_file
+ocr_tag=$ocr_core_tag.1
+#/home/vmadmin/python/cy-py/hf
+#sudo mount -t nfs 192.168.18.36:/codx-file-storage/files/__dataset__/hf /home/vmadmin/python/cy-py/hf
+#ocr_core_image="$repository/fs:"$ocr_core_tag_build
+buildFunc $build_ocr_file $repository "surya-ocr-app" $ocr_core_tag "python:3.10-alpine" "alpine"
+echo "docker run -p 1112:1112  -v /socat-share:/socat-share $repository/$image_name:$ocr_core_tag_build"

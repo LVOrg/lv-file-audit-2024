@@ -134,12 +134,12 @@ class LoggerService:
             print(f'[ERROR][{now.strftime("%Y%m/%d/ %H:%M:%S")}][{self.get_fullname_of_pod()}]: {content}')
 
             self.__logger__.exception("An exception occurred: %s", ex, exc_info=True)
-            if self.slack_client is None:
-                self.write_to_mongodb(created_on=now, log_type="error", content=content)
-            else:
-                slack_data = self.get_info_for_slack(traceback.format_exc(), more_info=more_info)
-
-                self.slack_client.send(text=slack_data)
+            # if self.slack_client is None:
+            #     self.write_to_mongodb(created_on=now, log_type="error", content=content)
+            # else:
+            #     slack_data = self.get_info_for_slack(traceback.format_exc(), more_info=more_info)
+            #
+            #     self.slack_client.send(text=slack_data)
         except Exception as ex:
             self.__logger__.error(ex)
 

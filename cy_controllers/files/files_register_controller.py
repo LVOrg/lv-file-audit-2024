@@ -1,5 +1,8 @@
 import datetime
-
+import os.path
+import uuid
+import pymongo.errors
+from cyx.repository import Repository
 from cy_controllers.common.base_controller import (
     BaseController,
     Authenticate,
@@ -221,62 +224,56 @@ class FilesRegisterController(BaseController):
                     ret_quit.Error.Message = "Not enough space to do that"
                     ret_quit.Error.Code = "NotEnoughSpace"
                     return ret_quit
-
-                is_exist,folder_id, error= self.google_directory_service.check_before_upload(
-                    app_name=app_name,
-                    directory = Data.googlePath,
-                    file_name= Data.FileName)
-                if error:
-                    ret_quit = RegisterUploadInfoResult()
-                    ret_quit.Error = Error()
-                    ret_quit.Error.Message = error.get("Message")
-                    ret_quit.Error.Code = error.get("Code")
-                    return ret_quit
-                if is_exist:
-                    ret_quit = RegisterUploadInfoResult()
-                    ret_quit.Error = Error()
-                    ret_quit.Error.Message = f"{Data.googlePath}/{Data.FileName} is already in Google drive"
-                    ret_quit.Error.Code = "DuplicateFile"
-                    return ret_quit
-                else:
-                    google_file_id,url_google_upload,error = self.google_directory_service.register_upload_file(
-                        app_name=app_name,
-                        directory_id = folder_id,
-                        file_name= Data.FileName,
-                        file_size=  Data.FileSize
+                checkpath = os.path.join(Data.googlePath,Data.FileName)
+                try:
+                    await  Repository.files.app(app_name).context.insert_one_async(
+                        Repository.files.fields.id<<str(uuid.uuid4()),
+                        Repository.files.fields.FullPathOnCloud<<checkpath
                     )
-                    if error:
+                except pymongo.errors.DuplicateKeyError as ex:
+                    if (hasattr(ex,"details")  and
+                            isinstance(ex.details,dict) and
+                            ex.details.get('keyPattern',{}).get(Repository.files.fields.FullPathOnCloud.__name__)==1
+                    ):
                         ret_quit = RegisterUploadInfoResult()
                         ret_quit.Error = Error()
-                        ret_quit.Error.Message = error["Message"]
-                        ret_quit.Error.Code = error["Code"]
+                        ret_quit.Error.Message =f"{checkpath} is existing"
+                        ret_quit.Error.Code = "FileIsExisting"
                         return ret_quit
-                    else:
-                        self.google_directory_service.make_map_file(app_name=app_name,directory=Data.googlePath,filename= Data.FileName,google_file_id= google_file_id)
 
-            try:
-                client_id, secret_key, _, error = self.g_drive_service.get_id_and_secret(
-                    app_name=app_name
-                )
-                if isinstance(error,dict):
-                    ret_quit = RegisterUploadInfoResult()
-                    ret_quit.Error = Error()
-                    ret_quit.Error.Message = error.get("Message")
-                    ret_quit.Error.Code = error.get("Code")
-                    return ret_quit
-                if client_id is None:
-                    ret_quit = RegisterUploadInfoResult()
-                    ret_quit.Error = Error()
-                    ret_quit.Error.Message = f"Tenant {app_name} did not set. The bestows is deny."
-                    ret_quit.Error.Code = "MissSettings"
-                    return ret_quit
-                Data.encryptContent = True
-            except FuckingWhoreMSApiCallException as e:
-                ret_quit = RegisterUploadInfoResult()
-                ret_quit.Error = Error()
-                ret_quit.Error.Message = e.message
-                ret_quit.Error.Code = e.code
-                return ret_quit
+                # is_exist,folder_id, error= self.google_directory_service.check_before_upload(
+                #     app_name=app_name,
+                #     directory = Data.googlePath,
+                #     file_name= Data.FileName)
+                # if error:
+                #     ret_quit = RegisterUploadInfoResult()
+                #     ret_quit.Error = Error()
+                #     ret_quit.Error.Message = error.get("Message")
+                #     ret_quit.Error.Code = error.get("Code")
+                #     return ret_quit
+                # if is_exist:
+                #     ret_quit = RegisterUploadInfoResult()
+                #     ret_quit.Error = Error()
+                #     ret_quit.Error.Message = f"{Data.googlePath}/{Data.FileName} is already in Google drive"
+                #     ret_quit.Error.Code = "DuplicateFile"
+                #     return ret_quit
+                # else:
+                #     google_file_id,url_google_upload,error = self.google_directory_service.register_upload_file(
+                #         app_name=app_name,
+                #         directory_id = folder_id,
+                #         file_name= Data.FileName,
+                #         file_size=  Data.FileSize
+                #     )
+                #     if error:
+                #         ret_quit = RegisterUploadInfoResult()
+                #         ret_quit.Error = Error()
+                #         ret_quit.Error.Message = error["Message"]
+                #         ret_quit.Error.Code = error["Code"]
+                #         return ret_quit
+                #     else:
+                #         self.google_directory_service.make_map_file(app_name=app_name,directory=Data.googlePath,filename= Data.FileName,google_file_id= google_file_id)
+
+
         privileges = Data.Privileges
         skip_option = {}
         if SkipOptions:
@@ -300,7 +297,8 @@ class FilesRegisterController(BaseController):
                 is_encrypt_content=Data.encryptContent,
                 url_google_upload = url_google_upload,
                 google_file_id = google_file_id,
-                google_folder_id = folder_id
+                google_folder_id = folder_id,
+                google_folder_path = Data.googlePath
 
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())

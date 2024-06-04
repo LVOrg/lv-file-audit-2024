@@ -246,6 +246,20 @@ class FilesController(BaseController):
             if cloud_name != "local":
                 ret, error = self.cloud_service_utils.drive_service.remove_upload(app_name=app_name, upload_id=UploadId,
                                                                                   cloud_name=cloud_name)
+                if error:
+                    ret = controller_model_files.DeleteFileResult()
+                    ret.Error = ErrorInfo()
+                    ret.Error.Code = error.get("Code")
+                    ret.Error.Message = error.get("Message")
+                    return ret
+                # if not error:
+                #     if cloud_name=="Google":
+                #         if upload_item[Repository.files.fields.google_folder_path]:
+                #             self.google_directory_service.delete_file(
+                #                 app_name=app_name,
+                #                 folder_path=upload_item[Repository.files.fields.google_folder_path],
+                #                 filename= upload_item[Repository.files.fields.FileName]
+                #             )
             affected_count = self.file_service.remove_upload(app_name=app_name, upload_id=UploadId)
             ret = controller_model_files.DeleteFileResult()
             ret.AffectedCount = affected_count

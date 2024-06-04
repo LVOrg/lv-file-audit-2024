@@ -2,6 +2,7 @@ import datetime
 import io
 import os.path
 import pathlib
+import shutil
 import threading
 import time
 import typing
@@ -391,11 +392,16 @@ class GoogleDirectoryService:
                     fs.write(folder_id.encode())
             except FileExistsError:
                 return
+    def delete_file(self,app_name, folder_path, filename):
+        full_check_dir = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,folder_path,filename)
+        if os.path.isdir(full_check_dir):
+            try:
+                shutil.rmtree(full_check_dir)
+            except:
+                pass
     def get_remote_folder_id(self, service, app_name, directory,parent_id=None):
         if directory=="":
-            return  None,None
-        if len(directory.split('/'))==1:
-            print("OK")
+            return None,None
         full_check_dir = os.path.join(config.file_storage_path,"__cloud_directories_sync__",app_name,directory)
         id_file_of_full_check_dir = f"{hashlib.sha256(full_check_dir.encode()).hexdigest()}.txt"
         path_to_get_folder_id = os.path.join(full_check_dir,id_file_of_full_check_dir)
@@ -451,45 +457,14 @@ class GoogleDirectoryService:
             return None, None, error
         return False, folder_id, None
 
-        # data = dict(
-        #     refresh_token=token,
-        #     client_id=client_id,
-        #     client_secret=client_secret,
-        #     g_directory_path=directory.lstrip('/'),
-        #     g_filename=file_name
-        # )
-        # res=requests.post(f"{config.remote_google_lock}//get-directory",json=data)
+
         data=res.json()
         if data.get("error"):
             return None,None, data.get("error")
         elif isinstance(data.get("result"),dict):
             return data.get("result").get("is_exist"),data.get("result").get("folder_id"),None
 
-        # service, error = self.g_drive_service.get_service_by_app_name(app_name)
-        # if error:
-        #     return None, None, error
-        # t = datetime.datetime.utcnow()
-        # folder_tree, folder_list, error = self.__get_all_folders__(service)
-        # n = (datetime.datetime.utcnow() - t)
-        # print(n.total_seconds())
-        # root = folder_tree
-        # ret_id = None
-        # is_continue = True
-        # check_key = f"my drive"
-        # for x in directory.split('/'):
-        #     check_key = check_key + "/" + x.lower()
-        #     if folder_list.get(check_key):
-        #         ret_id = folder_list[check_key]['id']
-        #     else:
-        #         ret_id = self.__create_folder__(service, x, ret_id)
-        #
-        # # folder_id = self.__do_create_folder__(service, app_name, directory)
-        # #
-        # data = service.files().list(q=f"name ='{file_name}' and parents='{ret_id}' and trashed=false").execute()[
-        #     "files"]
-        # if len(data) > 0:
-        #     return True, ret_id, None
-        # return False, ret_id, None
+
 
     def register_upload_file(self, app_name, directory_id, file_name: str, file_size) -> typing.Tuple[
         str | None, str | None, dict | None]:
@@ -612,4 +587,7 @@ class GoogleDirectoryService:
 
 
 
-
+#export HUGGINGFACE_HUB_CACHE=/mnt/files/__dataset__/cache
+#export HUGGINGFACE_ASSETS_CACHE=/mnt/files/__dataset__/asset
+#HUGGINGFACE_HUB_CACHE = os.getenv("HUGGINGFACE_HUB_CACHE", default_cache_path)
+#HUGGINGFACE_ASSETS_CACHE = os.getenv("HUGGINGFACE_ASSETS_CACHE", default_assets_cache_path)

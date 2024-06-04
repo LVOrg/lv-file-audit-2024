@@ -44,3 +44,4 @@ secret*
 /docker-build/build-ocr-cache-dataset/
 /client_secrets.json
 /env-img-process/
+/a-data-set/
