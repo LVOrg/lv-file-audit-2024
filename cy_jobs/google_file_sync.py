@@ -1,4 +1,5 @@
 import datetime
+import gc
 # python /home/vmadmin/python/v6/file-service-02/cy_consumers/files_upload.py temp_directory=./brokers/tmp rabbitmq.server=172.16.7.91 rabbitmq.port=31672
 import os
 import pathlib
@@ -138,16 +139,25 @@ while True:
                     print(f"{full_path} in {app_name} is synchronizing to Google Drive")
                     if upload_item.get("google_file_id"):
                         try:
+                            with open(full_path,"rb") as fs:
+                                with open(f"{full_path}.tmp","wb") as fw:
+                                    data = fs.read(1024**2)
+                                    while data:
+                                        fw.write(data)
+                                        del data
+                                        gc.collect()
+                                        data = fs.read(1024 ** 2)
                             ret, error = cloud_upload_google_service.do_upload(
                                 app_name=app_name,
-                                file_path=full_path,
-                                google_file_id=cloud_folder_id,
+                                file_path=f"{full_path}.tmp",
+                                google_file_id=google_file_id,
                                 google_file_name=upload_item.get("FileName")
-                            )
 
+                            )
+                            os.remove(f"{full_path}.tmp")
                             Repository.files.app(app_name).context.update(
                                 Repository.files.fields.Id == upload_item["_id"],
-                                Repository.files.fields.CloudId << ret,
+                                Repository.files.fields.CloudId << google_file_id,
                                 Repository.files.fields.google_file_id << google_file_id
                             )
                             try:

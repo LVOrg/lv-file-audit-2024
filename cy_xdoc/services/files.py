@@ -32,7 +32,7 @@ from cyx.common import config
 from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
 from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
 from cyx.common.rabitmq_message import RabitmqMsg
-from cyx.repository import Repository
+#from cyx.repository import Repository
 
 class FileServices:
     """
@@ -136,7 +136,9 @@ class FileServices:
                 doc.fields.IsEncryptContent,
                 doc.fields.IsLvOcrError,
                 doc.fields.IsSearchEngineError,
-                doc.fields.ProcessInfo
+                doc.fields.ProcessInfo,
+                doc.fields.FullPathOnCloud,
+                doc.fields.CloudId
 
             )
             self.logger.info("Get list of files is OK")
@@ -304,6 +306,7 @@ class FileServices:
                             google_file_id : typing.Optional[str] = None,
                             google_folder_id: typing.Optional[str] = None,
                             google_folder_path: typing.Optional[str] = None):
+        from cyx.repository import Repository
         __registerde_on__ = datetime.datetime.utcnow()
         is_new=True
         if isinstance(google_folder_path,str):

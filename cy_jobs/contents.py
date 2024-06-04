@@ -10,9 +10,11 @@ sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 sys.path.append("/app")
 from cy_jobs.jobs import task_content
 from cy_jobs.jobs import task_google_folder_sync
+from cy_jobs.fix_data import fix_google_drive
 
 content_thread = threading.Thread(target=task_content.run,args=())
 task_google_folder_sync_thead = threading.Thread(target=task_google_folder_sync.run)
+fix_google_drive_task  = threading.Thread(target=fix_google_drive.run)
 # task_google_folder_sync_thead.run()
 def run_all(theads):
     for th in theads:
@@ -23,5 +25,9 @@ def run_all(theads):
             th.join(5)
 from cy_jobs.cy_job_libs import run_with_limited_memory
 run_with_limited_memory(target=run_all,args=(
-    [content_thread,task_google_folder_sync_thead],
+    [
+        content_thread,
+        task_google_folder_sync_thead,
+        fix_google_drive_task
+    ],
 ),memory_limit=1024*1024*1024*2)
