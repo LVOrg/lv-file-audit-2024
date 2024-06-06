@@ -1,5 +1,0 @@
----
-{{ $var:= .Files.Get "data/test2.yml" | fromYaml -}}
----
-aaa: 1
-vvv: {{$var}}

@@ -1,3 +1,7 @@
+import sys
+import pathlib
+sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
+sys.path.append("/app")
 import traceback
 import typing
 from cy_jobs.cy_job_libs import JobLibs
@@ -42,3 +46,4 @@ def run():
                         print(f"fix {cloud_path}")
                     except Exception as ex:
                         print(traceback.format_exc())
+run()

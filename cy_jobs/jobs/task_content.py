@@ -1,12 +1,19 @@
+import sys
+import pathlib
+import threading
+import traceback
+
+sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
+sys.path.append("/app")
 import gc
 import time
 
 import cy_kit
 from cy_jobs.cy_job_libs import JobLibs
-from  cyx.repository import Repository
+from cyx.repository import Repository
 
 import cyx.common.msg
-from cyx.rabbit_utils import Consumer,MesssageBlock
+from cyx.rabbit_utils import Consumer, MesssageBlock
 
 from cyx.common import config
 import cy_utils
@@ -14,7 +21,11 @@ from cyx.extract_content_service import ExtractContentService
 from cyx.common.rabitmq_message import RabitmqMsg
 import json
 import pathlib
+
 extract_content_service = cy_kit.singleton(ExtractContentService)
+
+from cy_jobs.cy_job_libs import screen_logs_cache, screen_logs,print_screen_logs
+
 def run():
     print("run")
     consumer = Consumer(cyx.common.msg.MSG_FILE_GENERATE_CONTENT)
@@ -29,6 +40,7 @@ def run():
             try:
 
                 print(f"Process app={app_name}")
+
                 print(json.dumps(msg.data, indent=4))
                 download_url, rel_path, download_file, token, share_id = JobLibs.local_api_service.get_download_path(
                     upload_item, app_name
@@ -83,8 +95,17 @@ def run():
                 )
                 consumer.resume(msg)
             finally:
-                del  upload_item
+                del upload_item
                 gc.collect()
         else:
             time.sleep(0.2)
             print("no message")
+
+
+
+if __name__ == "__main__":
+    print(__file__)
+    try:
+        run()
+    except:
+        print(traceback.format_exc())

@@ -7,7 +7,7 @@ import sys
 import threading
 import time
 
-working_dir = pathlib.Path(__file__).parent.parent.__str__()
+working_dir = pathlib.Path(__file__).parent.parent.parent.__str__()
 sys.path.append(working_dir)
 sys.path.append("/app")
 import cy_file_cryptor.wrappers
@@ -38,7 +38,7 @@ from cy_xdoc.services.search_engine import SearchEngine
 from gradio_client import Client
 from cyx.processing_file_manager_services import ProcessManagerService
 from cyx.cloud.cloud_upload_google_service import CloudUploadGoogleService
-from cy_jobs.cy_job_libs import JobLibs
+from cy_jobs.cy_job_libs import JobLibs, screen_logs
 import traceback
 import pika
 import json
@@ -82,16 +82,21 @@ host=self.__server__,
                     heartbeat=30,
                     retry_delay=10
 """
+screen_logs(__file__,"................")
 from cyx.rabbit_utils import Consumer
 
 consumer = Consumer(cyx.common.msg.MSG_CLOUD_GOOGLE_DRIVE_SYNC)
 local_api_service = cy_kit.singleton(LocalAPIService)
 cloud_upload_google_service = cy_kit.singleton(CloudUploadGoogleService)
+
 if __name__ == "__main__":
     while True:
         try:
             msg = consumer.get_msg()
             if not msg:
+                screen_logs(__file__,"no message")
+                print(f"no message [{__file__}]")
+                time.sleep(0.3)
                 continue
             method, properties, body = msg.method,msg.properties, msg.body
             data = {}
@@ -99,6 +104,7 @@ if __name__ == "__main__":
                 try:
                     data = json.loads(body)
                 except:
+                    time.sleep(0.3)
                     continue
                 app_name = data["app_name"]
                 upload_item = data["data"]
@@ -115,12 +121,14 @@ if __name__ == "__main__":
                     upload_item,
                     app_name
                 )
+                screen_logs(__file__, f"sync file from {rel_path} to {full_path_on_cloud}")
                 cloud_folder_id, error = JobLibs.google_directory_service.get_remote_folder_id(
                     service=service,
                     app_name=app_name,
                     directory=cloud_dir
                 )
                 if error:
+                    screen_logs(__file__, f"sync file from {rel_path} to {full_path_on_cloud} is error {json.dumps(error,indent=4)}")
                     consumer.resume(msg)
                     continue
                 full_path = os.path.join("/mnt/files", rel_path)
@@ -136,6 +144,7 @@ if __name__ == "__main__":
                             consumer.resume(msg)
                             continue
                         upload_item["google_file_id"] = google_file_id
+                        screen_logs(__file__,f"{full_path} in {app_name} is synchronizing to Google Drive")
                         print(f"{full_path} in {app_name} is synchronizing to Google Drive")
                         if upload_item.get("google_file_id"):
                             try:
@@ -189,11 +198,14 @@ if __name__ == "__main__":
                             Repository.cloud_file_sync.fields.ErrorOn << datetime.datetime.utcnow(),
                             Repository.cloud_file_sync.fields.ErrorContent << traceback_str
                         )
+                        screen_logs(__file__, traceback_str)
                         print(traceback_str)
                         consumer.resume(msg)
 
             else:
+                screen_logs(__file__, "No message received.")
                 print("No message received.")
         except Exception as ex:
             str_err = traceback.format_exc()
+            screen_logs(__file__, str_err)
             print(str_err)

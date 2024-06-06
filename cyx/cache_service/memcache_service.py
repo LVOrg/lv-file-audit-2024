@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import time
 import typing
 
@@ -9,7 +10,7 @@ from cyx.loggers import LoggerService
 from typing import TypeVar
 
 T = TypeVar('T')
-
+from functools import cache as ft_cache
 
 class MemcacheServices:
 
@@ -20,28 +21,30 @@ class MemcacheServices:
         self.server = config.cache_server
         self.client = Client(self.server.split(','))
         self.logger = logger
-
+    @ft_cache
+    def get_hash_key(self,key:str)->str:
+        ret = hashlib.sha256(key.encode()).hexdigest()
+        return ret
     def set_dict(self, key: str, data: dict, expiration=60 * 60 * 4) -> bool:
 
         assert isinstance(data, dict), "data must be dict"
-        key = key.replace(" ", "%20")
-        ret = self.client.set(key, data, time=expiration)
+        ret = self.client.set(self.get_hash_key(key), data, time=expiration)
         return ret
     def remove(self,key:str):
         self.client.delete(key)
     def set_object(self, key: str, data, expiration=60 * 60 * 4) -> bool:
-        key = key.replace(" ", "%20")
+
         import cy_docs
         if isinstance(data,cy_docs.DocumentObject):
-            ret = self.client.set(key, list(data.items()), time=expiration)
+            ret = self.client.set(self.get_hash_key(key), list(data.items()), time=expiration)
             return ret
 
-        ret = self.client.set(key, data, time=expiration)
+        ret = self.client.set(self.get_hash_key(key), data, time=expiration)
         return ret
 
     def get_object(self, key: str, cls: T) -> T:
         import cy_docs
-        key=key.replace(" ","%20")
+        key=self.get_hash_key(key)
         if cls==cy_docs.DocumentObject:
             ret_data = self.client.get(key)
             if ret_data is None:
@@ -56,28 +59,29 @@ class MemcacheServices:
         return ret
 
     def get_dict(self, key: str) -> dict:
-        print(f"Get form cache dict key = {key}")
+
+        key = self.get_hash_key(key)
         return self.client.get(key)
 
     def get_str(self, key) -> str:
-        key = key.replace(" ", "%20")
+        key = self.get_hash_key(key)
         return self.client.get(key)
 
     def set_str(self, key, value: str, expiration=60 * 60 * 4):
-        key = key.replace(" ", "%20")
+        key = self.get_hash_key(key)
         return self.client.set(key, value, time=expiration)
 
     def delete_key(self, key: str):
         return self.client.delete(key)
 
     def set_bool_value(self, key, bool_value: bool, expiration=60 * 60 * 4):
-        key = key.replace(" ", "%20")
+        key = self.get_hash_key(key)
         assert isinstance(bool_value, bool), "bool_value must be bool"
         ret = self.client.set(key, bool_value, time=expiration)
         return ret
 
     def get_bool_value(self, key) -> typing.Optional[bool]:
-        key = key.replace(" ", "%20")
+        key = self.get_hash_key(key)
         ret = self.client.get(key)
         if ret is not None:
             assert isinstance(ret, bool), "Cache error"

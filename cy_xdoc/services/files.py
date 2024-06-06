@@ -406,7 +406,8 @@ class FileServices:
             cache_doc[doc.fields.OnedriveScope] = onedriveScope
             cache_doc[doc.fields.OnedrivePassword] = onedrive_password
             cache_doc[doc.fields.OnedriveExpiration] = onedrive_expiration
-            cache_doc[doc.fields.FullPathOnCloud] = os.path.join(google_folder_path,client_file_name)
+            if isinstance(google_folder_path,str):
+                cache_doc[doc.fields.FullPathOnCloud] = os.path.join(google_folder_path,client_file_name)
 
             self.set_upload_register_to_cache(
                 app_name=app_name,
@@ -423,7 +424,9 @@ class FileServices:
                 file_ext = os.path.splitext(client_file_name)[1].split('.')[1]
                 server_file_name = f"{id}.{file_ext}"
             retry_count = 10
-
+            cloud_path = None
+            if isinstance(google_folder_path,str):
+                cloud_path=os.path.join(google_folder_path,client_file_name)
             while retry_count >0:
                 try:
                     require_msg_process = cyx.common.msg.MSG_MATRIX.get(
@@ -478,8 +481,7 @@ class FileServices:
                             doc.fields.IsEncryptContent << is_encrypt_content,
                             doc.fields.url_google_upload<< url_google_upload,
                             doc.fields.google_file_id <<google_file_id,
-                            doc.fields.google_folder_id << google_folder_id,
-                            doc.fields.FullPathOnCloud << os.path.join(google_folder_path,client_file_name)
+                            doc.fields.google_folder_id << google_folder_id
                         )
                     else:
                         doc.context.update(
@@ -530,7 +532,7 @@ class FileServices:
                             doc.fields.url_google_upload << url_google_upload,
                             doc.fields.google_file_id << google_file_id,
                             doc.fields.google_folder_id << google_folder_id,
-                            doc.fields.FullPathOnCloud << os.path.join(google_folder_path, client_file_name)
+                            doc.fields.FullPathOnCloud << cloud_path
                         )
                     retry_count=0
                 except Exception as e:

@@ -26,25 +26,25 @@ class AppMicrosoftAzure:
     UserName: typing.Optional[str]
     Password: typing.Optional[str]
     RootDir: typing.Optional[str]
-    Scope:typing.Optional[str]
+    Scope: typing.Optional[str]
 
 
 class AppGoogle:
     ClientId: typing.Optional[str]
     ClientSecret: typing.Optional[str]
     RefreshToken: typing.Optional[str]
-    RootDir:typing.Optional[str]
+    RootDir: typing.Optional[str]
     RedirectUri: typing.Optional[str]
     Email: typing.Optional[str]
-    AccessToken :typing.Optional[str]
-    ExpiresIn :typing.Optional[int]
+    AccessToken: typing.Optional[str]
+    ExpiresIn: typing.Optional[int]
     Scope: typing.Optional[str]
-    TokenType : typing.Optional[str]
+    TokenType: typing.Optional[str]
+
 
 class AppsOnCloudModel:
     Azure: typing.Optional[AppMicrosoftAzure]
     Google: typing.Optional[AppGoogle]
-
 
 
 @cy_docs.define(
@@ -137,4 +137,27 @@ class AppStats:
     Grand: typing.Optional[AppStatsDimension]
     """
     Total till now
+    """
+
+
+@cy_docs.define(
+    name="lv_file_cloud_folders_sync",
+    uniques=["CloudPath"]
+)
+class CloudPathTrack:
+    _id: str
+    """
+    Cache all directory path
+    """
+    CloudName: typing.Optional[str]
+    """
+    Cloud name like 'Google', 'Azure', 'S2',...
+    """
+    CloudPath: typing.Optional[str]
+    """
+    Full path of cloud directory Ex: Google/dir1/dir2,...
+    """
+    CloudPathId: typing.Optional[str]
+    """
+    Id of Cloud path
     """

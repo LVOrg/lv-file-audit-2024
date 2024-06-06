@@ -158,10 +158,8 @@ async def estimate_time(request: fastapi.Request, next):
         ))
         return JSONResponse(status_code=500, content={"detail": "Server error"})
 
-    """HTTP/1.1 200 OK
-
-Server-Timing: miss, db;dur=53, app;dur=47.2"""
-    gc.collect()
+    finally:
+        gc.collect()
     return res
 from fastapi import Request, Response
 # from requests_kerberos import HTTPKerberosAuth

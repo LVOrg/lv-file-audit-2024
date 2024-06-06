@@ -1,0 +1,96 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: metrics-server
+  namespace: kube-system
+  labels:
+    k8s-app: metrics-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: metrics-server
+    spec:
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+      containers:
+        - name: metrics-server
+          image: registry.k8s.io/metrics-server/metrics-server:v0.6.4
+          args:
+            - '--kubelet-insecure-tls=true'
+            - '--cert-dir=/tmp'
+            - '--secure-port=4443'
+            - '--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname'
+            - '--kubelet-use-node-status-port'
+            - '--metric-resolution=15s'
+          ports:
+            - name: https
+              containerPort: 4443
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: https
+              scheme: HTTPS
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 20
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/os: linux
+      serviceAccountName: metrics-server
+      serviceAccount: metrics-server
+      securityContext: {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  k8s-app: metrics-server
+              namespaces:
+                - kube-system
+              topologyKey: kubernetes.io/hostname
+      schedulerName: default-scheduler
+      priorityClassName: system-cluster-critical
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+

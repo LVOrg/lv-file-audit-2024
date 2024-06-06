@@ -1,4 +1,5 @@
 import datetime
+import gc
 import io
 import os.path
 import pathlib
@@ -12,6 +13,7 @@ from googleapiclient.discovery import build, Resource
 from functools import cache
 import cy_docs
 import cy_kit
+import pymongo.errors
 from cyx.g_drive_services import GDriveService
 from cyx.cache_service.memcache_service import MemcacheServices
 import hashlib
@@ -24,7 +26,7 @@ import threading
 my_lock = threading.Lock()
 
 GOOGLE_DIRECTORIES_PRE_FIX = f"{__file__}.directories"
-
+import pymongo.errors
 
 class GoogleDriveInfo:
     hash: dict
@@ -300,7 +302,7 @@ class GoogleDirectoryService:
                     ext_list += lst
         return trashed_folders + ext_list
 
-    def get_all_folders(self, app_name) -> typing.Tuple[dict | None, dict | None, dict | None]:
+    def get_all_folders(self, app_name,include_file=True) -> typing.Tuple[dict | None, dict | None, dict | None]:
         """
         This method get all directories in Google Driver of tenant was embody by app_name
         return folder_tree,folder_hash, error
@@ -310,7 +312,7 @@ class GoogleDirectoryService:
         service, error = self.g_drive_service.get_service_by_app_name(app_name)
         if error:
             return None, None, error
-        return self.__get_all_folders__(service)
+        return self.__get_all_folders__(service,include_file)
 
     def __resync_folders__(self, app_name):
         Repository.google_folders.app(app_name).context.delete({})
@@ -418,11 +420,11 @@ class GoogleDirectoryService:
         if directory == "" or directory is None:
             return None, None
         folder_id = None
-        data = Repository.files.app(app_name).context.aggregate().match(
-            Repository.files.fields.FullPathOnCloud==directory
-        ).project(
-            cy_docs.fields.cloud_folder_id>>Repository.files.fields.google_folder_id
-        ).first_item()
+        data = Repository.cloud_path_track.app(app_name).context.find_one(
+            Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
+        )
+        if data is not None:
+            data=data.to_json_convertable()
         if data is None:
             folder_tree,folder_hash, error =self.get_all_folders(app_name)
 
@@ -430,16 +432,58 @@ class GoogleDirectoryService:
                 return None,error
             if folder_hash.get(f"my drive/{directory}"):
                 folder_id = folder_hash.get(f"my drive/{directory}").get("id")
+                try:
+                    Repository.cloud_path_track.app(app_name).context.insert_one(
+                        Repository.cloud_path_track.fields.CloudPath<<f"Google/my drive/{directory}",
+                        Repository.cloud_path_track.fields.CloudPathId<<folder_hash.get(f"my drive/{directory}")
+                    )
+                except pymongo.errors.DuplicateKeyError as ex:
+                    if (hasattr(ex, "details") and
+                            isinstance(ex.details, dict) and
+                            ex.details.get('keyPattern', {}).get('CloudPath')):
+
+                        data = Repository.cloud_path_track.app(app_name).context.find_one(
+                            Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
+                        )
+                        if data:
+                            data = data.to_json_convertable()
+                            if folder_id != data["CloudPathId"]['id']:
+                                service.files().delete(fileId=folder_id).execute()
+                            folder_id = data["CloudPathId"]['id']
+                            return folder_id,None
                 return folder_id, None
             else:
-                parent_of_folder_id, error = self.get_remote_folder_id(service,"/".join(directory.split('/')[0:-1]),parent_id)
+                parent_of_folder_id, error = self.get_remote_folder_id(service,app_name,"/".join(directory.split('/')[0:-1]),parent_id)
                 if error:
                     return None,error
                 else:
                     folder_id = self.__create_folder__(service,directory.split('/')[-1],parent_of_folder_id)
+                    try:
+                        Repository.cloud_path_track.app(app_name).context.insert_one(
+                            Repository.cloud_path_track.fields.CloudPath << f"Google/my drive/{directory}",
+                            Repository.cloud_path_track.fields.CloudPathId << dict(id=folder_id)
+                        )
+                    except pymongo.errors.DuplicateKeyError as ex:
+                        if (hasattr(ex, "details")
+                                and isinstance(ex.details, dict)
+                                and ex.details.get('keyPattern',{}).get('CloudPath')):
+                            data = Repository.cloud_path_track.app(app_name).context.find_one(
+                                Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
+                            )
+                            if data:
+                                data=data.to_json_convertable()
+                                if folder_id != data["CloudPathId"]['id']:
+                                    service.files().delete(fileId=folder_id).execute()
+                                folder_id = data["CloudPathId"]['id']
+                                del data
+                                gc.collect()
+                                return folder_id, None
+
                     return folder_id, None
         else:
-            folder_id= data.cloud_folder_id
+            folder_id= data["CloudPathId"]['id']
+            del data
+            gc.collect()
             return folder_id, None
 
 
@@ -539,7 +583,7 @@ class GoogleDirectoryService:
         )
         return r.json()["id"], location, None
 
-    def __get_all_folders__(self, service: Resource):
+    def __get_all_folders__(self, service: Resource,include_file=True):
 
         """
         This method get all directories in Google Driver of tenant was embody by app_name
@@ -558,15 +602,17 @@ class GoogleDirectoryService:
         # trash_list = self.extract_to_list(trash_node)
         while True:
             # Use files().list() with filter for folders
-            # results = service.files().list(q="mimeType = 'application/vnd.google-apps.folder'",
-            #                                fields="nextPageToken, files(id, name,parents,kind)",
-            #                                pageSize=100,  # Adjust page size as needed
-            #                                pageToken=page_token).execute()
-            results = service.files().list(
-                fields="nextPageToken, files(id, name, parents, kind)",
-                pageSize=100,  # Adjust page size as needed
-                pageToken=page_token
-            ).execute()
+            if not include_file:
+                results = service.files().list(q="mimeType = 'application/vnd.google-apps.folder'",
+                                               fields="nextPageToken, files(id, name,parents,kind)",
+                                               pageSize=100,  # Adjust page size as needed
+                                               pageToken=page_token).execute()
+            else:
+                results = service.files().list(
+                    fields="nextPageToken, files(id, name, parents, kind)",
+                    pageSize=100,  # Adjust page size as needed
+                    pageToken=page_token
+                ).execute()
             folders = results.get('files', [])
             all_folders.extend(folders)
             page_token = results.get('nextPageToken')

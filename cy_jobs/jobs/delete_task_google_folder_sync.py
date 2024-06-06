@@ -1,3 +1,7 @@
+import pathlib
+import sys
+sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
+sys.path.append("/app")
 import os.path
 
 import cy_docs
@@ -57,3 +61,4 @@ def run():
                 print(f"Sync directory from google-drive of app {app.app_name} is fail")
                 print(traceback.format_exc())
         time.sleep(30)
+run()

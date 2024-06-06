@@ -34,7 +34,7 @@ storage:
   server: ????
   directory: ????fice
   name: storage-files
-processMsg: ["content","google-file-sync","google-folder-sync","onedrive-file-sync"]
+processMsg: ["content"]
 customer: "qc"
 imageTag: "latest"
 repository: "docker.io/nttlong"

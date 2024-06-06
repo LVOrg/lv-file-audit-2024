@@ -1,0 +1,15 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: system:metrics-server
+  labels:
+    k8s-app: metrics-server
+
+subjects:
+  - kind: ServiceAccount
+    name: metrics-server
+    namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:metrics-server
