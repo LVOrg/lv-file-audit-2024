@@ -40,11 +40,12 @@ reset_master_node
 lib_tear_down_node
 lib_prepare
 lib_install_containerd
-reset_repo
-echo "lib_add_repo $enter_version"
+#reset_repo "$enter_version"
+#echo "lib_add_repo $enter_version"
 lib_add_repo_new_version "$enter_version"
 lib_install_component "kubelet" "$enter_version"
 lib_install_component "kubeadm" "$enter_version"
+fix_kubelet_service
 systemctl enable contaierd
 systemctl enable kubelet
 systemctl deamon-reload

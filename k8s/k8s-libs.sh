@@ -187,7 +187,7 @@ cat /etc/yum.repos.d/kubernetes.repo
 # shellcheck disable=SC2120
 function lib_add_repo() {
   if [ -z "$1" ]; then
-  echo "Error: Missing argument!"
+  echo "Error: Missing argument! at $(pwd)/k8s-libs.sh/lib_add_repo"
   exit 1  # Raise an error with exit code 1
 fi
     rm -f /etc/yum.repos.d/kubernetes.repo
@@ -199,7 +199,7 @@ enabled=1
 gpgcheck=0
 gpgkey=https://pkgs.k8s.io/core:/stable:/v$1/rpm/repodata/repomd.xml.key
 EOF
-cat /etc/yum.repos.d/kubernetes.repo
+
 #  if [[ "$(echo "$version" '> 1.27')" == "true" ]]; then
 #    echo "-------------new version------------"
 #    lib_add_repo_new_version "$version"
@@ -210,31 +210,46 @@ cat /etc/yum.repos.d/kubernetes.repo
 }
 function reset_repo() {
 
-     yum clean all
-    # shellcheck disable=SC2046
-     yum install $(yum list | grep missing) -y
-     yum update
-     yum-complete-transaction --cleanup-only
-     yum history redo last
-     yum clean packages
+    lib_add_repo $1
+    if [ $? -ne 0 ]; then
+       # shellcheck disable=SC2028
+       echo "Error at $(pwd)/k9s-libs.sh/reset_repo\n$?"
+       exit 1
+    fi
+#     yum clean all
+#     yum update
+#     yum upgrade
+#    # shellcheck disable=SC2046
+#     yum install $(yum list | grep missing) -y
+#
+#     yum-complete-transaction --cleanup-only
+#     yum history redo last -y
+#     yum clean packages
 }
 function lib_install_component() {
+  reset_repo $2
     echo "installing kubelet kubeadm $1 with version is v$2"
      yum remove $1 -y
     path_to_file=$(which $1)
     rm -fr "$path_to_file"
      yum install $1 -y
-
-  if [ $? -ne 0 ]; then
-    echo "re installing kubelet kubeadm $1 with version is v$2"
-    reset_repo
-     yum install $1  -y
-     if [ $? -ne 0 ]; then
+if [ $? -ne 0 ]; then
        echo "Can not install $1"
        exit 1
     fi
-    exit $?
-  fi
+#  if [ $? -ne 0 ]; then
+#    echo "re installing kubelet kubeadm $1 with version is v$2"
+#
+#    subscription-manager repos --disable=kubernetes
+#     yum install $1 --disablerepo=kubernetes -y
+#     yum-config-manager --save --setopt=kubernetes.skip_if_unavailable=true
+#
+#     if [ $? -ne 0 ]; then
+#       echo "Can not install $1"
+#       exit 1
+#    fi
+#    exit $?
+#  fi
   echo "install $1 ok"
 }
 function lib_install_all_components_master() {
@@ -267,8 +282,8 @@ function lib_install_all_components_master() {
 
   reset_repo
   lib_add_repo
-  lib_install_component "kubelet" $version
-  lib_install_component "kubeadm" $version
+  lib_install_component "kubelet" "$version"
+  lib_install_component "kubeadm" "$version"
   lib_install_component "kubectl" "1.30"
   # yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes -y
     systemctl enable --now kubelet
@@ -295,7 +310,7 @@ function lib_tear_down_node() {
   #There are unfinished transactions remaining. You might consider running yum-complete-transaction, or "yum-complete-transaction --cleanup-only" and "yum history redo last", first to finish them. If those don't work you'll have to try removing/installing packages by hand (maybe package-cleanup can help).
 
        yum-complete-transaction --cleanup-only
-       yum history redo last -y
+#       yum history redo last -y
        yum remove kubeadm -y
        yum remove kubelet  -y
        yum remove kubectl  -y
@@ -326,9 +341,10 @@ function lib_tear_down_node() {
        yum install deltarpm -y
        yum update -y
        yum-complete-transaction --cleanup-only
-       yum history redo last
+#       yum history redo last
        rm -fr /usr/lib/systemd/system/kubelet.service.d
-      lib_get_all_existing_packages
+       yum reinstall centos-release -y
+
 
 }
 function lib_value_is_in_list() {
@@ -378,5 +394,34 @@ function lib_master_init() {
     # shellcheck disable=SC2005
 
     echo "$(kubeadm init --v=5)"
+}
+function fix_kubelet_service() {
+  # shellcheck disable=SC2034
+  kubelet_path="$(which kubelet)"
+    # shellcheck disable=SC2034
+    REPLACEMENT_CONTENT="[Service]
+Environment=\"KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf\"
+Environment=\"KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml\"
+# Commenting out these lines as they are not strictly necessary for kubelet to function
+#EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
+#EnvironmentFile=-/etc/sysconfig/kubelet
+ExecStart=$kubelet_path \$KUBELET_KUBECONFIG_ARGS \$KUBELET_CONFIG_ARGS
+"
+#/usr/lib/systemd/system/kubelet.service.d
+TARGET_FILE="/usr/lib/systemd/system/kubelet.service.d/0-kubeadm.conf"
+
+# Check if the target file exists
+#if [ ! -f "$TARGET_FILE" ]; then
+#  echo "Error: Target file '$TARGET_FILE' does not exist."
+#  exit 1
+#fi
+
+# Backup the target file (optional)
+cp -p "$TARGET_FILE" "$TARGET_FILE.bak"  # Comment out this line if you don't want a backup
+
+# Replace the content in the target file
+echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE"
+
+echo "Successfully replaced content in '$TARGET_FILE'"
 }
 #/etc/systemd/system/kubelet.service.d/0-kubeadm.conf
