@@ -48,12 +48,19 @@ rm -fr /var/lib/kubelet
 lib_install_component "kubelet" "$enter_version"
 lib_install_component "kubeadm" "$enter_version"
 lib_install_component "kubectl" "1.30"
+
+
+create_kube_service
 fix_kubelet_service
+
+systemctl deamon-reload
 systemctl enable contaierd
 systemctl enable kubelet
-systemctl deamon-reload
 systemctl restart contaierd
 systemctl restart kubelet
+systemctl status kubelet
+
+
 lib_reset_node
 
 lib_master_init

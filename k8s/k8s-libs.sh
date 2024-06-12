@@ -367,7 +367,23 @@ function lib_value_is_in_list() {
 
 }
 function reset_master_node() {
+   rm -fr /etc/yum.repos.d
+   mkdir -p /etc/yum.repos.d
      systemctl stop kube-apiserver kube-controller-manager kube-scheduler kubelet
+    systemctl disable kubelet
+    rm -rf /etc/kubernetes/* /var/lib/kubernetes/*
+    rm -rf /etc/kubernetes/* /var/lib/kubelet/* /var/lib/kube-apiserver/* /var/lib/kube-controller-manager/* /var/lib/kube-scheduler/*
+    yum remove kubeadm -y
+    systemctl stop etcd
+     rm -rf /var/lib/etcd/*
+#     systemctl start etcd
+
+
+}
+function reset_worker_node() {
+   rm -fr /etc/yum.repos.d
+   mkdir -p /etc/yum.repos.d
+     systemctl stop kube-apiserver kube-controller-manager kube-scheduler
     systemctl disable kubelet
     rm -rf /etc/kubernetes/* /var/lib/kubernetes/*
     rm -rf /etc/kubernetes/* /var/lib/kubelet/* /var/lib/kube-apiserver/* /var/lib/kube-controller-manager/* /var/lib/kube-scheduler/*
@@ -395,8 +411,33 @@ function lib_master_init() {
 
     echo "$(kubeadm init --v=5)"
 }
+function create_kube_service() {
+  kubelet_path="$(which kubelet)"
+    content="[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment=\"KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf\"
+Environment=\"KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml\"
+ExecStart=$kubelet_path \$KUBELET_KUBECONFIG_ARGS \$KUBELET_CONFIG_ARGS
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+"
+service_file="/lib/systemd/system/kubelet.service"
+rm -fr "$service_file"
+echo "$content" > "$service_file"
+}
 function fix_kubelet_service() {
   # shellcheck disable=SC2034
+  rm -fr /usr/lib/systemd/system/kubelet.service.d
+  mker -p /usr/lib/systemd/system/kubelet.service.d
   kubelet_path="$(which kubelet)"
     # shellcheck disable=SC2034
     REPLACEMENT_CONTENT="[Service]
@@ -405,11 +446,22 @@ Environment=\"KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml\"
 # Commenting out these lines as they are not strictly necessary for kubelet to function
 #EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
 #EnvironmentFile=-/etc/sysconfig/kubelet
+#ExecStart=/usr/bin/kubelet \$KUBELET_KUBECONFIG_ARGS \$KUBELET_CONFIG_ARGS
 ExecStart=$kubelet_path \$KUBELET_KUBECONFIG_ARGS \$KUBELET_CONFIG_ARGS
 "
 #/usr/lib/systemd/system/kubelet.service.d
 TARGET_FILE="/usr/lib/systemd/system/kubelet.service.d/0-kubeadm.conf"
-
+# shellcheck disable=SC2034
+rm -fr "/etc/systemd/system/kubelet.service.d"
+rm -fr "/usr/lib/systemd/system/kubelet.service.d"
+mkdir -p "/etc/systemd/system/kubelet.service.d"
+mkdir -p "/usr/lib/systemd/system/kubelet.service.d"
+TARGET_FILE_NON_USER="/etc/systemd/system/kubelet.service.d/0-kubeadm.conf"
+TARGET_FILE10="/usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf"
+# shellcheck disable=SC2034
+#TARGET_FILE_NON_USER10="/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+#/etc/systemd/system/kubelet.service.d
+#/etc/systemd/system/kubelet.service.d/0-kubeadm.conf
 # Check if the target file exists
 #if [ ! -f "$TARGET_FILE" ]; then
 #  echo "Error: Target file '$TARGET_FILE' does not exist."
@@ -417,11 +469,14 @@ TARGET_FILE="/usr/lib/systemd/system/kubelet.service.d/0-kubeadm.conf"
 #fi
 
 # Backup the target file (optional)
-cp -p "$TARGET_FILE" "$TARGET_FILE.bak"  # Comment out this line if you don't want a backup
+#cp -p "$TARGET_FILE" "$TARGET_FILE.bak"  # Comment out this line if you don't want a backup
 
 # Replace the content in the target file
-echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE"
-
+#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE"
+#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE_NON_USER"
+#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE10"
+#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE_NON_USER10"
 echo "Successfully replaced content in '$TARGET_FILE'"
 }
 #/etc/systemd/system/kubelet.service.d/0-kubeadm.conf
+#/usr/lib/systemd/system/kubelet.service.d

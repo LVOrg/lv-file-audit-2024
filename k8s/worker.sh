@@ -36,7 +36,7 @@ if [ $# -eq 0 ]; then
     enter_version=$1
 fi
 echo "Will install $enter_version"
-reset_master_node
+reset_worker_node
 lib_tear_down_node
 lib_prepare
 lib_install_containerd
@@ -45,10 +45,16 @@ lib_install_containerd
 lib_add_repo_new_version "$enter_version"
 lib_install_component "kubelet" "$enter_version"
 lib_install_component "kubeadm" "$enter_version"
+create_kube_service
 fix_kubelet_service
+#systemctl enable contaierd
+#systemctl enable kubelet
+
+systemctl deamon-reload
 systemctl enable contaierd
 systemctl enable kubelet
-systemctl deamon-reload
 systemctl restart contaierd
 systemctl restart kubelet
+systemctl status kubelet
+#nano /etc/systemd/system/kubelet.service.d/0-kubeadm.conf
 lib_reset_node
