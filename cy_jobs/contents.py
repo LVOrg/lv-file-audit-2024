@@ -18,7 +18,8 @@ execute_files = [
     "fix_data/fix_google_drive.py",
     "jobs/task_content.py",
     # "jobs/task_google_driver_folders.py",
-    "jobs/task_google_file_sync.py"
+    "jobs/task_google_file_sync.py",
+    "jobs/task_onedrive_file_sync.py"
 ]
 
 from cy_jobs import cy_job_libs

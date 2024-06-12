@@ -1,0 +1,3 @@
+sudo mkdir -p /mnt/k8s
+sudo mount -t nfs 172.16.13.72:/home/vmadmin/python/cy-py /mnt/k8s
+cd /mnt/k8s/k8s
