@@ -283,17 +283,7 @@ function lib_install_all_components_master() {
     # shellcheck disable=SC2086
 
     version="$1"
-#     systemctl stop kubeadm || true
-#     systemctl stop kubectl|| true
-#     systemctl stop containerd|| true
-##   yum remove kubeadm -y
-#     yum remove kubelet -y
-#     yum remove kubectl -y
-##   yum remove kube-proxy -y
-#     yum remove containerd -y
-#     yum clean metadata|| true
-#     yum clean all|| true
-#     yum update -y &&  yum upgrade -y
+
   # shellcheck disable=SC2046
 
   reset_repo
@@ -517,23 +507,6 @@ mkdir -p "/usr/lib/systemd/system/kubelet.service.d"
 TARGET_FILE_NON_USER="/etc/systemd/system/kubelet.service.d/0-kubeadm.conf"
 TARGET_FILE10="/usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf"
 # shellcheck disable=SC2034
-#TARGET_FILE_NON_USER10="/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
-#/etc/systemd/system/kubelet.service.d
-#/etc/systemd/system/kubelet.service.d/0-kubeadm.conf
-# Check if the target file exists
-#if [ ! -f "$TARGET_FILE" ]; then
-#  echo "Error: Target file '$TARGET_FILE' does not exist."
-#  exit 1
-#fi
-
-# Backup the target file (optional)
-#cp -p "$TARGET_FILE" "$TARGET_FILE.bak"  # Comment out this line if you don't want a backup
-
-# Replace the content in the target file
-#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE"
-#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE_NON_USER"
-#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE10"
-#echo "$REPLACEMENT_CONTENT" > "$TARGET_FILE_NON_USER10"
 echo "Successfully replaced content in '$TARGET_FILE'"
 }
 #/etc/systemd/system/kubelet.service.d/0-kubeadm.conf

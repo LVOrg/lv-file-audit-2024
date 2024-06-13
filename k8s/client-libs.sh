@@ -4,6 +4,16 @@ red_background="\033[41m"
 white_text="\033[37m"
 # shellcheck disable=SC2034
 reset_color="\033[0m"
+function lib_get_online_versions() {
+  #this function will return list of online version at official web page
+  url="https://kubernetes.io/releases/"
+  content=$(curl -s "$url")
+  versions=$(grep -Eo '[v][0-9]+.[0-9]+.[0-9]+' <<< "$content" | cut -d '>' -f2)
+  filtered_versions=$(grep -Eo '.*\..*' <<< "$versions" | sort -u)
+  fixed_versions=$(echo "$filtered_versions" | tr '\n' ' ')
+  echo "$fixed_versions"
+
+}
 function client_prompt() {
     # shellcheck disable=SC2059
     printf "${red_background}${white_text}$1${reset_color}"
@@ -59,11 +69,9 @@ function client_copy_resource() {
     # shellcheck disable=SC2140
     sshpass -p "$1" scp -r "$(pwd)" root@"$2":"/tmp/k8s-install"
 }
-#sshpass -p "l/\cviet2023" ssh root@172.16.7.99 ls -l /tmp
-#sshpass -p "l/\cviet2023" ssh root@172.16.7.99 ls -l /tmp scp
-#sshpass -p "l/\cviet2023" scp -r "$(pwd)" root@172.16.7.99:"/tmp/k8s-install"
-#test.sh <<!
- #y
- #pasword
- #!
- #ssh -p 22 172.16.7.99 " bash -c \"echo "hello"\" " <<! y \"l/\cviet2023\"
+function client_get_join_command() {
+    master_ip="$2"
+    # shellcheck disable=SC2034
+    master_password="$1"
+
+}
