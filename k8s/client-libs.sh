@@ -40,29 +40,24 @@ function client_get_worker_ips() {
     echo "Error: Line containing 'workers' not found in nodes.txt"
   fi
 }
-function client_init_remote() {
-    #sshpass -p "l/\cviet2023" ssh root@172.16.7.99 rm -fr /tmp/k8s-install
-    #sshpass -p "l/\cviet2023" ssh root@172.16.7.99 mkdir -p  /tmp/k8s-install
-    #sshpass -p "l/\cviet2023" scp -r "$(pwd)" root@172.16.7.99:"/tmp/k8s-install"
-    echo "Not impletemtn"
-    exit 1
-}
+
 
 function client_remote_exec() {
   #sshpass -p "l/\cviet2023" scp -r "$(pwd)" root@172.16.7.99:"/tmp/k8s-install"
   # shellcheck disable=SC2034
   password=$(echo "$1")
-  echo "$password"
+
   # shellcheck disable=SC2034
   rm_host="root@$2"
   # shellcheck disable=SC2034
   rm_cmd="$3"
   sshpass -p "$password" ssh "$rm_host" "$rm_cmd"
-#  sshpass -p \""$password"\" ssh "$rm_host" "$rm_cmd"
-#  local ip="$1"
-#  # shellcheck disable=SC2034
-#  local command="$2"
-#  ssh -p 22 "$ip" " bash -c \"$command\" "
+
+}
+function client_copy_resource() {
+    client_remote_exec $1 $2 "rm -fr /tmp/k8s-install"
+    # shellcheck disable=SC2140
+    sshpass -p "$1" scp -r "$(pwd)" root@"$2":"/tmp/k8s-install"
 }
 #sshpass -p "l/\cviet2023" ssh root@172.16.7.99 ls -l /tmp
 #sshpass -p "l/\cviet2023" ssh root@172.16.7.99 ls -l /tmp scp
