@@ -216,26 +216,42 @@ function reset_repo() {
        echo "Error at $(pwd)/k9s-libs.sh/reset_repo\n$?"
        exit 1
     fi
-#     yum clean all
-#     yum update
-#     yum upgrade
-#    # shellcheck disable=SC2046
-#     yum install $(yum list | grep missing) -y
-#
-#     yum-complete-transaction --cleanup-only
-#     yum history redo last -y
-#     yum clean packages
+     yum clean all
+     yum update
+     yum upgrade
+    # shellcheck disable=SC2046
+     yum install $(yum list | grep missing) -y
+
+     yum-complete-transaction --cleanup-only
+     yum history redo last -y
+     yum clean packages
 }
 function lib_install_component() {
-  reset_repo $2
-    echo "installing kubelet kubeadm $1 with version is v$2"
+      yum update -y
+        yum clean all -y
+    echo "installing  $1 with version is v$2"
      yum remove $1 -y
     path_to_file=$(which $1)
     rm -fr "$path_to_file"
-     yum install $1 -y
+     yum install $1  -y
 if [ $? -ne 0 ]; then
+
+        yum update -y
+        yum clean all -y
+        yum install $1  -y
+
+    if [ $? -ne 0 ]; then
+
+        yum update -y
+        yum clean all -y
+        yum install $1  -y
+
+    if [ $? -ne 0 ]; then
+
        echo "Can not install $1"
        exit 1
+       fi
+       fi
     fi
 #  if [ $? -ne 0 ]; then
 #    echo "re installing kubelet kubeadm $1 with version is v$2"
@@ -308,6 +324,15 @@ function lib_install_all_components_worker() {
 }
 function lib_tear_down_node() {
   #There are unfinished transactions remaining. You might consider running yum-complete-transaction, or "yum-complete-transaction --cleanup-only" and "yum history redo last", first to finish them. If those don't work you'll have to try removing/installing packages by hand (maybe package-cleanup can help).
+
+      service_file="/lib/systemd/system/kubelet.service"
+      service_file_usr="/lib/systemd/system/kubelet.service"
+      service_ect_file="/etc/systemd/system/kubelet.service"
+      rm -fr "$service_file"
+      rm -fr "$service_file_usr"
+      rm -fr "$service_ect_file"
+      ctr -n k8s.io i rm $(ctr -n k8s.io i ls -q | grep your_filter)
+      rm -rm /etc/sysconfig/kubelet
 
        yum-complete-transaction --cleanup-only
 #       yum history redo last -y
@@ -411,6 +436,35 @@ function lib_master_init() {
 
     echo "$(kubeadm init --v=5)"
 }
+function create_kube_service_master(){
+kubelet_path="$(which kubelet)"
+    content="
+[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/kubelet
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+"
+service_file="/lib/systemd/system/kubelet.service"
+service_file_usr="/lib/systemd/system/kubelet.service"
+service_ect_file="/etc/systemd/system/kubelet.service"
+rm -fr "$service_file"
+rm -fr "$service_file_usr"
+rm -fr "$service_ect_file"
+echo "$content" > "$service_file"
+echo "$content" > "$service_file_usr"
+echo "$content" > "$service_ect_file"
+}
 function create_kube_service() {
   kubelet_path="$(which kubelet)"
     content="[Unit]
@@ -431,8 +485,11 @@ RestartSec=10
 WantedBy=multi-user.target
 "
 service_file="/lib/systemd/system/kubelet.service"
+service_file_usr="/lib/systemd/system/kubelet.service"
 rm -fr "$service_file"
+rm -fr "$service_file_usr"
 echo "$content" > "$service_file"
+echo "$content" > "$service_file_usr"
 }
 function fix_kubelet_service() {
   # shellcheck disable=SC2034
@@ -447,6 +504,7 @@ Environment=\"KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml\"
 #EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
 #EnvironmentFile=-/etc/sysconfig/kubelet
 #ExecStart=/usr/bin/kubelet \$KUBELET_KUBECONFIG_ARGS \$KUBELET_CONFIG_ARGS
+#ExecStart=$kubelet_path \$KUBELET_KUBECONFIG_ARGS \$KUBELET_CONFIG_ARGS
 ExecStart=$kubelet_path \$KUBELET_KUBECONFIG_ARGS \$KUBELET_CONFIG_ARGS
 "
 #/usr/lib/systemd/system/kubelet.service.d
@@ -480,3 +538,35 @@ echo "Successfully replaced content in '$TARGET_FILE'"
 }
 #/etc/systemd/system/kubelet.service.d/0-kubeadm.conf
 #/usr/lib/systemd/system/kubelet.service.d
+function lib_load_package() {
+    package_list=()
+    while read -r line; do
+      IFS=': '  # Set internal field separator
+      read -r name url <<<"$line"  # Read and split the line
+
+      # Check if splitting resulted in name and url variables
+      if [[ ! -z "$name" && ! -z "$url" ]]; then
+          data=("$name","$url")
+          package_list+=("${data[@]}")
+      else
+        echo "Error: Line '$line' has invalid format"  # Handle invalid lines (optional)
+      fi
+
+      unset IFS
+  # Perform actions on the line variable here
+done < ./repo/$1.txt
+echo "${package_list[@]}"
+}
+function helm_install() {
+  #curl -L "$url" -o /tmp/my-download/test.rpm
+
+    mkdir -p /tmp/tmp-k8s-download
+    curl -L https://get.helm.sh/helm-v3.x.x-linux-x86_64.tar.gz -o /tmp/tmp-k8s-download/helm.tar.gz
+    tar -zxvf /tmp/tmp-k8s-download/helm.tar.gz
+    sudo mv linux-x86_64/helm /usr/local/bin/helm
+
+}
+function install_calico() {
+#    curl -L https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/calico.yaml -o /tmp/tmp-k8s-download/calico.yaml
+    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/calico.yaml
+}

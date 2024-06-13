@@ -45,23 +45,31 @@ reset_repo "$enter_version"
 echo "lib_add_repo $enter_version"
 lib_add_repo_new_version "$enter_version"
 rm -fr /var/lib/kubelet
-lib_install_component "kubelet" "$enter_version"
-lib_install_component "kubeadm" "$enter_version"
-lib_install_component "kubectl" "1.30"
+sudo yum update
+sudo yum clean all
+
+reset_repo "$enter_version"
+lib_add_repo_new_version "$enter_version"
+cat /etc/yum.repos.d/kubernetes.repo
+yum install kubelet kubeadm kubectl -y
+#lib_install_component "kubelet" "$enter_version"
+#lib_install_component "kubeadm" "$enter_version"
+#lib_install_component "kubectl" "$enter_version"
 
 
-create_kube_service
-fix_kubelet_service
 
+#fix_kubelet_service
+#create_kube_service_master
 systemctl deamon-reload
 systemctl enable contaierd
 systemctl enable kubelet
 systemctl restart contaierd
-systemctl restart kubelet
-systemctl status kubelet
+#systemctl restart kubelet
+#systemctl status kubelet
 
 
 lib_reset_node
-
 lib_master_init
 lib_master_export_config_for_kubectl_command
+sleep 10
+install_calico

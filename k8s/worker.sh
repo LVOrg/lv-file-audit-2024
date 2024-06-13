@@ -42,11 +42,14 @@ lib_prepare
 lib_install_containerd
 #reset_repo "$enter_version"
 #echo "lib_add_repo $enter_version"
+reset_repo "$enter_version"
 lib_add_repo_new_version "$enter_version"
-lib_install_component "kubelet" "$enter_version"
-lib_install_component "kubeadm" "$enter_version"
-create_kube_service
-fix_kubelet_service
+cat /etc/yum.repos.d/kubernetes.repo
+yum install kubelet kubeadm kubectl -y
+#lib_install_component "kubelet" "$enter_version"
+#lib_install_component "kubeadm" "$enter_version"
+#create_kube_service
+#fix_kubelet_service
 #systemctl enable contaierd
 #systemctl enable kubelet
 
@@ -57,4 +60,4 @@ systemctl restart contaierd
 systemctl restart kubelet
 systemctl status kubelet
 #nano /etc/systemd/system/kubelet.service.d/0-kubeadm.conf
-lib_reset_node
+#lib_reset_node
