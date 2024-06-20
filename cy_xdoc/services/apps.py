@@ -10,8 +10,8 @@ from cy_xdoc.models.apps import App
 import cyx.common
 import cyx.common.cacher
 from cyx.cache_service.memcache_service import MemcacheServices
-from cy_fucking_whore_microsoft.services.ms_apps_services import FuckingWhoreMSAppService
-from cy_fucking_whore_microsoft.fwcking_auth import scopes, urls_auth
+
+
 
 
 class AppsCacheService:
@@ -32,13 +32,12 @@ class AppServices:
     def __init__(self,
                  db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
                  memcache_service=cy_kit.singleton(MemcacheServices),
-                 fucking_whore_ms_app_service=cy_kit.singleton(FuckingWhoreMSAppService)
+
                  ):
         self.db_connect = db_connect
         self.config = cyx.common.config
         self.admin_db = self.config.admin_db_name
         self.memcache_service = memcache_service
-        self.fucking_whore_ms_app_service = fucking_whore_ms_app_service
 
     def get_queryable(self) -> DbCollection[App]:
         return self.db_connect.db("admin").doc(App)
@@ -203,17 +202,7 @@ class AppServices:
         if isinstance(azure_client_id, str):
 
             redirect_url = f"{cy_web.get_host_url(request)}/api/{Name}/azure/after_login"
-            url_azure_personal_account_login = urls_auth.get_personal_account_login_url(
-                client_id=azure_client_id,
-                scopes=scopes.get_one_drive(),
-                redirect_uri=redirect_url
-            )
-            url_azure_business_account_login = urls_auth.get_business_account_login_url(
-                client_id=azure_client_id,
-                tenant_id=azure_tenant_id,
-                scopes=scopes.get_one_drive() + scopes.get_account(),
-                redirect_uri=redirect_url
-            )
+
             # url_azure_login = self.ms_app.get_login_url(
             #     client_id=azure_client_id,
             #     redirect_uri= f"{cy_web.get_host_url()}/api/{Name}/azure/after_login"
@@ -251,7 +240,7 @@ class AppServices:
         #     ret_app = agg.match(docs.fields.Name == Name).first_item()
         cache_key = f"{__file__}/{type(self).__name__}/get_item_with_cache/{Name}"
         self.memcache_service.remove(cache_key)
-        from cy_fucking_whore_microsoft.services.account_services import AccountService
+        from cy_fw_microsoft.services.account_services import AccountService
         acc= cy_kit.singleton(AccountService)
         acc.clear_token_cache(
             app_name= Name

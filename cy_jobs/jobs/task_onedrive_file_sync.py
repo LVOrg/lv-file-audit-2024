@@ -85,7 +85,7 @@ from cyx.rabbit_utils import Consumer
 consumer = Consumer(cyx.common.msg.MSG_CLOUD_ONE_DRIVE_SYNC)
 local_api_service = cy_kit.singleton(LocalAPIService)
 cloud_upload_azure_service = cy_kit.singleton(CloudUploadAzureService)
-
+from cy_jobs.cy_job_libs import JobLibs
 while True:
     try:
         msg = consumer.get_msg()
@@ -140,3 +140,5 @@ while True:
     except Exception as ex:
         str_err=traceback.format_exc()
         print(str_err)
+    finally:
+        JobLibs.malloc_service.reduce_memory()

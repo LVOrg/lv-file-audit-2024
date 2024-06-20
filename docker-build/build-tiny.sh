@@ -74,7 +74,7 @@ COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
-COPY ./../cy_fucking_whore_microsoft /app/cy_fucking_whore_microsoft
+#COPY ./../cy_fw_microsoft_delete /app/cy_fw_microsoft_delete
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_jobs /app/cy_jobs

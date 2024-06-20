@@ -1,0 +1,37 @@
+namespace: files-dev
+#webAppName: lv-file-dev
+appConfig:
+  name: lv-file-dev
+  host:
+    path: lvfile-dev
+    name: 172.16.7.99
+    protocol: https
+  ingress:
+    lv-file-dev:
+      pathType: Prefix
+
+db:
+  mongodb: mongodb://192.168.18.36:27017
+  manage: 'lv-docs'
+search:
+  prefix_index: 'lv-codx'
+  server: 'http://192.168.18.36:9200'
+storage:
+  server: 192.168.18.36
+  directory: /codx-file-storage/files
+  name: storage-files
+
+replicas: 2
+rabbit:
+  server: codx-rabbitmq.rabbitmq
+  username: codx
+  password: Lacviet#123
+customer: "dev"
+imageTag: "latest"
+repository: "docker.lacviet.vn/xdoc"
+debugLibs: []
+nodePort:
+  office: "32228"
+  pdf: "32229"
+  video: "32230"
+  tika: "32231"

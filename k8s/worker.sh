@@ -1,5 +1,8 @@
 #!/bin/bash
-source  k8s-libs.sh
+script_dir=$(dirname "$0")
+
+echo "$script_dir/k8s-libs.sh"
+source  $script_dir/k8s-libs.sh
 #this file will install in master node
 
 # shellcheck disable=SC2034

@@ -1,5 +1,7 @@
 {{- $appName := "lv-office" }}
   {{- $image :="nttlong/lv-libreoffice:1.13"}}
+{{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "office") }}
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,7 +34,7 @@ spec:
             - containerPort: 80
           envFrom:
             - configMapRef:
-                name: lv-file
+                name: {{.Values.appConfig.name}}-config
           args: ["80"]
           volumeMounts:
             - name: storage-files
@@ -50,7 +52,11 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 32223
+      {{ if $hasNodePort  }}
+      nodePort: {{ .Values.nodePort.office }}
+      {{ end }}
+  {{ if $hasNodePort  }}
   type: NodePort
+  {{ end }}
   selector:
     app: {{$appName}}

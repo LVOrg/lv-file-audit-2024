@@ -19,6 +19,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 50m
     nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/rewrite-target: /{{$value.service.ingress.path}}/$1
 spec:
   ingressClassName: nginx
   rules:

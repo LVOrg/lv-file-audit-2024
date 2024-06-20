@@ -29,8 +29,7 @@ from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.common.file_storage_mongodb import MongoDbFileService
 from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 from cyx.common import config
-from cy_fucking_whore_microsoft.services.ondrive_services import OnedriveService
-from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+
 from cyx.common.rabitmq_message import RabitmqMsg
 #from cyx.repository import Repository
 
@@ -47,9 +46,9 @@ class FileServices:
                  cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
                  logger=cy_kit.singleton(LoggerService),
                  memcache_service=cy_kit.singleton(MemcacheServices),
-                 onedrive_service=cy_kit.singleton(OnedriveService),
+
                  broker: RabitmqMsg = cy_kit.singleton(RabitmqMsg)):
-        self.onedrive_service = onedrive_service
+        
         self.file_storage_service = file_storage_service
         self.search_engine = search_engine
         self.db_connect = db_connect

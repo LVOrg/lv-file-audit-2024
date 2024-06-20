@@ -1,9 +1,9 @@
 namespace: files
 auto_ssl_redirect: off
 appConfig:
-  name: lv-file
+  name: ???
   host:
-    path: lvfile
+    path: ???
     name: 172.16.7.99
     protocol: https
   ingress:
@@ -40,3 +40,8 @@ imageTag: "latest"
 repository: "docker.io/nttlong"
 libReplicas: 2
 webWorker: 2
+nodePort:
+  office: "32223"
+  pdf: "32224"
+  video: "32225"
+  tika: "32226"

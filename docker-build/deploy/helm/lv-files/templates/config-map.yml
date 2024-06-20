@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: lv-file
+  name: {{ .Values.appConfig.name }}-config
   namespace: {{ .Values.namespace }}
 data:
   admin_db_name: {{ .Values.db.manage }}

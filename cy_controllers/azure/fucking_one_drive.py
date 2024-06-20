@@ -30,8 +30,8 @@ from fastapi.responses import FileResponse
 import mimetypes
 import cy_docs
 import urllib
-from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException, call_ms_func
-from cy_fucking_whore_microsoft.fucking_models.one_drive import (
+from cy_fw_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException, call_ms_func
+from cy_fw_microsoft.fucking_models.one_drive import (
     BullShitError, GetListFolderResult,
     GetQuotaInfo, GetQuotaResult,
     RegisterUploadResult, RegisterUploadResultInfo

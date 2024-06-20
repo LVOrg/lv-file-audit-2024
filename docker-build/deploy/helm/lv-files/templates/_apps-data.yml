@@ -6,7 +6,7 @@
 ---
 apps:
     - name: {{ $appConfig.name }}
-
+      configMapName: {{ $appConfig.name }}-config
       image: {{$valuesObject.repository}}/{{ $imagesObject.main }}-{{$valuesObject.customer}}:{{$valuesObject.imageTag}}
       namespace: {{ .values.namespace}}
       customer:  {{ .values.customer}}
@@ -50,6 +50,7 @@ apps:
     {{- $app:= (index $processesMsgConfig $value) }}
     {{ if $app }}
     - name: {{$value}}
+      configMapName: {{ $appConfig.name }}-config
       customer:  {{ $valuesObject.customer}}
       image:  {{$valuesObject.repository}}/{{ $imagesObject.main }}-{{$valuesObject.customer}}:{{$valuesObject.imageTag}}
       namespace: {{ $valuesObject.namespace }}

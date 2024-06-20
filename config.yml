@@ -173,11 +173,11 @@ rabbitmq:
   port_: 31674
 #  server: 172.16.7.99
   server: 172.16.7.99
-  port: 30672
+  port: 32358
 #  msg: v99-dev
   msg: xyzdsc-2024
-  username: guest
-  password: guest
+  username: codx
+  password: Lacviet#123
 broker:
   is_use: true
   servers: 172.16.7.99:30992

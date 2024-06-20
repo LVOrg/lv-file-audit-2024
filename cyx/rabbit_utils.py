@@ -65,6 +65,17 @@ class Consumer:
         ret.body = body
         return ret
 
+    def raise_message(self, app_name:str,data):
+        #self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
+        self.channel.basic_publish(
+            exchange='',
+            routing_key=self.queue_name,
+            body=json.dumps(dict(
+                app_name= app_name,
+                data = data
+            ))
+
+        )
     def resume(self, msg:MesssageBlock):
         #self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
         self.channel.basic_publish(

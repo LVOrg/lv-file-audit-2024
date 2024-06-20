@@ -9,7 +9,7 @@ import typing
 
 
 @cy_docs.define(
-    name="SYS_AdminLoggers",
+    name="SYS_LV_FILE_LOGS",
     indexes=[
         "CreatedOn", "LogType", "PodName", "PodFullName"
     ]

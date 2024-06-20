@@ -1,11 +1,10 @@
 namespace: lacviet
 webAppName: lv-file-lacviet
 appConfig:
-  lv-file-lacviet:
-    host:
-      path: lacviet
-      name: 172.16.7.91
-      protocol: https
+  host:
+    path: lacviet
+    name: 172.16.7.91
+    protocol: https
 ingress:
   lv-file-lacviet:
     pathType: Prefix

@@ -1,4 +1,4 @@
-from cy_fucking_whore_microsoft.fwcking_auth import urls_auth, scopes
+from cy_fw_microsoft.fwcking_auth import urls_auth, scopes
 # client_id="ddc68538-1f19-4202-87af-412a800fa965"
 # secret_value = "_go8Q~Z1ykBdxAxiO7XvW1dyKp11HtmyjhDhMcn3"
 # secret_value='unu8Q~lgs8hB2nIAvhHabMdgAGzDyEtTvGc64c~k'

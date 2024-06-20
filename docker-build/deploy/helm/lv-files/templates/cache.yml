@@ -37,7 +37,7 @@ spec:
     - protocol: TCP
       port: 11211
       targetPort: 11211
-      nodePort: 32222
+
   selector:
     app: {{ .Values.cache.appName}}
-  type: NodePort
+  type: ClusterIP

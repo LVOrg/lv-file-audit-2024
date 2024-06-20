@@ -1,3 +1,5 @@
+{{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "tika") }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,7 +36,9 @@ metadata:
  labels:
    app: tika-service
 spec:
+  {{ if $hasNodePort }}
  type: NodePort
+  {{ end }}
  selector:
    app: tika
  ports:
@@ -42,4 +46,6 @@ spec:
      protocol: TCP
      port: 80
      targetPort: 9998
-     nodePort: 32226
+     {{ if $hasNodePort }}
+     nodePort: {{ .Values.nodePort.tika }}
+     {{ end }}

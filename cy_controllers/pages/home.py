@@ -57,20 +57,12 @@ def verify_auth(request:Request, credentials: HTTPBasicCredentials = Depends(sec
         )
 
     return credentials.username
-from cy_fucking_whore_microsoft.services.office_365_services import Office365Service
-from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import FuckingWopiService
 import cyx.common.basic_auth
-from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import FuckingWopiService
-from cy_fucking_whore_microsoft.services import (
-    account_services, ondrive_services
-)
 # from requests_kerberos import HTTPKerberosAuth
 @controller.resource()
 class PagesController:
     # add class wide dependencies e.g. auth
-    fucking_office_365_service = cy_kit.singleton(Office365Service)
-    fucking_wopi_service = cy_kit.singleton(FuckingWopiService)
-    fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
+
 
     dependencies = [
         Depends(verify_auth),
@@ -96,66 +88,48 @@ class PagesController:
         "/ms-action/{app_name}/{upload_id}", summary="Home page"
     )
     def ms_page(self, app_name: str, upload_id: str):
-        from cy_fucking_whore_microsoft.ssl_utils.fucking_utils import generate_access_token
-        from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+
         editor = {
 
         }
-        try:
-            data_browser = self.fucking_wopi_service.get_action(doc_type="docx",action="view")
-            access_token = self.fucking_azure_account_service.acquire_token(
-                app_name=app_name
-            )
-            wopi_access_token_info = generate_access_token(
-                issuer=cy_web.get_host_url(self.request),
-                audience=f"{cy_web.get_host_url(self.request)}/api/{app_name}/wopi/{upload_id}.docx",
-                user="nttlong@lacviet.com.vn",
-                docid=f"{upload_id}.docx",
-                pfx_password="dxwopi"
-            )
 
-            access_token_ttl = ""
-            # src = self.fucking_office_365_service.get_embed_iframe_url(app_name=app_name, upload_id=upload_id,
-            #                                                            include_token=False)
-            wopi_src = f"{cy_web.get_host_url(self.request)}/api/{app_name}/wopi/files/{upload_id}.docx"
-            # wopi_src ='http://172.16.13.72:8012/lvfile/api/lv-docs/wopi/files/c638d1b1-a9de-4048-8619-8db2dcaabcd3?access_token=123'
-            # wopi_src = f"http://172.16.13.72:8012/api/{app_name}/wopi/files/{upload_id}.{'docx'}"
-            # wopi_src=f"https://1drv.ms/w/s!AhSDgZO1-y79glHQ1O0W0U3Wo14A?e=zU4kIT"
-            # wopi_src = f"{cy_web.get_host_url()}/wopi/files/test.docx"
-            # wopi_src = f"file:///C:/long/test.docx"
-            # wopi_src="https://FFC-onenote.officeapps-df.live.com/hosting/GetWopiTestInfo.ashx"
-            src = self.fucking_wopi_service.get_wopi_url_from_action(
-                doc_type="docx",
-                action="edit",
-                wopi_src=wopi_src+"?access_token=123"
-            )
-            # src = self.fucking_wopi_service.get_wopi_url_from_action(
-            #     doc_type="wopitest",
-            #     action="view",
-            #     wopi_src=wopi_src
-            # )
-            test_acc= str(uuid.uuid4())
-            editor = dict(
-                wopi_urlsrc = src,
-                access_token_ttl =  wopi_access_token_info.access_token_ttl,
-                access_token = access_token, #wopi_access_token_info.access_token,
-                web_access_token = access_token
-            )
-            return cy_web.render_template(
-                rel_path_to_template="office-editor.html",
-                render_data={"request": self.request, "editor":editor}
-            )
-        except FuckingWhoreMSApiCallException as e:
-            editor = dict(
-                error= dict(
-                    code=e.code,
-                    message=e.message
-                )
-            )
-            return cy_web.render_template(
-                rel_path_to_template="office-editor.html",
-                render_data={"request": self.request, "editor": editor}
-            )
+        data_browser = self.fucking_wopi_service.get_action(doc_type="docx",action="view")
+        access_token = self.fucking_azure_account_service.acquire_token(
+            app_name=app_name
+        )
+
+
+        access_token_ttl = ""
+        # src = self.fucking_office_365_service.get_embed_iframe_url(app_name=app_name, upload_id=upload_id,
+        #                                                            include_token=False)
+        wopi_src = f"{cy_web.get_host_url(self.request)}/api/{app_name}/wopi/files/{upload_id}.docx"
+        # wopi_src ='http://172.16.13.72:8012/lvfile/api/lv-docs/wopi/files/c638d1b1-a9de-4048-8619-8db2dcaabcd3?access_token=123'
+        # wopi_src = f"http://172.16.13.72:8012/api/{app_name}/wopi/files/{upload_id}.{'docx'}"
+        # wopi_src=f"https://1drv.ms/w/s!AhSDgZO1-y79glHQ1O0W0U3Wo14A?e=zU4kIT"
+        # wopi_src = f"{cy_web.get_host_url()}/wopi/files/test.docx"
+        # wopi_src = f"file:///C:/long/test.docx"
+        # wopi_src="https://FFC-onenote.officeapps-df.live.com/hosting/GetWopiTestInfo.ashx"
+        src = self.fucking_wopi_service.get_wopi_url_from_action(
+            doc_type="docx",
+            action="edit",
+            wopi_src=wopi_src+"?access_token=123"
+        )
+        # src = self.fucking_wopi_service.get_wopi_url_from_action(
+        #     doc_type="wopitest",
+        #     action="view",
+        #     wopi_src=wopi_src
+        # )
+        test_acc= str(uuid.uuid4())
+
+        return cy_web.render_template(
+            rel_path_to_template="office-editor.html",
+            render_data={"request": self.request, "editor":editor}
+        )
+
+        return cy_web.render_template(
+            rel_path_to_template="office-editor.html",
+            render_data={"request": self.request, "editor": editor}
+        )
     @controller.route.get(
         "{directory:path}", summary="Home page"
     )

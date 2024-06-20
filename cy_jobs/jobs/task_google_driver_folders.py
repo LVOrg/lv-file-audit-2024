@@ -42,5 +42,7 @@ if __name__ == "__main__":
                         print(ex)
         except Exception as ex:
             print(traceback.format_exc())
+        finally:
+            JobLibs.malloc_service.reduce_memory()
         time.sleep(1)
 

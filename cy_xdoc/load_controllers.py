@@ -20,7 +20,7 @@ from cy_controllers.files.files_controllers import FilesController
 from cy_controllers.files.file_privileges_controller import FilesPrivilegesController
 from cy_controllers.systems.system_controllers import SystemsController
 from cy_controllers.health_check.health_check_controllers import HealthCheckController
-from cy_controllers.azure.token_controller import AzureController
+# from cy_controllers.azure.token_controller import AzureController
 from cy_controllers.wopi.wopi_controller import WOPIController
 from cy_controllers.office365.office365_controller import Office365Controller
 from cy_controllers.auth.auth_controller import AuthController

@@ -1,5 +1,6 @@
 {{- $appName := "lv-pdf" }}
 {{- $image :="nttlong/lv-pdf:4"}}
+  {{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "pdf") }}
 {{- $memcacheKey :="MEMCACHED_SERVER"}}
 ---
 apiVersion: apps/v1
@@ -33,7 +34,7 @@ spec:
             - containerPort: 80
           envFrom:
             - configMapRef:
-                name: lv-file
+                name: {{.Values.appConfig.name}}-config
           args: ["80"]
           volumeMounts:
             - name: storage-files
@@ -51,7 +52,11 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 32224
+      {{ if $hasNodePort }}
+      nodePort: {{ .Values.nodePort.pdf }}
+      {{ end }}
+  {{ if $hasNodePort }}
   type: NodePort
+  {{ end }}
   selector:
     app: {{$appName}}

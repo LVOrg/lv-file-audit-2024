@@ -121,12 +121,17 @@ if __name__ == "__main__":
                     upload_item,
                     app_name
                 )
+                if download_url is None:
+                    continue
                 screen_logs(__file__, f"sync file from {rel_path} to {full_path_on_cloud}")
+                import googleapiclient.errors
+
                 cloud_folder_id, error = JobLibs.google_directory_service.get_remote_folder_id(
                     service=service,
                     app_name=app_name,
                     directory=cloud_dir
                 )
+
                 if error:
                     screen_logs(__file__, f"sync file from {rel_path} to {full_path_on_cloud} is error {json.dumps(error,indent=4)}")
                     consumer.resume(msg)
@@ -209,3 +214,5 @@ if __name__ == "__main__":
             str_err = traceback.format_exc()
             screen_logs(__file__, str_err)
             print(str_err)
+        finally:
+            JobLibs.malloc_service.reduce_memory()

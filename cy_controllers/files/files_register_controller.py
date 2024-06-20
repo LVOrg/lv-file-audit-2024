@@ -93,7 +93,7 @@ class Error(BaseModel):
     Fields: typing.List[str] | None
 
 
-from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+
 import asyncio
 
 MAX_REQUESTS_UPLOAD_FILES = 2
@@ -303,13 +303,7 @@ class FilesRegisterController(BaseController):
             )
             ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
             return ret_data
-        except FuckingWhoreMSApiCallException as e:
-            ret_data = RegisterUploadInfoResult()
-            ret_data.Error = Error(
-                Code=e.code,
-                Message=e.message
-            )
-            return ret_data
+
         except Exception as ex:
             self.logger_service.error(ex)
             ret_data = RegisterUploadInfoResult()

@@ -83,7 +83,7 @@ class Office365Controller(BaseController):
         :param upload_id:
         :return:
         """
-        from cy_fucking_whore_microsoft.ssl_utils.fucking_utils import generate_access_token
+        from cy_fw_microsoft.ssl_utils.fucking_utils import generate_access_token
 
         access_token = self.fucking_azure_account_service.acquire_token(
             app_name=app_name
@@ -134,5 +134,5 @@ class Office365Controller(BaseController):
         "/api/signing_key", summary="Re run index search"
     )
     def signing_key(self):
-        from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_security import get_signing_key
+        from cy_fw_microsoft.fucking_ms_wopi.fucking_wopi_security import get_signing_key
         return get_signing_key()

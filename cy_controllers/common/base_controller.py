@@ -21,9 +21,7 @@ from cyx.common.brokers import Broker
 from cyx.common.rabitmq_message import RabitmqMsg
 import cy_docs
 import cyx.common.msg
-from cy_fucking_whore_microsoft.services import (
-    account_services, ondrive_services
-)
+
 from cyx.common.file_storage_mongodb import (
     MongoDbFileService, MongoDbFileStorage
 )
@@ -40,8 +38,7 @@ import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
 from cy_xdoc.services.apps import AppServices, AppsCacheService
 from cy_xdoc.services.search_engine import SearchEngine
-from cy_fucking_whore_microsoft.services.office_365_services import Office365Service
-from cy_fucking_whore_microsoft.fucking_ms_wopi.fucking_wopi_services import FuckingWopiService
+
 # from cyx.media.image_extractor import ImageExtractorService
 from cyx.content_manager_services import ContentManagerService
 from cyx.thumbs_services import ThumbService
@@ -79,12 +76,10 @@ class BaseController:
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
     search_engine = cy_kit.singleton(SearchEngine)
-    fucking_azure_account_service: account_services.AccountService = cy_kit.singleton(account_services.AccountService)
-    fucking_azure_onedrive_service: ondrive_services.OnedriveService = cy_kit.singleton(
-        ondrive_services.OnedriveService)
+
+
     mongodb_service = cy_kit.singleton(MongodbService)
-    fucking_office_365_service = cy_kit.singleton(Office365Service)
-    fucking_wopi_service = cy_kit.singleton(FuckingWopiService)
+
 
     thumb_service: ThumbService = cy_kit.singleton(ThumbService)
     content_manager_service: ContentManagerService = cy_kit.singleton(ContentManagerService)

@@ -19,7 +19,7 @@ from cyx.cache_service.memcache_service import MemcacheServices
 import hashlib
 from cyx.repository import Repository
 from cyx.distribute_locking.distribute_lock_services import DistributeLockService
-
+import googleapiclient.errors
 from cyx.common import config
 import threading
 
@@ -417,74 +417,84 @@ class GoogleDirectoryService:
         :param parent_id:
         :return: cloud_folder_id, error
         """
-        if directory == "" or directory is None:
-            return None, None
-        folder_id = None
-        data = Repository.cloud_path_track.app(app_name).context.find_one(
-            Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
-        )
-        if data is not None:
-            data=data.to_json_convertable()
-        if data is None:
-            folder_tree,folder_hash, error =self.get_all_folders(app_name)
+        try:
+            if directory == "" or directory is None:
+                return None, None
+            folder_id = None
+            data = Repository.cloud_path_track.app(app_name).context.find_one(
+                Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
+            )
+            if data is not None:
+                data=data.to_json_convertable()
+            if data is None:
+                folder_tree,folder_hash, error =self.get_all_folders(app_name)
 
-            if error:
-                return None,error
-            if folder_hash.get(f"my drive/{directory}"):
-                folder_id = folder_hash.get(f"my drive/{directory}").get("id")
-                try:
-                    Repository.cloud_path_track.app(app_name).context.insert_one(
-                        Repository.cloud_path_track.fields.CloudPath<<f"Google/my drive/{directory}",
-                        Repository.cloud_path_track.fields.CloudPathId<<folder_hash.get(f"my drive/{directory}")
-                    )
-                except pymongo.errors.DuplicateKeyError as ex:
-                    if (hasattr(ex, "details") and
-                            isinstance(ex.details, dict) and
-                            ex.details.get('keyPattern', {}).get('CloudPath')):
-
-                        data = Repository.cloud_path_track.app(app_name).context.find_one(
-                            Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
-                        )
-                        if data:
-                            data = data.to_json_convertable()
-                            if folder_id != data["CloudPathId"]['id']:
-                                service.files().delete(fileId=folder_id).execute()
-                            folder_id = data["CloudPathId"]['id']
-                            return folder_id,None
-                return folder_id, None
-            else:
-                parent_of_folder_id, error = self.get_remote_folder_id(service,app_name,"/".join(directory.split('/')[0:-1]),parent_id)
                 if error:
                     return None,error
-                else:
-                    folder_id = self.__create_folder__(service,directory.split('/')[-1],parent_of_folder_id)
+                if folder_hash.get(f"my drive/{directory}"):
+                    folder_id = folder_hash.get(f"my drive/{directory}").get("id")
                     try:
                         Repository.cloud_path_track.app(app_name).context.insert_one(
-                            Repository.cloud_path_track.fields.CloudPath << f"Google/my drive/{directory}",
-                            Repository.cloud_path_track.fields.CloudPathId << dict(id=folder_id)
+                            Repository.cloud_path_track.fields.CloudPath<<f"Google/my drive/{directory}",
+                            Repository.cloud_path_track.fields.CloudPathId<<folder_hash.get(f"my drive/{directory}")
                         )
                     except pymongo.errors.DuplicateKeyError as ex:
-                        if (hasattr(ex, "details")
-                                and isinstance(ex.details, dict)
-                                and ex.details.get('keyPattern',{}).get('CloudPath')):
+                        if (hasattr(ex, "details") and
+                                isinstance(ex.details, dict) and
+                                ex.details.get('keyPattern', {}).get('CloudPath')):
+
                             data = Repository.cloud_path_track.app(app_name).context.find_one(
                                 Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
                             )
                             if data:
-                                data=data.to_json_convertable()
+                                data = data.to_json_convertable()
                                 if folder_id != data["CloudPathId"]['id']:
                                     service.files().delete(fileId=folder_id).execute()
                                 folder_id = data["CloudPathId"]['id']
-                                del data
-                                gc.collect()
-                                return folder_id, None
-
+                                return folder_id,None
                     return folder_id, None
-        else:
-            folder_id= data["CloudPathId"]['id']
-            del data
-            gc.collect()
-            return folder_id, None
+                else:
+                    parent_of_folder_id, error = self.get_remote_folder_id(service,app_name,"/".join(directory.split('/')[0:-1]),parent_id)
+                    if error:
+                        return None,error
+                    else:
+                        folder_id = self.__create_folder__(service,directory.split('/')[-1],parent_of_folder_id)
+                        try:
+                            Repository.cloud_path_track.app(app_name).context.insert_one(
+                                Repository.cloud_path_track.fields.CloudPath << f"Google/my drive/{directory}",
+                                Repository.cloud_path_track.fields.CloudPathId << dict(id=folder_id)
+                            )
+                        except pymongo.errors.DuplicateKeyError as ex:
+                            if (hasattr(ex, "details")
+                                    and isinstance(ex.details, dict)
+                                    and ex.details.get('keyPattern',{}).get('CloudPath')):
+                                data = Repository.cloud_path_track.app(app_name).context.find_one(
+                                    Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
+                                )
+                                if data:
+                                    data=data.to_json_convertable()
+                                    if folder_id != data["CloudPathId"]['id']:
+                                        service.files().delete(fileId=folder_id).execute()
+                                    folder_id = data["CloudPathId"]['id']
+                                    del data
+                                    gc.collect()
+                                    return folder_id, None
+
+                        return folder_id, None
+            else:
+                folder_id= data["CloudPathId"]['id']
+                del data
+                gc.collect()
+                return folder_id, None
+        except googleapiclient.errors.HttpError as ex:
+            if ex.status_code==404:
+                Repository.cloud_path_track.app(app_name).context.delete(
+                    {}
+                )
+                cloud_folder_id, error=self.get_remote_folder_id( service, app_name, directory, parent_id)
+                return cloud_folder_id, error
+
+
 
 
         # full_check_dir = os.path.join(config.file_storage_path, "__cloud_directories_sync__", app_name, directory)

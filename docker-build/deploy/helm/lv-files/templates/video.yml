@@ -1,5 +1,6 @@
 {{- $appName := "lv-video" }}
   {{- $image :="nttlong/lv-video:5.2"}}
+{{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "video") }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,7 +32,7 @@ spec:
             - containerPort: 80
           envFrom:
             - configMapRef:
-                name: lv-file
+                name: {{.Values.appConfig.name}}-config
           args: ["80"]
           volumeMounts:
             - name: storage-files
@@ -49,7 +50,11 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 32225
+      {{ if $hasNodePort }}
+      nodePort: {{ .Values.nodePort.video }}
+      {{ end }}
+  {{ if $hasNodePort }}
   type: NodePort
+  {{ end }}
   selector:
     app: {{$appName}}

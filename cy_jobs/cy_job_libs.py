@@ -75,7 +75,7 @@ check_memcache()
 
 cy_file_cryptor.context.set_server_cache(config.cache_server)
 import cy_file_cryptor.wrappers
-
+from cyx.malloc_services import MallocService
 
 class JobLibs:
     shared_storage_service: ShareStorageService = cy_kit.singleton(ShareStorageService)
@@ -86,6 +86,7 @@ class JobLibs:
     process_manager_service: ProcessManagerService = cy_kit.singleton(ProcessManagerService)
     azure_utils_services: AzureUtilsServices = cy_kit.singleton(AzureUtilsServices)
     google_directory_service: GoogleDirectoryService = cy_kit.singleton(GoogleDirectoryService)
+    malloc_service = cy_kit.singleton(MallocService)
 
     @staticmethod
     def get_doc_type(file_ext: str) -> str:
@@ -282,3 +283,12 @@ def run_all(execute_files, side_kick_path, args):
         p.start()
     for p in prs:
         p.join(2)
+"""
+import ctypes
+libc = ctypes.CDLL("libc.so.6")
+libc.malloc_trim(0)
+"""
+import ctypes
+libc = ctypes.CDLL("libc.so.6")
+
+libc.malloc_trim(0)

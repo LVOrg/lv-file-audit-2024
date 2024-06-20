@@ -1,13 +1,11 @@
-namespace: files
-webAppName: lv-file
+namespace: lv-file2
 appConfig:
-  lv-file:
-    host:
-      path: lvfile
-      name: 172.16.7.91
-      protocol: https
-ingress:
-  files3:
+  name: lv-file2
+  host:
+    path: lvfile
+    name: 172.16.7.99
+    protocol: https
+  ingress:
     pathType: Prefix
 db:
   mongodb: mongodb://192.168.18.36:27017
@@ -19,12 +17,12 @@ storage:
   server: 192.168.18.36
   directory: /codx-file-storage/files
   name: storage-files
-
-replicas: 4
+replicas: 2
 rabbit:
   username: guest
   password: guest
-customer: "qc"
+customer: "saas"
 imageTag: "latest"
 repository: "docker.lacviet.vn/xdoc"
-debugLibs: []
+#processMsg: ["content","google-file-sync","google-folder-sync","onedrive-file-sync"]
+#processMsg_: ["re-do-all","content","image","index","google-file-sync","google-folder-sync","onedrive-file-sync"]

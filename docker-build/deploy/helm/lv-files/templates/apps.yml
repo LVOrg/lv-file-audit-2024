@@ -19,6 +19,10 @@ metadata:
     keel.sh/releaseNotes: kubernetes-cluster-qc
     keel.sh/policy: "glob:build-*"
     keel.sh/approvals: "0"
+    lv-file-meta: |-
+        {
+          "nested_key": {{$value.service | toJson }}
+        }
 spec:
   selector:
     matchLabels:
@@ -51,7 +55,7 @@ spec:
             - containerPort: 80
           envFrom:
             - configMapRef:
-                name: lv-file
+                name: {{ $value.configMapName }}
         {{ if $value.entrypoint }}
           args:
           {{- range $key, $args := $value.entrypoint  }}

@@ -48,7 +48,7 @@ from cyx.common.file_storage_mongodb import (
     MongoDbFileService, MongoDbFileStorage
 )
 from fastapi import responses
-from cy_fucking_whore_microsoft.fwcking_ms.caller import FuckingWhoreMSApiCallException
+
 from cy_controllers.models import (
     files as controller_model_files
 )

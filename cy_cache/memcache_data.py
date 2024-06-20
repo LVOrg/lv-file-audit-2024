@@ -149,9 +149,15 @@ def cy_caching(keys=None):
 
             return new_run_cls_mt
         elif callable(args[0]):
+            file_path = "/".join(args[0].__code__.__str__().split(',')[1:])
+            print(file_path)
+            def __clear_cache__001(*f_args, **f_kwargs):
+                key = __get_key__(*tuple(list(f_args)[1:]+[file_path]), **f_kwargs )
+                __client__.delete(key)
+
             def new_run(*f_args, **f_kwargs):
                 global __client__
-                file_path = inspect.getfile(args[0])+"/"+args[0].__name__
+                file_path = "/".join(args[0].__code__.__str__().split(',')[1:])
 
                 key = __get_key__(*tuple(list(args)[1:]+[file_path]), **f_kwargs )
                 ret = __client__.get(key)
@@ -168,6 +174,8 @@ def cy_caching(keys=None):
                     print(f"warning {type(ret['ret_value'])} can not track change")
                 return ret["ret_value"]
 
+            setattr(new_run, "__clear_cache__", __clear_cache__001)
+            setattr(__clear_cache__001,"__original_path__",file_path)
             return new_run
 
     return wrapper

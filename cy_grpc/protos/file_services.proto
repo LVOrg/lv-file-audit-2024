@@ -1,0 +1,13 @@
+syntax="proto3";
+package="file_services"
+service FileServices {
+    rpc Caller(FileServicesMessages)  return (FileServiceResult);
+}
+message FileServicesMessages {
+  string data = '{}';
+}
+
+// The response message containing the greetings
+message FileServiceResult {
+  string data = '{}';
+}
