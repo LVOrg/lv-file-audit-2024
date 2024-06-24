@@ -97,6 +97,7 @@ if __name__ == "__main__":
                 screen_logs(__file__,"no message")
                 print(f"no message [{__file__}]")
                 time.sleep(0.3)
+                JobLibs.malloc_service.reduce_memory()
                 continue
             method, properties, body = msg.method,msg.properties, msg.body
             data = {}
@@ -105,23 +106,28 @@ if __name__ == "__main__":
                     data = json.loads(body)
                 except:
                     time.sleep(0.3)
+                    JobLibs.malloc_service.reduce_memory()
                     continue
                 app_name = data["app_name"]
                 upload_item = data["data"]
                 full_path_on_cloud = upload_item.get("FullPathOnCloud")
                 if full_path_on_cloud is None:
+                    JobLibs.malloc_service.reduce_memory()
                     continue
 
                 cloud_dir = pathlib.Path(full_path_on_cloud).parent.__str__()
                 service, error = JobLibs.google_directory_service.g_drive_service.get_service_by_app_name(app_name)
                 if error:
                     consumer.resume(msg)
+                    JobLibs.malloc_service.reduce_memory()
                     continue
                 download_url, rel_path, download_file, token, share_id = local_api_service.get_download_path(
                     upload_item,
                     app_name
                 )
                 if download_url is None:
+                    del upload_item
+                    JobLibs.malloc_service.reduce_memory()
                     continue
                 screen_logs(__file__, f"sync file from {rel_path} to {full_path_on_cloud}")
                 import googleapiclient.errors
@@ -135,6 +141,7 @@ if __name__ == "__main__":
                 if error:
                     screen_logs(__file__, f"sync file from {rel_path} to {full_path_on_cloud} is error {json.dumps(error,indent=4)}")
                     consumer.resume(msg)
+                    JobLibs.malloc_service.reduce_memory()
                     continue
                 full_path = os.path.join("/mnt/files", rel_path)
                 if os.path.isfile(full_path):
@@ -147,6 +154,8 @@ if __name__ == "__main__":
                                 )
                         if error:
                             consumer.resume(msg)
+                            del upload_item
+                            JobLibs.malloc_service.reduce_memory()
                             continue
                         upload_item["google_file_id"] = google_file_id
                         screen_logs(__file__,f"{full_path} in {app_name} is synchronizing to Google Drive")
@@ -159,8 +168,10 @@ if __name__ == "__main__":
                                         while data:
                                             fw.write(data)
                                             del data
-                                            gc.collect()
+                                            JobLibs.malloc_service.reduce_memory()
                                             data = fs.read(1024 ** 2)
+                                        del data
+                                        JobLibs.malloc_service.reduce_memory()
                                 ret, error = cloud_upload_google_service.do_upload(
                                     app_name=app_name,
                                     file_path=f"{full_path}.tmp",
@@ -194,6 +205,8 @@ if __name__ == "__main__":
                                     Repository.cloud_file_sync.fields.ErrorContent << traceback_str
                                 )
                                 print(traceback_str)
+                                del upload_item
+                                JobLibs.malloc_service.reduce_memory()
                                 # msg_broker.delete(msg_info)
                     except Exception as ex:
                         traceback_str = traceback.format_exc()
@@ -206,6 +219,8 @@ if __name__ == "__main__":
                         screen_logs(__file__, traceback_str)
                         print(traceback_str)
                         consumer.resume(msg)
+                        del upload_item
+                        JobLibs.malloc_service.reduce_memory()
 
             else:
                 screen_logs(__file__, "No message received.")

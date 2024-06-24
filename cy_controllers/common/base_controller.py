@@ -61,6 +61,8 @@ from cyx.cloud.cloud_service_utils import CloudServiceUtils
 from cyx.cloud.azure.azure_utils_services import AzureUtilsServices
 from cyx.cloud.azure.office365_services import MSOffice365Service
 from cyx.cloud_cache_services import CloudCacheService
+from cyx.malloc_services import MallocService
+import cyx.common.basic_auth
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -76,6 +78,7 @@ class BaseController:
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
     search_engine = cy_kit.singleton(SearchEngine)
+    malloc_service = cy_kit.singleton(MallocService)
 
 
     mongodb_service = cy_kit.singleton(MongodbService)

@@ -20,8 +20,10 @@ from PIL import Image
 from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.local_api_services import LocalAPIService
 from cyx.repository import Repository
+from cyx.malloc_services import MallocService
 from cyx.common.brokers import Broker
 from cyx.common import msg
+
 class ThumbService:
     def __init__(
             self,
@@ -30,6 +32,7 @@ class ThumbService:
             msg=cy_kit.singleton(RabitmqMsg),
             local_api_service: LocalAPIService = cy_kit.singleton(LocalAPIService),
             remote_caller_service:RemoteCallerService = cy_kit.singleton(RemoteCallerService),
+            malloc_service = cy_kit.singleton(MallocService)
     ):
         self.memcache_services: MemcacheServices = memcache_services
         self.cache_group = f"/{__version__}/{config.file_storage_path}/{__file__}/{type(self).__name__}/thumb"
@@ -37,6 +40,7 @@ class ThumbService:
         self.msg = msg
         self.local_api_service=local_api_service
         self.remote_caller_service=remote_caller_service
+        self.malloc_service = malloc_service
 
     def get_thumb_type(self, ext_file) -> str:
         if ext_file.lower() == "pdf":
@@ -174,7 +178,9 @@ class ThumbService:
             with create_encrypt(ret_image_path):
                 webp.save_image(scaled_img, ret_image_path,
                                 lossless=True)  # Set lossless=False for lossy compression
-
+            scaled_img.close()
+            del scaled_img
+            self.malloc_service.reduce_memory()
             return ret_image_path
 
     def move_to_storage(self, from_file, to_file):
@@ -194,6 +200,7 @@ class ThumbService:
                         fw.write(data_read)
                         del data_read
                         data_read = fr.read(1024)
+                        self.malloc_service.reduce_memory()
 
         os.remove(from_file)
 

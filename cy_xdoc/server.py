@@ -71,9 +71,11 @@ if hasattr(config, "auto_ssl_redirect") and config.auto_ssl_redirect == "on":
         config.host_url = "https://" + config.host_url[len("http://"):]
 
 from cyx.common.base import DbConnect
-
 cnn = cy_kit.singleton(DbConnect)
+
 cnn.set_tracking(True)
+config.server_type="Uvicorn"
+config.worker_class="httptools"
 cy_app_web = cy_web.create_web_app(
     working_dir=WORKING_DIR,
     static_dir=config.static_dir,  #os.path.abspath(os.path.join(WORKING_DIR, config.static_dir)),
@@ -140,13 +142,13 @@ async def tracking_error_async(request: fastapi.Request):
 
 
 
-@cy_web.middleware()
-async def codx_integrate(request: fastapi.Request, next):
-    if request.url.path.endswith("/cloud/mail/send"):
-        await tracking_error_async(request)
-        print("OK")
-    res = await next(request)
-    return res
+# @cy_web.middleware()
+# async def codx_integrate(request: fastapi.Request, next):
+#     if request.url.path.endswith("/cloud/mail/send"):
+#         await tracking_error_async(request)
+#         print("OK")
+#     res = await next(request)
+#     return res
 
 
 from fastapi.responses import JSONResponse
@@ -170,6 +172,7 @@ async def estimate_time(request: fastapi.Request, next):
 
                 try:
                     data = json.loads(BODY_CONTENT)
+                    del data
                     if data.get('access_token'):
                         res.set_cookie('access_token_cookie', data.get('access_token'))
                 except Exception as e:
@@ -329,7 +332,7 @@ if config.timeout_graceful_shutdown:
 # if __name__ =="__main__":
 
 if __name__ == "__main__":
-    if config.server_type == "unvicorn":
+    if config.server_type.lower() == "uvicorn1":
         options = {
             "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
             "workers": number_of_workers,

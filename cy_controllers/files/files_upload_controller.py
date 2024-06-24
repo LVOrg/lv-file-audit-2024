@@ -290,6 +290,9 @@ class FilesUploadController(BaseController):
                     Index=Index
                 )
 
+
+
+
                 upload_item.MainFileId = await get_main_file_id_async(fs)
 
                 main_file_id = upload_item.MainFileId
@@ -417,6 +420,9 @@ class FilesUploadController(BaseController):
             ret.Error.Code = "System"
             ret.Error.Message =repr(ex)
             return ret
+        finally:
+            del content_part
+            self.malloc_service.reduce_memory()
 
     async def push_temp_file_async(self, app_name, content, upload_id, file_ext):
         st = datetime.datetime.utcnow()

@@ -78,10 +78,10 @@ spec:
             - rabbitmq.username=$(rabbitmq.username)
             - rabbitmq.password=$(rabbitmq.password)
            {{ if $value.webWorker }}
-            - workers={{$value.webWorker}}
+            - workers=1
            {{end}}
-            - server_type=$(server_type.hypercorn)
-            - worker_class=$(worker_class.trio)
+            - server_type=Uvicorn
+            - worker_class=httptools
             - timeout_keep_alive=$(timeout_keep_alive)
             - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
             - h2_max_concurrent_streams=$(h2_max_concurrent_streams)

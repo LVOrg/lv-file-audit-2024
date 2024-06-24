@@ -219,7 +219,9 @@ def get_content_from_tika(url_file:str,abs_file_path:str):
             )
 
 
-            return ret['content']
+            re_content = ret['content']
+            del ret
+            return re_content
         except Exception as ex:
             raise ex
         finally:
