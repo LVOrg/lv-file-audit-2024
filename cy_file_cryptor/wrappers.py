@@ -67,11 +67,16 @@ def cy_open_file(*args, **kwargs):
 
     is_encrypt = False
     chunk_size = -1
+    full_file_size = None
     if kwargs.get("encrypt") == True:
+        if kwargs.get("file_size") is None:
+            raise Exception("file_size keyword was not found")
         del kwargs["encrypt"]
         is_encrypt = True
         chunk_size = int(kwargs.get("chunk_size_in_kb",1024)) * 1024
+        full_file_size=  kwargs.get("file_size")
         del kwargs["chunk_size_in_kb"]
+        del kwargs["file_size"]
     #open, file, mode, buffering, encoding, errors, newline, closefd, opener
     wrapper_args = dict(
         file=None,
@@ -154,7 +159,7 @@ def cy_open_file(*args, **kwargs):
     encrypt_info = None
 
     if os.path.isfile(encrypt_info_path):
-        encrypt_info = read_dict(encrypt_info_path, original_open_file)
+        encrypt_info = read_dict(encrypt_info_path, original_open_file,full_file_size=full_file_size)
         is_encrypt = True
 
     if is_encrypt:
@@ -163,7 +168,7 @@ def cy_open_file(*args, **kwargs):
                 chunk_size=chunk_size,
                 rotate=random.randint(0, 7)
             )
-            write_dict(encrypt_info, encrypt_info_path, original_open_file)
+            write_dict(encrypt_info, encrypt_info_path, original_open_file,full_file_size=full_file_size)
         if send_kwargs.get("mode") == "ab":
             send_kwargs["mode"] = "rb+"
             ret_fs = original_open_file(**send_kwargs)
@@ -194,20 +199,24 @@ def cy_open_file(*args, **kwargs):
     setattr(ret_fs, "original_open_file", original_open_file)
     if is_encrypt and isinstance(ret_fs, io.BufferedWriter):
         import cy_file_cryptor.settings
-        cy_file_cryptor.settings.__apply__write__(ret_fs)
+        cy_file_cryptor.settings.__apply__write__(ret_fs,full_file_size=full_file_size)
         setattr(ret_fs, "old_file_size", file_size)
+
         return ret_fs
     if is_encrypt and isinstance(ret_fs, io.BufferedRandom):
         import cy_file_cryptor.settings
 
-        cy_file_cryptor.settings.__apply__write__(ret_fs)
+        cy_file_cryptor.settings.__apply__write__(ret_fs,full_file_size=full_file_size)
+
         setattr(ret_fs, "old_file_size", file_size)
         return ret_fs
     if is_encrypt and isinstance(ret_fs, io.BufferedReader):
         import cy_file_cryptor.settings
         cy_file_cryptor.settings.__apply__read__(ret_fs)
         setattr(ret_fs, "old_file_size", file_size)
+        ret_fs.cryptor["file-size"] = full_file_size
         return ret_fs
+
 
     return ret_fs
 

@@ -24,11 +24,13 @@ def should_encrypt_path(file_path: str):
         return False
 
 
-def __apply__write__(ret_fs):
+def __apply__write__(ret_fs,full_file_size):
     if hasattr(ret_fs, "name") and isinstance(ret_fs.name, str):
         if should_encrypt_path(ret_fs.name):
             print(f"{ret_fs.name} should be encrypt")
     old_write = ret_fs.write
+    ret_fs.cryptor["file-size"]=full_file_size
+
     setattr(ret_fs, "original_write", old_write)
 
     def on_write(*args, **kwargs):

@@ -24,6 +24,7 @@ from cyx.malloc_services import MallocService
 from cyx.common.brokers import Broker
 from cyx.common import msg
 
+
 class ThumbService:
     def __init__(
             self,
@@ -68,6 +69,7 @@ class ThumbService:
             Repository.files.fields.Id==upload_id
         )
         if upload_item is None:
+
             return None
         server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
             upload_item=upload_item,
@@ -215,6 +217,8 @@ class ThumbService:
                 )
                 if data.get("error"):
                     print(json.dumps(data.get("error"),indent=4))
+                    del data
+                    self.malloc_service.reduce_memory()
                     return
                 if data.get("image_file"):
                     office_image_file=data.get("image_file")

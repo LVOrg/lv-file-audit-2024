@@ -65,7 +65,11 @@ def hash_file(filename, hash_function=hashlib.sha256):
 def cy_open_file(*args, **kwargs):
     is_encrypt = False
     chunk_size = -1
+    full_file_size =None
     if kwargs.get("encrypt") == True:
+        if kwargs.get("file_size") is None:
+            raise Exception("file_size was not found")
+        full_file_size =kwargs.get("file_size")
         del kwargs["encrypt"]
         is_encrypt = True
         chunk_size = int(kwargs.get("chunk_size_in_kb",1024)) * 1024
@@ -146,7 +150,7 @@ def cy_open_file(*args, **kwargs):
     encrypt_info = None
 
     if os.path.isfile(encrypt_info_path):
-        encrypt_info = read_dict(encrypt_info_path, original_open_file)
+        encrypt_info = read_dict(encrypt_info_path, original_open_file,full_file_size=full_file_size)
         is_encrypt = True
 
     if is_encrypt:

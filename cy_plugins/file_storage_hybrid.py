@@ -188,14 +188,14 @@ class HybridFileStorage:
         file_path = os.path.join(self.full_dir, self.filename)
         if not os.path.exists(file_path):
             if upload_info.IsEncryptContent:
-                with open(file_path, "wb",encrypt=True,chunk_size_in_kb=1024) as f:
+                with open(file_path, "wb",encrypt=True,chunk_size_in_kb=1024,file_size=upload_info.SizeInBytes) as f:
                     f.write(content)
             else:
                 with open(file_path, "wb") as f:
                     f.write(content)
         else:
             if upload_info.IsEncryptContent:
-                with open(file_path, "ab",encrypt=True,chunk_size_in_kb=1024) as f:
+                with open(file_path, "ab",encrypt=True,chunk_size_in_kb=1024,file_size=upload_info.SizeInBytes) as f:
                     f.write(content)
             else:
                 with open(file_path, "ab") as f:

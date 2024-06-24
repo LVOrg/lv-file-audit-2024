@@ -11,8 +11,17 @@ import numpy as np
 pre_fix_cache_key = "2930dbae-f443-435f-b6a1-2553c0a2bc7d"
 
 
-def write_dict(data: dict, file_path, original_open):
+def write_dict(data: dict, file_path, original_open,full_file_size):
+    """
+    Version 2 fix file too  small
+    :param data:
+    :param file_path:
+    :param original_open:
+    :return:
+    """
     from cy_file_cryptor import context
+    data["file-size"]=full_file_size
+
     context.write_to_cache(f"{pre_fix_cache_key}/{file_path}", data)
 
     # global __buffer_cache__
@@ -57,10 +66,12 @@ def write_dict(data: dict, file_path, original_open):
 #         data['footer'] = tem_footer
 
 
-def read_dict(file_path, original_open) -> dict:
+def read_dict(file_path, original_open,full_file_size) -> dict:
     from cy_file_cryptor import context
     ret = context.read_from_cache(f"{pre_fix_cache_key}/{file_path}")
     if isinstance(ret, dict):
+        if full_file_size and  ret["wrap-size"]>full_file_size:
+            ret["wrap-size"]=full_file_size
         return ret
     else:
         with original_open(file_path, "rb") as f:
@@ -69,6 +80,8 @@ def read_dict(file_path, original_open) -> dict:
             data_json = ~data_json
             ret = json.loads(data_json.tobytes().decode())
             context.write_to_cache(f"{pre_fix_cache_key}/{file_path}",ret)
+        if full_file_size and ret["wrap-size"]>full_file_size:
+            ret["wrap-size"]=full_file_size
         return ret
 
 
