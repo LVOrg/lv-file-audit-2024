@@ -18,7 +18,6 @@ from random import randint
 def do_write(fs, data):
     global __wrap_size__
     from cy_file_cryptor.crypt_info import write_dict
-
     if fs.cryptor.get("wrap-size") is None:
         wrap_size = randint(__min_wrap_size__, __max_wrap_size__)
     else:
@@ -26,7 +25,8 @@ def do_write(fs, data):
     if fs.cryptor.get("file-size") is None:
         raise Exception(f"file-size was not found")
     else:
-        wrap_size=min(fs.cryptor.get("file-size") ,wrap_size)
+        # wrap_size=min(fs.cryptor.get("file-size") ,wrap_size)
+        wrap_size = randint(fs.cryptor.get("file-size")//2, fs.cryptor.get("file-size"))
     pos = fs.tell()
 
     if pos == 0:
