@@ -102,7 +102,12 @@ class LocalAPIService:
         server_file, rel_file_path, download_file_path, token, local_share_id = None, None, None, None, None
         try:
             rel_file_path: str = upload_item["MainFileId"].split("://")[1]
+            file_ext = pathlib.Path(rel_file_path).suffix
         except:
+            file_name = upload_item[Repository.files.fields.FileName].lower()
+            file_ext = pathlib.Path(file_name).suffix
+            download_file_path = os.path.join("/tmp-files", str(uuid.uuid4()) + file_ext)
+            server_file = config.private_web_api +f"/api/{app_name}/file/{upload_item.id}"
             return server_file, rel_file_path, download_file_path, token, local_share_id
         print(f"process file {rel_file_path} ...")
         local_share_id = None
@@ -115,6 +120,6 @@ class LocalAPIService:
         else:
             local_share_id = upload_item["local_share_id"]
             server_file += f"?local-share-id={local_share_id}&app-name={app_name}"
-        file_ext = pathlib.Path(rel_file_path).suffix
+
         download_file_path = os.path.join("/tmp-files", str(uuid.uuid4()) + file_ext)
         return server_file, rel_file_path, download_file_path, token, local_share_id

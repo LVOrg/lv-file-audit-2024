@@ -22,11 +22,8 @@ def do_write(fs, data):
         wrap_size = randint(__min_wrap_size__, __max_wrap_size__)
     else:
         wrap_size = fs.cryptor.get("wrap-size")
-    if fs.cryptor.get("file-size") is None:
-        raise Exception(f"file-size was not found")
-    else:
-        # wrap_size=min(fs.cryptor.get("file-size") ,wrap_size)
-        wrap_size = randint(fs.cryptor.get("file-size")//2, fs.cryptor.get("file-size"))
+    if fs.cryptor.get("file-size"):
+        wrap_size = randint(fs.cryptor.get("file-size")//4, fs.cryptor.get("file-size")//3)
     pos = fs.tell()
 
     if pos == 0:

@@ -5,6 +5,8 @@ import threading
 import time
 import traceback
 
+import bson.objectid
+import cy_file_cryptor.context
 import cy_kit
 import cyx.common.msg
 from cyx.cache_service.memcache_service import MemcacheServices
@@ -68,16 +70,57 @@ class ThumbService:
         upload_item = await Repository.files.app(app_name).context.find_one_async(
             Repository.files.fields.Id==upload_id
         )
+
         if upload_item is None:
 
             return None
+        if not upload_item.get("MainFileId") or  not isinstance(upload_item[Repository.files.fields.MainFileId],str) or not "://" in upload_item[Repository.files.fields.MainFileId]:
+            """
+            Recalculate file storage and location if upload's file is still in mongoDb
+            """
+            file_ext="unknown"
+            if upload_item.get("FileExt"):
+                file_ext = upload_item.get("FileExt").lower()[0:3]
+            register_on = upload_item[Repository.files.fields.RegisterOn]
+            rel_path =  f'{app_name}/{register_on.strftime("%Y/%m/%d")}/{file_ext}/{upload_id}/{upload_item[Repository.files.fields.FileName].lower()}'
+            folder_path = os.path.join(config.file_storage_path, app_name,
+                                       register_on.strftime("%Y/%m/%d").replace('/', os.sep),file_ext, upload_id)
+            os.makedirs(folder_path, exist_ok=True)
+            file_path = os.path.join(folder_path, upload_item[Repository.files.fields.FileName].lower())
+            import requests
+            server_file = config.private_web_api +f"/api/{app_name}/file/{upload_item.id}/{upload_item[Repository.files.fields.FileName].lower()}"
+            response = requests.get(server_file)
+            if not os.path.isfile(file_path):
+                """
+                Checj angin. Why? For replication web deploy, may be another instance did it
+                """
+                if response.status_code == 200:
+                    with cy_file_cryptor.context.create_encrypt(file_path):
+                        with open(file_path, 'wb') as file:
+                            file.write(response.content)
+                    #local://lv-docs/2022/12/02/mp4/6ca713e3-3e6c-4b11-9e18-885702c0a07c/năng lượng - thành phần cơ bản nhất của vũ trụ  phim khoa học khám phá _thuyết minh_.mp4
+                    Repository.files.app(app_name).context.update(
+                        Repository.files.fields.id==upload_id,
+                        Repository.files.fields.MainFileId<<f"local://{rel_path}",
+                        Repository.files.fields.StorageType << "local"
+                    )
+                    upload_item = await Repository.files.app(app_name).context.find_one_async(
+                        Repository.files.fields.Id == upload_id
+                    )
+                else:
+                    raise Exception(f"Can not donwload file {server_file}")
         server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
             upload_item=upload_item,
             app_name=app_name
         )
 
-        file_type = self.get_thumb_type(pathlib.Path(rel_file_path).suffix.lstrip("."))
-        abs_file_path = os.path.join("/mnt/files",rel_file_path)
+
+
+        file_ext = pathlib.Path(rel_file_path).suffix.lstrip(".")
+        file_type = self.get_thumb_type(file_ext)
+        abs_file_path = os.path.join(config.file_storage_path, rel_file_path)
+
+
         folder_dir = pathlib.Path(abs_file_path).parent.__str__()
         thumb_file = os.path.join(folder_dir,f"{size}.webp")
 

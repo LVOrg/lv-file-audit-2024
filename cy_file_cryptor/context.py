@@ -74,7 +74,7 @@ class EncryptContext:
         from cy_file_cryptor.wrappers import original_open_file
         from cy_file_cryptor.writer_binary_v02 import __max_wrap_size__, __min_wrap_size__
 
-        write_dict(dict(is_crypted=True,chunk_size=1024*64), self.encryptor_file, original_open_file,full_file_size=os.stat(file_will_be_encrypt).st_size)
+        write_dict(dict(is_crypted=True,chunk_size=1024*64), self.encryptor_file, original_open_file)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
