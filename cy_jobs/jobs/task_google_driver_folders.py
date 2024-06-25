@@ -13,6 +13,7 @@ from cyx.repository import Repository
 import pymongo.errors
 if __name__ == "__main__":
     while True:
+        time.sleep(1)
         try:
             apps = Repository.apps.app("admin").context.aggregate().match(
                 Repository.apps.fields.AppOnCloud.Google.ClientSecret!=None

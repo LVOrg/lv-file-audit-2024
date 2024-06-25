@@ -30,6 +30,7 @@ def run():
     print("run")
     consumer = Consumer(cyx.common.msg.MSG_FILE_GENERATE_CONTENT)
     while True:
+        time.sleep(1)
         try:
             gc.collect()
 

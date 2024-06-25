@@ -91,6 +91,7 @@ cloud_upload_google_service = cy_kit.singleton(CloudUploadGoogleService)
 
 if __name__ == "__main__":
     while True:
+        time.sleep(1)
         try:
             msg = consumer.get_msg()
             if not msg:

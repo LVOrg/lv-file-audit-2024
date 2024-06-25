@@ -88,6 +88,7 @@ cloud_upload_azure_service = cy_kit.singleton(CloudUploadAzureService)
 from cy_jobs.cy_job_libs import JobLibs
 while True:
     try:
+        time.sleep(1)
         msg = consumer.get_msg()
         if not msg:
             continue
