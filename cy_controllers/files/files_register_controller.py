@@ -45,6 +45,7 @@ class RegisterUploadInfo(BaseModel):
     onedrivePassword: typing.Optional[str]
     encryptContent: typing.Optional[bool]
     googlePath: typing.Optional[str]
+    UploadId:typing.Optional[str]
 
 
 class RegisterUploadResult(BaseModel):
@@ -110,10 +111,10 @@ class RegisterUploadInfoResult(BaseModel):
 
 class RequestRegisterUploadInfo(BaseModel):
     Data: RegisterUploadInfo
-
+from cyx.common import config
 
 from cy_controllers.models.files import SkipFileProcessingOptions
-
+version2 = config.generation if hasattr(config,"generation") else None
 
 @controller.resource()
 class FilesRegisterController(BaseController):
@@ -122,7 +123,7 @@ class FilesRegisterController(BaseController):
     ]
 
     @controller.route.post(
-        "/api/{app_name}/files/register", summary="register Upload file",tags=["FILES"]
+        "/api/{app_name}/files/register" if version2 is None else "/api/{app_name}/files/register_new", summary="register Upload file",tags=["FILES"]
     )
     async def register_async(self,
                              app_name: str,

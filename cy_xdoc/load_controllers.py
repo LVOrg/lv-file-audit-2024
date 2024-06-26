@@ -35,6 +35,8 @@ from cy_controllers.ms.ms_controller_auth import MSAuth
 from cy_controllers.ms.settings import MSSettings
 from cy_controllers.cloud.mails import CloudMailController
 from cy_controllers.cloud.drivers import CloudDriveController
+from cy_controllers.files.files_register_controller_new import FilesRegisterControllerNew
+from cy_controllers.files.files_upload_controller_new import FilesUploadControllerNew
 import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
 controllers_list=[
@@ -45,7 +47,9 @@ controllers_list=[
         AppsController,
         LogsController,
         FilesUploadController,
+        FilesUploadControllerNew,
         FilesRegisterController,
+        FilesRegisterControllerNew,
         FilesController,
         FilesPrivilegesController,
         SearchController,

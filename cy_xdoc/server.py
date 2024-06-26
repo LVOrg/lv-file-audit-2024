@@ -12,6 +12,9 @@ sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 print(os.getenv("DB__CNN"))
 sys.path.append("/app")
 import cy_kit
+from cyx.file_utils_services import FileUtilService
+file_util_service=cy_kit.singleton(FileUtilService)
+
 from cyx.runtime_config_services import RuntimeConfigService
 
 runtime_config_service = cy_kit.singleton(RuntimeConfigService)
@@ -22,6 +25,9 @@ import cyx.framewwork_configs
 
 import cyx.common
 from cyx.common import config
+version2 = config.generation if hasattr(config,"generation") else None
+file_util_service.healthz() if version2 else print("Run firs generation")
+
 # if not skip_checking or (hasattr(config,"check_startup") and config.check_startup):
 #import cyx.check_start_up
 # if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
@@ -330,7 +336,47 @@ if config.timeout_graceful_shutdown:
     timeout_keep_alive = config.timeout_graceful_shutdown
 
 # if __name__ =="__main__":
+import multiprocessing
+import subprocess
+import signal
+import resource
+def run_fastapi_app(number_of_workers):
+    """Runs the FastAPI application with limited memory in a background process.
 
+    Args:
+        number_of_workers (int): The desired number of Uvicorn workers.
+
+    Raises:
+        OSError: If memory limit cannot be set (Linux/macOS).
+    """
+
+    def start_app():
+        # Implement logic to start the FastAPI application with cy_web.start_with_uvicorn
+        cy_web.start_with_uvicorn(worker=number_of_workers)
+
+    # Create a new process with limited memory (Linux/macOS)
+    if hasattr(resource, 'RLIMIT_AS'):  # Check if resource module supports memory limit
+        soft_limit, hard_limit = resource.getrlimit(resource.RLIMIT_AS)
+        # Set a lower memory limit for the child process (adjust as needed)
+        new_limit = soft_limit // 20  # Example: Set memory limit to half of the available memory
+        try:
+            resource.setrlimit(resource.RLIMIT_MEMLOCK, (50*1024**2, 50*1024**2))
+        except OSError as e:
+            print("Failed to set memory limit:", e)
+
+    process = multiprocessing.Process(target=start_app)
+    process.start()
+
+    # Graceful termination (optional):
+    def handle_signal(sig, frame):
+        process.terminate()
+        print("FastAPI application terminated (signal:", sig, ")")
+
+    signal.signal(signal.SIGINT, handle_signal)  # Handle Ctrl+C interrupt
+    signal.signal(signal.SIGTERM, handle_signal)  # Handle termination signals
+
+    process.join()  # Wait for the child process to finish
+config.server_type="uvicorn"
 if __name__ == "__main__":
     if config.server_type.lower() == "uvicorn1":
         options = {
@@ -362,19 +408,13 @@ if __name__ == "__main__":
         logger.info(json.dumps(_config_.__dict__))
         hypercorn.run.run(_config_)
     else:
+        if config.workers and isinstance(config.workers,str) and config.workers.lower()=="auto":
+            import psutil
+            number_of_workers= psutil.cpu_count(logical=False)
+        elif config.workers and isinstance(config.workers,str) and config.workers.isnumeric():
+            number_of_workers = int(config.workers)
+        elif config.workers and (isinstance(config.workers,int) or isinstance(config.workers,float)):
+            number_of_workers = int(config.workers)
         cy_web.start_with_uvicorn(worker=number_of_workers)
-    # if __name__ == "__main__":
-    #
-    #
-    #     logger_service.info(f"Strat web app worker={number_of_workers}")
 
-    import gunicorn
-    from gunicorn import SERVER
 
-    # cy_web.start_with_uvicorn(worker=number_of_workers)
-
-    # from gunicorn.app import wsgiapp
-    #
-    #
-    # wsgiapp.run()
-    ""

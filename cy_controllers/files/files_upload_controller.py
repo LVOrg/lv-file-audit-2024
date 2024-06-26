@@ -56,7 +56,7 @@ async def get_main_file_id_async(fs):
     print(f"get_main_file_id_async={n}")
     return ret
 
-
+version2 = config.generation if hasattr(config,"generation") else None
 @controller.resource()
 class FilesUploadController(BaseController):
     dependencies = [
@@ -237,7 +237,7 @@ class FilesUploadController(BaseController):
         threading.Thread(target=post_msg_upload, args=()).start()
 
     @controller.route.post(
-        "/api/{app_name}/files/upload", summary="Upload file",
+        "/api/{app_name}/files/upload" if not version2 else "/api/{app_name}/files/upload_old", summary="Upload file",
         tags=["FILES"]
     )
     async def upload_async(self,

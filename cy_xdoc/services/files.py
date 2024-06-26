@@ -48,7 +48,7 @@ class FileServices:
                  memcache_service=cy_kit.singleton(MemcacheServices),
 
                  broker: RabitmqMsg = cy_kit.singleton(RabitmqMsg)):
-        
+
         self.file_storage_service = file_storage_service
         self.search_engine = search_engine
         self.db_connect = db_connect
@@ -670,7 +670,13 @@ class FileServices:
         return ret.deleted_count
 
     def do_copy(self, app_name, upload_id, request):
-
+        """
+        Re-modify on 2024-06-26 to fix Masant requirement
+        :param app_name:
+        :param upload_id:
+        :param request:
+        :return:
+        """
         document_context = self.db_connect.db(app_name).doc(DocUploadRegister)
         item = document_context.context @ upload_id
         main_file_id = item.MainFileId

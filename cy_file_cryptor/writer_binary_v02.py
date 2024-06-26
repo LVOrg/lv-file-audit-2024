@@ -20,10 +20,11 @@ def do_write(fs, data):
     from cy_file_cryptor.crypt_info import write_dict
     if fs.cryptor.get("wrap-size") is None:
         wrap_size = randint(__min_wrap_size__, __max_wrap_size__)
+        if fs.cryptor.get("file-size") and fs.cryptor.get("file-size")<wrap_size:
+            wrap_size = randint(fs.cryptor.get("file-size") // 4, fs.cryptor.get("file-size") // 3)
     else:
         wrap_size = fs.cryptor.get("wrap-size")
-    if fs.cryptor.get("file-size"):
-        wrap_size = randint(fs.cryptor.get("file-size")//4, fs.cryptor.get("file-size")//3)
+
     pos = fs.tell()
 
     if pos == 0:

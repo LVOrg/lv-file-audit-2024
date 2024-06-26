@@ -200,8 +200,14 @@
                             </select>
 
                         </div>
+                        <!--doOpenUploadMultiFilesWindow-->
                         <div>
                             <input type="button" class="btn btn-primary btn-sm" value="{{$res('New')}}" ng-click="doOpenUploadWindow().then()" style="margin-right:0px" />
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-sm"   id="upload_more" data-toggle="dropdown" aria-expanded="false" ng-click="doOpenUploadMultiFilesWindow().then()">
+                                Upload files
+                            </button>
                         </div>
                     </div>
                 </div>

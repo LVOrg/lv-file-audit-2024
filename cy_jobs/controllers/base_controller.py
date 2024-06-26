@@ -10,18 +10,12 @@ from fastapi import (
     UploadFile,
     Form, File
 )
-from cy_xdoc.auths import Authenticate
-import cy_kit
+
 from cy_xdoc.services.files import FileServices
 
 from cyx.common.msg import MessageService
-from cy_xdoc.models.files import DocUploadRegister
 from cyx.common.temp_file import TempFiles
 from cyx.common.brokers import Broker
-from cyx.common.rabitmq_message import RabitmqMsg
-import cy_docs
-import cyx.common.msg
-
 from cyx.common.file_storage_mongodb import (
     MongoDbFileService, MongoDbFileStorage
 )
