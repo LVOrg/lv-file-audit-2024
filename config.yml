@@ -261,5 +261,5 @@ tika_server: http://172.16.7.99:32226
 private_web_api: http://172.16.13.72:8012/lvfile
 cache_server: localhost:11211
 content_service: http://172.16.13.72:8087
-generation: "version2"
+generation: ""
 

@@ -44,12 +44,13 @@ def __apply__write__(ret_fs,full_file_size):
 
             if ret_fs.cryptor.get('encoding') is None:
                 detect_data = data[0:ret_fs.cryptor['chunk_size']]
-                result = chardet.detect(detect_data)
-                if result.get("encoding") is None or (
-                        "utf" not in result.get("encoding") and "ascii" not in result.get("encoding")):
-                    ret_fs.cryptor['encoding']='binary'
-                else:
+                ret_fs.cryptor['encoding'] = 'binary'
+                try:
+                    tt =detect_data.decode()
+                    del tt
                     ret_fs.cryptor['encoding'] = 'utf8'
+                except:
+                    ret_fs.cryptor['encoding'] = 'binary'
             if ret_fs.cryptor['encoding'] == 'binary':
                 from cy_file_cryptor import writer_binary_v02
                 return writer_binary_v02.do_write(

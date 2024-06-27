@@ -58,9 +58,9 @@ class FilesController(BaseController):
             upload_id = str(uuid.uuid4())
             register_data = json.loads(data["data"])
 
-            file_name= register_data["FileName"].replace('/','_')
+            file_name= register_data["FileName"].replace('/','_').replace("?","_").replace("#",'_')
             mime_type, _ = mimetypes.guess_type(file_name)
-            file_name=quote(file_name)
+
 
             web_file_name=file_name.replace('/','_')
             chunk_size_in_kb = register_data["ChunkSizeInKB"]
@@ -80,7 +80,7 @@ class FilesController(BaseController):
             #"FullFileName": "6c08cbfc-6832-49a8-9def-c2e99d868144/L_846C.tmp.PNG"
             chunk_size_in_bytes = chunk_size_in_kb*1024
             num_of_chunks = file_size // chunk_size_in_bytes + 1 if file_size % chunk_size_in_bytes>0 else 0
-            main_file_id = f"local://{app_name}/{formatted_date}/{file_type}/{upload_id}"
+            main_file_id = f"local://{app_name}/{formatted_date}/{file_type}/{upload_id}/{file_name.lower()}"
             upload = await context.insert_one_async(
                 Repository.files.fields.id<<upload_id,
                 Repository.files.fields.FileName<<file_name,

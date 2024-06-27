@@ -28,7 +28,7 @@ class PrivilegesType(BaseModel):
     """
 
 
-class RegisterUploadInfo(BaseModel):
+class RegisterUploadInfoNew(BaseModel):
     """
     Bảng ghi thông tin đăng ký upload
     """
@@ -109,8 +109,8 @@ class RegisterUploadInfoResult(BaseModel):
     Error: typing.Optional[Error]
 
 
-class RequestRegisterUploadInfo(BaseModel):
-    Data: RegisterUploadInfo
+class RequestRegisterUploadInfoNew(BaseModel):
+    Data: RegisterUploadInfoNew
 from cyx.common import config
 
 from cy_controllers.models.files import SkipFileProcessingOptions
@@ -127,7 +127,7 @@ class FilesRegisterControllerNew(BaseController):
     )
     async def register_async(self,
                              app_name: str,
-                             Data: RegisterUploadInfo,
+                             Data: RegisterUploadInfoNew,
                              SkipOptions: typing.Optional[SkipFileProcessingOptions] = None):
         if Data.UploadId is None:
             if Data.storageType is None or Data.storageType=="local":

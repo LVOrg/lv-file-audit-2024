@@ -123,7 +123,7 @@ class FilesRegisterController(BaseController):
     ]
 
     @controller.route.post(
-        "/api/{app_name}/files/register" if version2 is None else "/api/{app_name}/files/register_new", summary="register Upload file",tags=["FILES"]
+        "/api/{app_name}/files/register" if not version2  else "/api/{app_name}/files/register_old", summary="register Upload file",tags=["FILES"]
     )
     async def register_async(self,
                              app_name: str,
@@ -173,6 +173,7 @@ class FilesRegisterController(BaseController):
             :param token:
             :return:
             """
+        self.malloc_service.reduce_memory()
         url_google_upload, google_file_id = None, None
         folder_id = None
         Data.storageType = Data.storageType or "local"

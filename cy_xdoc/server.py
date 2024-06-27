@@ -119,30 +119,30 @@ def get_pod_name():
     else:
         pod_name = full_pod_name
     return pod_name
-async def tracking_error_async(request: fastapi.Request):
-    header = {}
-    for k, v in request.headers.items():
-        header[k] = v
-    body_bytes = await request.body()
-    form_data = await request.form()
-    body_text = body_bytes.decode()  # Decod
-    form_data_dict = {}
-    for k,v in form_data.items():
-        form_data_dict[k]=v
-    data_content=json.dumps(dict(
-        header=header,
-        body_text=body_text,
-        form=form_data_dict
-
-    ),indent=4)
-    ret = await Repository.sys_app_logs_coll.app("admin").context.insert_one_async(
-        Repository.sys_app_logs_coll.fields.CreatedOn<<datetime.datetime.utcnow(),
-        Repository.sys_app_logs_coll.fields.LogType<<"info",
-        Repository.sys_app_logs_coll.fields.PodName<<get_pod_name(),
-        Repository.sys_app_logs_coll.fields.Content<<data_content
-    )
-    if hasattr(ret,"inserted_id"):
-        request.session["$$$inserted_id$$$"]=ret.inserted_id
+# async def tracking_error_async(request: fastapi.Request):
+#     header = {}
+#     for k, v in request.headers.items():
+#         header[k] = v
+#     body_bytes = await request.body()
+#     form_data = await request.form()
+#     body_text = body_bytes.decode()  # Decod
+#     form_data_dict = {}
+#     for k,v in form_data.items():
+#         form_data_dict[k]=v
+#     data_content=json.dumps(dict(
+#         header=header,
+#         body_text=body_text,
+#         form=form_data_dict
+#
+#     ),indent=4)
+#     ret = await Repository.sys_app_logs_coll.app("admin").context.insert_one_async(
+#         Repository.sys_app_logs_coll.fields.CreatedOn<<datetime.datetime.utcnow(),
+#         Repository.sys_app_logs_coll.fields.LogType<<"info",
+#         Repository.sys_app_logs_coll.fields.PodName<<get_pod_name(),
+#         Repository.sys_app_logs_coll.fields.Content<<data_content
+#     )
+#     if hasattr(ret,"inserted_id"):
+#         request.session["$$$inserted_id$$$"]=ret.inserted_id
 
 
 
@@ -195,26 +195,26 @@ async def estimate_time(request: fastapi.Request, next):
         #getattr(request,"log_mongoddb_track_id")
         res = await apply_time(res)
 
-    except Exception as ex:
-        print(traceback.format_exc())
-        if request.session.get("$$$inserted_id$$$"):
-            data_item= await Repository.sys_app_logs_coll.app("admin").context.find_one_async(
-                Repository.sys_app_logs_coll.fields.id==request.session.get("$$$inserted_id$$$")
-            )
-            if data_item:
-                data_content= json.loads(data_item[Repository.sys_app_logs_coll.fields.Content])
-                data_content["Error"]=traceback.format_exc()
-                data_content_text= json.dumps(data_content,indent=4)
-                await Repository.sys_app_logs_coll.app("admin").context.update_async(
-                    Repository.sys_app_logs_coll.fields.id == request.session.get("$$$inserted_id$$$"),
-                    Repository.sys_app_logs_coll.fields.Content<<data_content_text
-                )
-            del request.session["$$$inserted_id$$$"]
-        from fastapi.responses import HTMLResponse
-        return HTMLResponse(
-            content=traceback.format_exc(),
-            status_code=500
-        )
+    # except Exception as ex:
+    #     print(traceback.format_exc())
+    #     if request.session.get("$$$inserted_id$$$"):
+    #         data_item= await Repository.sys_app_logs_coll.app("admin").context.find_one_async(
+    #             Repository.sys_app_logs_coll.fields.id==request.session.get("$$$inserted_id$$$")
+    #         )
+    #         if data_item:
+    #             data_content= json.loads(data_item[Repository.sys_app_logs_coll.fields.Content])
+    #             data_content["Error"]=traceback.format_exc()
+    #             data_content_text= json.dumps(data_content,indent=4)
+    #             await Repository.sys_app_logs_coll.app("admin").context.update_async(
+    #                 Repository.sys_app_logs_coll.fields.id == request.session.get("$$$inserted_id$$$"),
+    #                 Repository.sys_app_logs_coll.fields.Content<<data_content_text
+    #             )
+    #         del request.session["$$$inserted_id$$$"]
+    #     from fastapi.responses import HTMLResponse
+    #     return HTMLResponse(
+    #         content=traceback.format_exc(),
+    #         status_code=500
+    #     )
     except FileNotFoundError as e:
         image_tag: str = os.getenv("BUILD_IMAGE_TAG") or "-qc"
         if image_tag.endswith("-qc"):
@@ -236,9 +236,9 @@ async def estimate_time(request: fastapi.Request, next):
         setattr(request,"lv_file_error_content",traceback.format_exc())
         return JSONResponse(status_code=500, content={"detail": "Server error"})
 
-    finally:
-        gc.collect()
-        malloc_service.reduce_memory()
+    # finally:
+    #     gc.collect()
+    #     malloc_service.reduce_memory()
     return res
 
 
@@ -376,13 +376,18 @@ def run_fastapi_app(number_of_workers):
     signal.signal(signal.SIGTERM, handle_signal)  # Handle termination signals
 
     process.join()  # Wait for the child process to finish
-config.server_type="uvicorn"
+config.server_type="default"
+
 if __name__ == "__main__":
-    if config.server_type.lower() == "uvicorn1":
+
+    if config.server_type.lower() == "gunicorn":
+        from gunicorn import workers
+        workers.SUPPORTED_WORKERS
+        config.worker_class="gthread"
         options = {
             "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
             "workers": number_of_workers,
-            "worker_class": worker_class,
+            "worker_class": config.worker_class,
             "timeout_keep_alive": 30,
             "timeout_graceful_shutdown": 10
         }
@@ -395,11 +400,13 @@ if __name__ == "__main__":
         _config_ = hypercorn.config.Config()
         _config_.bind = [f"{cy_app_web.bind_ip}:{cy_app_web.bind_port}"]
         _config_.application_path = "cy_web:get_fastapi_app()"
+        import  psutil
+        number_of_workers = psutil.cpu_count(logical=False)*2
         _config_.workers = number_of_workers
         _config_.keep_alive_timeout = config.timeout_keep_alive
         if config.h2_max_concurrent_streams != "auto":
             _config_.h2_max_concurrent_streams = config.h2_max_concurrent_streams
-        _config_.worker_class = config.worker_class
+        _config_.worker_class = "asyncio"
         if config.timeout_graceful_shutdown != "auto":
             _config_.shutdown_timeout = config.timeout_graceful_shutdown
         config.ALPNProtocols = ["h2", "http/2"]
