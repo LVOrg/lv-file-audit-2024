@@ -19,26 +19,12 @@ execute_files = [
     "jobs/task_content.py",
     # "jobs/task_google_driver_folders.py",
     "jobs/task_google_file_sync.py",
-    "jobs/task_onedrive_file_sync.py"
+    "jobs/task_onedrive_file_sync.py",
+    "web.py"
 ]
 
 from cy_jobs import cy_job_libs
 from cy_jobs.cy_job_libs import print_screen_logs
 cy_job_libs.run_all(execute_files=execute_files,args=runtime_args, side_kick_path="python3")
-# from cy_jobs.cy_job_libs import print_screen_logs
-# full_exec_paths= [os.path.join(app_path,x) for x in execute_files]
-# ths = []
-#
-# for x in full_exec_paths:
-#     if os.path.isfile(x):
-#         # cy_job_libs.excute_file(x, sys.argv[1:])
-#         # print(f"run file {x}")
-#         ths+=[cy_job_libs.excute_file(x,sys.argv[1:] )]
-#     else:
-#         print(f"file {x} was not found")
-# for x in ths:
-#     x.start()
-# print_screen_logs()
-# for x in ths:
-#     x.join(0.01)
+
 

@@ -66,6 +66,7 @@ apps:
         - remote_video=http://lv-video-service.{{$valuesObject.namespace}}:80
         - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
+        - content_service=http://content-service.{{$valuesObject.namespace}}:80
       storage:
         name: {{ $valuesObject.storage.name }}
         server: {{ $valuesObject.storage.server }}

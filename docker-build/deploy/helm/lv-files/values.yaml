@@ -45,3 +45,4 @@ nodePort:
   pdf: "32224"
   video: "32225"
   tika: "32226"
+  content: "32227"

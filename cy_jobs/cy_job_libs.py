@@ -274,6 +274,7 @@ def run_all(execute_files, side_kick_path, args):
     #     screen_logs(app_path + "/" + x,f"Start {x}")
 
     full_command = " & ".join(fx)
+    print(full_command)
 
     # execute_command_with_polling(full_command)
     prs = []
