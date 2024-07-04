@@ -205,6 +205,9 @@ def cy_open_file(*args, **kwargs):
         cy_file_cryptor.settings.__apply__write__(ret_fs,full_file_size=full_file_size)
         setattr(ret_fs, "old_file_size", file_size)
 
+
+
+
         return ret_fs
     if is_encrypt and isinstance(ret_fs, io.BufferedRandom):
         import cy_file_cryptor.settings
@@ -212,12 +215,20 @@ def cy_open_file(*args, **kwargs):
         cy_file_cryptor.settings.__apply__write__(ret_fs,full_file_size=full_file_size)
 
         setattr(ret_fs, "old_file_size", file_size)
+        def get_size(*args,**kwargs):
+            return  ret_fs.old_file_size
+
+        setattr(ret_fs, "get_size", get_size)
         return ret_fs
     if is_encrypt and isinstance(ret_fs, io.BufferedReader):
         import cy_file_cryptor.settings
         cy_file_cryptor.settings.__apply__read__(ret_fs)
         setattr(ret_fs, "old_file_size", file_size)
-        ret_fs.cryptor["file-size"] = full_file_size
+        def get_size(*args,**kwargs):
+            return ret_fs.old_file_size
+
+        setattr(ret_fs, "get_size", get_size)
+        ret_fs.cryptor["file-size"] = file_size
         return ret_fs
 
 

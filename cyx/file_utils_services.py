@@ -24,15 +24,19 @@ from cy_web.cy_web_x import streaming_async
 import cy_file_cryptor.wrappers
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
-
+from cyx.g_drive_services import GDriveService
 MAX_WORKERS = 10
 WORKERS = dict()
 
 
 class FileUtilService:
-    def __init__(self, memcache_service=cy_kit.singleton(MemcacheServices)):
+    def __init__(self,
+                 memcache_service=cy_kit.singleton(MemcacheServices),
+                 g_drive_service:GDriveService = cy_kit.singleton(GDriveService)
+                 ):
         self.content_service = config.content_service
         self.memcache_service = memcache_service
+        self.g_drive_service = g_drive_service
 
     def healthz(self):
         def check():
@@ -323,6 +327,11 @@ class FileUtilService:
 
     def get_upload(self, app_name, upload_id):
         data = self.memcache_service.get_dict("v2/" + app_name + "/" + upload_id)
+        if isinstance(data,dict) and  not data.get("real_file_location"):
+            real_file_location = os.path.join(config.file_storage_path, data["MainFileId"].split("://")[1]).__str__()
+            data["real_file_location"] = real_file_location
+            data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
+            self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
         if not data:
             upload = Repository.files.app(app_name).context.find_one(
                 Repository.files.fields.id == upload_id
@@ -335,7 +344,7 @@ class FileUtilService:
                 file_ext = pathlib.Path(file_name).suffix
                 file_type = file_ext[1:4] if file_ext else "unknown"
 
-                real_file_location = os.path.join(config.file_storage_path, data["MainFileId"].split("://")[1])
+                real_file_location = os.path.join(config.file_storage_path, data["MainFileId"].split("://")[1]).__str__()
                 data["real_file_location"] = real_file_location
                 data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
                 data["NumOfChunksCompleted"] = data.get("NumOfChunksCompleted") or 0
@@ -344,27 +353,99 @@ class FileUtilService:
                 self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
         return data
 
-    async def get_file_content_async(self, request, app_name: str, directory: str):
+    async def get_content_from_local_async(self,request, app_name, upload_id,content_type,upload):
         file_path = await self.get_physical_path_async(
             app_name=app_name,
-            upload_id=directory.split('/')[0]
+            upload_id=upload_id
         )
-        content_type, _ = mimetypes.guess_type(directory)
-        headers = {"Content-Type": content_type}
+
+
         if file_path is None:
             raise FileNotFoundError()
         fs = open(file_path, "rb")
         ret = await streaming_async(
             fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
         )
+        if request.query_params.get('download') is not None:
+            ret.headers["Content-Disposition"]=f"attachment; filename={upload['FileName']}"
         return ret
+
+    async def get_content_from_google_drive_async(self,request, app_name, upload_id,content_type,upload):
+        if upload.get("CloudId"):
+            """
+            if sync to google is finished 
+            """
+            ret = await self.g_drive_service.get_content_async(
+                app_name=app_name,
+                client_file_name=upload["FileName"],
+                upload_id=upload_id,
+                cloud_id=upload["CloudId"],
+                request=request,
+                content_type=content_type,
+                download_only=request.query_params.get('download') is not None
+            )
+            return ret
+        else:
+            """
+            is still holding in local 
+            """
+            return await self.get_content_from_local_async(
+                app_name=app_name,
+                upload_id=upload_id,
+                content_type=content_type,
+                request=request,
+                upload=upload
+            )
+    async def get_file_content_async(self, request, app_name: str, directory: str):
+        upload_id = directory.split('/')[0]
+        upload = await self.get_upload_async(app_name, upload_id)
+        content_type, _ = mimetypes.guess_type(directory)
+        if not upload:
+            raise FileNotFoundError(f"{app_name}/{directory} was not found")
+        storage_type = upload.get("StorageType", "local")
+        if storage_type=="local":
+            return await self.get_content_from_local_async(
+                app_name=app_name,
+                upload_id=upload_id,
+                content_type=content_type,
+                request=request,
+                upload=upload
+            )
+        if storage_type=="google-drive":
+            return await self.get_content_from_google_drive_async(
+                app_name=app_name,
+                upload_id=upload_id,
+                content_type=content_type,
+                request=request,
+                upload=upload
+            )
 
     async def get_physical_path_async(self, app_name, upload_id):
         upload = self.get_upload(app_name, upload_id)
         if upload is None:
             return None
+
         ret = upload["real_file_location"]
         if not os.path.isfile(ret):
             if os.path.isdir(f'{upload["real_file_location"]}.chunks'):
                 return f'{upload["real_file_location"]}.chunks'
-        return None
+        return ret
+
+    def clear_cache_file(self, app_name, upload_id):
+        self.memcache_service.remove(f"get_upload/{app_name}/{upload_id}")
+
+    async def get_upload_async(self, app_name, upload_id):
+        ret = self.memcache_service.get_dict(f"get_upload/{app_name}/{upload_id}")
+        if isinstance(ret, dict):
+            return ret
+
+        data = await Repository.files.app(app_name).context.find_one_async(Repository.files.fields.id == upload_id)
+        if not data:
+            return None
+        else:
+            ret = data.to_json_convertable()
+            self.memcache_service.set_dict(f"get_upload/{app_name}/{upload_id}", ret)
+            return ret
+
+
+

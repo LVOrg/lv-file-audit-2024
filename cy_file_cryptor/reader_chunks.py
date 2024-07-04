@@ -1,7 +1,7 @@
 import functools
 import os
 
-
+@functools.cache
 def get_folder_size(folder_path):
     """
     Calculates the total size of a folder and its subfolders recursively.
@@ -14,6 +14,8 @@ def get_folder_size(folder_path):
     """
 
     total_size = 0
+
+
     for dirpath, dirnames, filenames in os.walk(folder_path):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
@@ -21,7 +23,6 @@ def get_folder_size(folder_path):
                 # Use os.stat to get file size, avoiding potential errors
                 file_size = os.stat(file_path).st_size
             except OSError as e:
-                print(f"Error accessing file: {file_path} - {e}")
                 continue  # Skip to the next file if there's an error
             total_size += file_size
     return total_size

@@ -51,7 +51,7 @@ class ExtractContentService:
                 app_name=app_name
             )
             print("update content is OK")
-            if doc_type=="office":
+            if doc_type=="office" or doc_type=="pdf":
                 self.process_manager_service.submit(
                     data=data,
                     app_name=app_name,
