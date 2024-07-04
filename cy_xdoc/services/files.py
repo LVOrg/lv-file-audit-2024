@@ -307,6 +307,7 @@ class FileServices:
                             google_folder_path: typing.Optional[str] = None):
         from cyx.repository import Repository
         __registerde_on__ = datetime.datetime.utcnow()
+        privileges_server, privileges_client = None, None
         is_new=True
         if isinstance(google_folder_path,str):
             data_item = Repository.files.app(app_name).context.aggregate().match(
@@ -344,10 +345,13 @@ class FileServices:
         num_of_chunks, tail = divmod(file_size, chunk_size)
         if tail > 0:
             num_of_chunks += 1
-        privileges_server, privileges_client = self.create_privileges(
-            app_name=app_name,
-            privileges_type_from_client=privileges_type
-        )
+        if isinstance(config.elastic_search,bool) and config.elastic_search == False:
+            pass
+        else:
+            privileges_server, privileges_client = self.create_privileges(
+                app_name=app_name,
+                privileges_type_from_client=privileges_type
+            )
 
 
         def cahe_register():
@@ -540,7 +544,8 @@ class FileServices:
                     if retry_count <=0:
                         self.logger.error(e)
 
-        insert_register()
+        # insert_register()
+        threading.Thread(target=insert_register).start()
 
         def search_engine_create_or_update_privileges():
             re_try_count = 0
@@ -605,7 +610,11 @@ class FileServices:
 
     def get_upload_register(self, app_name: str, upload_id: str) -> typing.Union[
         DocUploadRegister, cy_docs.DocumentObject]:
-        return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+        from cyx.repository import Repository
+        ret = Repository.files.app(app_name).context.find_one(
+            Repository.files.fields.id==upload_id
+        )
+        return ret
 
     def get_find_upload_register_by_link_file_id(self, app_name: str, file_id: str):
         context = self.db_connect.db(app_name).doc(DocUploadRegister).context

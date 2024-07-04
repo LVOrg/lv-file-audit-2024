@@ -14,6 +14,7 @@ from cy_controllers.apps.app_controller import AppsController
 from cy_controllers.logs.logs_controller import LogsController
 from cy_controllers.files.files_upload_controller import FilesUploadController
 from cy_controllers.files.files_content_controller import FilesContentController
+from cy_controllers.files.files_content_controler_new import FilesContentControllerNew
 from cy_controllers.files.files_register_controller import FilesRegisterController
 from cy_controllers.search.search_controller import SearchController
 from cy_controllers.files.files_controllers import FilesController
@@ -43,6 +44,7 @@ controllers_list=[
         GlobalSettingsController,
         GeminiControllr,
         HealthCheckController,
+        FilesContentControllerNew,
         FilesContentController,
         AppsController,
         LogsController,

@@ -27,6 +27,10 @@ apps:
         - remote_video=http://lv-video-service.{{$valuesObject.namespace}}:80
         - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
+        - content_service=http://content-service.{{$valuesObject.namespace}}:80
+        {{ if hasKey $valuesObject "generation" }}
+        - generation={{ $valuesObject.generation }}
+        {{ end }}
       service:
         {{ if index $appConfig "nodePort" }}
         type: nodePort
@@ -67,6 +71,9 @@ apps:
         - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
+        {{ if hasKey $valuesObject "generation"  }}
+        - generation={{ $valuesObject.generation }}
+        {{ end }}
       storage:
         name: {{ $valuesObject.storage.name }}
         server: {{ $valuesObject.storage.server }}

@@ -234,7 +234,7 @@ async def estimate_time(request: fastapi.Request, next):
             url=request.url.path
         ))
         setattr(request,"lv_file_error_content",traceback.format_exc())
-        return JSONResponse(status_code=500, content={"detail": "Server error"})
+        return JSONResponse(status_code=500, content=traceback.format_exc())
 
     # finally:
     #     gc.collect()

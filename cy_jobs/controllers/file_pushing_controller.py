@@ -4,6 +4,8 @@ import math
 import mimetypes
 import os.path
 import pathlib
+import shutil
+import threading
 import traceback
 import uuid
 
@@ -29,10 +31,22 @@ import cy_file_cryptor.wrappers
 cy_file_cryptor.context.set_server_cache(config.cache_server)
 @controller.resource()
 class FilesPushingController(BaseController):
-    async def get_upload_async(self, app_name, upload_id):
+    def save_file(self, file_path, real_file_location, data, upload):
+        def running():
+            try:
+                file_size=os.stat(file_path).st_size
+                os.makedirs(f"{real_file_location}.chunks", exist_ok=True)
+                dest_path = os.path.join(f"{real_file_location}.chunks", pathlib.Path(file_path).name)
+                shutil.move(file_path, dest_path)
+                upload["SizeUploaded"] = upload.get("SizeUploaded", 0) + file_size
+                self.update_upload(data["app_name"],data["upload_id"],upload)
+            except:
+                upload["error"]=traceback.format_exc()
+        threading.Thread(target=running).start()
+    def get_upload(self, app_name, upload_id):
         data = self.memcache_service.get_dict("v2/"+app_name+"/"+upload_id)
         if not data:
-            upload = await Repository.files.app(app_name).context.find_one_async(
+            upload = Repository.files.app(app_name).context.find_one(
                 Repository.files.fields.id==upload_id
             )
             if upload is None:
@@ -51,9 +65,9 @@ class FilesPushingController(BaseController):
                 os.makedirs(data["real_file_dir"],exist_ok=True)
                 self.memcache_service.set_dict("v2/"+app_name+"/"+upload_id,data)
         return data
-    async def update_upload_async(self, app_name, upload_id, upload):
+    def update_upload(self, app_name, upload_id, upload):
         self.memcache_service.set_dict("v2/"+app_name+"/"+upload_id,upload)
-        ret = await Repository.files.app(app_name).context.update_async(
+        ret = Repository.files.app(app_name).context.update(
             Repository.files.fields.id == upload_id,
             Repository.files.fields.NumOfChunksCompleted<<upload["NumOfChunksCompleted"],
             Repository.files.fields.SizeUploaded << upload["SizeUploaded"],
@@ -82,20 +96,21 @@ class FilesPushingController(BaseController):
                     "Error": null
                 }
         """
+        start = datetime.datetime.utcnow()
         try:
-            upload= await  self.get_upload_async(app_name=data["app_name"],upload_id=data["upload_id"])
+            upload= self.get_upload(app_name=data["app_name"],upload_id=data["upload_id"])
+            if upload.get("error"):
+                return dict(
+                    Error=dict(
+                        Code="System",
+                        Message= upload["error"]
+                    )
+                )
             real_file_location=upload["real_file_location"]
 
             file_size = upload["SizeInBytes"]
             file_path= data["file_path"]
-            open_mode="ab" if os.path.isfile(real_file_location) else "wb"
 
-            with open(real_file_location,open_mode,encrypt=True,file_size=file_size,chunk_size_in_kb=1024) as fs:
-                with open(file_path,"rb") as fr:
-                    data_file = fr.read()
-                    fs.write(data_file)
-                    upload["SizeUploaded"] = upload.get("SizeUploaded", 0) + len(data_file)
-                    del data_file
 
             self.malloc_service.reduce_memory()
 
@@ -105,13 +120,17 @@ class FilesPushingController(BaseController):
             percent = math.ceil((upload.get("SizeUploaded",0)*100/file_size))
             if upload["NumOfChunksCompleted"]==upload["NumOfChunks"]:
                 upload["Status"]=1
-            ret_update = await self.update_upload_async(app_name=data["app_name"],upload_id=data["upload_id"],upload=upload)
+
+            self.save_file(file_path=file_path,upload=upload,data=data,real_file_location=real_file_location )
+
+            # ret_update = await self.update_upload_async(app_name=data["app_name"],upload_id=data["upload_id"],upload=upload)
 
             return dict(
                 Data=dict(
                     SizeInHumanReadable=size_in_human_readable,
                     SizeUploadedInHumanReadable=size_uploaded_in_human_readable,
-                    Percent=percent
+                    Percent=percent,
+                    ProcessingTime= (datetime.datetime.utcnow()-start).total_seconds()*100
                 )
             )
         except:
@@ -121,6 +140,8 @@ class FilesPushingController(BaseController):
                     Message= traceback.format_exc()
                 )
             )
+
+
 
 
 

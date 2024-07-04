@@ -100,6 +100,9 @@ def cy_open_file(*args, **kwargs):
     send_kwargs = {**send_kwargs, **kwargs}
 
     file_path = send_kwargs["file"]
+    if isinstance(file_path,str) and  pathlib.Path(file_path).suffix==".chunks" and os.path.isdir(file_path) and send_kwargs["mode"]=="rb":
+        from cy_file_cryptor.reader_chunks import ReadChunksIO
+        return ReadChunksIO(dir_path=file_path,original_open_file=original_open_file)
     if isinstance(file_path,str) and file_path.startswith("google-drive://"):
         token=  kwargs.get("token")
         client_id = kwargs.get("client_id")

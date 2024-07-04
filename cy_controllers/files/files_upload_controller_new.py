@@ -59,21 +59,30 @@ async def get_main_file_id_async(fs):
     print(f"get_main_file_id_async={n}")
     return ret
 
-version2 = config.generation if hasattr(config,"generation") else None
+
+version2 = config.generation if hasattr(config, "generation") else None
+
+from concurrent.futures import ThreadPoolExecutor
+
+
+
+
 @controller.resource()
 class FilesUploadControllerNew(BaseController):
     dependencies = [
-        Depends(Authenticate)
+        Depends(Authenticate),
+        # Depends(ThreadPoolContainer.executor)
+
     ]
 
-    def __init__(self, request: Request):
+    def __init__(self, request: Request,):
+
         super().__init__(request)
-
-
+        self.pool = None
 
 
     @controller.route.post(
-        "/api/{app_name}/files/upload" if version2  else "/api/{app_name}/files/upload_new", summary="Upload file",
+        "/api/{app_name}/files/upload" if version2 else "/api/{app_name}/files/upload_new", summary="Upload file",
         tags=["FILES"]
     )
     async def upload_async(self,
@@ -81,24 +90,20 @@ class FilesUploadControllerNew(BaseController):
                            UploadId: Annotated[str, Form()],
                            Index: Annotated[int, Form()],
                            FilePart: Annotated[UploadFile, File()]):
-        tmp_upload_dir = os.path.join(config.file_storage_path,"__temp_upload__",UploadId)
-        os.makedirs(tmp_upload_dir,exist_ok=True)
-        content_part = await FilePart.read(FilePart.size)
-        file_name= f"{Index}"
-        file_path = os.path.join(tmp_upload_dir,file_name)
-        with open(file_path,"wb") as fs:
-            fs.write(content_part)
-        del content_part
-        self.malloc_service.reduce_memory()
-        ret = await self.file_util_service.push_file_async(
+        upload = self.file_util_service.get_upload(app_name=app_name, upload_id=UploadId)
+        if upload.get("error"):
+            return dict(
+                Error=dict(
+                    Code="System",
+                    Message=upload["error"]
+                )
+            )
+
+        ret = await self.file_util_service.save_file_async(
             app_name=app_name,
-            from_host=cy_web.get_host_url(self.request),
-            file_path=file_path,
+            content=FilePart,
+            upload=upload,
             index=Index,
-            upload_id=UploadId
+            pool=self.pool
         )
         return ret
-
-
-
-

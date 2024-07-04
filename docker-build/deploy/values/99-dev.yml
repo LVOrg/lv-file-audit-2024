@@ -35,3 +35,4 @@ nodePort:
   pdf: "32229"
   video: "32230"
   tika: "32231"
+generation: version2

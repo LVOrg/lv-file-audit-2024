@@ -29,6 +29,8 @@ class ExtractContentService:
         self.malloc_service = malloc_service
 
     def save_search_engine(self, data,app_name)->str|None:
+        if config.elastic_search == False:
+            return
         try:
             download_url, rel_path, file_name, token, lolca_share_id = self.local_api_service.get_download_path(
                 upload_item= data,

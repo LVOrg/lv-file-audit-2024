@@ -262,4 +262,5 @@ private_web_api: http://172.16.13.72:8012/lvfile
 cache_server: localhost:11211
 content_service: http://172.16.13.72:8087
 generation: ""
-
+default_tenant: test-sync-file
+file_dir_path: /home/vmadmin/python/cy-py

@@ -30,8 +30,9 @@ controller = Controller(router)
 from fastapi.responses import FileResponse
 import mimetypes
 import cy_docs
-
-
+from cyx.common import config
+# version2 = config.generation if hasattr(config,"generation") else None
+version2=None
 @controller.resource()
 class FilesContentController(BaseController):
 
@@ -44,7 +45,7 @@ class FilesContentController(BaseController):
         return "OK"
 
     @controller.router.get(
-        "/api/{app_name}/thumb/{directory:path}",
+        "/api/{app_name}/thumb/{directory:path}" if not version2 else "/api/{app_name}/thumb-old/{directory:path}" ,
         tags=["FILES-CONTENT"]
     )
     async def get_thumb(self, app_name: str, directory: str):
@@ -91,7 +92,7 @@ class FilesContentController(BaseController):
         return ret
 
     @controller.router.get(
-        "/api/{app_name}/file/{directory:path}",
+        "/api/{app_name}/file/{directory:path}" if not version2 else "/api/{app_name}/file-old/{directory:path}"  ,
         tags=["FILES-CONTENT"]
     )
     async def get_content(self, app_name: str, directory: str):
@@ -199,6 +200,11 @@ class FilesContentController(BaseController):
 
         mime_type, _ = mimetypes.guess_type(directory)
         if mime_type.startswith('image/') and self.request.headers.get('Range') is None:
+
+            if upload.MainFileId is None:
+                upload = Repository.files.app(app_name).context.find_one_async(
+                    Repository.files.fields.id==upload_id
+                )
             if upload.MainFileId.startswith("local://"):
                 if hasattr(self.config, "file_storage_path"):
                     full_path = self.get_full_path_of_local_from_cache(upload)
@@ -251,7 +257,7 @@ class FilesContentController(BaseController):
 
 
 
-    @controller.router.get("/api/{app_name}/thumbs/{directory:path}",tags=["FILES-CONTENT"])
+    @controller.router.get("/api/{app_name}/thumbs/{directory:path}" if not version2 else "/api/{app_name}/thumbs-old/{directory:path}",tags=["FILES-CONTENT"])
     async def get_thumb_of_files(self, app_name: str, directory: str):
         """
         Xem hoặc tải nội dung file

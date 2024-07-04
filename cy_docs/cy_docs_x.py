@@ -22,6 +22,7 @@ Special:
 """
 import asyncio
 import threading
+import time
 import typing
 
 import pydantic
@@ -1308,7 +1309,17 @@ class DBDocument:
         return ret
 
     async def update_async(self, filter, *args, **kwargs):
-        return self.update(filter, *args, **kwargs)
+        # from concurrent.futures import ThreadPoolExecutor
+
+        # async def running():
+        #     await asyncio.sleep(0.000000001)
+        result = self.update(filter, *args, **kwargs)
+        return result
+
+        # with ThreadPoolExecutor() as executor:
+        #     future = executor.submit(self.update, filter, *args, **kwargs)
+        #     result = future.result()  # Blocks until task finishes
+        #     return result
 
     async def count_async(self, filter):
         return self.count(filter)

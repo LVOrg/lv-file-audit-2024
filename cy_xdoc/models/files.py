@@ -43,7 +43,7 @@ class ContentPage:
 
 @cy_docs.define(
     name="DocUploadRegister",
-    uniques=["ServerFileName", "FullFileName", "FullFileNameLower","FullPathOnCloud"],
+    uniques=["ServerFileName", "FullFileName", "FullFileNameLower","FullPathOnCloud","SyncFromPath"],
     indexes=[
         "RegisteredOn",
         "RegisteredOnDays",
@@ -383,6 +383,8 @@ class DocUploadRegister:
     cloud_sync_time: typing.Optional[datetime.datetime]
     LossContentFile: typing.Optional[bool]
     FullPathOnCloud: typing.Optional[str]
+    SyncTime: typing.Optional[datetime.datetime]
+    SyncFromPath: typing.Optional[str]
 
 @cy_docs.define(
     name="LvFilesHistoryCheckoutV1",
