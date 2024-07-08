@@ -1,7 +1,13 @@
 from cyx.common.mongo_db_services import RepositoryContext
 import cy_kit
 from cy_xdoc.models.apps import App, CloudPathTrack
-from cy_xdoc.models.files import DocUploadRegister, ContentHistory, DocLocalShareInfo
+from cy_xdoc.models.files import (DocUploadRegister,
+                                  ContentHistory,
+                                  DocLocalShareInfo,
+                                  Codx_DM_FileInfo,
+                                  lv_file_sync_report,
+                                  lv_file_sync_logs
+                                  )
 from cy_xdoc.models.settings import GlobalSettings
 from cy_xdoc.models.files import GoogleFolderMappings, CloudFileSync
 from cyx.loggers import sys_app_logs
@@ -16,3 +22,6 @@ class Repository:
     cloud_file_sync = RepositoryContext[CloudFileSync](CloudFileSync)
     cloud_path_track = RepositoryContext[CloudPathTrack](CloudPathTrack)
     sys_app_logs_coll = RepositoryContext[sys_app_logs](sys_app_logs)
+    codx_dm_file_info = RepositoryContext[Codx_DM_FileInfo](Codx_DM_FileInfo)
+    lv_file_sync_report = RepositoryContext[lv_file_sync_report](lv_file_sync_report)
+    lv_file_sync_logs = RepositoryContext[lv_file_sync_logs](lv_file_sync_logs)

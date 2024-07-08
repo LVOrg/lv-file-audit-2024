@@ -43,7 +43,7 @@ class ContentPage:
 
 @cy_docs.define(
     name="DocUploadRegister",
-    uniques=["ServerFileName", "FullFileName", "FullFileNameLower","FullPathOnCloud","SyncFromPath"],
+    uniques=["ServerFileName", "FullFileName", "FullFileNameLower", "FullPathOnCloud", "SyncFromPath"],
     indexes=[
         "RegisteredOn",
         "RegisteredOnDays",
@@ -377,14 +377,15 @@ class DocUploadRegister:
     LvOcrErrorLogs: typing.Optional[str]
     IsLvOcrError: typing.Optional[bool]
     ProcessInfo: typing.Optional[dict]
-    url_google_upload:  typing.Optional[str]
+    url_google_upload: typing.Optional[str]
     google_file_id: typing.Optional[str]
-    google_folder_id:typing.Optional[str]
+    google_folder_id: typing.Optional[str]
     cloud_sync_time: typing.Optional[datetime.datetime]
     LossContentFile: typing.Optional[bool]
     FullPathOnCloud: typing.Optional[str]
     SyncTime: typing.Optional[datetime.datetime]
     SyncFromPath: typing.Optional[str]
+
 
 @cy_docs.define(
     name="LvFilesHistoryCheckoutV1",
@@ -396,11 +397,13 @@ class ContentHistory:
     HashContents: typing.List[str]
     HashLen: int
     CheckOutOn: typing.Optional[datetime.datetime]
-    ContentLen:int
+    ContentLen: int
+
+
 @cy_docs.define(
     name="LvXDocDocLocalShareInfo",
     uniques=["LocalShareId,UploadId"],
-    indexes=["LocalShareId","UploadId"])
+    indexes=["LocalShareId", "UploadId"])
 class DocLocalShareInfo:
     LocalShareId: str
     UploadId: str
@@ -414,18 +417,38 @@ class GoogleFolderMappings:
     Location: str
     CloudId: str
 
+
 @cy_docs.define(
-    name= "lvXDocCloudSync",
+    name="lvXDocCloudSync",
     uniques=["UploadId,CloudName"],
-    indexes=["UploadId","CloudName","CreatedOn","FinishedOn"]
+    indexes=["UploadId", "CloudName", "CreatedOn", "FinishedOn"]
 )
 class CloudFileSync:
-    UploadId:str
-    CloudName:str
-    CreatedOn:datetime.datetime
+    UploadId: str
+    CloudName: str
+    CreatedOn: datetime.datetime
     FinishedOn: datetime.datetime
     ErrorOn: datetime.datetime
     SyncCount: int
     IsError: bool
     ErrorContent: str
     Status: int
+
+
+@cy_docs.define("DM_FileInfo", uniques=[], indexes=[])
+class Codx_DM_FileInfo:
+    ImportFrom: typing.Optional[str]  #filter 'mysql'
+    UploadId: typing.Optional[str]
+    FilePath_Old: typing.Optional[str]  # from customer
+    PathDisk: typing.Optional[
+        str]  # from lv file service api/default/file/145d866f-3823-42cc-a278-01d648121fdd/166_QD.pdf
+
+
+@cy_docs.define("LV_File_Sync_Report", uniques=[], indexes=[])
+class lv_file_sync_report:
+    FilePath: typing.Optional[str]
+    SubmitOn: typing.Optional[datetime.datetime]
+@cy_docs.define("LV_File_Sync_Logs", uniques=[], indexes=[])
+class lv_file_sync_logs:
+    Error: typing.Optional[str]
+    SubmitOn: typing.Optional[datetime.datetime]

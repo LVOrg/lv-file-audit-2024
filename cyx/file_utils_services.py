@@ -28,15 +28,17 @@ from cyx.g_drive_services import GDriveService
 MAX_WORKERS = 10
 WORKERS = dict()
 
-
+from cyx.cloud.cloud_service_utils import CloudServiceUtils
 class FileUtilService:
     def __init__(self,
                  memcache_service=cy_kit.singleton(MemcacheServices),
-                 g_drive_service:GDriveService = cy_kit.singleton(GDriveService)
+                 g_drive_service:GDriveService = cy_kit.singleton(GDriveService),
+                 cloud_service_utils:CloudServiceUtils = cy_kit.singleton(CloudServiceUtils)
                  ):
         self.content_service = config.content_service
         self.memcache_service = memcache_service
         self.g_drive_service = g_drive_service
+        self.cloud_service_utils = cloud_service_utils
 
     def healthz(self):
         def check():
@@ -138,87 +140,122 @@ class FileUtilService:
                 RunInTask=run_in_task
             )
         )
+    async def register_new_upload_google_drive_async(self, app_name, from_host, register_data):
+        if not self.cloud_service_utils.is_ready_for(app_name=app_name, cloud_name="Google"):
 
+            return dict(
+                Error= dict(
+                    Code ="GoogleWasNotReady",
+                    Message = f"Google did not bestow for {app_name}"
+                )
+            )
+        if register_data["googlePath"] is None or len(register_data["googlePath"]) == 0:
+            return dict(
+                Error=dict(
+                    Code="MissField",
+                    Message=f"Google drive upload require googlePath field"
+                )
+            )
+        else:
+            total_space, error = self.cloud_service_utils.drive_service.get_available_space(
+                app_name=app_name,
+                cloud_name="Google"
+            )
+            if error:
+                return  dict(
+                    Error= error
+                )
+        return await self.register_local_async(from_host=from_host,app_name=app_name,register_data=register_data)
     async def register_local_async(self, from_host, app_name, register_data: dict):
-        context = Repository.files.app(app_name).context
-        upload_id = str(uuid.uuid4())
+        try:
+            context = Repository.files.app(app_name).context
+            upload_id = str(uuid.uuid4())
 
-        file_name = register_data["FileName"].replace('/', '_').replace("?", "_").replace("#", '_')
-        mime_type, _ = mimetypes.guess_type(file_name)
+            file_name = register_data["FileName"].replace('/', '_').replace("?", "_").replace("#", '_')
+            mime_type, _ = mimetypes.guess_type(file_name)
 
-        web_file_name = file_name.replace('/', '_')
-        chunk_size_in_kb = register_data["ChunkSizeInKB"]
-        file_size = register_data["FileSize"]
-        is_public = register_data["IsPublic"]
-        privileges = register_data["Privileges"]
-        meta_data = register_data["meta_data"]
-        register_on = datetime.utcnow()
-        formatted_date = register_on.strftime("%Y/%m/%d")
+            web_file_name = file_name.replace('/', '_')
+            chunk_size_in_kb = register_data["ChunkSizeInKB"]
+            file_size = register_data["FileSize"]
+            is_public = register_data["IsPublic"]
+            privileges = register_data["Privileges"]
+            meta_data = register_data["meta_data"]
+            register_on = datetime.utcnow()
+            formatted_date = register_on.strftime("%Y/%m/%d")
 
-        file_name_only = pathlib.Path(file_name).stem
-        file_ext = pathlib.Path(file_name).suffix
-        file_type = "unknown"
-        if file_ext:
-            file_type = file_ext[1:4]
-        human_readable_size = naturalsize(file_size)
-        #"FullFileName": "6c08cbfc-6832-49a8-9def-c2e99d868144/L_846C.tmp.PNG"
-        chunk_size_in_bytes = chunk_size_in_kb * 1024
-        num_of_chunks = file_size // chunk_size_in_bytes + 1 if file_size % chunk_size_in_bytes > 0 else 0
-        main_file_id = f"local://{app_name}/{formatted_date}/{file_type}/{upload_id}/{file_name.lower()}"
-        """
-        Repository.files.fields.FileName <<file_name,
-        Repository.files.fields.FileExt <<file_ext,
-        Repository.files.fields.FileNameLower<<file_name.lower(),
-        Repository.files.fields.MainFileId<<f"local://{main_file_id}",
-        Repository.files.fields.SyncFromPath << file_path,
-        Repository.files.fields.MimeType << mime_type,
-        Repository.files.fields.Status<< 1,
-        Repository.files.fields.FullFileName << f"{upload_id}/{file_name}",
-        Repository.files.fields.FullFileNameLower<< f"{upload_id}/{file_name}".lower(),
-        Repository.files.fields.ServerFileName << f"{upload_id}.{file_ext}",
-        Repository.files.fields.SizeInBytes << os.stat(file_path).st_size,
-        Repository.files.fields.SizeInHumanReadable << humanize.naturalsize(os.stat(file_path).st_size),
-        Repository.files.fields.RegisterOn << register_on,
-        Repository.files.fields.StorageType<<"local",
-        Repository.files.fields.IsPublic << True,
-        Repository.files.fields.FullFileNameWithoutExtenstion<<f"{upload_id}/{file_name_only}",
-        Repository.files.fields.FullFileNameWithoutExtenstionLower << f"{upload_id}/{file_name_only}".lower(),
-        Repository.files.fields.StoragePath<<f"local://{main_file_id}"
-        """
-        upload = await context.insert_one_async(
-            Repository.files.fields.id << upload_id,
-            Repository.files.fields.FileName << file_name,
-            Repository.files.fields.MainFileId << main_file_id,
-            Repository.files.fields.FileExt << file_ext[1:].lower(),
-            Repository.files.fields.StorageType << "local",
-            Repository.files.fields.Status << 0,
-            Repository.files.fields.RegisterOn << register_on,
-            Repository.files.fields.SizeInBytes << file_size,
-            Repository.files.fields.ChunkSizeInBytes << chunk_size_in_bytes,
-            Repository.files.fields.ChunkSizeInKB << chunk_size_in_kb,
-            Repository.files.fields.FileNameLower << file_name.lower(),
-            Repository.files.fields.FullFileName << f"{upload_id}/{file_name.lower()}",
-            Repository.files.fields.NumOfChunks << num_of_chunks,
+            file_name_only = pathlib.Path(file_name).stem
+            file_ext = pathlib.Path(file_name).suffix
+            file_type = "unknown"
+            if file_ext:
+                file_type = file_ext[1:4]
+            human_readable_size = naturalsize(file_size)
+            #"FullFileName": "6c08cbfc-6832-49a8-9def-c2e99d868144/L_846C.tmp.PNG"
+            chunk_size_in_bytes = chunk_size_in_kb * 1024
+            num_of_chunks = file_size // chunk_size_in_bytes + 1 if file_size % chunk_size_in_bytes > 0 else 0
+            main_file_id = f"local://{app_name}/{formatted_date}/{file_type}/{upload_id}/{file_name.lower()}"
+            """
+            Repository.files.fields.FileName <<file_name,
+            Repository.files.fields.FileExt <<file_ext,
+            Repository.files.fields.FileNameLower<<file_name.lower(),
+            Repository.files.fields.MainFileId<<f"local://{main_file_id}",
+            Repository.files.fields.SyncFromPath << file_path,
             Repository.files.fields.MimeType << mime_type,
-            Repository.files.fields.FullFileNameLower << f"{upload_id}/{file_name.lower()}",
-            Repository.files.fields.StoragePath << f"local://{main_file_id}",
-            Repository.files.fields.IsPublic << register_data.get("IsPublic", True),
-            Repository.files.fields.FullFileNameWithoutExtenstion << f"{upload_id}/{file_name_only}",
+            Repository.files.fields.Status<< 1,
+            Repository.files.fields.FullFileName << f"{upload_id}/{file_name}",
+            Repository.files.fields.FullFileNameLower<< f"{upload_id}/{file_name}".lower(),
+            Repository.files.fields.ServerFileName << f"{upload_id}.{file_ext}",
+            Repository.files.fields.SizeInBytes << os.stat(file_path).st_size,
+            Repository.files.fields.SizeInHumanReadable << humanize.naturalsize(os.stat(file_path).st_size),
+            Repository.files.fields.RegisterOn << register_on,
+            Repository.files.fields.StorageType<<"local",
+            Repository.files.fields.IsPublic << True,
+            Repository.files.fields.FullFileNameWithoutExtenstion<<f"{upload_id}/{file_name_only}",
             Repository.files.fields.FullFileNameWithoutExtenstionLower << f"{upload_id}/{file_name_only}".lower(),
+            Repository.files.fields.StoragePath<<f"local://{main_file_id}"
+            """
+            upload = await context.insert_one_async(
+                Repository.files.fields.id << upload_id,
+                Repository.files.fields.FileName << file_name,
+                Repository.files.fields.MainFileId << main_file_id,
+                Repository.files.fields.FileExt << file_ext[1:].lower(),
+                Repository.files.fields.StorageType << "local",
+                Repository.files.fields.Status << 0,
+                Repository.files.fields.RegisterOn << register_on,
+                Repository.files.fields.SizeInBytes << file_size,
+                Repository.files.fields.ChunkSizeInBytes << chunk_size_in_bytes,
+                Repository.files.fields.ChunkSizeInKB << chunk_size_in_kb,
+                Repository.files.fields.FileNameLower << file_name.lower(),
+                Repository.files.fields.FullFileName << f"{upload_id}/{file_name.lower()}",
+                Repository.files.fields.NumOfChunks << num_of_chunks,
+                Repository.files.fields.MimeType << mime_type,
+                Repository.files.fields.FullFileNameLower << f"{upload_id}/{file_name.lower()}",
+                Repository.files.fields.StoragePath << f"local://{main_file_id}",
+                Repository.files.fields.IsPublic << register_data.get("IsPublic", True),
+                Repository.files.fields.FullFileNameWithoutExtenstion << f"{upload_id}/{file_name_only}",
+                Repository.files.fields.FullFileNameWithoutExtenstionLower << f"{upload_id}/{file_name_only}".lower(),
 
-        )
-        ret_data = dict(
-            NumOfChunks=num_of_chunks,
-            ChunkSizeInBytes=chunk_size_in_bytes,
-            UploadId=upload_id,
-            MimeType=mime_type,
-            RelUrlOfServerPath=f"api/{app_name}/file/{upload_id}/{file_name.lower()}",
-            SizeInHumanReadable=human_readable_size,
-            UrlOfServerPath=f"{from_host}/api/{app_name}/{upload_id}/{file_name.lower()}",
-            OriginalFileName=file_name,
-            FileSize=file_size
-        )
-        return ret_data
+            )
+            ret_data = dict(
+                NumOfChunks=num_of_chunks,
+                ChunkSizeInBytes=chunk_size_in_bytes,
+                UploadId=upload_id,
+                MimeType=mime_type,
+                RelUrlOfServerPath=f"api/{app_name}/file/{upload_id}/{file_name.lower()}",
+                SizeInHumanReadable=human_readable_size,
+                UrlOfServerPath=f"{from_host}/api/{app_name}/{upload_id}/{file_name.lower()}",
+                OriginalFileName=file_name,
+                FileSize=file_size
+            )
+            return dict(
+                Data = ret_data
+            )
+        except:
+            return dict(
+                Error=dict(
+                    Code="System",
+                    Message= traceback.format_exc()
+                )
+            )
 
     async def call_api_async(self, api_path: str, data=None, headers=None) -> dict:
         """Makes an asynchronous POST request to the given URL.
@@ -257,16 +294,7 @@ class FileUtilService:
         )
         return ret
 
-    async def register_new_upload_google_drive_async(self, app_name, from_host, data):
-        ret = await self.call_api_async(
-            data=dict(
-                app_name=app_name,
-                from_host=from_host,
-                data=data,
-            ),
-            api_path="files/register/google-drive"
-        )
-        return ret
+
 
     async def register_new_upload_one_drive_async(self, app_name, from_host, data):
         ret = await self.call_api_async(
@@ -446,6 +474,8 @@ class FileUtilService:
             ret = data.to_json_convertable()
             self.memcache_service.set_dict(f"get_upload/{app_name}/{upload_id}", ret)
             return ret
+
+
 
 
 

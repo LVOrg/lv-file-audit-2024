@@ -91,9 +91,11 @@ class FilesLocalController(BaseController):
         is_ok = local_share_id or token
         if not is_ok:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="")
-        server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
+
         upload_id = pathlib.Path(rel_path).parent.name.__str__()
         app_name = rel_path.split('/')[0]
+        server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
+
         if local_share_id:
             check_data = self.local_api_service.check_local_share_id(
                 app_name=app_name,
@@ -103,6 +105,9 @@ class FilesLocalController(BaseController):
                 if not self.token_verifier.verify(self.share_key, token):
                     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="???")
 
+        if os.path.isdir(f"{server_path}.chunks"):
+            file_name= pathlib.Path(server_path).name.lower()
+            return await self.file_util_service.get_file_content_async(self.request, app_name, f"{upload_id}/{file_name}")
         if not os.path.isfile(server_path):
 
             UploadData = await Repository.files.app(app_name).context.find_one_async(

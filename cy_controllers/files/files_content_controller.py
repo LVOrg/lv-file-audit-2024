@@ -31,11 +31,8 @@ from fastapi.responses import FileResponse
 import mimetypes
 import cy_docs
 from cyx.common import config
-
 # version2 = config.generation if hasattr(config,"generation") else None
-version2 = None
-
-
+version2=None
 @controller.resource()
 class FilesContentController(BaseController):
 
@@ -48,7 +45,7 @@ class FilesContentController(BaseController):
         return "OK"
 
     @controller.router.get(
-        "/api/{app_name}/thumb/{directory:path}" if not version2 else "/api/{app_name}/thumb-old/{directory:path}",
+        "/api/{app_name}/thumb/{directory:path}"  ,
         tags=["FILES-CONTENT"]
     )
     async def get_thumb(self, app_name: str, directory: str):
@@ -63,8 +60,9 @@ class FilesContentController(BaseController):
         # check_app(app_name)
         upload_id = None
         is_file_not_found = False
-        file_path = await self.thumb_service.get_async(app_name, directory, 700)
+        file_path = await self.thumb_service.get_async(app_name,directory,700)
         if file_path is not None:
+
 
             ret = await cy_web.cy_web_x.streaming_async(file_path, self.request, "image/webp")
             return ret
@@ -75,8 +73,10 @@ class FilesContentController(BaseController):
             # return FileResponse(image_file_path)
         else:
             return Response(
-                status_code=404
-            )
+                        status_code=404
+                    )
+
+
 
     def get_full_path_of_local_from_cache(self, upload):
         key = f"{self.config.file_storage_path}/{__file__}/{type(self).__name__}/get_full_path_of_local_from_cache/{upload.id}"
@@ -92,18 +92,18 @@ class FilesContentController(BaseController):
         return ret
 
     @controller.router.get(
-        "/api/{app_name}/file/{directory:path}" if not version2 else "/api/{app_name}/file-old/{directory:path}",
+        "/api/{app_name}/file/{directory:path}" if not version2 else "/api/{app_name}/file-old/{directory:path}"  ,
         tags=["FILES-CONTENT"]
     )
+    # async def get_content(self, app_name: str, directory: str):
+    #     return await self.file_util_service.get_file_content_async(self.request,app_name,directory)
     async def get_content(self, app_name: str, directory: str):
-        return await self.file_util_service.get_file_content_async(self.request, app_name, directory)
-
-    async def get_content_delete(self, app_name: str, directory: str):
         # if len(directory.split('/'))>2:
         #     directory = directory.split('/')[0]+"/"+directory.split('/')[1]
-        cloud_info = self.cloud_cache_service.get_request_from_cache(app_name=app_name, directory=directory)
+
+        cloud_info = self.cloud_cache_service.get_request_from_cache(app_name=app_name,directory=directory)
         if cloud_info:
-            if cloud_info.storage_type == "onedrive":
+            if cloud_info.storage_type=="onedrive":
                 return await self.azure_utils_service.get_content_async(
                     app_name=app_name,
                     cloud_file_id=cloud_info.cloud_id,
@@ -113,7 +113,7 @@ class FilesContentController(BaseController):
                     download_only=self.request.query_params.get('download') is not None,
 
                 )
-            if cloud_info.storage_type == "google-drive":
+            if cloud_info.storage_type=="google-drive":
                 ret = await self.g_drive_service.get_content_async(
                     app_name=app_name,
                     client_file_name=cloud_info.file_name,
@@ -125,9 +125,14 @@ class FilesContentController(BaseController):
                 )
                 return ret
 
+
         cache_dir = self.file_cacher_service.get_path(os.path.join(app_name, "images"))
         upload_id = directory.split('/')[0]
         upload = self.file_service.get_upload_register_with_cache(app_name, upload_id)
+
+        server_file_path = await self.file_util_service.get_physical_path_async(app_name=app_name,upload_id=upload_id)
+        if server_file_path.endswith(".chunks"):
+            return await self.file_util_service.get_file_content_async(self.request, app_name, directory)
 
         if upload is None:
             from fastapi import Response
@@ -138,7 +143,7 @@ class FilesContentController(BaseController):
             upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id == upload_id)
             if upload[Repository.files.fields.CloudId] is not None:
                 try:
-                    m, _ = mimetypes.guess_type(directory)
+                    m,_ =mimetypes.guess_type(directory)
                     self.cloud_cache_service.cache_request(
                         app_name=app_name,
                         directory=directory,
@@ -146,7 +151,7 @@ class FilesContentController(BaseController):
                         cloud_id=upload[Repository.files.fields.CloudId],
                         content_type=m,
                         upload_id=upload_id,
-                        file_name=upload[Repository.files.fields.FileName]
+                        file_name= upload[Repository.files.fields.FileName]
 
                     )
                     return await self.azure_utils_service.get_content_async(
@@ -154,20 +159,20 @@ class FilesContentController(BaseController):
                         cloud_file_id=upload[Repository.files.fields.CloudId],
                         content_type=m,
                         request=self.request,
-                        upload_id=upload_id,
+                        upload_id= upload_id,
                         download_only=self.request.query_params.get('download') is not None
                     )
                 except:
-                    from fastapi.responses import HTMLResponse
-                    return HTMLResponse(content=traceback.format_exc(), status_code=500)
+                    from  fastapi.responses import HTMLResponse
+                    return HTMLResponse(content=traceback.format_exc(),status_code=500)
                 # return self.fucking_azure_onedrive_service.get_content(
                 #     app_name=app_name,
                 #     upload_id=upload_id,
                 #     request=self.request,
                 #     client_file_name=upload.FileName
                 # )
-        if upload.StorageType == "google-drive":
-            upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id == upload_id)
+        if upload.StorageType=="google-drive":
+            upload = Repository.files.app(app_name).context.find_one(Repository.files.fields.Id==upload_id)
             if upload[Repository.files.fields.CloudId] is not None:
                 m, _ = mimetypes.guess_type(directory)
                 self.cloud_cache_service.cache_request(
@@ -183,8 +188,8 @@ class FilesContentController(BaseController):
                 ret = await self.g_drive_service.get_content_async(
                     app_name=app_name,
                     client_file_name=upload.FileName,
-                    upload_id=upload_id,
-                    cloud_id=upload[Repository.files.fields.CloudId],
+                    upload_id= upload_id,
+                    cloud_id= upload[Repository.files.fields.CloudId],
                     request=self.request,
                     content_type=m,
                     download_only=self.request.query_params.get('download') is not None
@@ -193,10 +198,10 @@ class FilesContentController(BaseController):
         if not upload.IsPublic:
             if self.request.query_params.get("local-share-id") and self.request.query_params.get("app-name"):
                 check_data = self.local_api_service.check_local_share_id(
-                    app_name=self.request.query_params.get("app-name"),
+                    app_name = self.request.query_params.get("app-name"),
                     local_share_id=self.request.query_params.get("local-share-id")
                 )
-                if check_data and isinstance(check_data.UploadId, str) and check_data.UploadId == upload_id:
+                if check_data and isinstance(check_data.UploadId,str) and check_data.UploadId == upload_id:
                     pass
                 else:
                     await self.auth_service.check_request(app_name, self.request)
@@ -206,7 +211,7 @@ class FilesContentController(BaseController):
 
             if upload.MainFileId is None:
                 upload = Repository.files.app(app_name).context.find_one_async(
-                    Repository.files.fields.id == upload_id
+                    Repository.files.fields.id==upload_id
                 )
             if upload.MainFileId.startswith("local://"):
                 if hasattr(self.config, "file_storage_path"):
@@ -216,6 +221,7 @@ class FilesContentController(BaseController):
                     else:
                         return FileResponse(path=full_path)
         runtime_file_reader = None
+
 
         fs = self.file_service.get_main_file_of_upload_by_rel_file_path(
             app_name=app_name,
@@ -257,9 +263,9 @@ class FilesContentController(BaseController):
             ret.headers["Content-Disposition"] = f"attachment; filename={file_name_form_url}"
         return ret
 
-    @controller.router.get(
-        "/api/{app_name}/thumbs/{directory:path}" if not version2 else "/api/{app_name}/thumbs-old/{directory:path}",
-        tags=["FILES-CONTENT"])
+
+
+    @controller.router.get("/api/{app_name}/thumbs/{directory:path}" ,tags=["FILES-CONTENT"])
     async def get_thumb_of_files(self, app_name: str, directory: str):
         """
         Xem hoặc tải nội dung file
@@ -268,7 +274,7 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
-        size = int(directory.split('/')[-1].split('.')[0])
+        size= int(directory.split('/')[-1].split('.')[0])
         file_path = await self.thumb_service.get_async(app_name, directory, size)
         if file_path is not None:
 
@@ -284,7 +290,8 @@ class FilesContentController(BaseController):
                 status_code=404
             )
 
-    @controller.router.post("/api/{app_name}/content/readable", tags=["FILES-CONTENT"])
+
+    @controller.router.post("/api/{app_name}/content/readable",tags=["FILES-CONTENT"])
     def get_content_readable(
             self,
             app_name: str,
@@ -317,12 +324,12 @@ class FilesContentController(BaseController):
                 content=doc.source.content
             )
 
-    def raise_message(self, file_ext, data_info, app_name):
-        if file_ext in cyx.common.config.ext_office_file:
+    def raise_message(self, file_ext, data_info,app_name):
+        if file_ext in  cyx.common.config.ext_office_file:
             self.broker.emit(
-                app_name=app_name,
+                app_name = app_name,
                 message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE_FROM_OFFICE,
-                data=data_info
+                data= data_info
             )
 
         pass

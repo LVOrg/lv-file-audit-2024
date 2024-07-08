@@ -9,7 +9,7 @@ from fastapi import (
     UploadFile,
     Form, File
 )
-from cy_controllers import PagesController
+from cy_controllers.pages.home import PagesController
 from cy_controllers.apps.app_controller import AppsController
 from cy_controllers.logs.logs_controller import LogsController
 from cy_controllers.files.files_upload_controller import FilesUploadController
@@ -44,7 +44,7 @@ controllers_list=[
         GlobalSettingsController,
         GeminiControllr,
         HealthCheckController,
-        FilesContentControllerNew,
+        # FilesContentControllerNew,
         FilesContentController,
         AppsController,
         LogsController,

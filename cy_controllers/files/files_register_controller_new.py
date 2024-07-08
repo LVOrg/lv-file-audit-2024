@@ -130,13 +130,31 @@ class FilesRegisterControllerNew(BaseController):
                              Data: RegisterUploadInfoNew,
                              SkipOptions: typing.Optional[SkipFileProcessingOptions] = None):
         if Data.UploadId is None:
-            ret = await self.file_util_service.register_local_async(
-                app_name=app_name,
-                from_host=cy_web.get_host_url(self.request),
-                register_data=Data.__dict__
+            if Data.storageType is None or Data.storageType == "local":
+                ret = await self.file_util_service.register_local_async(
+                    app_name=app_name,
+                    from_host=cy_web.get_host_url(self.request),
+                    register_data=Data.__dict__
 
-            )
-            return dict(Data=ret)
+                )
+                return ret
+            elif Data.storageType == "google-drive":
+                ret = await self.file_util_service.register_new_upload_google_drive_async(
+                    app_name=app_name,
+                    from_host=cy_web.get_host_url(self.request),
+                    register_data=Data.__dict__
+
+                )
+                return ret
+            elif Data.storageType == "onedrive":
+                ret = await self.file_util_service.update_upload_one_drive_async(
+                    app_name=app_name,
+                    data=Data.json(),
+                    from_host=cy_web.get_host_url(self.request)
+
+                )
+                return ret
+
         else:
             if Data.storageType is None or Data.storageType == "local":
                 ret = await self.file_util_service.update_upload_local_async(
