@@ -197,6 +197,10 @@ def cy_open_file(*args, **kwargs):
     else:
 
         ret_fs = original_open_file(*args, **kwargs)
+        def get_size():
+            return os.stat(ret_fs.name).st_size
+        setattr(ret_fs,"get_size",get_size)
+
 
     setattr(ret_fs, "encrypt", is_encrypt)
     setattr(ret_fs, "original_open_file", original_open_file)

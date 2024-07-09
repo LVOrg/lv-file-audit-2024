@@ -18,7 +18,9 @@ from cyx.token_manager import (
     TokenService,RequestService
 )
 router = APIRouter()
+root_router = APIRouter()
 controller = Controller(router)
+controller_root = Controller(root_router)
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from cy_xdoc.services.accounts import AccountService
 from cy_xdoc.auths import Authenticate
@@ -59,6 +61,21 @@ def verify_auth(request:Request, credentials: HTTPBasicCredentials = Depends(sec
     return credentials.username
 import cyx.common.basic_auth
 # from requests_kerberos import HTTPKerberosAuth
+@controller_root.resource()
+class RootPagesController:
+    @controller_root.route.get(
+        "/", summary="Home page"
+    )
+    def home_page(self):
+        from starlette.datastructures import URL
+        app_data = get_meta_data(self.request)
+        return cy_web.render_template(
+            rel_path_to_template="index.html",
+            render_data={"request": self.request, "app": app_data}
+        )
+    def __init__(self,request: Request):
+        self.request = request
+
 @controller.resource()
 class PagesController:
     # add class wide dependencies e.g. auth
@@ -73,16 +90,6 @@ class PagesController:
     def __init__(self,request: Request):
         self.request = request
 
-    @controller.route.get(
-        "/", summary="Home page"
-    )
-    def home_page(self):
-        from starlette.datastructures import URL
-        app_data = get_meta_data(self.request)
-        return cy_web.render_template(
-            rel_path_to_template="index.html",
-            render_data={"request": self.request, "app": app_data}
-        )
 
 
     @controller.route.get(

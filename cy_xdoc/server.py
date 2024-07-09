@@ -187,59 +187,18 @@ async def estimate_time(request: fastapi.Request, next):
         end_time = datetime.datetime.utcnow()
 
         async def apply_time(res):
-            # res.headers["time:start"] = start_time.strftime("%H:%M:%S")
-            # res.headers["time:end"] = end_time.strftime("%H:%M:%S")
-            # res.headers["time:total(second)"] = (end_time - start_time).total_seconds().__str__()
             res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
             return res
-        #getattr(request,"log_mongoddb_track_id")
+
         res = await apply_time(res)
-
-    # except Exception as ex:
-    #     print(traceback.format_exc())
-    #     if request.session.get("$$$inserted_id$$$"):
-    #         data_item= await Repository.sys_app_logs_coll.app("admin").context.find_one_async(
-    #             Repository.sys_app_logs_coll.fields.id==request.session.get("$$$inserted_id$$$")
-    #         )
-    #         if data_item:
-    #             data_content= json.loads(data_item[Repository.sys_app_logs_coll.fields.Content])
-    #             data_content["Error"]=traceback.format_exc()
-    #             data_content_text= json.dumps(data_content,indent=4)
-    #             await Repository.sys_app_logs_coll.app("admin").context.update_async(
-    #                 Repository.sys_app_logs_coll.fields.id == request.session.get("$$$inserted_id$$$"),
-    #                 Repository.sys_app_logs_coll.fields.Content<<data_content_text
-    #             )
-    #         del request.session["$$$inserted_id$$$"]
-    #     from fastapi.responses import HTMLResponse
-    #     return HTMLResponse(
-    #         content=traceback.format_exc(),
-    #         status_code=500
-    #     )
-    except FileNotFoundError as e:
-        image_tag: str = os.getenv("BUILD_IMAGE_TAG") or "-qc"
-        if image_tag.endswith("-qc"):
-            from fastapi.responses import HTMLResponse
-            return HTMLResponse(
-                content=traceback.format_exc(),
-                status_code=500
+        return res
+    except:
+        return dict(
+            Error=dict(
+                Code="System",
+                Message=traceback.format_exc()
             )
-        else:
-            # logger.error(e, more_info= dict(
-            #     url= request.url.path
-            # ))
-            return JSONResponse(status_code=404, content={"detail": "Resource not found"})
-
-    except Exception as e:
-        logger.error(e, more_info=dict(
-            url=request.url.path
-        ))
-        setattr(request,"lv_file_error_content",traceback.format_exc())
-        return JSONResponse(status_code=500, content=traceback.format_exc())
-
-    # finally:
-    #     gc.collect()
-    #     malloc_service.reduce_memory()
-    return res
+        )
 
 
 from fastapi import Request, Response

@@ -10,6 +10,8 @@ import traceback
 import uuid
 from datetime import datetime
 from humanize import naturalsize
+
+import cy_docs.cy_docs_x
 import cy_kit
 from cyx.common import config
 import asyncio
@@ -27,7 +29,7 @@ import asyncio
 from cyx.g_drive_services import GDriveService
 MAX_WORKERS = 10
 WORKERS = dict()
-
+from cy_xdoc.models.files import DocUploadRegister
 from cyx.cloud.cloud_service_utils import CloudServiceUtils
 class FileUtilService:
     def __init__(self,
@@ -39,6 +41,8 @@ class FileUtilService:
         self.memcache_service = memcache_service
         self.g_drive_service = g_drive_service
         self.cloud_service_utils = cloud_service_utils
+
+        self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
 
     def healthz(self):
         def check():
@@ -394,6 +398,7 @@ class FileUtilService:
         ret = await streaming_async(
             fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
         )
+        ret.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         if request.query_params.get('download') is not None:
             ret.headers["Content-Disposition"]=f"attachment; filename={upload['FileName']}"
         return ret
@@ -474,6 +479,83 @@ class FileUtilService:
             ret = data.to_json_convertable()
             self.memcache_service.set_dict(f"get_upload/{app_name}/{upload_id}", ret)
             return ret
+
+    async def update_register_local_async(self, app_name, register_data):
+        upload_data = await self.get_upload_by_upload_id_async(
+            app_name=app_name,
+            upload_id = register_data.get("UploadId")
+        )
+        if upload_data is None:
+            return dict(
+                Error=dict(
+                    Code="FileNotFound",
+                    Message=f"{register_data['UploadId']} is no longer in {app_name}"
+                )
+            )
+        """
+            {
+                "Data": {
+                    "NumOfChunks": 1,
+                    "ChunkSizeInBytes": 10485760,
+                    "UploadId": "a3fbefde-fa32-44ed-97d9-f65599a82653",
+                    "ServerFilePath": "a3fbefde-fa32-44ed-97d9-f65599a82653.jpg",
+                    "MimeType": "image/jpeg",
+                    "RelUrlOfServerPath": "api/masantest/file/a3fbefde-fa32-44ed-97d9-f65599a82653/z5416308293225_ac0010b93438d1ee518532ea338201c1 _1_ _1_.jpg",
+                    "SizeInHumanReadable": "770.2 kB",
+                    "UrlOfServerPath": "http://172.16.7.99/lvfile/api/masantest/file/a3fbefde-fa32-44ed-97d9-f65599a82653/z5416308293225_ac0010b93438d1ee518532ea338201c1 _1_ _1_.jpg",
+                    "OriginalFileName": "z5416308293225_ac0010b93438d1ee518532ea338201c1 _1_ _1_.jpg",
+                    "UrlThumb": "http://172.16.7.99/lvfile/api/masantest/thumb/a3fbefde-fa32-44ed-97d9-f65599a82653/z5416308293225_ac0010b93438d1ee518532ea338201c1 _1_ _1_.jpg.webp",
+                    "RelUrlThumb": "api/masantest/thumb/a3fbefde-fa32-44ed-97d9-f65599a82653/z5416308293225_ac0010b93438d1ee518532ea338201c1 _1_ _1_.jpg.webp",
+                    "FileSize": 770250,
+                    "SearchEngineInsertTimeInSecond": 0.017286
+                },
+                "Error": null
+            }
+        """
+        """
+        {
+            "Data":{
+                    "FileName":"z5416308293225_ac0010b93438d1ee518532ea338201c1 _1_ _1_.jpg",
+                    "FileSize":770250,"ChunkSizeInKB":10240,
+                    "IsPublic":true,
+                    "ThumbConstraints":"700,350,200,120",
+                    "Privileges":[],"meta_data":{},
+                    "storageType":"local","onedriveScope":"anonymous","encryptContent":true,"googlePath":"long-test-2024-07-09"}}
+        """
+        file_size_in_bytes = register_data["FileSize"]
+        chunk_size_in_kb = register_data["ChunkSizeInKB"]
+        chunk_size_in_bytes = chunk_size_in_kb*1024
+
+        num_of_chunks = file_size_in_bytes // chunk_size_in_bytes + 1 if file_size_in_bytes % chunk_size_in_bytes >0 else 0
+        await Repository.files.app(app_name).context.update_async(
+            Repository.files.fields.id==register_data["UploadId"],
+            Repository.files.fields.SizeInBytes << file_size_in_bytes,
+            Repository.files.fields.SizeInHumanReadable<< naturalsize(file_size_in_bytes),
+            Repository.files.fields.Status<<0,
+            Repository.files.fields.NumOfChunksCompleted<<0,
+            Repository.files.fields.NumOfChunks<<num_of_chunks,
+            Repository.files.fields.ChunkSizeInKB<<chunk_size_in_kb,
+            Repository.files.fields.ChunkSizeInBytes<<chunk_size_in_bytes,
+            Repository.files.fields.SizeUploaded <<0,
+            Repository.files.fields.NumOfChunksCompleted <<0,
+
+        )
+        key = f"{self.cache_type}/{app_name}/{register_data['UploadId']}"
+        self.memcache_service.remove(key)
+
+        return dict(
+            Data=dict(
+                NumOfChunks=num_of_chunks,
+                ChunkSizeInBytes=chunk_size_in_bytes,
+                UploadId=register_data["UploadId"],
+                ServerFilePath=register_data["UploadId"]+"."+ upload_data[Repository.files.fields.FileExt],
+                SizeInHumanReadable= naturalsize(file_size_in_bytes)
+            )
+        )
+    async def get_upload_by_upload_id_async(self, app_name, upload_id):
+        return await Repository.files.app(app_name).context.find_one_async(
+            Repository.files.fields.Id==upload_id
+        )
 
 
 

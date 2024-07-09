@@ -147,12 +147,15 @@ if __name__ == "__main__":
                 full_path = os.path.join("/mnt/files", rel_path)
                 if os.path.isfile(full_path):
                     try:
-                        google_file_id, url_google_upload, error = JobLibs.google_directory_service.register_upload_file(
-                                    app_name=app_name,
-                                    directory_id = cloud_folder_id,
-                                    file_name= upload_item["FileName"],
-                                    file_size= upload_item["SizeInBytes"]
-                                )
+                        google_file_id = upload_item.get("CloudId")
+                        if not google_file_id:
+                            google_file_id, url_google_upload, error = JobLibs.google_directory_service.register_upload_file(
+                                        app_name=app_name,
+                                        directory_id = cloud_folder_id,
+                                        file_name= upload_item["FileName"],
+                                        file_size= upload_item["SizeInBytes"]
+                                    )
+
                         if error:
                             consumer.resume(msg)
                             del upload_item

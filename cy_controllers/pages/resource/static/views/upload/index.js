@@ -4,21 +4,25 @@ import { redirect, urlWatching, getPaths, msgError, msgOK } from "../../js/ui/co
 
 var uploadFileView = await View(import.meta, class UploadFileView extends BaseScope {
     debugger;
-    appName = ""
-    info = {}
+    appName = "";
+    info = {};
+    uploadId = undefined;
     data = {
         tags:[],
         IsPublic:true,
         storageType:"local",
         onedriveScope:"anonymous"
-    }
+    };
     uploadConfig= {
         chunkSize:1024*10
-    }
-    meta_text = JSON.stringify({})
-    Options = {}
+    };
+    meta_text = JSON.stringify({});
+    Options = {};
     async init(){
 
+    }
+    setUploadId(uploadId) {
+        this.uploadId=uploadId;
     }
     setApp(appName) {
 
@@ -49,6 +53,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
     }
     async doUploadFile() {
         debugger;
+
         var me=this;
         var delay=(t)=>{
             return new Promise((r,x)=>{
@@ -77,6 +82,7 @@ var uploadFileView = await View(import.meta, class UploadFileView extends BaseSc
             debugger;
             var reg = await api.post(`${this.appName}/files/register`, {
                 Data: {
+                    UploadId: this.uploadId,
                     FileName: fileUpload.name,
                     FileSize: fileUpload.size,
                     ChunkSizeInKB: me.uploadConfig.chunkSize,

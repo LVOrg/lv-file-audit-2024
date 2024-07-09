@@ -385,6 +385,7 @@ class DocUploadRegister:
     FullPathOnCloud: typing.Optional[str]
     SyncTime: typing.Optional[datetime.datetime]
     SyncFromPath: typing.Optional[str]
+    IsUpdating: typing.Optional[bool]
 
 
 @cy_docs.define(

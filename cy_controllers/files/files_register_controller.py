@@ -128,8 +128,7 @@ class FilesRegisterController(BaseController):
     async def register_async(self,
                              app_name: str,
                              Data: RegisterUploadInfo,
-                             SkipOptions: typing.Optional[SkipFileProcessingOptions] = None) -> typing.Optional[
-        RegisterUploadInfoResult]:
+                             SkipOptions: typing.Optional[SkipFileProcessingOptions] = None) :
         """
             <p>
             <b>
@@ -174,6 +173,12 @@ class FilesRegisterController(BaseController):
             :return:
             """
         self.malloc_service.reduce_memory()
+        if Data.UploadId:
+
+            return await self.file_util_service.update_register_local_async(
+                app_name=app_name,
+                register_data = Data.__dict__
+            )
         url_google_upload, google_file_id = None, None
         folder_id = None
         Data.storageType = Data.storageType or "local"
@@ -280,37 +285,29 @@ class FilesRegisterController(BaseController):
         skip_option = {}
         if SkipOptions:
             skip_option = SkipOptions.dict()
-        try:
-            ret = await self.file_service.add_new_upload_info_async(
-                app_name=app_name,
-                chunk_size=Data.ChunkSizeInKB * 1024,
-                file_size=Data.FileSize,
-                client_file_name=Data.FileName,
-                is_public=Data.IsPublic,
-                thumbs_support=Data.ThumbConstraints,
-                web_host_root_url=cy_web.get_host_url(self.request),
-                privileges_type=privileges,
-                meta_data=Data.meta_data,
-                skip_option=skip_option,
-                storage_type=Data.storageType,
-                onedriveScope=Data.onedriveScope,
-                onedrive_password=Data.onedrivePassword,
-                onedrive_expiration=Data.onedriveExpiration,
-                is_encrypt_content=Data.encryptContent,
-                url_google_upload = url_google_upload,
-                google_file_id = google_file_id,
-                google_folder_id = folder_id,
-                google_folder_path = Data.googlePath
+        ret = await self.file_service.add_new_upload_info_async(
+            app_name=app_name,
+            chunk_size=Data.ChunkSizeInKB * 1024,
+            file_size=Data.FileSize,
+            client_file_name=Data.FileName,
+            is_public=Data.IsPublic,
+            thumbs_support=Data.ThumbConstraints,
+            web_host_root_url=cy_web.get_host_url(self.request),
+            privileges_type=privileges,
+            meta_data=Data.meta_data,
+            skip_option=skip_option,
+            storage_type=Data.storageType,
+            onedriveScope=Data.onedriveScope,
+            onedrive_password=Data.onedrivePassword,
+            onedrive_expiration=Data.onedriveExpiration,
+            is_encrypt_content=Data.encryptContent,
+            url_google_upload = url_google_upload,
+            google_file_id = google_file_id,
+            google_folder_id = folder_id,
+            google_folder_path = Data.googlePath
 
-            )
-            ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
-            return ret_data
+        )
+        ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
+        return ret_data
 
-        except Exception as ex:
-            self.logger_service.error(ex)
-            ret_data = RegisterUploadInfoResult()
-            ret_data.Error = Error(
-                Code="system",
-                Message=str(ex)
-            )
-            return ret_data
+

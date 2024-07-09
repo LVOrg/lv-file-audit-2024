@@ -359,6 +359,8 @@ class RabitmqMsg:
                 )
             )
         try:
+            if self.__channel__ is None:
+                raise Exception(f"Can not connect to RabbitMQ {self.__server__}:{self.__port__} username {self.__username__}, pass={self.__password__}")
             print(f"msg to {self.__server__}:{self.__port__}\nmsg={self.get_real_msg(msg_type=message_type)} in app={app_name}")
             if self.__channel__:
                 self.__channel__.queue_declare(queue=self.get_real_msg(message_type), auto_delete=False)

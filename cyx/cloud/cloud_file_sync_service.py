@@ -16,13 +16,20 @@ class FileSync:
         self.google=google
         self.msg = msg
     def do_sync(self, app_name:str, cloud_name:str, upload_item):
-        Repository.cloud_file_sync.app(app_name=app_name).context.insert_one(
-            Repository.cloud_file_sync.fields.SyncCount<<0,
-            Repository.cloud_file_sync.fields.CloudName << cloud_name,
-            Repository.cloud_file_sync.fields.UploadId<< upload_item.Id,
-            Repository.cloud_file_sync.fields.CreatedOn<< datetime.datetime.utcnow(),
-            Repository.cloud_file_sync.fields.IsError<<False
+        cloud_file_sync_content=Repository.cloud_file_sync.app(app_name=app_name)
+        cloud_file_sync_item = cloud_file_sync_content.context.find_one(
+            cloud_file_sync_content.fields.UploadId==upload_item.Id
         )
+        if cloud_file_sync_item:
+            print("Update")
+        else:
+            Repository.cloud_file_sync.app(app_name=app_name).context.insert_one(
+                Repository.cloud_file_sync.fields.SyncCount<<0,
+                Repository.cloud_file_sync.fields.CloudName << cloud_name,
+                Repository.cloud_file_sync.fields.UploadId<< upload_item.Id,
+                Repository.cloud_file_sync.fields.CreatedOn<< datetime.datetime.utcnow(),
+                Repository.cloud_file_sync.fields.IsError<<False
+            )
         if cloud_name == "Google":
 
             self.msg.emit(

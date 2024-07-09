@@ -31,7 +31,8 @@ class MemcacheServices:
         ret = self.client.set(self.get_hash_key(key), data, time=expiration)
         return ret
     def remove(self,key:str):
-        self.client.delete(key)
+        del_key = self.get_hash_key(key)
+        self.client.delete(del_key)
     def set_object(self, key: str, data, expiration=60 * 60 * 4) -> bool:
 
         import cy_docs
@@ -72,7 +73,8 @@ class MemcacheServices:
         return self.client.set(key, value, time=expiration)
 
     def delete_key(self, key: str):
-        return self.client.delete(key)
+        del_key = self.get_hash_key(key)
+        return self.client.delete(del_key)
 
     def set_bool_value(self, key, bool_value: bool, expiration=60 * 60 * 4):
         key = self.get_hash_key(key)

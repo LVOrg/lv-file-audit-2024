@@ -158,10 +158,11 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         editor.setData(this.currentAppName, this, selectedId);
         editor.asWindow();
     }
-    async doOpenUploadWindow() {
+    async doOpenUploadWindow(uploadId) {
         debugger;
         var uploadForm = await (await import("../upload/index.js")).default();
         uploadForm.setApp(this.currentAppName);
+        uploadForm.setUploadId(uploadId);
         uploadForm.asWindow();
     }
     async doOpenUploadMultiFilesWindow() {
