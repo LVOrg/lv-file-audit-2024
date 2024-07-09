@@ -445,13 +445,24 @@ class FileUtilService:
                 upload=upload
             )
         if storage_type=="google-drive":
-            return await self.get_content_from_google_drive_async(
-                app_name=app_name,
-                upload_id=upload_id,
-                content_type=content_type,
-                request=request,
-                upload=upload
-            )
+            try:
+                return await self.get_content_from_google_drive_async(
+                    app_name=app_name,
+                    upload_id=upload_id,
+                    content_type=content_type,
+                    request=request,
+                    upload=upload
+                )
+            except:
+                upload = await self.get_upload_async(app_name, upload_id,from_cache=False)
+                return await self.get_content_from_google_drive_async(
+                    app_name=app_name,
+                    upload_id=upload_id,
+                    content_type=content_type,
+                    request=request,
+                    upload=upload
+                )
+
 
     async def get_physical_path_async(self, app_name, upload_id):
         upload = self.get_upload(app_name, upload_id)
@@ -467,18 +478,26 @@ class FileUtilService:
     def clear_cache_file(self, app_name, upload_id):
         self.memcache_service.remove(f"get_upload/{app_name}/{upload_id}")
 
-    async def get_upload_async(self, app_name, upload_id):
-        ret = self.memcache_service.get_dict(f"get_upload/{app_name}/{upload_id}")
-        if isinstance(ret, dict):
-            return ret
-
-        data = await Repository.files.app(app_name).context.find_one_async(Repository.files.fields.id == upload_id)
-        if not data:
-            return None
+    async def get_upload_async(self, app_name, upload_id,from_cache=True):
+        if from_cache:
+            ret = self.memcache_service.get_dict(f"get_upload/{app_name}/{upload_id}")
+            if isinstance(ret, dict):
+                return ret
+            data = await Repository.files.app(app_name).context.find_one_async(Repository.files.fields.id == upload_id)
+            if not data:
+                return None
+            else:
+                ret = data.to_json_convertable()
+                self.memcache_service.set_dict(f"get_upload/{app_name}/{upload_id}", ret)
+                return ret
         else:
-            ret = data.to_json_convertable()
-            self.memcache_service.set_dict(f"get_upload/{app_name}/{upload_id}", ret)
-            return ret
+            data = await Repository.files.app(app_name).context.find_one_async(Repository.files.fields.id == upload_id)
+            if not data:
+                return None
+            else:
+                ret = data.to_json_convertable()
+                self.memcache_service.set_dict(f"get_upload/{app_name}/{upload_id}", ret)
+                return ret
 
     async def update_register_local_async(self, app_name, register_data):
         upload_data = await self.get_upload_by_upload_id_async(

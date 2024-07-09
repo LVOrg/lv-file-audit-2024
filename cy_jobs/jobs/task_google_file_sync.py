@@ -42,8 +42,8 @@ from cy_jobs.cy_job_libs import JobLibs, screen_logs
 import traceback
 import pika
 import json
-
-
+from  cyx.file_utils_services import FileUtilService
+file_util_service= cy_kit.singleton(FileUtilService)
 def is_file_deletable(filepath):
     """
     Checks if a file can be deleted based on permissions and status.
@@ -184,6 +184,7 @@ if __name__ == "__main__":
 
                                 )
                                 os.remove(f"{full_path}.tmp")
+
                                 Repository.files.app(app_name).context.update(
                                     Repository.files.fields.Id == upload_item["_id"],
                                     Repository.files.fields.CloudId << google_file_id,
@@ -200,6 +201,17 @@ if __name__ == "__main__":
                                         Repository.cloud_file_sync.fields.Status << 1,
                                         Repository.cloud_file_sync.fields.IsError << False
                                     )
+                                finally:
+                                    upload_item_from_db = Repository.files.app(app_name).context.find_one(
+                                        Repository.files.fields.Id==upload_item["_id"]
+                                    )
+                                    if upload_item_from_db:
+                                        """
+                                        If upload to google drive is OK
+                                        Update Cache for another pod run
+                                        """
+                                        upload_item_from_db=upload_item_from_db.to_json_convertable()
+                                        file_util_service.update_upload(app_name=app_name,upload_id=upload_item["_id"],upload=upload_item_from_db)
                             except Exception as ex:
                                 traceback_str = traceback.format_exc()
                                 Repository.cloud_file_sync.app(app_name).context.update(

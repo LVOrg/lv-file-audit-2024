@@ -569,6 +569,7 @@ class GDriveService:
         if request.headers.get("range"):
             headers["range"] = request.headers["range"]
         response = requests.get(uri, headers=headers, stream=True)
+        response.raise_for_status()
         # response.headers["Content-Type"] = content_type
         # response.headers["Accept-Ranges"] = "bytes"
 
@@ -582,7 +583,7 @@ class GDriveService:
 
         if content_type.startswith("image/"):
             self.cloud_cache_service.cache_content(app_name=app_name, upload_id=upload_id, url=uri,
-                                                   cloud_id=cloud_id, header=headers)
+                                                           cloud_id=cloud_id, header=headers)
         return StreamingResponse(
             content=response.iter_content(chunk_size=1024 * 4),
             headers=response.headers,
