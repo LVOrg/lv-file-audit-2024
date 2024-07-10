@@ -24,7 +24,7 @@ import os
 from cy_controllers.common.base_controller import (
     BaseController, FileResponse, mimetypes
 )
-
+import requests.exceptions
 router = APIRouter()
 controller = Controller(router)
 from fastapi.responses import FileResponse
@@ -100,32 +100,14 @@ class FilesContentController(BaseController):
     async def get_content_from_all(self, app_name: str, directory: str):
         # if len(directory.split('/'))>2:
         #     directory = directory.split('/')[0]+"/"+directory.split('/')[1]
-
-        cloud_info = self.cloud_cache_service.get_request_from_cache(app_name=app_name, directory=directory)
-        if cloud_info:
-            if cloud_info.storage_type == "onedrive":
-                return await self.azure_utils_service.get_content_async(
-                    app_name=app_name,
-                    cloud_file_id=cloud_info.cloud_id,
-                    content_type=cloud_info.content_type,
-                    request=self.request,
-                    upload_id=cloud_info.upload_id,
-                    download_only=self.request.query_params.get('download') is not None,
-
-                )
-            if cloud_info.storage_type == "google-drive":
-                ret = await self.g_drive_service.get_content_async(
-                    app_name=app_name,
-                    client_file_name=cloud_info.file_name,
-                    upload_id=cloud_info.upload_id,
-                    cloud_id=cloud_info.cloud_id,
-                    request=self.request,
-                    content_type=cloud_info.content_type,
-                    download_only=self.request.query_params.get('download') is not None
-                )
-                return ret
-        else:
+        try:
             return await self.file_util_service.get_file_content_async(request=self.request,app_name=app_name,directory=directory)
+        except requests.exceptions.HTTPError as ex:
+            return Response(content=ex.response.content,status_code=ex.response.status_code)
+        except FileNotFoundError as ex:
+            return Response(content="Content was not found", status_code=404)
+        except Exception as ex:
+            return Response(content="ServerError", status_code=500)
     # @controller.router.get(
     #     "/api/{app_name}/file/{directory:path}" if not version2 else "/api/{app_name}/file-old/{directory:path}"  ,
     #     tags=["FILES-CONTENT"]

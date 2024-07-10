@@ -133,7 +133,7 @@ class FilesController(BaseController):
                 doc_type=DocType
 
             )
-            return [x.to_pydantic() for x in items]
+            return [x.to_json_convertable() for x in items]
         except Exception as e:
             self.logger_service.error(e)
             return []
@@ -226,9 +226,11 @@ class FilesController(BaseController):
         abs_dir = pathlib.Path(abs_file).parent.__str__()
 
         import shutil
+
         try:
-            shutil.rmtree(abs_dir)
-            print(f"Directory '{abs_dir}' deleted successfully.")
+            if os.path.isdir(abs_dir):
+                shutil.rmtree(abs_dir,ignore_errors=True)
+                print(f"Directory '{abs_dir}' deleted successfully.")
         except OSError as e:
             print(f"Error deleting directory '{abs_dir}': {e}")
         if upload_item is None:

@@ -15,7 +15,7 @@ from fastapi import (
     UploadFile,
     Form, File
 )
-
+from cyx.repository import Repository
 import bson
 from cy_xdoc.auths import Authenticate
 import cy_kit
@@ -68,6 +68,7 @@ class FilesUploadController(BaseController):
 
     def __init__(self, request: Request):
         super().__init__(request)
+        self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
 
     async def get_upload_binary_async(self, FilePart: UploadFile):
         content_part = await FilePart.read(FilePart.size)
@@ -334,6 +335,7 @@ class FilesUploadController(BaseController):
             )
         if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
             upload_item["Status"] = 1
+
             if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"), dict) and (
                     upload_item["SkipActions"].get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
                     upload_item["SkipActions"].get("All", False) == False
@@ -368,6 +370,17 @@ class FilesUploadController(BaseController):
         status = 0
         if num_of_chunks_complete == nun_of_chunks:
             status = 1
+            cloud_id = upload_item.CloudId or upload_item.CloudIdUpdating
+            if cloud_id:
+                await Repository.files.app(app_name).context.update_async(
+                    Repository.files.fields.id == upload_item.Id,
+                    Repository.files.fields.CloudId << None,
+                    Repository.files.fields.CloudIdUpdating << cloud_id
+
+                )
+                key = f"{self.cache_type}/{app_name}/{upload_item.Id}"
+                self.memcache_service.remove(key)
+                self.file_util_service.clear_cache_file(app_name=app_name,upload_id=upload_item.Id)
 
         await self.update_upload_status_async(
             app_name=app_name,

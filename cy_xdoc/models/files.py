@@ -349,6 +349,12 @@ class DocUploadRegister:
     ReIndexInfo: typing.Optional[dict]
     StorageType: typing.Optional[str]
     CloudId: typing.Optional[str]
+    CloudIdUpdating: typing.Optional[str]
+    """
+    When material is already on google cloud and user update content the process will update CloudIdUpdating by value of CloudId
+    and set CloudId is null after that process file reading will read on local
+    Process sync file to google will check if CloudIdUpdating has value Updating Process will start, inserting process will start instead 
+    """
     CloudUrl: typing.Optional[str]
     IsToLocalDist: typing.Optional[bool]
     OnedriveScope: typing.Optional[str]
@@ -386,6 +392,7 @@ class DocUploadRegister:
     SyncTime: typing.Optional[datetime.datetime]
     SyncFromPath: typing.Optional[str]
     IsUpdating: typing.Optional[bool]
+
 
 
 @cy_docs.define(

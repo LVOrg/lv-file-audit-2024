@@ -224,23 +224,11 @@ key = hashlib.sha256(__file__.encode()).hexdigest()+"test"
 screen_logs_cache = cy_kit.singleton(MemcacheServices)
 
 screen_logs_cache.remove(key)
-
-
+from cyx.log_watcher_service import LogWatcherServices
+log_watcher_services = cy_kit.singleton(LogWatcherServices)
+LIMIT_LINES=10
 def screen_logs(monitor: str, content: str, max_lines=1):
-    global key
-    try:
-        ret = screen_logs_cache.get_dict(key)
-        if not ret or not isinstance(ret, dict):
-            ret = dict()
-        # if ret.get(monitor) is None:
-        #     ret[monitor] = []
-        # if len(ret[monitor]) > max_lines:
-        #     ret[monitor] = ret[monitor][1:]
-        if content.strip(' ').rstrip(' ').rstrip(' ').lstrip('\n').rstrip('\n'):
-            ret[monitor] += content+'\n'
-        screen_logs_cache.set_dict(key, ret)
-    except:
-        print(monitor)
+    log_watcher_services.logs(content)
 
 
 def print_screen_logs(max_lines=1):

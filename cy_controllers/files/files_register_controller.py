@@ -231,6 +231,7 @@ class FilesRegisterController(BaseController):
                     ret_quit.Error.Message = "Not enough space to do that"
                     ret_quit.Error.Code = "NotEnoughSpace"
                     return ret_quit
+                Data.googlePath = Data.googlePath.lstrip('/').rstrip('/').replace('//','/')
                 checkpath = os.path.join(Data.googlePath,Data.FileName)
                 try:
                     await  Repository.files.app(app_name).context.insert_one_async(
@@ -247,39 +248,6 @@ class FilesRegisterController(BaseController):
                         ret_quit.Error.Message =f"{checkpath} is existing"
                         ret_quit.Error.Code = "FileIsExisting"
                         return ret_quit
-
-                # is_exist,folder_id, error= self.google_directory_service.check_before_upload(
-                #     app_name=app_name,
-                #     directory = Data.googlePath,
-                #     file_name= Data.FileName)
-                # if error:
-                #     ret_quit = RegisterUploadInfoResult()
-                #     ret_quit.Error = Error()
-                #     ret_quit.Error.Message = error.get("Message")
-                #     ret_quit.Error.Code = error.get("Code")
-                #     return ret_quit
-                # if is_exist:
-                #     ret_quit = RegisterUploadInfoResult()
-                #     ret_quit.Error = Error()
-                #     ret_quit.Error.Message = f"{Data.googlePath}/{Data.FileName} is already in Google drive"
-                #     ret_quit.Error.Code = "DuplicateFile"
-                #     return ret_quit
-                # else:
-                #     google_file_id,url_google_upload,error = self.google_directory_service.register_upload_file(
-                #         app_name=app_name,
-                #         directory_id = folder_id,
-                #         file_name= Data.FileName,
-                #         file_size=  Data.FileSize
-                #     )
-                #     if error:
-                #         ret_quit = RegisterUploadInfoResult()
-                #         ret_quit.Error = Error()
-                #         ret_quit.Error.Message = error["Message"]
-                #         ret_quit.Error.Code = error["Code"]
-                #         return ret_quit
-                #     else:
-                #         self.google_directory_service.make_map_file(app_name=app_name,directory=Data.googlePath,filename= Data.FileName,google_file_id= google_file_id)
-
 
         privileges = Data.Privileges
         skip_option = {}

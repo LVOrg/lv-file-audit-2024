@@ -144,17 +144,51 @@ if __name__ == "__main__":
                     consumer.resume(msg)
                     JobLibs.malloc_service.reduce_memory()
                     continue
-                full_path = os.path.join("/mnt/files", rel_path)
+                full_path = os.path.join(config.file_storage_path, rel_path)
                 if os.path.isfile(full_path):
                     try:
-                        google_file_id = upload_item.get("CloudId")
-                        if not google_file_id:
+                        google_file_id = upload_item["google_file_id"]
+                        is_existing=False
+                        if google_file_id:
+                            try:
+                                file=service.files().get(fileId=google_file_id).execute()
+                                files_in_trash = service.files().list(q="trashed=true").execute()["files"]
+                                check_list=[x for x in files_in_trash if x['id']==google_file_id]
+                                if len(check_list)>0:
+                                    is_existing = False
+                                else:
+                                    is_existing=True
+                            except:
+                                is_existing = False
+
+                        if not is_existing:
                             google_file_id, url_google_upload, error = JobLibs.google_directory_service.register_upload_file(
                                         app_name=app_name,
                                         directory_id = cloud_folder_id,
                                         file_name= upload_item["FileName"],
                                         file_size= upload_item["SizeInBytes"]
                                     )
+
+
+                        else:
+                            """
+                            Switch to local drive while sync.
+                            Now, any user will access new version
+                            """
+                            Repository.files.app(app_name).context.update(
+                                Repository.files.fields.Id == upload_item["_id"],
+                                Repository.files.fields.CloudId<<None
+                            )
+                            upload_item_from_db = Repository.files.app(app_name).context.find_one(
+                                Repository.files.fields.Id == upload_item["_id"]
+                            )
+                            if upload_item_from_db:
+                                """
+                                Interrupt memcached
+                                """
+                                upload_item_from_db = upload_item_from_db.to_json_convertable()
+                                file_util_service.update_upload(app_name=app_name, upload_id=upload_item["_id"],
+                                                                upload=upload_item_from_db)
 
                         if error:
                             consumer.resume(msg)
@@ -188,7 +222,8 @@ if __name__ == "__main__":
                                 Repository.files.app(app_name).context.update(
                                     Repository.files.fields.Id == upload_item["_id"],
                                     Repository.files.fields.CloudId << google_file_id,
-                                    Repository.files.fields.google_file_id << google_file_id
+                                    Repository.files.fields.google_file_id << google_file_id,
+                                    Repository.files.fields.CloudIdUpdating << None
                                 )
                                 try:
                                     os.remove(full_path)
@@ -211,7 +246,9 @@ if __name__ == "__main__":
                                         Update Cache for another pod run
                                         """
                                         upload_item_from_db=upload_item_from_db.to_json_convertable()
-                                        file_util_service.update_upload(app_name=app_name,upload_id=upload_item["_id"],upload=upload_item_from_db)
+                                        file_util_service.clear_cache_file(app_name=app_name,
+                                                                           upload_id=upload_item["_id"])
+
                             except Exception as ex:
                                 traceback_str = traceback.format_exc()
                                 Repository.cloud_file_sync.app(app_name).context.update(

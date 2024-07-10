@@ -65,7 +65,9 @@ class DriveServiceGoogle:
                 else:
                     return False, dict(Code="ErrorFromGoogle", Message=ex.content.decode())
             finally:
-                return False, dict(Code="ErrorFromGoogle", Message=ex.content.decode())
+                if ex.status_code!=404:
+                    return False, dict(Code="ErrorFromGoogle", Message=ex.content.decode())
+                return True,None
         except Exception as ex:
             return False, dict(Code="Error",Message= repr(ex))
 

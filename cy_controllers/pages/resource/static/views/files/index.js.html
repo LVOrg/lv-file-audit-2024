@@ -271,6 +271,14 @@
                             <label>
                                 {{p.StorageType}}
                             </label>
+                            <label>{{$res("CloudId")}}</label>
+                            <label>
+                                {{p.CloudId}}
+                            </label>
+                            <label>{{$res("Path On Cloud driver")}}</label>
+                            <label style="overflow:hidden;text-overflow:ellipsis">
+                                {{p.FullPathOnCloud}}
+                            </label>
                             <label>{{$res("Status")}}</label>
                             <div>
                                 <label ng-if="p.Status==1">

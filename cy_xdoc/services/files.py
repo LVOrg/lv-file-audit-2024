@@ -137,29 +137,32 @@ class FileServices:
                 doc.fields.IsSearchEngineError,
                 doc.fields.ProcessInfo,
                 doc.fields.FullPathOnCloud,
-                doc.fields.CloudId
+                doc.fields.CloudId,
+                doc.fields.SyncFromPath,
+                doc.fields.google_file_id
+
 
             )
             self.logger.info("Get list of files is OK")
         except Exception as e:
             self.logger.info("Get list of files is error")
             self.logger.error(e)
-
-        from cyx.common.content_marterial_utils import check_is_thumbnails_able
-        try:
-            for x in items:
-                _a_thumbs = []
-                if x.AvailableThumbs is not None:
-                    for url in x.AvailableThumbs:
-                        _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
-                    x["AvailableThumbs"] = _a_thumbs
-                if x.OCRFileId:
-                    x["OcrContentUrl"] = f"{root_url}/api/{app_name}/file-ocr/{x.UploadID}/{x.FileNameOnly.lower()}.pdf"
-                if check_is_thumbnails_able(x):
-                    x["HasThumb"] = True
-                yield x
-        except Exception as e:
-            self.logger.error(e)
+        return items
+        # from cyx.common.content_marterial_utils import check_is_thumbnails_able
+        # try:
+        #     for x in items:
+        #         _a_thumbs = []
+        #         if x.AvailableThumbs is not None:
+        #             for url in x.AvailableThumbs:
+        #                 _a_thumbs += [f"api/{app_name}/thumbs/{url}"]
+        #             x["AvailableThumbs"] = _a_thumbs
+        #         if x.OCRFileId:
+        #             x["OcrContentUrl"] = f"{root_url}/api/{app_name}/file-ocr/{x.UploadID}/{x.FileNameOnly.lower()}.pdf"
+        #         if check_is_thumbnails_able(x):
+        #             x["HasThumb"] = True
+        #         yield x
+        # except Exception as e:
+        #     self.logger.error(e)
 
     def get_main_file_of_upload(self, app_name, upload_id):
         upload = self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
