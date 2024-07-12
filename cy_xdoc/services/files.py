@@ -112,10 +112,10 @@ class FileServices:
                 cy_docs.fields.UrlOfServerPath >> cy_docs.concat(root_url, f"/api/{app_name}/file/",
                                                                  doc.fields.FullFileName),
                 cy_docs.fields.RelUrlOfServerPath >> cy_docs.concat(f"api/{app_name}/file/", doc.fields.FullFileName),
-                cy_docs.fields.ThumbUrl >> cy_docs.concat(root_url, f"/api/{app_name}/thumb/", doc.fields.FullFileName,
-                                                          ".webp"),
+                cy_docs.fields.ThumbUrl >> cy_docs.concat(root_url, f"/api/{app_name}/thumbs/", doc.fields.Id,
+                                                          "/120.webp"),
                 doc.fields.AvailableThumbs,
-                doc.fields.HasThumb,
+
                 doc.fields.OCRFileId,
                 cy_docs.fields.Media >> (
                     cy_docs.fields.Width >> doc.fields.VideoResolutionWidth,
@@ -139,10 +139,12 @@ class FileServices:
                 doc.fields.FullPathOnCloud,
                 doc.fields.CloudId,
                 doc.fields.SyncFromPath,
-                doc.fields.google_file_id
+                doc.fields.google_file_id,
+                doc.fields.HasThumb
 
 
             )
+            # "http://172.16.13.72:8012/lvfile/api/masantest/thumb/7875df29-12fb-415c-971a-cced8e20bddd/báo giá 1.docx.webp"
             self.logger.info("Get list of files is OK")
         except Exception as e:
             self.logger.info("Get list of files is error")

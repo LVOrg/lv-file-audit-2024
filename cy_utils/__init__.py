@@ -194,19 +194,24 @@ def get_content_from_tika(url_file:str,abs_file_path:str):
     from cyx.common import config
     import tika.parser
     import urllib.parse
-    fx = os.path.join(working_dir, str(uuid.uuid4()))
+
     process_file = abs_file_path
     if not os.path.isfile(process_file):
         process_file = url_file
     try:
-        with open(process_file, "rb") as fs:
-            with open(fx, "wb") as fsx:
-                data= fs.read(1024)
-                while data:
-                    fsx.write(data)
-                    del data
-                    gc.collect()
-                    data = fs.read(1024)
+        response = requests.get(process_file, stream=True)
+        fx_dir= os.path.join(config.file_storage_path,"__temp_process_file__")
+        os.makedirs(fx_dir,exist_ok=True)
+        fx= os.path.join(fx_dir,str(uuid.uuid4()))
+        if response.status_code == 200 or response.status_code==206:
+            print("Download started!")
+            total_size = int(response.headers.get('content-length', 0))  # Get file size from header (if available)
+            downloaded = 0
+            with open(fx, "wb") as file:
+                for chunk in response.iter_content(1024):  # Download in chunks of 1024 bytes
+                    downloaded += len(chunk)
+                    file.write(chunk)
+
         try:
             headers = {
                 'maxWriteLimit': '2147483647'

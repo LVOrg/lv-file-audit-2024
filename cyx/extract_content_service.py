@@ -100,7 +100,7 @@ class ExtractContentService:
     def update_by_using_tika(self,download_url,rel_path,data,app_name):
         try:
             file_path = os.path.join(config.file_storage_path, rel_path)
-            if not os.path.isfile(file_path):
+            if not os.path.isfile(file_path) and not os.path.isdir(f"{file_path}.chunks"):
                 print("Fail")
 
             content = cy_utils.get_content_from_tika(

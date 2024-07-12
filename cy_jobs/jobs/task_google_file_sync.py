@@ -3,6 +3,7 @@ import gc
 # python /home/vmadmin/python/v6/file-service-02/cy_consumers/files_upload.py temp_directory=./brokers/tmp rabbitmq.server=172.16.7.91 rabbitmq.port=31672
 import os
 import pathlib
+import shutil
 import sys
 import threading
 import time
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     while True:
         time.sleep(1)
         try:
-            msg = consumer.get_msg()
+            msg = consumer.get_msg(delete_after_get=True)
             if not msg:
                 screen_logs(__file__,"no message")
                 print(f"no message [{__file__}]")
@@ -138,30 +139,24 @@ if __name__ == "__main__":
                     app_name=app_name,
                     directory=cloud_dir
                 )
-
+                if not JobLibs.google_directory_service.check_resource(service, cloud_folder_id):
+                    cloud_folder_id, error = JobLibs.google_directory_service.get_remote_folder_id(
+                        service=service,
+                        app_name=app_name,
+                        directory=cloud_dir,
+                        force_create_and_update_local=True
+                    )
                 if error:
                     screen_logs(__file__, f"sync file from {rel_path} to {full_path_on_cloud} is error {json.dumps(error,indent=4)}")
                     consumer.resume(msg)
                     JobLibs.malloc_service.reduce_memory()
                     continue
                 full_path = os.path.join(config.file_storage_path, rel_path)
-                if os.path.isfile(full_path):
+                if os.path.isfile(full_path) or os.path.isdir(f"{full_path}.chunks"):
                     try:
-                        google_file_id = upload_item["google_file_id"]
-                        is_existing=False
-                        if google_file_id:
-                            try:
-                                file=service.files().get(fileId=google_file_id).execute()
-                                files_in_trash = service.files().list(q="trashed=true").execute()["files"]
-                                check_list=[x for x in files_in_trash if x['id']==google_file_id]
-                                if len(check_list)>0:
-                                    is_existing = False
-                                else:
-                                    is_existing=True
-                            except:
-                                is_existing = False
+                        google_file_id = upload_item.get("google_file_id")
+                        if not JobLibs.google_directory_service.check_resource(service,google_file_id):
 
-                        if not is_existing:
                             google_file_id, url_google_upload, error = JobLibs.google_directory_service.register_upload_file(
                                         app_name=app_name,
                                         directory_id = cloud_folder_id,
@@ -198,18 +193,31 @@ if __name__ == "__main__":
                         upload_item["google_file_id"] = google_file_id
                         screen_logs(__file__,f"{full_path} in {app_name} is synchronizing to Google Drive")
                         print(f"{full_path} in {app_name} is synchronizing to Google Drive")
+                        full_path = f"{full_path}.chunks" if os.path.isdir(f"{full_path}.chunks") else full_path
                         if upload_item.get("google_file_id"):
                             try:
-                                with open(full_path,"rb") as fs:
-                                    with open(f"{full_path}.tmp","wb") as fw:
-                                        data = fs.read(1024**2)
-                                        while data:
-                                            fw.write(data)
+                                if os.path.isdir(full_path):
+                                    walk_list = list(os.walk(full_path))
+                                    if len(walk_list)==0:
+                                        continue
+                                    root,_,files = walk_list[0]
+                                    file_list = [os.path.join(root,file)  for file in files]
+                                    for scan_file in file_list:
+                                        with open(scan_file,"rb") as fs:
+                                            mode = "ab" if os.path.isfile(f"{full_path}.tmp") else "wb"
+                                            with open(f"{full_path}.tmp", mode) as fw:
+                                                fw.write(fs.read())
+                                else:
+                                    with open(full_path,"rb") as fs:
+                                        with open(f"{full_path}.tmp","wb") as fw:
+                                            data = fs.read(1024**2)
+                                            while data:
+                                                fw.write(data)
+                                                del data
+                                                JobLibs.malloc_service.reduce_memory()
+                                                data = fs.read(1024 ** 2)
                                             del data
                                             JobLibs.malloc_service.reduce_memory()
-                                            data = fs.read(1024 ** 2)
-                                        del data
-                                        JobLibs.malloc_service.reduce_memory()
                                 ret, error = cloud_upload_google_service.do_upload(
                                     app_name=app_name,
                                     file_path=f"{full_path}.tmp",
@@ -226,7 +234,10 @@ if __name__ == "__main__":
                                     Repository.files.fields.CloudIdUpdating << None
                                 )
                                 try:
-                                    os.remove(full_path)
+                                    if os.path.isfile(full_path):
+                                        os.remove(full_path)
+                                    elif os.path.isdir(full_path):
+                                        shutil.rmtree(full_path,ignore_errors=True)
                                     Repository.cloud_file_sync.app(app_name).context.delete(
                                         Repository.cloud_file_sync.fields.UploadId == upload_item["_id"]
                                     )

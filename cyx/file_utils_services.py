@@ -32,12 +32,18 @@ WORKERS = dict()
 from cy_xdoc.models.files import DocUploadRegister
 from cyx.cloud.cloud_service_utils import CloudServiceUtils
 from cyx.elastic_search_utils_service import ElasticSearchUtilService
+from cyx.cloud_storage_sync_services import CloudStorageSyncService
+from cyx.local_api_services import LocalAPIService
+from cyx.extract_content_service import ExtractContentService
 class FileUtilService:
     def __init__(self,
                  memcache_service=cy_kit.singleton(MemcacheServices),
                  g_drive_service:GDriveService = cy_kit.singleton(GDriveService),
                  cloud_service_utils:CloudServiceUtils = cy_kit.singleton(CloudServiceUtils),
-                 elastic_sSearch_util_service: ElasticSearchUtilService = cy_kit.singleton(ElasticSearchUtilService)
+                 elastic_Search_util_service: ElasticSearchUtilService = cy_kit.singleton(ElasticSearchUtilService),
+                 cloud_storage_sync_service:CloudStorageSyncService = cy_kit.singleton(CloudStorageSyncService),
+                 local_api_service: LocalAPIService = cy_kit.singleton(LocalAPIService),
+                 extract_content_service: ExtractContentService = cy_kit.singleton(ExtractContentService)
                  ):
         self.content_service = config.content_service
         self.memcache_service = memcache_service
@@ -45,7 +51,10 @@ class FileUtilService:
         self.cloud_service_utils = cloud_service_utils
 
         self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
-        self.elastic_sSearch_util_service=elastic_sSearch_util_service
+        self.elastic_search_util_service=elastic_Search_util_service
+        self.cloud_storage_sync_service = cloud_storage_sync_service
+        self.local_api_service = local_api_service
+        self.extract_content_service = extract_content_service
 
     def healthz(self):
         def check():
@@ -68,6 +77,23 @@ class FileUtilService:
         #     ok = check()
         return "OK"
 
+    def post_msg_upload_file(self, app_name, data, upload_id):
+        if data.get("FileExt") is None:
+            return
+        try:
+            local_share_id = self.local_api_service.generate_local_share_id(app_name=app_name, upload_id=data.Id)
+            data.local_share_id = local_share_id
+
+            self.extract_content_service.save_search_engine(
+                data=data,
+                app_name=app_name
+            )
+        except Exception as e:
+            traceback_string = traceback.format_exc()
+            Repository.files.app(app_name).context.update(
+                Repository.files.fields.Id == upload_id,
+                Repository.files.fields.BrokerErrorLog << traceback_string
+            )
     def update_upload(self, app_name, upload_id, upload):
         self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, upload)
         ret = Repository.files.app(app_name).context.update(
@@ -89,7 +115,6 @@ class FileUtilService:
         # fast_api_path = content.temp_file_path
         data = await content.read()
         file_size = len(data)
-
         def running(data, upload, update_upload, index):
 
             try:
@@ -101,18 +126,24 @@ class FileUtilService:
                 with open(chunk_file_path, "wb") as fs:
                     fs.write(data)
                 del data
-                # shutil.move(fast_api_path, chunk_file_path)
-
-                # dest_path = os.path.join(f"{real_file_location}.chunks", pathlib.Path(file_path).name)
-                # shutil.move(file_path, dest_path)
                 _,_,files =  list(os.walk(dir_of_chunks))[0]
                 upload["SizeUploaded"] = sum([os.stat(os.path.join(dir_of_chunks,f)).st_size for f in files])
                 upload["SizeUploadedInHumanReadable"] = naturalsize(upload["SizeUploaded"])
                 if upload["SizeInBytes"] == upload["SizeUploaded"]:
                     upload["Status"] = 1
                     upload["SizeInHumanReadable"] = naturalsize(upload["SizeUploaded"])
+                    update_upload(app_name, upload["_id"], upload)
+                    upload_data_from_mongo_db = Repository.files.app(app_name).context.find_one(
+                        Repository.files.fields.Id==upload["_id"]
+                    )
+                    self.cloud_storage_sync_service.do_sync(app_name,upload_data_from_mongo_db)
+                    self.post_msg_upload_file(app_name=app_name,data=upload_data_from_mongo_db,upload_id=upload["_id"])
                     del WORKERS[upload["_id"]]
-                update_upload(app_name, upload["_id"], upload)
+
+                else:
+                    update_upload(app_name, upload["_id"], upload)
+
+
             except:
                 upload["error"] = traceback.format_exc()
 
@@ -205,13 +236,15 @@ class FileUtilService:
             chunk_size_in_bytes = chunk_size_in_kb * 1024
             num_of_chunks = file_size // chunk_size_in_bytes + 1 if file_size % chunk_size_in_bytes > 0 else 0
             main_file_id = f"local://{app_name}/{formatted_date}/{file_type}/{upload_id}/{file_name.lower()}"
-
-            upload = await context.insert_one_async(
+            privileges, _ = self.elastic_search_util_service.create_privileges(register_data.get('Privileges') or {})
+            meta_data = register_data.get('meta_data') or {}
+            googlePath = f'{register_data["googlePath"]}/{register_data["FileName"]}' if register_data.get("googlePath") else None
+            insert_data = [
                 Repository.files.fields.id << upload_id,
                 Repository.files.fields.FileName << file_name,
                 Repository.files.fields.MainFileId << main_file_id,
                 Repository.files.fields.FileExt << file_ext[1:].lower(),
-                Repository.files.fields.StorageType << "local",
+                Repository.files.fields.StorageType << register_data["storageType"],
                 Repository.files.fields.Status << 0,
                 Repository.files.fields.RegisterOn << register_on,
                 Repository.files.fields.SizeInBytes << file_size,
@@ -226,8 +259,27 @@ class FileUtilService:
                 Repository.files.fields.IsPublic << register_data.get("IsPublic", True),
                 Repository.files.fields.FullFileNameWithoutExtenstion << f"{upload_id}/{file_name_only}",
                 Repository.files.fields.FullFileNameWithoutExtenstionLower << f"{upload_id}/{file_name_only}".lower(),
+                Repository.files.fields.Privileges << privileges
+            ]
+            if googlePath:
+                insert_data+=[Repository.files.fields.FullPathOnCloud<<googlePath]
+            ret = await context.insert_one_async(*insert_data)
 
+
+
+            t=datetime.utcnow()
+            upload = await context.find_one_async(
+                Repository.files.fields.id==upload_id
             )
+
+            self.elastic_search_util_service.create_or_update_privileges(
+                app_name=app_name,
+                upload_id=upload_id,
+                data_item=upload,
+                privileges=privileges,
+                meta_info=meta_data
+            )
+            print((datetime.utcnow()-t).total_seconds())
             ret_data = dict(
                 NumOfChunks=num_of_chunks,
                 ChunkSizeInBytes=chunk_size_in_bytes,
@@ -237,12 +289,13 @@ class FileUtilService:
                 SizeInHumanReadable=human_readable_size,
                 UrlOfServerPath=f"{from_host}/api/{app_name}/{upload_id}/{file_name.lower()}",
                 OriginalFileName=file_name,
-                FileSize=file_size
+                FileSize=file_size,
+                UpdateESTime = (datetime.utcnow()-t).total_seconds()
             )
             return dict(
                 Data = ret_data
             )
-        except:
+        except Exception as ex:
             return dict(
                 Error=dict(
                     Code="System",

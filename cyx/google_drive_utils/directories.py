@@ -408,7 +408,7 @@ class GoogleDirectoryService:
             except:
                 pass
 
-    def get_remote_folder_id(self, service, app_name, directory, parent_id=None)->typing.Tuple[str|None,dict|None]:
+    def get_remote_folder_id(self, service, app_name, directory, parent_id=None,force_create_and_update_local=False)->typing.Tuple[str|None,dict|None]:
         """
 
         :param service:
@@ -421,9 +421,14 @@ class GoogleDirectoryService:
             if directory == "" or directory is None:
                 return None, None
             folder_id = None
+            if force_create_and_update_local:
+                Repository.cloud_path_track.app(app_name).context.delete(
+                    Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
+                )
             data = Repository.cloud_path_track.app(app_name).context.find_one(
                 Repository.cloud_path_track.fields.CloudPath == f"Google/my drive/{directory}"
             )
+
             if data is not None:
                 data=data.to_json_convertable()
             if data is None:
@@ -585,7 +590,9 @@ class GoogleDirectoryService:
         )
         fs = io.BytesIO()
         # fs.write(1)
-        location = r.headers['Location']
+        location = r.headers.get('Location')
+        if location is None:
+            return None, None, dict(Code="LocationFail",Message="Google Drive can not alloc location for file uploading")
         r = requests.put(
             location,
             headers=headers,
@@ -675,6 +682,21 @@ class GoogleDirectoryService:
             return file_metadata.get('thumbnailLink'), None
         else:
             return None, None
+
+
+
+    def check_resource(self, service,resource_id):
+        try:
+            file = service.files().get(fileId=resource_id).execute()
+            files_in_trash = service.files().list(q="trashed=true").execute()["files"]
+            check_list = [x for x in files_in_trash if x['id'] == resource_id]
+            if len(check_list) > 0:
+                is_existing = False
+            else:
+                is_existing = True
+        except:
+            is_existing = False
+        return is_existing
 
 #export HUGGINGFACE_HUB_CACHE=/mnt/files/__dataset__/cache
 #export HUGGINGFACE_ASSETS_CACHE=/mnt/files/__dataset__/asset
