@@ -196,10 +196,10 @@ def get_content_from_tika(url_file:str,abs_file_path:str):
     import urllib.parse
 
     process_file = abs_file_path
-    if not os.path.isfile(process_file):
-        process_file = url_file
+
     try:
-        response = requests.get(process_file, stream=True)
+        print(url_file)
+        response = requests.get(url_file, stream=True)
         fx_dir= os.path.join(config.file_storage_path,"__temp_process_file__")
         os.makedirs(fx_dir,exist_ok=True)
         fx= os.path.join(fx_dir,str(uuid.uuid4()))
@@ -211,7 +211,8 @@ def get_content_from_tika(url_file:str,abs_file_path:str):
                 for chunk in response.iter_content(1024):  # Download in chunks of 1024 bytes
                     downloaded += len(chunk)
                     file.write(chunk)
-
+        else:
+            print("rrot")
         try:
             headers = {
                 'maxWriteLimit': '2147483647'

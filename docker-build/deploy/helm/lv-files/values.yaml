@@ -46,4 +46,5 @@ nodePort:
   video: "32225"
   tika: "32226"
   content: "32227"
+  ocr: "32228"
 generation:

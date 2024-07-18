@@ -1,3 +1,5 @@
+import datetime
+
 from cyx.common.mongo_db_services import RepositoryContext
 import cy_kit
 from cy_xdoc.models.apps import App, CloudPathTrack
@@ -11,6 +13,24 @@ from cy_xdoc.models.files import (DocUploadRegister,
 from cy_xdoc.models.settings import GlobalSettings
 from cy_xdoc.models.files import GoogleFolderMappings, CloudFileSync
 from cyx.loggers import sys_app_logs
+import cy_docs
+
+
+@cy_docs.define(
+    name="lv=file-logs",
+    uniques=[],
+    indexes=[
+        "PodId",
+        "LogOn"
+    ]
+
+)
+class LVFileSysLogs:
+    PodId: str
+    LogOn: datetime.datetime
+    ErrorContent: str
+    Url: str
+
 
 class Repository:
     apps = RepositoryContext[App](App)
@@ -25,3 +45,4 @@ class Repository:
     codx_dm_file_info = RepositoryContext[Codx_DM_FileInfo](Codx_DM_FileInfo)
     lv_file_sync_report = RepositoryContext[lv_file_sync_report](lv_file_sync_report)
     lv_file_sync_logs = RepositoryContext[lv_file_sync_logs](lv_file_sync_logs)
+    lv_files_sys_logs = RepositoryContext[LVFileSysLogs](LVFileSysLogs)

@@ -34,7 +34,7 @@ def run():
         try:
             gc.collect()
 
-            msg = consumer.get_msg()
+            msg = consumer.get_msg(delete_after_get=True)
             if isinstance(msg, MesssageBlock):
                 file_item = {}
                 app_name = msg.app_name
@@ -75,6 +75,14 @@ def run():
                                 data=file_item,
                                 app_name=app_name
                             )
+                        elif doc_type=="pdf":
+                            extract_content_service.update_by_using_ocr_pdf(
+                                download_url=download_url,
+                                rel_path=rel_path,
+                                data=file_item,
+                                app_name=app_name
+                            )
+
                         else:
                             continue
 

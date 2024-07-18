@@ -129,6 +129,7 @@ async def image_from_office_from_share_file(
         command = ["/usr/bin/soffice",
                    "--headless",
                    "--convert-to",
+                   "--force_ocr",
                    "png", "--outdir",
                    f"{dir_of_file}",
                    f"{process_file}"]

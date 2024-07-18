@@ -1,0 +1,7 @@
+# docker run  -p 8087:8087 -v /home/vmadmin/python/cy-py:/app  -v /mnt/files:/mnt/files -it --entrypoint /bin/bash jbarlow83/ocrmypdf
+fastapi
+requests
+tqdm
+python-memcached
+numpy
+tika

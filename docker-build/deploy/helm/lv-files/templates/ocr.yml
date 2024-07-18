@@ -1,0 +1,62 @@
+{{- $appName := "lv-ocr" }}
+  {{- $image :="nttlong/ocr-my-pdf-api:2"}}
+{{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "ocr") }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$appName}}
+  namespace: {{ .Values.namespace}}
+spec:
+  selector:
+    matchLabels:
+      app:  {{$appName}}
+  replicas: {{.Values.libReplicas}}
+  template:
+    metadata:
+      labels:
+        app: {{$appName}}
+    spec:
+      volumes:
+        - name: {{.Values.storage.name}}
+          nfs:
+            server: {{.Values.storage.server}}
+            path: {{.Values.storage.directory}}
+      containers:
+
+        - image: {{$image}}
+          env:
+            - name: MEMCACHED_SERVER
+              value: lv-file-cache-service.{{ .Values.namespace}}:11211
+          name: {{$appName}}
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: {{.Values.appConfig.name}}-config
+          args: ["80"]
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{$appName}}-service
+  namespace:  {{ .Values.namespace}}
+  labels:
+    app: {{$appName}}-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      {{ if $hasNodePort  }}
+      nodePort: {{ .Values.nodePort.ocr }}
+      {{ end }}
+  {{ if $hasNodePort  }}
+  type: NodePort
+  {{ end }}
+  selector:
+    app: {{$appName}}

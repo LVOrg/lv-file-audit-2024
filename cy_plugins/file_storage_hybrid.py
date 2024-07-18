@@ -185,7 +185,7 @@ class HybridFileStorage:
             app_name=self.app_name,
             upload_id= self.doc_id
         )
-        file_path = os.path.join(self.full_dir, self.filename)
+        file_path = os.path.join(self.full_dir, f"{self.filename}.processing")
         if not os.path.exists(file_path) or chunk_index==0:
             if upload_info.IsEncryptContent:
                 with open(file_path, "wb",encrypt=True,chunk_size_in_kb=1024,file_size=upload_info.SizeInBytes) as f:

@@ -137,7 +137,8 @@ class ThumbService:
                 self.memcache_services.set_str(key, ret)
                 return ret
             except PIL.UnidentifiedImageError:
-                os.remove(image_file)
+                if os.path.isfile(image_file):
+                    os.remove(image_file)
                 self.run_generate_image(file_type=file_type,
                                         file_process=abs_file_path,
                                         is_in_thred=True,

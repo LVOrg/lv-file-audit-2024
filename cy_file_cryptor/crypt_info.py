@@ -37,8 +37,10 @@ def write_dict(data: dict, file_path, original_open,full_file_size=None):
     threading.Thread(target=__save_file__, args=()).start()
 
 
-
-
+def clear_cache(file_path):
+    from cy_file_cryptor import context
+    ret = context.clear_cache(f"{pre_fix_cache_key}/{file_path}")
+    return ret
 def read_dict(file_path, original_open,full_file_size) -> dict:
     from cy_file_cryptor import context
     ret = context.read_from_cache(f"{pre_fix_cache_key}/{file_path}")

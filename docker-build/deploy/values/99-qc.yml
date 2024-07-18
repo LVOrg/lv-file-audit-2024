@@ -1,15 +1,15 @@
-namespace: files-cloud
-webAppName: filelv
-use_ssl: 'on'
+namespace: files
+#webAppName: lv-file-dev
 appConfig:
-  name: filelv
+  name: lv-file
   host:
-    path: filelv
-    name: 172.16.7.91
+    path: lvfile
+    name: 172.16.7.99
     protocol: https
-ingress:
-  filelv:
-    pathType: Prefix
+  ingress:
+    lv-file:
+      pathType: Prefix
+
 db:
   mongodb: mongodb://192.168.18.36:27017
   manage: 'lv-docs'
@@ -21,11 +21,20 @@ storage:
   directory: /codx-file-storage/files
   name: storage-files
 
-replicas: 4
+replicas: 2
 rabbit:
+  server: codx-rabbitmq.rabbitmq
   username: codx
   password: Lacviet#123
 customer: "qc"
 imageTag: "latest"
 repository: "docker.lacviet.vn/xdoc"
 debugLibs: []
+nodePort:
+  content: "32260"
+  office: "32261"
+  pdf: "32263"
+  video: "32264"
+  tika: "32265"
+  ocr: "32266"
+

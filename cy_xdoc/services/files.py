@@ -614,11 +614,20 @@ class FileServices:
         )
 
     def get_upload_register(self, app_name: str, upload_id: str) -> typing.Union[
-        DocUploadRegister, cy_docs.DocumentObject]:
+        DocUploadRegister, cy_docs.DocumentObject,dict]:
+        key = f"{self.cache_type}/{app_name}/{upload_id}"
+        ret = self.memcache_service.get_object(key,cls=DocUploadRegister)
+        if isinstance(ret,list):
+            result_dict = {key: value for key, value in ret}
+            return result_dict
+        if ret:
+            return ret
+
         from cyx.repository import Repository
         ret = Repository.files.app(app_name).context.find_one(
             Repository.files.fields.id==upload_id
         )
+        self.memcache_service.set_object(ret)
         return ret
 
     def get_find_upload_register_by_link_file_id(self, app_name: str, file_id: str):

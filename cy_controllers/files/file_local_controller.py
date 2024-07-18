@@ -135,56 +135,7 @@ class FilesLocalController(BaseController):
                     request=self.request,
                     upload_id=upload_id
                 )
-        try:
-
-
-            # Open the file in binary mode
-            response_header = None
-            pos = 0
-            pos_len = 1024 * 4
-            content_length = os.path.getsize(server_path)
-            response_content_len = content_length
-            if self.request.headers.get("Range"):
-                range_content = self.request.headers["Range"].split("=")[1]
-                print(range_content)
-                pos = int(range_content.split("-")[0])
-                response_content_len = content_length - pos
-                if len(range_content.split("-")) == 2 and range_content.split("-")[1].isnumeric():
-                    response_content_len = int(range_content.split("-")[1]) - pos
-            response_header = {
-                "Accept-Ranges": "bytes",
-                "Content-Length": str(response_content_len),
-                "Content-Range": F"bytes {pos}-{content_length - 1}/{content_length}"
-            }
-            fs = open(server_path, "rb")
-            #
-            fs.seek(pos)
-            segment_len = 8192
-
-            def iter_content():
-
-                # Yield file data in chunks for efficient streaming
-                data = fs.read(segment_len)
-                while data:
-                    yield data
-                    data = fs.read(segment_len)
-                # yield bytes([])
-
-            content_type, _ = mimetypes.guess_type(server_path)
-            fx = iter_content()
-            print(fx)
-            return responses.StreamingResponse(
-                content=iter_content(),
-                media_type=content_type,
-                status_code=status.HTTP_206_PARTIAL_CONTENT,
-                headers=response_header
-            )
-
-
-        except FileNotFoundError:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
-
-
-        except Exception as e:
-
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        upload_item = await self.file_util_service.get_upload_by_upload_id_async(app_name=app_name,upload_id=upload_id)
+        if not upload_item:
+            return  Response(status_code=404,content="Contet wsa not found")
+        return  await self.file_util_service.get_file_content_async(self.request,app_name,f'{upload_id}/{upload_item["FileNameLower"]}')

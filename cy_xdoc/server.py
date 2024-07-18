@@ -119,47 +119,12 @@ def get_pod_name():
     else:
         pod_name = full_pod_name
     return pod_name
-# async def tracking_error_async(request: fastapi.Request):
-#     header = {}
-#     for k, v in request.headers.items():
-#         header[k] = v
-#     body_bytes = await request.body()
-#     form_data = await request.form()
-#     body_text = body_bytes.decode()  # Decod
-#     form_data_dict = {}
-#     for k,v in form_data.items():
-#         form_data_dict[k]=v
-#     data_content=json.dumps(dict(
-#         header=header,
-#         body_text=body_text,
-#         form=form_data_dict
-#
-#     ),indent=4)
-#     ret = await Repository.sys_app_logs_coll.app("admin").context.insert_one_async(
-#         Repository.sys_app_logs_coll.fields.CreatedOn<<datetime.datetime.utcnow(),
-#         Repository.sys_app_logs_coll.fields.LogType<<"info",
-#         Repository.sys_app_logs_coll.fields.PodName<<get_pod_name(),
-#         Repository.sys_app_logs_coll.fields.Content<<data_content
-#     )
-#     if hasattr(ret,"inserted_id"):
-#         request.session["$$$inserted_id$$$"]=ret.inserted_id
-
-
-
-
-
-# @cy_web.middleware()
-# async def codx_integrate(request: fastapi.Request, next):
-#     if request.url.path.endswith("/cloud/mail/send"):
-#         await tracking_error_async(request)
-#         print("OK")
-#     res = await next(request)
-#     return res
-
-
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 from fastapi.responses import JSONResponse
 from cyx.malloc_services import MallocService
 malloc_service=cy_kit.singleton(MallocService)
+logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
+
 @cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     try:
@@ -193,12 +158,22 @@ async def estimate_time(request: fastapi.Request, next):
         res = await apply_time(res)
         return res
     except:
-        return dict(
+        error_content = traceback.format_exc()
+
+        await logs_to_mongo_db_service.log_async(error_content)
+
+        ret_error = dict(
             Error=dict(
                 Code="System",
-                Message=traceback.format_exc()
+                Message=error_content
             )
         )
+        if config.debug==True:
+            return  JSONResponse(content=ret_error,status_code=200)
+        else:
+            return JSONResponse(content="Error on server", status_code=500)
+
+
 
 
 from fastapi import Request, Response

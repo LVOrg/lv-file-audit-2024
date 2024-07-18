@@ -14,13 +14,11 @@ from functools import cache as ft_cache
 
 class MemcacheServices:
 
-
-
-
-    def __init__(self, logger=cy_kit.singleton(LoggerService)):
-        self.server = config.cache_server
-        self.client = Client(self.server.split(','))
-        self.logger = logger
+    """
+    Cache service
+    """
+    server = config.cache_server
+    client = Client(server.split(','))
     @ft_cache
     def get_hash_key(self,key:str)->str:
         ret = hashlib.sha256(key.encode()).hexdigest()

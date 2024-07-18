@@ -45,7 +45,7 @@ class RegisterUploadInfo(BaseModel):
     onedrivePassword: typing.Optional[str]
     encryptContent: typing.Optional[bool]
     googlePath: typing.Optional[str]
-    UploadId:typing.Optional[str]
+    UploadId: typing.Optional[str]
 
 
 class RegisterUploadResult(BaseModel):
@@ -94,7 +94,6 @@ class Error(BaseModel):
     Fields: typing.List[str] | None
 
 
-
 import asyncio
 
 MAX_REQUESTS_UPLOAD_FILES = 2
@@ -111,10 +110,14 @@ class RegisterUploadInfoResult(BaseModel):
 
 class RequestRegisterUploadInfo(BaseModel):
     Data: RegisterUploadInfo
+
+
 from cyx.common import config
 
 from cy_controllers.models.files import SkipFileProcessingOptions
-version2 = config.generation if hasattr(config,"generation") else None
+
+version2 = config.generation if hasattr(config, "generation") else None
+
 
 @controller.resource()
 class FilesRegisterController(BaseController):
@@ -123,12 +126,13 @@ class FilesRegisterController(BaseController):
     ]
 
     @controller.route.post(
-        "/api/{app_name}/files/register" if not version2  else "/api/{app_name}/files/register_old", summary="register Upload file",tags=["FILES"]
+        "/api/{app_name}/files/register" if not version2 else "/api/{app_name}/files/register_old",
+        summary="register Upload file", tags=["FILES"]
     )
     async def register_async(self,
                              app_name: str,
                              Data: RegisterUploadInfo,
-                             SkipOptions: typing.Optional[SkipFileProcessingOptions] = None) :
+                             SkipOptions: typing.Optional[SkipFileProcessingOptions] = None):
         """
             <p>
             <b>
@@ -173,11 +177,11 @@ class FilesRegisterController(BaseController):
             :return:
             """
         self.malloc_service.reduce_memory()
-        if Data.UploadId:
-
-            return await self.file_util_service.update_register_local_async(
+        if Data.UploadId and Data.UploadId != "":
+            return await self.file_util_service.register_upload_async(
                 app_name=app_name,
-                register_data = Data.__dict__
+                register_data=Data.__dict__,
+                from_host=cy_web.get_host_url(self.request)
             )
         url_google_upload, google_file_id = None, None
         folder_id = None
@@ -193,22 +197,21 @@ class FilesRegisterController(BaseController):
             ret_quit.Error.Code = "MissingField"
             return ret_quit
         if Data.storageType == "onedrive":
-            if not self.cloud_service_utils.is_ready_for(app_name=app_name,cloud_name="Azure"):
+            if not self.cloud_service_utils.is_ready_for(app_name=app_name, cloud_name="Azure"):
                 ret_quit = RegisterUploadInfoResult()
                 ret_quit.Error = Error()
                 ret_quit.Error.Message = f"Azure did not bestow for {app_name}"
                 ret_quit.Error.Code = "AzureWasNotReady"
                 return ret_quit
 
-
         if Data.storageType == "google-drive":
-            if not self.cloud_service_utils.is_ready_for(app_name=app_name,cloud_name="Google"):
+            if not self.cloud_service_utils.is_ready_for(app_name=app_name, cloud_name="Google"):
                 ret_quit = RegisterUploadInfoResult()
                 ret_quit.Error = Error()
                 ret_quit.Error.Message = f"Google did not bestow for {app_name}"
                 ret_quit.Error.Code = "GoogleWasNotReady"
                 return ret_quit
-            if Data.googlePath is None or len(Data.googlePath)==0:
+            if Data.googlePath is None or len(Data.googlePath) == 0:
                 ret_quit = RegisterUploadInfoResult()
                 ret_quit.Error = Error()
                 ret_quit.Error.Message = f"Google drive upload require googlePath field"
@@ -225,27 +228,27 @@ class FilesRegisterController(BaseController):
                     ret_quit.Error.Message = error.get("Message")
                     ret_quit.Error.Code = error.get("Code")
                     return ret_quit
-                if total_space< Data.FileSize:
+                if total_space < Data.FileSize:
                     ret_quit = RegisterUploadInfoResult()
                     ret_quit.Error = Error()
                     ret_quit.Error.Message = "Not enough space to do that"
                     ret_quit.Error.Code = "NotEnoughSpace"
                     return ret_quit
-                Data.googlePath = Data.googlePath.lstrip('/').rstrip('/').replace('//','/')
-                checkpath = os.path.join(Data.googlePath,Data.FileName)
+                Data.googlePath = Data.googlePath.lstrip('/').rstrip('/').replace('//', '/')
+                checkpath = os.path.join(Data.googlePath, Data.FileName)
                 try:
                     await  Repository.files.app(app_name).context.insert_one_async(
-                        Repository.files.fields.id<<str(uuid.uuid4()),
-                        Repository.files.fields.FullPathOnCloud<<checkpath
+                        Repository.files.fields.id << str(uuid.uuid4()),
+                        Repository.files.fields.FullPathOnCloud << checkpath
                     )
                 except pymongo.errors.DuplicateKeyError as ex:
-                    if (hasattr(ex,"details")  and
-                            isinstance(ex.details,dict) and
-                            ex.details.get('keyPattern',{}).get(Repository.files.fields.FullPathOnCloud.__name__)==1
+                    if (hasattr(ex, "details") and
+                            isinstance(ex.details, dict) and
+                            ex.details.get('keyPattern', {}).get(Repository.files.fields.FullPathOnCloud.__name__) == 1
                     ):
                         ret_quit = RegisterUploadInfoResult()
                         ret_quit.Error = Error()
-                        ret_quit.Error.Message =f"{checkpath} is existing"
+                        ret_quit.Error.Message = f"{checkpath} is existing"
                         ret_quit.Error.Code = "FileIsExisting"
                         return ret_quit
 
@@ -269,13 +272,11 @@ class FilesRegisterController(BaseController):
             onedrive_password=Data.onedrivePassword,
             onedrive_expiration=Data.onedriveExpiration,
             is_encrypt_content=Data.encryptContent,
-            url_google_upload = url_google_upload,
-            google_file_id = google_file_id,
-            google_folder_id = folder_id,
-            google_folder_path = Data.googlePath
+            url_google_upload=url_google_upload,
+            google_file_id=google_file_id,
+            google_folder_id=folder_id,
+            google_folder_path=Data.googlePath
 
         )
         ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
         return ret_data
-
-

@@ -1,5 +1,6 @@
 __cache_server__ = None
 
+import functools
 import os
 
 from memcache import Client
@@ -56,13 +57,28 @@ def write_to_cache(key: str, data: dict):
         raise Exception(f"Can not cache data to {__url__}")
 
 
+@functools.cache
+def get_key(key: str):
+    return hash_key_sha256(key)
+
+
 def read_from_cache(key: str):
     global __client__
     global __url__
     if __client__ is None:
         __client__ = Client(__url__)
-    memcache_key = hash_key_sha256(key)
+    memcache_key = get_key(key)
     ret = __client__.get(memcache_key)
+    return ret
+
+
+def clear_cache(key: str):
+    global __client__
+    global __url__
+    if __client__ is None:
+        __client__ = Client(__url__)
+    memcache_key = get_key(key)
+    ret = __client__.delete(memcache_key)
     return ret
 
 
@@ -74,7 +90,7 @@ class EncryptContext:
         from cy_file_cryptor.wrappers import original_open_file
         from cy_file_cryptor.writer_binary_v02 import __max_wrap_size__, __min_wrap_size__
 
-        write_dict(dict(is_crypted=True,chunk_size=1024*64), self.encryptor_file, original_open_file)
+        write_dict(dict(is_crypted=True, chunk_size=1024 * 64), self.encryptor_file, original_open_file)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass

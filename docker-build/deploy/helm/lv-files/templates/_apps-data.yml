@@ -25,6 +25,7 @@ apps:
         - remote_office=http://lv-office-service.{{$valuesObject.namespace}}:80
         - remote_pdf=http://lv-pdf-service.{{$valuesObject.namespace}}:80
         - remote_video=http://lv-video-service.{{$valuesObject.namespace}}:80
+        - remote_ocr=http://lv-ocr-service.{{$valuesObject.namespace}}:80
         - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
@@ -71,6 +72,7 @@ apps:
         - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
+        - remote_ocr=http://lv-ocr-service.{{$valuesObject.namespace}}:80
         {{ if hasKey $valuesObject "generation"  }}
         - generation={{ $valuesObject.generation }}
         {{ end }}

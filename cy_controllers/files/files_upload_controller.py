@@ -1,6 +1,7 @@
 import datetime
 import gc
 import os
+import pathlib
 
 from cyx.common import config
 from fastapi_router_controller import Controller
@@ -157,6 +158,8 @@ class FilesUploadController(BaseController):
         )
         n = (datetime.datetime.utcnow() - st).total_seconds()
         print(f"await self.get_upload_register_async={n}")
+        if not isinstance(data,dict):
+            data = data.to_json_convertable()
         data["SizeUploaded"] = size_uploaded
         data["NumOfChunksCompleted"] = num_of_chunks_complete
         data["Status"] = status
@@ -369,6 +372,16 @@ class FilesUploadController(BaseController):
 
         status = 0
         if num_of_chunks_complete == nun_of_chunks:
+            if hasattr(fs,"full_path") and isinstance(fs.full_path,str) and os.path.isfile(fs.full_path+".processing"):
+                old_file = pathlib.Path(fs.full_path+".processing")
+                new_file = pathlib.Path(fs.full_path)
+                old_file.rename(new_file)
+                if os.path.isfile(fs.full_path+".processing.cryptor"):
+                    old_file = pathlib.Path(fs.full_path + ".processing.cryptor")
+                    new_file = pathlib.Path(fs.full_path+".cryptor")
+                    old_file.rename(new_file)
+                import cy_file_cryptor.crypt_info
+                cy_file_cryptor.crypt_info.clear_cache(fs.full_path+".cryptor")
             status = 1
             cloud_id = upload_item.CloudId or upload_item.CloudIdUpdating
             if cloud_id:
@@ -403,6 +416,13 @@ class FilesUploadController(BaseController):
         ret_data = ret.to_pydantic()
 
         if status == 1:
+            await  Repository.files.app(app_name).context.update_async(
+                Repository.files.fields.id==UploadId,
+                Repository.files.fields.Status<<1
+            )
+
+
+
             map = {
                 "onedrive": "Azure",
                 "google-drive": "Google",

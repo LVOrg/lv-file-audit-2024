@@ -11,6 +11,8 @@ from fastapi import (
     Request,
     Response
 )
+
+import cy_docs
 from cy_xdoc.auths import Authenticate
 import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
@@ -19,7 +21,7 @@ router = APIRouter()
 controller = Controller(router)
 from cyx.loggers import LoggerService
 import cy_web
-
+from cyx.repository import Repository
 
 @cy_web.model(all_fields_are_optional=True)
 class LogInfo:
@@ -52,46 +54,54 @@ class LogsController:
         "/api/logs/views", summary="read log",
         tags=["LOGS"]
     )
-    def read_log(self,filter:typing.Optional[FilterInfo]=None) -> typing.List[LogInfo]:
-        context = self.logger_service.get_mongo_db().context
-        fields = self.logger_service.get_mongo_db().fields
-        filter_expr = None
-        limit = 50
-        page_index = 0
-        if filter is not  None:
-            if filter.PageIndex is not None:
-                page_index = filter.PageIndex
-            if filter.Limit is not None:
-                limit = filter.Limit
-            if filter.LogType is not None  and filter.LogType!="":
-                filter_expr = (fields.LogType==filter.LogType) & filter_expr
-            if filter.Instance is not None and filter.Instance!="":
-                filter_expr = (fields.PodName==filter.Instance) & filter_expr
-            if filter.FormTime is not None:
-                filter_expr = (fields.CreatedOn >= datetime.datetime.combine(
-                    filter.FormTime.date(),
-                    datetime.time(0,0,0))) & filter_expr
-            if filter.ToTime is not None:
-                filter_expr = (fields.CreatedOn >= datetime.datetime.combine(
-                    filter.ToTime.date(),
-                    datetime.time(0,0,0))) & filter_expr
+    def read_log_async(self,filter:typing.Optional[FilterInfo]=None) :
+        """
+        "CreatedOn","Content","PodFullName","PodName"
+        :param filter:
+        :return:
+        """
+        limit = filter.Limit or 20
+        db_context = Repository.lv_files_sys_logs.app("admin")
+        filter_from = None
+        filter_to = None
+        if filter.FormTime:
+            filter_from = (
+                    (Repository.lv_files_sys_logs.fields.LogOn.year()>=filter.FormTime.year) &
+                    (Repository.lv_files_sys_logs.fields.LogOn.month()>=filter.FormTime.month) &
+                    (Repository.lv_files_sys_logs.fields.LogOn.day() >= filter.FormTime.day)
+                           )
+        if filter.ToTime:
+            filter_to = (
+                    (Repository.lv_files_sys_logs.fields.LogOn.year()<=filter.ToTime.year) &
+                    (Repository.lv_files_sys_logs.fields.LogOn.month()<=filter.FormTime.month) &
+                    (Repository.lv_files_sys_logs.fields.LogOn.day() <= filter.ToTime.day)
+                           )
+        filter_time = None
+        if filter_from and filter_to:
+            filter_time = filter_from & filter_to
+        if not filter_from and filter_to:
+            filter_time =  filter_to
+        if filter_from and not filter_to:
+            filter_time =  filter_from
+        three_days_ago_utc = datetime.datetime.utcnow() - datetime.timedelta(days=7)
+        db_context.context.delete(
+            Repository.lv_files_sys_logs.fields.LogOn<three_days_ago_utc
+        )
+        agg = db_context.context.aggregate()
+        if filter_time:
+            agg  = agg.match(cy_docs.EXPR(filter_time))
+        ret = agg.sort(
+            Repository.lv_files_sys_logs.fields.LogOn.desc()
+        ).project(
+            cy_docs.fields.CreatedOn >> Repository.lv_files_sys_logs.fields.LogOn,
+            cy_docs.fields.PodFullName >> Repository.lv_files_sys_logs.fields.PodId,
+            cy_docs.fields.PodName >> Repository.lv_files_sys_logs.fields.PodId,
+            cy_docs.fields.Content >> Repository.lv_files_sys_logs.fields.ErrorContent,
+        ).limit(limit)
+        for x in ret:
+            yield x.to_json_convertable()
 
-        if filter_expr is None:
-            items = context.aggregate().sort(
-                fields.CreatedOn.desc()
-            ).limit(limit)
-            ret = [x.to_pydantic() for x in items]
-            return ret
-        else:
-            items = context.aggregate().sort(
-                fields.CreatedOn.desc()
-            ).match(
-                filter = filter_expr
-            ).skip(
-                limit*page_index
-            ).limit(limit)
-            ret = [x.to_pydantic() for x in items]
-            return ret
+
 
     @controller.route.post(
         "/api/logs/list-types", summary="list of log type",tags=["LOGS"]

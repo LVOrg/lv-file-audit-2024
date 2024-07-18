@@ -1,0 +1,266 @@
+# in order to start with hypercorn
+# python hypercorn_start.py
+# You may also change default config.yml by past arguments
+# For example in config.yml at
+# db:
+#    host: 192.168.18.26
+#    port: 27018
+# if you would like to change db.port juts past db.port=<new port>
+# Important: some item in config.yml could be removed at runtime if you set nothing
+# Example: some Mongod for developer needn't set authenticate
+# So you can pass db.usrername= db.password= db.authSource= db.authMechanism=
+# python hypercorn_start.py db.host=172.16.7.25 db.port=27018 db.username= db.password= db.authSource= db.authMechanism= admin_db_name=enigma-media
+version: rc.0.0.15
+debug: false
+content_segment_len: 90
+ui: ui
+message:
+  type: mongodb
+  config:
+    kafka:
+      host: '192.168.18.36'
+shared_storage: ./share-storage
+#storage_path: /home/vmadmin/python/v6/file-service-02/storage
+#host_url: https://test.com.vn/lvfile
+db_25:
+#  host: localhost
+#  port: 27017
+  host: 172.16.7.25
+  port: 27018
+  username:
+  password:
+  tls: false
+  authSource:
+  tlsCAFile:
+#db:
+#  # Host of mongodb
+#  host: 192.168.18.36:27018,192.168.18.36:27018
+#  # Port of mongodb
+#  port: 27018
+#  authSource: lv-docs
+#  username: admin-doc
+#  password: '123456'
+#  replicaSet: lv-doc
+#db: mongodb://admin:password@192.168.18.234:31256/admin
+db: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
+db3: mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0%26readPreference%3Dsecondary
+db2: mongodb://192.168.18.36:27017
+db___: 'mongodb%3A//172.16.0.83%3A27017%2C172.16.0.84%3A27017%2C172.16.0.85%3A27017/%3FreplicaSet%3Drs0'
+#db:
+#db.authSource: admin
+#  db.host: 172.16.0.83
+#  db.password: Lacviet#123
+#  db.port: "27017"
+#  db.username: admin
+db__:
+  # Host of mongodb
+  host: 172.16.0.83
+  password: Lacviet#123
+  username: admin
+  # Port of mongodb
+  port: 27017
+  authSource: admin
+# Default administrator database
+admin_db_name_25: media-server
+# Below setting tell the system that must create new administrator database in mongodb
+# Admin db __name__ is the __name__ of administrator database
+# What is inside administrator database?
+# Administrator database maintain some mongodb collections. Accord to manage tanent
+admin_db_name: lv-docs
+# unvicorn server listener list all ip
+
+jinja_templates_dir: ./cy_controllers/pages/resource/html
+static_dir: ./cy_controllers/pages/resource/static
+
+
+# Below setting is the real hostname when end user who'd like to reach UI of website
+# just serve for UI. For API the setting is not crucial
+#host_url: https://fac8-115-79-200-101.ngrok-free.app/lvfile
+host_url: http://172.16.13.72:8012/lvfile
+api_url__: http://172.16.13.72:8012/lvfile/api
+api_url_: http://172.16.1.210:801/api
+#host_url__:  https://fda4-115-79-200-101.ngrok-free.app/lvfile
+bind: 0.0.0.0:8012
+
+workers: 2
+worker_class_: UvicornWorker #UvicornH11Worker
+worker_class__: UvicornH11Worker #UvicornH11Worker
+worker_class: uvloop
+
+timeout_keep_alive: 30
+timeout_graceful_shutdown: 30
+server_type_: unvicorn
+server_type: hypercorn
+h2_max_concurrent_streams: 100
+vn_suggest_url: http://172.16.7.99:30444
+
+jwt:
+  secret_key: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+  algorithm: HS256
+  access_token_expire_minutes: 480
+  secret_user: 01f31140-b790-4855-93d8-45155bfa2660
+#tmp_upload_dir: ./tmp
+elastic_search__:
+  server:
+    - http://192.168.18.36:9200
+  index: lv-files-server-v2
+  prefix_index: qtsc-codx
+  index_max_analyzed_offset: 60000000
+  max_analyzed_offset: 1000
+  field_content: content_bm25
+elastic_search:
+  server:
+#    - http://172.16.7.244:9200
+     - http://192.168.18.36:9200
+#    - http://192.168.18.234:31949
+  index: lv-files-server-v2
+  prefix_index: lv-codx
+  index_max_analyzed_offset: 60000000
+  max_analyzed_offset: 1000
+  field_content: content_bm25
+tmp_media_processing_folder: ./tmp_media
+ext_office_file: [
+                   xds,ini,config,md,
+                   abap,ash,ampl,mod,g4,apib,apl,ascx,asax,axd,dats,hats,sats,as,
+                   ada,ads,agda,als,conf,apacheconf,vhost,cls,applescript,scpt,
+                   arc,ino,asciidoc,adoc,asc,aj,asm,inc,nasm,aug,ahk,ahk1,au3,
+                   awk,auk,gawk,mawk,nawk,cmd,bat,yml,yaml,bison,bb,decls,bmx,
+                   bsv,boo,b,bf,brs,bro,cats,idc,w,cake,cshtml,c++,cc,cxx,hh,hpp,
+                   hxx,inc,inl,ipp,tcc,tpp,c-objdump,json,chs,clp,cmake,cmake.in,
+                   cod,cbl,cobol,cpy,mss,chpl,ceylon,chpl,ch,ck,circu,clw,icl,dcl,
+                   clikc,clj,boot,cl2,cljs,cljs,cljs.hl,cljscm,hic,
+                   coffee,_coffee,cjsx,cson,iced,crm,cfml,
+                   cfc,lisp,asd,cl,l,lsp,ny,podsl,sexp,cp,cps,coq,v,
+                   cfc,lisp,asd,cl,l,lsp,ny,podsl,sexp,cp,cps,coq,v,
+                   cppobjdump,c++-objdump,c++objdump,cpp-objdump,cxx-objdump,
+                   creole,cr,feature,cu,cuh,cy,pyx,pxd,pxi,dart,dockerfile,
+                   dylan,dyl,intr,lid,xlsm,
+                   sql,log,email,eml,emlx,msg,oft,ost,pst,vcf,bat,py,pl,
+                   sh,asp,aspx,cs,csx,css,htm,js,jsp,php,rss,xhtml,key,opd,pps,odtc,class,
+                   cpp,h,java,swift,vb,vbx,ods,wpd,rtf,tex,
+                   docx,doc,xls,xlsx,txt,pdf,ppx,pptx,json,psd,html,xml,js,otg,svg,vsd,
+                    odt,csv,db,doc,docx,dotx,fodp,fods,fodt,mml,odb,odf,odg,odm,odp,ods,otg,otp,ots,ott,oxt,
+                    pptx,psw,sda,sdc,sdd,sdp,sdw,slk,smf,stc ,
+                    std,sti,stw,sxc,sxg,sxi,sxm,uof,uop,uos,uot
+                    vsd,vsdx,wdb,wps,wri,xls,xlsx,pem,yaml,ym,toml,json,jsx,ts,tsx,cs,csx,rdl,html
+]
+ext_video_file : [mp4,mov,avi,wmv,flv,mkv,webm,mpg,mpeg]
+ext_image_file: [
+  jpg, jpeg,gif,webp,tiff,tif,psd,raw,arw,cr2,etc,svg,
+  eps,ai,pdf,heif,heic,ind,indd,jp2, j2k, jpf
+]
+libre_office_path: /usr/bin/soffice
+fs_crawler_path: ./fscrawler
+media_plugins:
+  - enig_frames.plugins.search.office:Office
+  - enig_frames.plugins.thumbs.video:Video
+  - enig_frames.plugins.thumbs.pdf:PDF
+  - enig_frames.plugins.thumbs.images:Images
+  - enig_frames.plugins.thumbs.office:Office
+  - enig_frames.plugins.thumbs.exe_file:ExeFile
+  - enig_frames.plugins.ocr.images:Images
+  - enig_frames.plugins.ocr.pdf_file:PdfFile
+
+
+
+#temp_directory: ./brokers/tmp-files
+#http://172.16.0.80:31672/
+rabbitmq__:
+  port: 30672
+  server: 172.16.0.80
+  msg: lacviet
+rabbitmq:
+  port_: 31674
+#  server: 172.16.7.99
+  server: 172.16.7.99
+  port: 32358
+#  msg: v99-dev
+  msg: xyzdsc-2024
+  username: codx
+  password: Lacviet#123
+broker:
+  is_use: true
+  servers: 172.16.7.99:30992
+  msg: xdoc
+#  temp_directory: ./brokers/tmp-files
+
+logs_url: https://hooks.slack.com/services/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
+
+services:
+  - "cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService"
+  - "cyx.common.file_storage_mongodb.MongoDbFileStorage->cy_plugins.file_storage_hybrid.HybridFileStorage"
+  - "cyx.common.file_storage_mongodb.MongoDbFileReader->cy_plugins.files_storage_hybrid_reader.HybridReader"
+
+#services=cyx.common.file_storage_mongodb.MongoDbFileService->cy_plugins.file_storage_local.FileStorageService',
+#file_storage_path: "/from-192-168-18-36/files"
+file_storage_path: "/mnt/files"
+file_storage_encrypt: true
+dataset_path: "/mnt/files/dataset"
+server_thumb_office: "http://172.16.7.99:31792"
+server_thumb_office_: "http://0.0.0.0:8014"
+
+#private_web_api: http://172.16.13.72:8012/lvfile
+#sudo mount -t nfs 192.168.18.36:/codx-file-storage/tmp /home/vmadmin/python/cy-py/share-storage
+#sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/from-192-168-18-36/files
+#sudo mount -t nfs 192.168.18.36:/codx-file-storage/files /mnt/files
+#sudo mount -t nfs 172.16.13.72:/home/vmadmin/python/cy-py /mnt/k8s
+#sudo mount -t nfs 172.16.13.72://home/vmadmin/python/cy-py /mnt/k8s
+
+ocr_api: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
+ocr_token: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+process_services_1:
+  image:
+    content:
+      type: web-api
+      url: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
+      headers:
+        Api_key: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+        Api-Version: "1.0"
+      file: file
+      response: "Data.Content"
+  video:
+    image:
+      type: socat
+      port: 1111
+      command: python3 /cmd/video_image.py  {input} {output}
+  pdf:
+    image:
+      type: socat
+      port: 1112
+      command: python3 /cmd/pdf_image.py {input} {output}
+    content:
+      type: web-api
+      url: https://api.trogiupluat.vn/api/DocReader/v1.0/ocr-recognize?api-version=1.0
+      headers:
+        Api_key: YjMxZTQwMWENRlYzENTkwNmYZjFlZTFkMRiOTMzNzkzZjgMjUNjJjNDJiMUNTJhYjYYzllYmUZg
+        Api-Version: "1.0"
+      file: file
+      response: "Data.Content"
+  office:
+    image:
+      type: socat
+      port: 1113
+      command: python3 /cmd/office_image.py {input} {output}
+    content:
+      type: tika
+process_services_host: http://172.16.13.72
+process_services_host_: "http://localhost"
+
+clouds_support:
+  - Google
+  - Azure
+  - WAS
+check_startup: true
+distribute_lock_server: 172.16.7.99:32227
+remote_google_lock: http://172.16.7.99:32227
+remote_office: http://172.16.7.99:32223
+remote_pdf: http://172.16.7.99:32224
+remote_video: http://172.16.7.99:32225
+tika_server: http://172.16.7.99:32226
+
+private_web_api: http://172.16.13.72:8012/lvfile
+cache_server: localhost:11211
+content_service: http://172.16.13.72:8087
+generation:
+default_tenant: test-sync-file
+file_dir_path: /home/vmadmin/python/cy-py
