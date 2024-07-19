@@ -15,6 +15,13 @@ var searchView = await View(import.meta, class LogsView extends BaseScope {
         this.logLimit = 20;
         this.$applyAsync();
     }
+    async doDeteteAsync(p) {
+        var me=this;
+        await api.post(`logs/delete`,{
+            logId:p.LogId
+        })
+        $("#"+p.LogId).remove();
+    }
     doLoadMore(sender) {
         var me=sender;
 

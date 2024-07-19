@@ -1,4 +1,5 @@
 import json
+import mimetypes
 import os.path
 import pathlib
 import threading
@@ -25,26 +26,17 @@ from cyx.repository import Repository
 from cyx.malloc_services import MallocService
 from cyx.common.brokers import Broker
 from cyx.common import msg
-
+from cyx.file_utils_services import FileUtilService
 
 class ThumbService:
-    def __init__(
-            self,
-            memcache_services=cy_kit.singleton(MemcacheServices),
-            mongodb_service=cy_kit.singleton(MongodbService),
-            msg=cy_kit.singleton(RabitmqMsg),
-            local_api_service: LocalAPIService = cy_kit.singleton(LocalAPIService),
-            remote_caller_service:RemoteCallerService = cy_kit.singleton(RemoteCallerService),
-            malloc_service = cy_kit.singleton(MallocService)
-    ):
-        self.memcache_services: MemcacheServices = memcache_services
-        self.cache_group = f"/{__version__}/{config.file_storage_path}/{__file__}/{type(self).__name__}/thumb"
-        self.mongodb_service = mongodb_service
-        self.msg = msg
-        self.local_api_service=local_api_service
-        self.remote_caller_service=remote_caller_service
-        self.malloc_service = malloc_service
-
+    memcache_services = cy_kit.singleton(MemcacheServices)
+    mongodb_service = cy_kit.singleton(MongodbService)
+    msg = cy_kit.singleton(RabitmqMsg)
+    local_api_service: LocalAPIService = cy_kit.singleton(LocalAPIService)
+    remote_caller_service: RemoteCallerService = cy_kit.singleton(RemoteCallerService)
+    malloc_service = cy_kit.singleton(MallocService)
+    cache_group = f"/v03/{config.file_storage_path}/ThumbService/thumb"
+    file_util_service = cy_kit.singleton(FileUtilService)
     def get_thumb_type(self, ext_file) -> str:
         if ext_file.lower() == "pdf":
             return "pdf"
@@ -74,6 +66,37 @@ class ThumbService:
         if upload_item is None:
 
             return None
+
+        real_file_path = await self.file_util_service.get_physical_path_async(
+            app_name=app_name,
+            upload_id=upload_id
+        )
+        mime_type, _ = mimetypes.guess_type(real_file_path)
+        if mime_type.startswith("image/"):
+            import PIL
+            try:
+                ret = self.do_scale_size(file_path=real_file_path, size=size)
+                self.memcache_services.set_str(key, ret)
+                return ret
+            except PIL.UnidentifiedImageError:
+                server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
+                    upload_item=upload_item,
+                    app_name=app_name
+                )
+                file_ext = pathlib.Path(rel_file_path).suffix.lstrip(".")
+                file_type = self.get_thumb_type(file_ext)
+
+                self.run_generate_image(file_type=file_type,
+                                        file_process=real_file_path,
+                                        is_in_thred=True,
+                                        app_name=app_name,
+                                        upload_id=upload_id,
+                                        size=size,
+                                        cache_key=key,
+                                        server_file=server_file,
+                                        )
+            except Exception as ex:
+                return None
         if not upload_item.get("MainFileId") or  not isinstance(upload_item[Repository.files.fields.MainFileId],str) or not "://" in upload_item[Repository.files.fields.MainFileId]:
             """
             Recalculate file storage and location if upload's file is still in mongoDb
@@ -98,7 +121,6 @@ class ThumbService:
                     with cy_file_cryptor.context.create_encrypt(file_path):
                         with open(file_path, 'wb') as file:
                             file.write(response.content)
-                    #local://lv-docs/2022/12/02/mp4/6ca713e3-3e6c-4b11-9e18-885702c0a07c/năng lượng - thành phần cơ bản nhất của vũ trụ  phim khoa học khám phá _thuyết minh_.mp4
                     Repository.files.app(app_name).context.update(
                         Repository.files.fields.id==upload_id,
                         Repository.files.fields.MainFileId<<f"local://{rel_path}",

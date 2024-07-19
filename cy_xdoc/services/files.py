@@ -627,7 +627,7 @@ class FileServices:
         ret = Repository.files.app(app_name).context.find_one(
             Repository.files.fields.id==upload_id
         )
-        self.memcache_service.set_object(ret)
+        self.memcache_service.set_object(key,ret)
         return ret
 
     def get_find_upload_register_by_link_file_id(self, app_name: str, file_id: str):

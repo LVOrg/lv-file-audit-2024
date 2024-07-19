@@ -113,12 +113,7 @@ def get_pod_name():
     pod_name = f.read()
     f.close()
     full_pod_name = pod_name.lstrip('\n').rstrip('\n')
-    items = full_pod_name.split('-')
-    if len(items) > 2:
-        pod_name = "-".join(items[:-2])
-    else:
-        pod_name = full_pod_name
-    return pod_name
+    return full_pod_name
 from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 from fastapi.responses import JSONResponse
 from cyx.malloc_services import MallocService
@@ -160,7 +155,7 @@ async def estimate_time(request: fastapi.Request, next):
     except:
         error_content = traceback.format_exc()
 
-        await logs_to_mongo_db_service.log_async(error_content)
+        await logs_to_mongo_db_service.log_async(error_content,request.url.path)
 
         ret_error = dict(
             Error=dict(

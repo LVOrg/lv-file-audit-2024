@@ -12,7 +12,7 @@ __url__ = None
 __cache_data__ = {}
 __revert_cache_data__ = {}
 
-
+__permanent_cache__ = {}
 def hash_key_sha256(text):
     """Hashes the provided text using SHA-256 and returns the hexadecimal string.
 
@@ -47,14 +47,16 @@ def set_server_cache(url: str):
 
 
 def write_to_cache(key: str, data: dict):
+    global __permanent_cache__
     global __client__
     global __url__
     if __client__ is None:
         __client__ = Client(__url__)
     memcache_key = hash_key_sha256(key)
+    __permanent_cache__[memcache_key] = data
     ret = __client__.set(memcache_key, data, time=24 * 60 * 60)
-    if ret == 0:
-        raise Exception(f"Can not cache data to {__url__}")
+
+        # raise Exception(f"Can not cache data to {__url__}")
 
 
 @functools.cache
@@ -63,13 +65,18 @@ def get_key(key: str):
 
 
 def read_from_cache(key: str):
+    global __permanent_cache__
     global __client__
     global __url__
     if __client__ is None:
         __client__ = Client(__url__)
     memcache_key = get_key(key)
-    ret = __client__.get(memcache_key)
-    return ret
+    ret = __permanent_cache__.get(memcache_key)
+    if ret:
+        return ret
+    else:
+        ret = __client__.get(memcache_key)
+        return ret
 
 
 def clear_cache(key: str):

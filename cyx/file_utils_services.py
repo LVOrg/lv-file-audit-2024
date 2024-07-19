@@ -80,8 +80,10 @@ class FileUtilService(BaseUtilService):
                 Repository.files.fields.BrokerErrorLog << traceback_string
             )
 
-    def update_upload(self, app_name, upload_id, upload):
+    def update_upload(self, app_name, upload_id, upload,update_cache_only=False):
         self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, upload)
+        if update_cache_only:
+            return
         ret = Repository.files.app(app_name).context.update(
             Repository.files.fields.id == upload_id,
             Repository.files.fields.NumOfChunksCompleted << upload["NumOfChunksCompleted"],
@@ -546,6 +548,12 @@ class FileUtilService(BaseUtilService):
             return None
 
         ret = upload["real_file_location"]
+        if not os.path.isfile(ret):
+            ret = ret.lower().replace('(','_').replace(')','_')
+            if os.path.isfile(ret):
+                upload["real_file_location"]=ret
+                self.update_upload(app_name=app_name,upload_id=upload_id,upload=upload,update_cache_only=True)
+                return ret
         if not os.path.isfile(ret):
             if os.path.isdir(f'{upload["real_file_location"]}.chunks'):
                 return f'{upload["real_file_location"]}.chunks'

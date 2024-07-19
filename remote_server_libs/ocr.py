@@ -52,6 +52,8 @@ async def content_from_pdf(
         remote_file: str = Body(embed=True)
 
 ):
+    print(remote_file)
+    print(tika_server)
     start_time= datetime.datetime.utcnow()
     hash_object = hashlib.sha256(remote_file.encode())
     load_file_name = hash_object.hexdigest()
@@ -64,31 +66,10 @@ async def content_from_pdf(
     if error:
         return dict(error=dict(code="ERR500", message=traceback.format_exc()))
     else:
-        # ocrmypdf.ocr(
-        #     language="vie",
-        #     rotate_pages=True,
-        #     deskew=True,
-        #     jobs=4,
-        #     output_file="pdfa",
-        #     input_file=process_file,
-        #
-        # )
         cmd_convert =["gs", "-o", convert_process_file, "-sDEVICE=pdfwrite", "-dFILTERTEXT", process_file]
         print(" ".join(cmd_convert))
         subprocess.run(cmd_convert)
         print(convert_process_file)
-        # ocrmypdf.ocr(
-        #     language="vie",
-        #     rotate_pages=True,
-        #     deskew=True,
-        #     force_ocr=True,
-        #     input_file=process_file,
-        #     output_file=process_file_output,
-        #     invalidate_digital_signatures=True,
-        #     use_threads=True,
-        #     jobs=2
-        #
-        # )
         command = ["ocrmypdf",
                    "-l", "vie",
                    "--rotate-pages",
@@ -103,14 +84,17 @@ async def content_from_pdf(
                    convert_process_file,
                    process_file_output]
         subprocess.run(command)
-        # # Run ocrmypdf using subprocess
-        #     subprocess.run(command)
-        # except:
-        #     process_file_output = process_file
-        # if not os.path.isfile(process_file_output):
-        #     process_file_output = process_file
-        parsed_data = parser.from_file(process_file_output, serverEndpoint=tika_server)
-        parsed_data_original = parser.from_file(process_file, serverEndpoint=tika_server)
+        parsed_data = {}
+        parsed_data_original={}
+        try:
+            parsed_data = parser.from_file(process_file_output, serverEndpoint=tika_server)
+        except:
+            print(f"parse {process_file_output} with {tika_server} fail")
+        try:
+            parsed_data_original = parser.from_file(process_file, serverEndpoint=tika_server)
+        except:
+            print(f"parse {process_file} with {tika_server} fail")
+
         content = parsed_data.get("content","") +" "+ parsed_data_original.get("content","")
         for x in ['\n','\r','\t']:
             content = content.replace(x, " ")

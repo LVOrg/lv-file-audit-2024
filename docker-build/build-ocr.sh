@@ -32,7 +32,7 @@ COPY ./../remote_server_libs /remote_server_libs
 COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 ENTRYPOINT [\"/remote_server_libs/ocr.sh\"]
 ">>$build_file
-ocr_office_tag=2
+ocr_office_tag=4
 ocr_office_tag_build=$ocr_office_tag
 ocr_office_image="$repository/ocr-my-pdf:"$ocr_office_tag_build
 buildFunc $build_file $repository "ocr-my-pdf-api" $ocr_office_tag_build "python:3.10-alpine" "alpine"

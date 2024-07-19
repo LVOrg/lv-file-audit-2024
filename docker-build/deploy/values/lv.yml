@@ -4,19 +4,21 @@ appConfig:
   name: lv-file
   host:
     path: lacviet
-    name: 172.16.7.99
+    name: codx.lacviet.vn
     protocol: https
   ingress:
-    lv-file:
-      pathType: Prefix
 db:
   mongodb: mongodb://172.16.0.83:27017,172.16.0.84:27017,172.16.0.85:27017/?replicaSet=rs0&readPreference=secondary
   manage: 'lv-docs'
 search:
   prefix_index: 'qtsc-codx'
   server: 'http://172.16.0.83:9200'
+customer: lacviet
 storage:
   server: 172.16.0.85
   directory: /data/share-data/lv-file/files
   name: storage-files
-
+rabbit:
+  server: rabbitmq.rabbitmq-dev.svc.cluster.local
+  username: guest
+  password: guest

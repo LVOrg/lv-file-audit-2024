@@ -38,7 +38,8 @@ class FilterInfo:
     Instance: typing.Optional[str]
     Limit: typing.Optional[int]
     PageIndex: typing.Optional[int]
-
+from fastapi import Body
+from bson.objectid import ObjectId
 @controller.resource()
 class LogsController:
     dependencies = [
@@ -93,13 +94,26 @@ class LogsController:
         ret = agg.sort(
             Repository.lv_files_sys_logs.fields.LogOn.desc()
         ).project(
+            cy_docs.fields.LogId >> Repository.lv_files_sys_logs.fields.Id,
             cy_docs.fields.CreatedOn >> Repository.lv_files_sys_logs.fields.LogOn,
             cy_docs.fields.PodFullName >> Repository.lv_files_sys_logs.fields.PodId,
             cy_docs.fields.PodName >> Repository.lv_files_sys_logs.fields.PodId,
             cy_docs.fields.Content >> Repository.lv_files_sys_logs.fields.ErrorContent,
+            cy_docs.fields.Url >> Repository.lv_files_sys_logs.fields.Url
         ).limit(limit)
         for x in ret:
             yield x.to_json_convertable()
+
+    @controller.route.post(
+        "/api/logs/delete", summary="delete log by id",
+        tags=["LOGS"]
+    )
+    def delete_log(self,logId:str=Body(embed=True)):
+        db_context = Repository.lv_files_sys_logs.app("admin")
+        ret =db_context.context.delete(
+            db_context.fields.Id==ObjectId(logId)
+        )
+        return ret.deleted_count
 
 
 

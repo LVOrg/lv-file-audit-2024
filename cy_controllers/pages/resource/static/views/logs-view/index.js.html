@@ -118,8 +118,12 @@
     <div class="dock full" style="margin:15px;overflow-y:auto;margin:0;padding:0">
         <div rcmpct-lazy-scroll source="data" item-var="p" class="colums" on-request-data="doLoadMore" page-size="{{logLimit}}">
             <rcmpct-template>
-                <div style="margin:10px;border:solid 2px #0c0c0c">
+                <div style="margin:10px;border:solid 2px #0c0c0c"  id="{{p.LogId}}">
                 <table>
+                    <tr>
+                        <td>Url</td>
+                        <td>{{p.Url}}</td>
+                    </tr>
                     <tr>
                         <td>Time</td>
                         <td>{{p.CreatedOn|date:'dd-MM-yyyy hh:mm:ss'}}</td>
@@ -136,6 +140,17 @@
                         <td colspan="2">
                             <div style="max-height:120px;overflow-y:auto;background-color:#000;color:#fff">
                                 {{p.Content}}
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="layout-rows">
+                                <div class="dock full"></div>
+                                <div>
+                                <button class="btn btn-sm btn-danger" ng-click="doDeteteAsync(p).then()">Delete</button>
+                                    </div>
                             </div>
 
                         </td>
