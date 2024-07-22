@@ -359,15 +359,20 @@ class FileStorageService:
                 id = rel_file_path.split('/')[1]
             upload = self.file_services.get_upload_register(app_name, id)
             if upload is not None:
-                if upload.StoragePath is None:
+                if not isinstance(upload,dict) and  upload.StoragePath is None:
                     ret = StorageTypeInfo()
                     ret.storage_type= StorageTypeEnum.MONGO_DB
                     self.cacher.set_object(key,ret)
-                elif isinstance(upload.StoragePath,str) and upload.StoragePath.startswith("local://"):
+                elif hasattr(upload,"StoragePath") and  isinstance(upload.StoragePath,str) and upload.StoragePath.startswith("local://"):
                     ret = StorageTypeInfo()
                     ret.storage_type = StorageTypeEnum.LOCAL
-                    ret.local_path = upload.StoragePath[len("local://"):]
+                    ret.local_path =  upload.StoragePath[len("local://"):]
                     self.cacher.set_object(key, ret)
+                else:
+                    ret = StorageTypeInfo()
+                    ret.storage_type = StorageTypeEnum.LOCAL
+                    # ret.local_path = upload.get("StoragePath")[len("local://"):]
+                    # self.cacher.set_object(key, ret)
         return ret
 
     def __get_storage_type_by_app_and_id__(self, app_name, main_id_file):
