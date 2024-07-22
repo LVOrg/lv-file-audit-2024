@@ -5,3 +5,4 @@ tqdm
 python-memcached
 numpy
 tika
+PyPDF2

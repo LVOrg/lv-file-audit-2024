@@ -99,7 +99,8 @@ class LogsController:
             cy_docs.fields.PodFullName >> Repository.lv_files_sys_logs.fields.PodId,
             cy_docs.fields.PodName >> Repository.lv_files_sys_logs.fields.PodId,
             cy_docs.fields.Content >> Repository.lv_files_sys_logs.fields.ErrorContent,
-            cy_docs.fields.Url >> Repository.lv_files_sys_logs.fields.Url
+            cy_docs.fields.Url >> Repository.lv_files_sys_logs.fields.Url,
+            cy_docs.fields.WorkerIP >> Repository.lv_files_sys_logs.fields.WorkerIP
         ).limit(limit)
         for x in ret:
             yield x.to_json_convertable()

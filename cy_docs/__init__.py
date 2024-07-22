@@ -36,7 +36,7 @@ def get_doc(collection_name: str, client: pymongo.mongo_client.MongoClient, inde
     return getattr(cy_docs_x, "Document")(collection_name, client, indexes=indexes, unique_keys=unique_keys)
 
 
-def define(name: str, indexes: List[str] = [], uniques: List[str] = []):
+def define(name: str, indexes: List[str] = [], uniques: List[str] = [],search:List[str]=[]):
     """
     Define MongoDb document
     The document infor is included : Name, Indexes, Unique Keys
@@ -51,7 +51,7 @@ def define(name: str, indexes: List[str] = [], uniques: List[str] = []):
     :param uniques:
     :return:
     """
-    return cy_docs_x.document_define(name, indexes, uniques)
+    return cy_docs_x.document_define(name, indexes, uniques,search)
 
 
 fields = cy_docs_x.fields
@@ -202,35 +202,7 @@ def EXPR(expr):
         raise Exception(f"{expr} is invalid data type, args in EXPR must be dict or cy_docs_x.Field")
 
 
-# class QueryableCollection(Generic[T]):
-#     def __init__(self, cls, client: pymongo.MongoClient, db_name: str):
-#         self.__cls__ = cls
-#         self.__client__ = client
-#         self.__db_name__ = db_name
-#
-#     @property
-#     def context(self):
-#         """
-#         Query context full Mongodb Access
-#         :return:
-#         """
-#         ret = context(
-#             client=self.__client__,
-#             cls=self.__cls__
-#         )[self.__db_name__]
-#         return ret
-#
-#     @property
-#     def fields(self) -> T:
-#         return cy_docs_x.fields[self.__cls__]
 
-
-# def queryable_doc(
-#         client: pymongo.MongoClient,
-#         db_name: str, instance_tye: T,
-#         document_name: str = None) -> \
-#         QueryableCollection[T]:
-#     return cy_docs_x.queryable_doc(client, db_name, instance_tye, document_name)
 queryable_doc = cy_docs_x.queryable_doc
 from pymongo.mongo_client import MongoClient
 from cy_docs.cy_docs_x import context
@@ -257,6 +229,23 @@ class DbQueryableCollection(Generic[T]):
     @property
     def fields(self) -> T:
         return cy_docs_x.fields[self.__cls__]
+    def search(self,text_search):
+        """
+        query = { "$text": { "$search": "a time-traveling DeLorean" } }
+
+        :param text_search:
+        :return:
+        """
+        ret = Field("")
+        ret.__data__ = {
+            f"$text": {
+                "$search":text_search,
+                "$diacriticSensitive": True,
+                "$language":"fr"
+            }
+        }
+
+        return ret
 
 
 class DbQueryable:

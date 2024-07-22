@@ -240,6 +240,7 @@ class Field(__BaseField__):
         self.__sort__ = 1
         self.__is_expr__ = is_expr
 
+
     def day(self):
         ret = Field(self.__name__)
         ret.__data__ = {
@@ -1400,7 +1401,9 @@ class AggregateDocument:
         ]
 
         return self
-
+    def lookup(self,source_field,des_feld):
+        print(source_field)
+        return self
     def match(self, filter):
         if isinstance(filter, dict):
             self.pipeline += [
@@ -1608,17 +1611,21 @@ class AggregateDocument:
 
 __cache_index__ = dict()
 __cache_unique__ = dict()
+__cache_full_text__ = dict()
 __lock__ = threading.Lock()
 
 
 class Document:
-    def __init__(self, collection_name: str, client: pymongo.mongo_client.MongoClient, indexes=[], unique_keys=[]):
+    def __init__(self, collection_name: str, client: pymongo.mongo_client.MongoClient, indexes=[], unique_keys=[],search=[]):
         self.client = client
         self.collection_name = collection_name
         self.indexes = indexes
         self.unique_keys = unique_keys
         self.__majority_concern__ = None
-
+        self.search = search
+    def set_client(self,client: pymongo.mongo_client.MongoClient):
+        self.client = client
+        return self
     def set_majority_concern(self):
         self.__majority_concern__ = True
 
@@ -1629,6 +1636,7 @@ class Document:
 
         global __cache_index__
         global __cache_unique__
+        global __cache_full_text__
         global __lock__
         if self.__majority_concern__:
             coll = self.client.get_database(item).get_collection(
@@ -1686,11 +1694,23 @@ class Document:
                     finally:
                         # __lock__.release()
                         __cache_index__[key] = key
+            for x in self.search:
+                key = f"{item}.{self.collection_name}.{x}"
+                if __cache_full_text__.get(key) is None:
+                    try:
+                        index_spec =(x,"text")
+                        # options = {"default_language": "none"}
+                        coll.create_index([index_spec],default_language="fr")
+                    except:
+                        pass
+
+
+
 
         thread = threading.Thread(target=run_create_index)
 
         # Set the daemon property to True
-        thread.daemon = True
+        #thread.daemon = True
 
         # Start the thread
         thread.start()
@@ -1807,7 +1827,7 @@ class DbContext(object):
         return cls._instance
 
 
-def document_define(name: str, indexes: List[str], unique_keys: List[str]):
+def document_define(name: str, indexes: List[str], unique_keys: List[str],search:List[str]=[]):
     """
     Define MongoDb document
     The document infor is included : Name, Indexes, Unique Keys
@@ -1827,7 +1847,7 @@ def document_define(name: str, indexes: List[str], unique_keys: List[str]):
         setattr(cls, "__document_name__", name)
         setattr(cls, "__document_indexes__", indexes)
         setattr(cls, "__document_unique_keys__", unique_keys)
-
+        setattr(cls, "__document_search_fields__", search)
         return cls
 
     return wrapper
@@ -1838,6 +1858,7 @@ def context(client, cls, majority=False):
         collection_name=cls.__document_name__,
         indexes=cls.__document_indexes__,
         unique_keys=cls.__document_unique_keys__,
+        search= cls.__document_search_fields__,
         client=client
     )
     if majority:
@@ -2027,28 +2048,6 @@ def get_file_info_by_id(client, db_name, files_id):
     return ret
 
 
-# async def get_file_async(client, db_name: str, file_id):
-#
-#     async_client = AsyncIOMotorClient()
-#     async_client.delegate = client
-#     gfs = AsyncIOMotorGridFSBucket(async_client.get_database(db_name))
-#
-#     if isinstance(file_id, str):
-#         file_id = bson.ObjectId(file_id)
-#     ret = await gfs.open_download_stream(file_id)
-#     # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
-#     return ret
-
-
-# async def find_file_async(client, db_name: str, rel_file_path: str):
-#     from motor.motor_asyncio import AsyncIOMotorClient
-#     async_client = AsyncIOMotorClient()
-#     async_client.delegate = client
-#     gfs = AsyncIOMotorGridFSBucket(async_client.get_database(db_name))
-#     ret = await  gfs.find({"rel_file_path": rel_file_path})
-#
-#     # ret = gridfs.GridFS(__client__.get_database(__db_name__)).get(file_id)
-#     return ret
 
 
 def EXPR(expr):

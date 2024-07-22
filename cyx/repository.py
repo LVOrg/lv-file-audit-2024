@@ -17,7 +17,7 @@ import cy_docs
 
 
 @cy_docs.define(
-    name="lv=file-logs",
+    name="lv-file-logs",
     uniques=[],
     indexes=[
         "PodId",
@@ -30,6 +30,7 @@ class LVFileSysLogs:
     LogOn: datetime.datetime
     ErrorContent: str
     Url: str
+    WorkerIP:str
 
 
 class Repository:

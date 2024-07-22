@@ -1,4 +1,5 @@
 import datetime
+import shutil
 import sys
 import pathlib
 import traceback
@@ -19,7 +20,7 @@ tempfile.tempdir = temp_path
 from remote_server_libs.utils import download_file
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, HTTPException
-
+from PyPDF2 import PdfReader, PdfWriter
 app = FastAPI()
 from tika import parser
 
@@ -63,51 +64,63 @@ async def content_from_pdf(
     process_file, error = download_file.download_file_with_progress(
         url=remote_file, filename=process_file
     )
-    if error:
-        return dict(error=dict(code="ERR500", message=traceback.format_exc()))
-    else:
-        cmd_convert =["gs", "-o", convert_process_file, "-sDEVICE=pdfwrite", "-dFILTERTEXT", process_file]
-        print(" ".join(cmd_convert))
-        subprocess.run(cmd_convert)
-        print(convert_process_file)
-        command = ["ocrmypdf",
-                   "-l", "vie",
-                   "--rotate-pages",
-                   "--deskew",
-                   # "--skip-text",
-                   # "--redo-ocr",
-                   # "--force-ocr",
-                   # "--title", "My PDF",
-                   "--jobs", "2",
-                   "--output-type", "pdfa",
-                   # "--tesseract - timeout", "300",
-                   convert_process_file,
-                   process_file_output]
-        subprocess.run(command)
-        parsed_data = {}
-        parsed_data_original={}
+    split_folder = os.path.join(temp_path,f"{load_file_name}-spliter")
+    os.makedirs(split_folder,exist_ok=True)
+    reader = PdfReader(open(process_file, 'rb'))
+    num_pages = len(reader.pages)
+    print(f"Process {num_pages} page(s)")
+    pages_list = []
+    for page_num in range(num_pages):
+        page = reader.pages[page_num]
+        output_filename = os.path.join(split_folder,f"{page_num}.pdf")
+        writer = PdfWriter()
+        writer.add_page(page)
+        writer.write(open(output_filename, 'wb'))
+        pages_list+=[output_filename]
+    content = []
+    print(pages_list)
+    for page in pages_list:
+        page_out_put = f"{page}-output"
+        page_out_put_convert = f"{page_out_put}.pdf"
+        cmd_convert = ["gs", "-o", page_out_put_convert, "-sDEVICE=pdfwrite", "-dFILTERTEXT", page]
+        detect_page = page_out_put_convert if os.path.isfile(page_out_put_convert) else page
         try:
-            parsed_data = parser.from_file(process_file_output, serverEndpoint=tika_server)
+            command = ["ocrmypdf",
+                           "-l", "vie",
+                           "--rotate-pages",
+                           "--deskew",
+                           # "--skip-text",
+                           # "--redo-ocr",
+                           # "--force-ocr",
+                           # "--title", "My PDF",
+                           "--jobs", "2",
+                           "--output-type", "pdfa",
+                           # "--tesseract - timeout", "300",
+                           detect_page,
+                           page_out_put]
+            subprocess.run(command)
+            parsed_data = parser.from_file(page_out_put, serverEndpoint=tika_server)
+            content += [parsed_data.get("content", "")]
         except:
-            print(f"parse {process_file_output} with {tika_server} fail")
-        try:
-            parsed_data_original = parser.from_file(process_file, serverEndpoint=tika_server)
-        except:
-            print(f"parse {process_file} with {tika_server} fail")
+            parsed_data = parser.from_file(page, serverEndpoint=tika_server)
+            content+=[parsed_data.get("content","")]
 
-        content = parsed_data.get("content","") +" "+ parsed_data_original.get("content","")
-        for x in ['\n','\r','\t']:
-            content = content.replace(x, " ")
-        content = content.rstrip(" ").lstrip(" ")
-        while "  " in content:
-            content = content.replace("  "," ")
-        if os.path.isfile(process_file_output):
-            os.remove(process_file_output)
-        if os.path.isfile(process_file):
-            os.remove(process_file)
-        if os.path.isfile(convert_process_file):
-            os.remove(convert_process_file)
-        return dict(result=content,time= (datetime.datetime.utcnow()-start_time).total_seconds())
+
+    txt_content = " ".join([x for x in content if x is not None])
+    for x in ['\n','\r','\t']:
+        txt_content = txt_content.replace(x, " ")
+    txt_content = txt_content.rstrip(" ").lstrip(" ")
+    while "  " in txt_content:
+        txt_content = txt_content.replace("  "," ")
+    if os.path.isfile(process_file_output):
+        os.remove(process_file_output)
+    if os.path.isfile(process_file):
+        os.remove(process_file)
+    if os.path.isfile(convert_process_file):
+        os.remove(convert_process_file)
+    if os.path.isdir(split_folder):
+        shutil.rmtree(split_folder,ignore_errors=True)
+    return dict(result=txt_content,time= (datetime.datetime.utcnow()-start_time).total_seconds())
 
 
 
@@ -117,3 +130,4 @@ if __name__ == "__main__":
         if x.startswith("port="):
             port = int(x.split("=")[1])
     uvicorn.run("ocr:app", host="0.0.0.0", port=port)
+# docler run --entrypoint /app/mya
