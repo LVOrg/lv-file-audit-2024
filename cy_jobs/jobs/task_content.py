@@ -1,3 +1,4 @@
+import datetime
 import sys
 import pathlib
 import threading
@@ -75,6 +76,13 @@ def run():
                                 data=file_item,
                                 app_name=app_name
                             )
+                            Repository.lv_file_content_process_report.app("admin").context.insert_one(
+                                Repository.lv_file_content_process_report.fields.UploadId << upload_item.get("_id"),
+                                Repository.lv_file_content_process_report.fields.LocalPath << download_url,
+                                Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
+                                    "SyncFromPath") or "",
+                                Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
+                            )
                         elif doc_type=="pdf":
                             extract_content_service.update_by_using_ocr_pdf(
                                 download_url=download_url,
@@ -82,7 +90,12 @@ def run():
                                 data=file_item,
                                 app_name=app_name
                             )
-
+                            Repository.lv_file_content_process_report.app("admin").context.insert_one(
+                                Repository.lv_file_content_process_report.fields.UploadId<< upload_item.get("_id"),
+                                Repository.lv_file_content_process_report.fields.LocalPath << download_url,
+                                Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get("SyncFromPath") or "",
+                                Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
+                            )
                         else:
                             continue
 
@@ -95,6 +108,15 @@ def run():
                         error=str(ex)
 
                     )
+                    Repository.lv_file_content_process_report.app("admin").context.insert_one(
+                        Repository.lv_file_content_process_report.fields.UploadId << upload_item.get("_id"),
+                        Repository.lv_file_content_process_report.fields.LocalPath << download_url,
+                        Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
+                            "SyncFromPath") or "",
+                        Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow(),
+                        Repository.lv_file_content_process_report.fields.IsError << True,
+                        Repository.lv_file_content_process_report.fields.Error << traceback.format_exc()
+                    )
 
                 except Exception as ex:
                     JobLibs.process_manager_service.submit_error(
@@ -102,6 +124,15 @@ def run():
                         app_name=app_name,
                         action_type="content",
                         error=ex
+                    )
+                    Repository.lv_file_content_process_report.app("admin").context.insert_one(
+                        Repository.lv_file_content_process_report.fields.UploadId << upload_item.get("_id"),
+                        Repository.lv_file_content_process_report.fields.LocalPath << download_url,
+                        Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
+                            "SyncFromPath") or "",
+                        Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow(),
+                        Repository.lv_file_content_process_report.fields.IsError << True,
+                        Repository.lv_file_content_process_report.fields.Error << traceback.format_exc()
                     )
                     consumer.resume(msg)
                 finally:

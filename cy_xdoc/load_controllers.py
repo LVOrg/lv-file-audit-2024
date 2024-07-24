@@ -9,6 +9,7 @@ from fastapi import (
     UploadFile,
     Form, File
 )
+from cy_controllers.notebook.notebook_controller import NoteBookController
 from cy_controllers.pages.home import PagesController,RootPagesController
 from cy_controllers.apps.app_controller import AppsController
 from cy_controllers.logs.logs_controller import LogsController
@@ -74,7 +75,7 @@ controllers_list=[
 
 def load_controller(app,host_dir):
     global controllers_list
-    controllers_list += [RootPagesController,PagesController]
+    controllers_list += [NoteBookController,RootPagesController,PagesController]
     for fx in controllers_list:
         try:
             app.include_router(

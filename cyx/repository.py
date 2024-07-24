@@ -8,7 +8,9 @@ from cy_xdoc.models.files import (DocUploadRegister,
                                   DocLocalShareInfo,
                                   Codx_DM_FileInfo,
                                   lv_file_sync_report,
-                                  lv_file_sync_logs
+                                  lv_file_sync_logs,
+                                  LVFileContentProcessReport
+
                                   )
 from cy_xdoc.models.settings import GlobalSettings
 from cy_xdoc.models.files import GoogleFolderMappings, CloudFileSync
@@ -47,3 +49,4 @@ class Repository:
     lv_file_sync_report = RepositoryContext[lv_file_sync_report](lv_file_sync_report)
     lv_file_sync_logs = RepositoryContext[lv_file_sync_logs](lv_file_sync_logs)
     lv_files_sys_logs = RepositoryContext[LVFileSysLogs](LVFileSysLogs)
+    lv_file_content_process_report = RepositoryContext[LVFileContentProcessReport](LVFileContentProcessReport)

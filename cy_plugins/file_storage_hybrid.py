@@ -8,7 +8,7 @@ import cy_kit
 from cy_xdoc.services.files import FileServices
 from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.common import config
-
+import shutil
 __cache_thumbs_finders__ = {}
 class HybridFileStorage:
     def __init__(self,
@@ -185,8 +185,14 @@ class HybridFileStorage:
             app_name=self.app_name,
             upload_id= self.doc_id
         )
+        old_cryptor_file = os.path.join(self.full_dir, f"{self.filename}.cryptor")
         file_path = os.path.join(self.full_dir, f"{self.filename}.processing")
+
+
         if not os.path.exists(file_path) or chunk_index==0:
+            if os.path.isfile(old_cryptor_file):
+                if not os.path.isfile(f"{file_path}.cryptor"):
+                    shutil.copyfile(old_cryptor_file,f"{file_path}.cryptor")
             if upload_info.IsEncryptContent:
                 with open(file_path, "wb",encrypt=True,chunk_size_in_kb=1024,file_size=upload_info.SizeInBytes) as f:
                     f.write(content)

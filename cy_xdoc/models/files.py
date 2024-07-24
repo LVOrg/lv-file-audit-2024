@@ -450,6 +450,14 @@ class Codx_DM_FileInfo:
     FilePath_Old: typing.Optional[str]  # from customer
     PathDisk: typing.Optional[
         str]  # from lv file service api/default/file/145d866f-3823-42cc-a278-01d648121fdd/166_QD.pdf
+    FileName: typing.Optional[str]
+    CreatedBy: typing.Optional[str]
+    FileSize: typing.Optional[int]
+    Permissions: typing.Optional[dict]
+    ObjectType: typing.Optional[str]
+    ObjectID: typing.Optional[str]
+    lv_file_services_is_update_meta_v5: typing.Optional[bool]
+    CreatedOn: typing.Optional[datetime.datetime]
 
 
 @cy_docs.define("LV_File_Sync_Report", uniques=[], indexes=[])
@@ -459,4 +467,13 @@ class lv_file_sync_report:
 @cy_docs.define("LV_File_Sync_Logs", uniques=[], indexes=[])
 class lv_file_sync_logs:
     Error: typing.Optional[str]
+    SubmitOn: typing.Optional[datetime.datetime]
+
+@cy_docs.define("lv-file-content-process-report", uniques=[], indexes=[])
+class LVFileContentProcessReport:
+    UploadId: typing.Optional[str]
+    CustomerPath: typing.Optional[str]
+    LocalPath: typing.Optional[str]
+    Error: typing.Optional[str]
+    IsError: typing.Optional[bool]
     SubmitOn: typing.Optional[datetime.datetime]
