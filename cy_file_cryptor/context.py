@@ -71,12 +71,8 @@ def read_from_cache(key: str):
     if __client__ is None:
         __client__ = Client(__url__)
     memcache_key = get_key(key)
-    ret = __permanent_cache__.get(memcache_key)
-    if ret:
-        return ret
-    else:
-        ret = __client__.get(memcache_key)
-        return ret
+    ret = __client__.get(memcache_key)
+    return ret
 
 
 def clear_cache(key: str):

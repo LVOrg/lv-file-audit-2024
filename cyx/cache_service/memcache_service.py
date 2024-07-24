@@ -89,7 +89,6 @@ class MemcacheServices:
 
     def check_connection(self, timeout) -> bool:
         start_time = datetime.datetime.utcnow()
-        self.logger.info(f"checking memcache server at {datetime.datetime.utcnow()} ...")
         print("check memcache server")
 
         def run_check():
@@ -97,7 +96,7 @@ class MemcacheServices:
                 ret = self.client.set("check_connection", datetime.datetime.utcnow())
                 if ret:
                     print(f"check memcache server {self.server} is ok")
-                    self.logger.info(f"check memcache server {self.server} is ok at {datetime.datetime.utcnow()}")
+
                 return ret
 
             except Exception as e:

@@ -1026,7 +1026,7 @@ class WebApp(BaseWebApp):
             lifespan='on',
             ws_max_size=8*8 * 1024*1024,
             reload=self.dev_mode,
-            reload_dirs=self.working_dir,
+            # reload_dirs=self.working_dir,
             workers=worker,
             ws='websockets',
             # backlog=1000,

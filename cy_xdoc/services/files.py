@@ -641,7 +641,15 @@ class FileServices:
         return ret
 
     async def get_upload_register_async(self, app_name: str, upload_id: str):
-        return self.db_connect.db(app_name).doc(DocUploadRegister).context @ upload_id
+        from cyx.repository import Repository
+        key = f"{self.cache_type}/{app_name}/{upload_id}_async"
+        ret = self.memcache_service.get_object(key,cy_docs.DocumentObject)
+        if ret is None:
+            ret = await Repository.files.app(app_name).context.find_one_async(
+                Repository.files.fields.Id==upload_id
+            )
+            self.memcache_service.set_object(key,ret)
+        return ret
 
     def remove_upload_register_with_cache(self, app_name, upload_id):
         key = f"{self.cache_type}/{app_name}/{upload_id}"

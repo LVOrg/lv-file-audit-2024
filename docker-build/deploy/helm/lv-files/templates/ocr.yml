@@ -1,5 +1,5 @@
 {{- $appName := "lv-ocr" }}
-  {{- $image :="nttlong/ocr-my-pdf-api:2"}}
+  {{- $image :="nttlong/ocr-my-pdf-api:7"}}
 {{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "ocr") }}
 
 ---

@@ -11,7 +11,15 @@ sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 
 print(os.getenv("DB__CNN"))
 sys.path.append("/app")
+from cyx.cache_service.memcache_service import MemcacheServices
+
+def health_check():
+    from  memcache import Client
+
+
 import cy_kit
+memcache_services = cy_kit.singleton(MemcacheServices)
+memcache_services.check_connection(3600)
 from cyx.file_utils_services import FileUtilService
 file_util_service=cy_kit.singleton(FileUtilService)
 
@@ -167,7 +175,8 @@ async def estimate_time(request: fastapi.Request, next):
             return  JSONResponse(content=ret_error,status_code=200)
         else:
             return JSONResponse(content="Error on server", status_code=500)
-
+    finally:
+        malloc_service.reduce_memory()
 
 
 

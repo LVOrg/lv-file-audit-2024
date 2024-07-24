@@ -29,6 +29,7 @@ apps:
         - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
+        - debug=false
         {{ if hasKey $valuesObject "generation" }}
         - generation={{ $valuesObject.generation }}
         {{ end }}
@@ -73,6 +74,7 @@ apps:
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
         - remote_ocr=http://lv-ocr-service.{{$valuesObject.namespace}}:80
+        - debug=false
         {{ if hasKey $valuesObject "generation"  }}
         - generation={{ $valuesObject.generation }}
         {{ end }}
