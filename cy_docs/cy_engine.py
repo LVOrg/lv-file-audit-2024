@@ -1,13 +1,13 @@
 import typing
 
 from mongoengine import (
-    Document,
+    Document,EmbeddedDocument,
     StringField,
     IntField,
     DateTimeField,
     BooleanField,
     FloatField,
-    DynamicField, ObjectIdField, ListField
+    DynamicField, ObjectIdField, ListField, EmbeddedDocumentField
 
 )
 from mongoengine.base import ComplexBaseField, BaseField, BaseDict
@@ -106,14 +106,26 @@ def __create_coll_from_dict__(
         col_name: str | None = None,
         unique_index = None,
         index= None,
-        search_index= None):
-    class ReClass(Document):
+        search_index= None,
+        is_embedded_document=False):
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self._data = kwargs
+    ReClass = None
+    if not is_embedded_document:
+        class _ReClass(Document):
 
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self._data = kwargs
 
+        ReClass = _ReClass
+    else:
+        class _ReClass(EmbeddedDocument):
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self._data = kwargs
+
+        ReClass = _ReClass
 
     setattr(ReClass, "_fields", {})
     setattr(ReClass, "_fields_ordered", [])
@@ -142,7 +154,9 @@ def __create_coll_from_dict__(
     for k, v in fields.items():
         ReClass._fields_ordered += [k]
         if isinstance(v, dict):
-            ReClass._fields[k] = DynamicField(required=False)
+            sub_class = __create_coll_from_dict__(v,is_embedded_document=True)
+            setattr(ReClass,k,sub_class)
+            ReClass._fields[k] = EmbeddedDocumentField(sub_class)
             setattr(ReClass._fields[k], "name", k)
             setattr(ReClass._fields[k], "db_field", k)
         elif isinstance(v, BaseField):

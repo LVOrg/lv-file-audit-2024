@@ -22,12 +22,22 @@ from mongoengine import (
     DateTimeField,
     BooleanField,
     FloatField,
-    DynamicField, ObjectIdField, ListField
+    DynamicField, ObjectIdField, ListField,EmbeddedDocumentField
 
 
 )
 import datetime,types
 import bson.objectid
+
+from mongoengine import Document, EmbeddedDocument, StringField, IntField, Q
+
+class Address(EmbeddedDocument):
+    city = StringField()
+    zipcode = IntField()
+
+class Person(Document):
+    name = StringField()
+    address = EmbeddedDocumentField(Address)
 @cy_docs.define(
     name="lv-file-search-dev-test-1",
     search=["content"]
@@ -76,17 +86,29 @@ connect(host= config.db)
 from cyx.repository import DocUploadRegister
 # user.validate()
 from cy_docs.cy_engine import __extract_annotations_from_class__,__create_coll_from_dict__,get_coll
+from mongoengine import Q
+
+
+
 @cy_docs.define(
-    name="long-test-001",
-    indexes=["Code,Name","Code","Name"],
+    name="long-test-005",
+    indexes=["Code,Name","Name"],
     uniques=["Code"]
 )
 class LongTest:
     Code:str
     Name:str
     Address: str|None
+
+    class ClsDept:
+        Code: str
+        Name: str
+    Dept: ClsDept
+
 coll= get_coll(LongTest)
-x=coll(Code="A",Name="AAA",id="aaaa")
+
+x=coll(Code="B",Name="AAA",Dept=coll.Dept(Code="1",Name="A"))
+
 x.save()
 # field = __extract_annotations_from_class__(TestSearch)
 # cls = __create_coll_from_dict__(field,col_name="long-test-full-text-search")
