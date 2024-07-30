@@ -39,14 +39,15 @@ class ExtractContentService:
                     data=data
                 )
                 return
-            self.update_by_using_tika(
-                download_url=download_url,
-                rel_path=rel_path,
-                data=data,
-                app_name=app_name
-            )
+
             print("update content is OK")
             if doc_type=="office":
+                self.update_by_using_tika(
+                    download_url=download_url,
+                    rel_path=rel_path,
+                    data=data,
+                    app_name=app_name
+                )
                 self.process_manager_service.submit(
                     data=data,
                     app_name=app_name,
@@ -119,6 +120,8 @@ class ExtractContentService:
                     content=content,
                     app_name=app_name
                 )
+        else:
+            raise Exception("get_content_from_pdf_ocr is error")
 
     def update_by_using_tika(self,download_url,rel_path,data,app_name):
         try:

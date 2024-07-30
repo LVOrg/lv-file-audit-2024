@@ -392,6 +392,7 @@ class DocUploadRegister:
     SyncTime: typing.Optional[datetime.datetime]
     SyncFromPath: typing.Optional[str]
     IsUpdating: typing.Optional[bool]
+    IsUpdateSearchFromCodx: typing.Optional[bool]
 
 
 
@@ -456,8 +457,9 @@ class Codx_DM_FileInfo:
     Permissions: typing.Optional[dict]
     ObjectType: typing.Optional[str]
     ObjectID: typing.Optional[str]
-    lv_file_services_is_update_meta_v5: typing.Optional[bool]
+    lv_file_services_is_update_meta_v1: typing.Optional[bool]
     CreatedOn: typing.Optional[datetime.datetime]
+    FolderPath: typing.Optional[str]
 
 
 @cy_docs.define("LV_File_Sync_Report", uniques=[], indexes=[])

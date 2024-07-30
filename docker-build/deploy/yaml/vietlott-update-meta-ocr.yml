@@ -1,8 +1,8 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: vietlott-sync-files
-  namespace: vietlott-sync-files
+  name: vietlott-sync-meta
+  namespace: vietlott-sync-meta
   annotations:
     keel.sh/policy: glob:build-*
     keel.sh/releaseNotes: kubernetes-cluster-vietlott
@@ -10,11 +10,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vietlott-sync-files
+      app: vietlott-sync-meta
   template:
     metadata:
       labels:
-        app: vietlott-sync-files
+        app: vietlott-sync-meta
     spec:
       volumes:
         - name: storage-files
@@ -30,12 +30,19 @@ spec:
 #            sever: 10.96.23.55
 #            path: /backup/backups/files/modules
       containers:
-        - name: vietlott-sync-files
+        - name: vietlott-sync-meta
           image: docker.lacviet.vn/xdoc/fs-tiny-vietlott:latest
           args:
             - python3
-            - /app/cy_jobs/jobs/task_vietllot_sync.py
-            - db=mongodb%3A//admin%3AVietlot%23123@10.96.25.76%3A27017
+            - /app/cy_jobs/jobs/task_vietlot_meta.py
+            - db=mongodb%3A%2F%2Fadmin%3AVietlot%23123%4010.96.25.76%3A27017
+            - elastic_search.server=http://10.96.25.76:9200
+            - elastic_search.prefix_index=lv-codx
+            - rabbitmq.msg=xyzdsc-2024
+            - rabbitmq.password=Vietlot#123
+            - rabbitmq.port='5672'
+            - rabbitmq.server=codx-rabbitmq.rabbitmq.svc.cluster.local
+            - rabbitmq.username=codx
             - admin_db_name=lv-docs
             - file_storage_path=/mnt/files
             - default_tenant=default
@@ -54,7 +61,7 @@ kind: Secret
 apiVersion: v1
 metadata:
   name: harbor-secret-registry
-  namespace: vietlott-sync-files
+  namespace: vietlott-sync-meta
 data:
   .dockerconfigjson: >-
     eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==

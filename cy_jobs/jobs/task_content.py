@@ -26,7 +26,8 @@ import pathlib
 extract_content_service = cy_kit.singleton(ExtractContentService)
 
 from cy_jobs.cy_job_libs import screen_logs_cache, screen_logs,print_screen_logs
-
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
+logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
 def run():
     print("run")
     consumer = Consumer(cyx.common.msg.MSG_FILE_GENERATE_CONTENT)
@@ -68,7 +69,21 @@ def run():
 
                     if doc_type == "unknown":
                         continue
-                    if not is_ready_content:
+                    if doc_type == "pdf":
+                        extract_content_service.update_by_using_ocr_pdf(
+                            download_url=download_url,
+                            rel_path=rel_path,
+                            data=file_item,
+                            app_name=app_name
+                        )
+                        Repository.lv_file_content_process_report.app("admin").context.insert_one(
+                            Repository.lv_file_content_process_report.fields.UploadId << upload_item.get("_id"),
+                            Repository.lv_file_content_process_report.fields.LocalPath << download_url,
+                            Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
+                                "SyncFromPath") or "",
+                            Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
+                        )
+                    elif not is_ready_content:
                         if doc_type == "office":
                             extract_content_service.update_by_using_tika(
                                 download_url=download_url,
@@ -83,19 +98,7 @@ def run():
                                     "SyncFromPath") or "",
                                 Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
                             )
-                        elif doc_type=="pdf":
-                            extract_content_service.update_by_using_ocr_pdf(
-                                download_url=download_url,
-                                rel_path=rel_path,
-                                data=file_item,
-                                app_name=app_name
-                            )
-                            Repository.lv_file_content_process_report.app("admin").context.insert_one(
-                                Repository.lv_file_content_process_report.fields.UploadId<< upload_item.get("_id"),
-                                Repository.lv_file_content_process_report.fields.LocalPath << download_url,
-                                Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get("SyncFromPath") or "",
-                                Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
-                            )
+
                         else:
                             continue
 
@@ -117,6 +120,7 @@ def run():
                         Repository.lv_file_content_process_report.fields.IsError << True,
                         Repository.lv_file_content_process_report.fields.Error << traceback.format_exc()
                     )
+                    logs_to_mongo_db_service.log(traceback.format_exc(),"task-content")
 
                 except Exception as ex:
                     JobLibs.process_manager_service.submit_error(
@@ -134,7 +138,9 @@ def run():
                         Repository.lv_file_content_process_report.fields.IsError << True,
                         Repository.lv_file_content_process_report.fields.Error << traceback.format_exc()
                     )
+                    logs_to_mongo_db_service.log(traceback.format_exc(), "task-content")
                     consumer.resume(msg)
+
                 finally:
                     del upload_item
                     gc.collect()
@@ -151,4 +157,5 @@ if __name__ == "__main__":
     try:
         run()
     except:
+        logs_to_mongo_db_service.log(traceback.format_exc(), "task-content")
         print(traceback.format_exc())

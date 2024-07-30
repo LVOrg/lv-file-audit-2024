@@ -6,3 +6,4 @@ python-memcached
 numpy
 tika
 PyPDF2
+PyMuPDF
