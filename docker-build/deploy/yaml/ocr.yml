@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocrmypdf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ocrmypdf
+  template:
+    metadata:
+      labels:
+        app: ocrmypdf
+    spec:
+      containers:
+      - name: ocrmypdf
+        image: minidocks/ocrmypdf
+        volumeMounts:
+        - name: app
+          mountPath: /app
+        - name: tmp
+          mountPath: /tmp
+        workingDir: /app
+        command: ["sshd"]
+        env:
+        - name: TESSERACT_SERVICE
+          value: tesseract
+        - name: UNPAPER_SERVICE
+          value: unpaper
+        - name: GS_SERVICE
+          value: gs
+      volumes:
+      - name: app
+        hostPath:
+          path: /path/to/your/app
+      - name: tmp
+        hostPath:
+          path: /path/to/your/tmp
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ocrmypdf
+spec:
+  selector:
+    app: ocrmypdf
+  ports:
+  - protocol: TCP
+    port: 22
+    targetPort: 22
+
+# Similar deployments and services for tesseract, unpaper, and gs

@@ -1,5 +1,6 @@
 debug: true
 cache_server: localhost:11211 # important
+#cache_server: 172.16.7.107:11211 # important
 host_url: http://localhost:8012/lvfile
 db: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
 admin_db_name: lv-docs

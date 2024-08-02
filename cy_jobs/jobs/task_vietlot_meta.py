@@ -11,14 +11,14 @@ from cyx.local_api_services import LocalAPIService
 import cy_kit
 from cy_xdoc.services.search_engine import SearchEngine
 search_engine=cy_kit.singleton(SearchEngine)
-app_name = "developer"
+app_name = "default"
 from cyx.repository import Repository
-codx_mongodb="mongodb://admin:Erm%402021@172.16.7.33:27017"
-from pymongo.mongo_client import MongoClient
+# codx_mongodb="mongodb://admin:Erm%402021@172.16.7.33:27017"
+# from pymongo.mongo_client import MongoClient
 # codx_mongodb=co
-codx_client = MongoClient(codx_mongodb)
-codx_files = Repository.codx_dm_file_info.app(f"developer_Data")
-codx_files.__client__ = codx_client
+# codx_client = MongoClient(codx_mongodb)
+codx_files = Repository.codx_dm_file_info.app(f"vietlott_Data")
+# codx_files.__client__ = codx_client
 n= datetime.datetime.utcnow()
 # data_test=codx_files.context.find_one({})
 print((datetime.datetime.utcnow()-n).total_seconds())
@@ -67,12 +67,12 @@ def clear_console():
 
 ret = Repository.files.app(app_name).context.update(
     {},
-    Repository.files.fields.IsUpdateSearchFromCodx << False
+    Repository.files.fields.UpdateMetaDataTime << "1"
 )
 
 while row_count>0:
     lv_files = Repository.files.app(app_name).context.aggregate().match(
-        Repository.files.fields.IsUpdateSearchFromCodx==False
+        Repository.files.fields.UpdateMetaDataTime=="1"
     ).sort(
         Repository.files.fields.RegisterOn.desc()
     ).project(
@@ -177,10 +177,10 @@ while row_count>0:
             # )
 
 
-            consumer.raise_message(
-                app_name=app_name,
-                data=data_item.to_json_convertable()
-            )
+            # consumer.raise_message(
+            #     app_name=app_name,
+            #     data=data_item.to_json_convertable()
+            # )
             # Repository.lv_file_content_process_report.app("admin").context.find_one(
             #     Repository.lv_file_content_process_report.fields.Error << f"Update ok {x.UploadId}",
             #     Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()

@@ -377,6 +377,7 @@ class DocUploadRegister:
     IsRequireOCR: typing.Optional[bool]
     HasORCContent: typing.Optional[bool]
     HasORCContentV2: typing.Optional[bool]
+    IsHasORCContent: typing.Optional[bool]
     IsEncryptContent: typing.Optional[bool]
     IsLvOrc: typing.Optional[bool]
     IsLvOrc3: typing.Optional[bool]
@@ -393,6 +394,7 @@ class DocUploadRegister:
     SyncFromPath: typing.Optional[str]
     IsUpdating: typing.Optional[bool]
     IsUpdateSearchFromCodx: typing.Optional[bool]
+    UpdateMetaDataTime: typing.Optional[str]
 
 
 

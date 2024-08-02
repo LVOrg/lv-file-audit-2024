@@ -1,8 +1,8 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: vietlott-ocr-all
-  namespace: vietlott-ocr-all
+  name: vietlott-update-meta-all
+  namespace: vietlott-update-meta-all
   annotations:
     keel.sh/policy: glob:build-*
     keel.sh/releaseNotes: kubernetes-cluster-vietlott-ocr
@@ -10,11 +10,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vietlott-ocr-all
+      app: vietlott-update-meta-all
   template:
     metadata:
       labels:
-        app: vietlott-ocr-all
+        app: vietlott-update-meta-all
     spec:
       volumes:
         - name: storage-files
@@ -24,17 +24,17 @@ spec:
         - name: customer-files
           nfs:
             server: 10.96.23.55
-            path: /backup/backups/files/modules
+            path: /backup/backups/files
 #        - name: customer-files
 #          nfs:
 #            sever: 10.96.23.55
 #            path: /backup/backups/files/modules
       containers:
-        - name: vietlott-ocr-all
+        - name: vietlott-update-meta-all
           image: docker.lacviet.vn/xdoc/fs-tiny-vietlott-ocr:latest
           args:
             - python3
-            - /app/cy_jobs/jobs/task_vietlott_ocr_all.py
+            - /app/cy_jobs/jobs/task_vietlot_meta.py
             - db=mongodb%3A%2F%2Fadmin%3AVietlot%23123%4010.96.25.76%3A27017
             - elastic_search.server=http://10.96.25.76:9200
             - elastic_search.prefix_index=lv-codx
@@ -65,7 +65,7 @@ kind: Secret
 apiVersion: v1
 metadata:
   name: harbor-secret-registry
-  namespace: vietlott-ocr-all
+  namespace: vietlott-update-meta-all
 data:
   .dockerconfigjson: >-
     eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==

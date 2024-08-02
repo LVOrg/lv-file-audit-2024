@@ -1,0 +1,33 @@
+x-base: &base
+  volumes:
+    - .:/app
+    - ./tmp:/tmp
+  working_dir: /app
+  command: sshd
+
+services:
+  ocrmypdf:
+    <<: *base
+    image: minidocks/ocrmypdf
+    links:
+      - tesseract
+      - unpaper
+      - gs
+    environment:
+      ALIAS_TESSERACT: ssh tesseract tesseract
+      ALIAS_UNPAPER: ssh unpaper unpaper
+      ALIAS_GS: ssh gs gs
+
+  gs:
+    <<: *base
+    image: minidocks/ghostscript
+
+  tesseract:
+    <<: *base
+    image: minidocks/tesseract:4-eng
+    environment:
+      OMP_THREAD_LIMIT: 1
+
+  unpaper:
+    <<: *base
+    image: minidocks/unpaper
