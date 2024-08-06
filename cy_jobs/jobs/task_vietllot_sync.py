@@ -100,61 +100,63 @@ codx_dm_file_remain = codx_dm_file_context.context.aggregate().sort(
 ).match(
     (((codx_dm_file_context.fields.UploadId == "")|(codx_dm_file_context.fields.UploadId == None)) &
      (codx_dm_file_context.fields.ImportFrom == "mysql"))
-)
+).limit(100)
+codx_dm_file_remain = list(codx_dm_file_remain)
 #/home/vmadmin/python/cy-py/cy_controllers/files/file_privileges_controller.py
 # file_path_old_from_codx="modules/cy_controllers/files/file_privileges_controller.py"
 # customer_file_path = os.path.join(file_dir_path, "/".join(file_path_old_from_codx.split('/')[1:])).__str__()
 # upload_id, file_name_in_lv_file = add_file(customer_file_path, app_name="default", match_path=customer_file_path)
 # customer_file_path = os.path.join(file_dir_path, "/".join(file_path_old_from_codx.split('/')[1:])).__str__()
-for dm_file in codx_dm_file_remain:
-    # dm_file_id= dm_file.Id
-    # if isinstance(dm_file.Id,str):
-    #     dm_file_id= bson.ObjectId(dm_file_id)
+while len(codx_dm_file_remain)>0:
+    for dm_file in codx_dm_file_remain:
+        # dm_file_id= dm_file.Id
+        # if isinstance(dm_file.Id,str):
+        #     dm_file_id= bson.ObjectId(dm_file_id)
 
-    file_path_old_from_codx = dm_file[codx_dm_file_context.fields.FilePath_Old]
-    if file_path_old_from_codx is None:
-        continue
-    file_dir_path="/mnt/customers"
-    customer_file_path =os.path.join(file_dir_path, file_path_old_from_codx).__str__()
-    print(f"Sync file {file_path_old_from_codx} \n"
-          f"with mount {customer_file_path}")
-    if not os.path.isfile(customer_file_path):
-        lv_file_sync_report_context.context.insert_one(
-            lv_file_sync_report_context.fields.FilePath<< file_path_old_from_codx,
-            lv_file_sync_report_context.fields.SubmitOn << datetime.datetime.utcnow()
-        )
-        continue
-    try:
-        upload_item_with_path = Repository.files.app("default").context.find_one(
-            Repository.files.fields.SyncFromPath==customer_file_path
-        )
-        if upload_item_with_path:
-            codx_dm_file_context.context.update(
-                codx_dm_file_context.fields.id == dm_file.id,
-                codx_dm_file_context.fields.UploadId << upload_item_with_path.id,
-                codx_dm_file_context.fields.PathDisk << f"api/default/file/{upload_item_with_path.id}/{upload_item_with_path.FileName}"
+        file_path_old_from_codx = dm_file[codx_dm_file_context.fields.FilePath_Old]
+        if file_path_old_from_codx is None:
+            continue
+        file_dir_path="/mnt/customers"
+        customer_file_path =os.path.join(file_dir_path, file_path_old_from_codx).__str__()
+        print(f"Sync file {file_path_old_from_codx} \n"
+              f"with mount {customer_file_path}")
+        if not os.path.isfile(customer_file_path):
+            lv_file_sync_report_context.context.insert_one(
+                lv_file_sync_report_context.fields.FilePath<< file_path_old_from_codx,
+                lv_file_sync_report_context.fields.SubmitOn << datetime.datetime.utcnow()
             )
+            continue
+        try:
+            upload_item_with_path = Repository.files.app("default").context.find_one(
+                Repository.files.fields.SyncFromPath==customer_file_path
+            )
+            if upload_item_with_path:
+                codx_dm_file_context.context.update(
+                    codx_dm_file_context.fields.id == dm_file.id,
+                    codx_dm_file_context.fields.UploadId << upload_item_with_path.id,
+                    codx_dm_file_context.fields.PathDisk << f"api/default/file/{upload_item_with_path.id}/{upload_item_with_path.FileName}"
+                )
+                logs.context.insert_one(
+                    logs.fields.Error << f"Sync file from {file_path_old_from_codx} to {customer_file_path} is OK"
+                )
+            else:
+                upload_id, file_name_in_lv_file = add_file(customer_file_path,app_name="default",match_path=customer_file_path)
+                logs.context.insert_one(
+                    logs.fields.Error <<f"Sync file from {file_path_old_from_codx} to {customer_file_path} is OK"
+                )
+                codx_dm_file_context.context.update(
+                    codx_dm_file_context.fields.id==dm_file.id,
+                    codx_dm_file_context.fields.UploadId <<  upload_id,
+                    codx_dm_file_context.fields.PathDisk << f"api/default/file/{upload_id}/{file_name_in_lv_file}"
+                )
+
+
+
+        except:
             logs.context.insert_one(
-                logs.fields.Error << f"Sync file from {file_path_old_from_codx} to {customer_file_path} is OK"
+                logs.fields.Error << traceback.format_exc().__str__()
             )
-        else:
-            upload_id, file_name_in_lv_file = add_file(customer_file_path,app_name="default",match_path=customer_file_path)
-            logs.context.insert_one(
-                logs.fields.Error <<f"Sync file from {file_path_old_from_codx} to {customer_file_path} is OK"
-            )
-            codx_dm_file_context.context.update(
-                codx_dm_file_context.fields.id==dm_file.id,
-                codx_dm_file_context.fields.UploadId <<  upload_id,
-                codx_dm_file_context.fields.PathDisk << f"api/default/file/{upload_id}/{file_name_in_lv_file}"
-            )
-
-
-
-    except:
-        logs.context.insert_one(
-            logs.fields.Error << traceback.format_exc().__str__()
-        )
-        print(traceback.format_exc())
-        continue
+            print(traceback.format_exc())
+            continue
 
 

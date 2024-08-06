@@ -1652,7 +1652,10 @@ async def streaming_async(fsg, request, content_type, streaming_buffering=1024 *
         else:
             raise FileNotFoundError("File was not found")
     else:
-        file_size = fsg.get_size()
+        if hasattr(fsg,"get_size"):
+            file_size = fsg.get_size()
+        else:
+            file_size = fsg.length
 
     range_header = request.headers.get("range")
     headers = {

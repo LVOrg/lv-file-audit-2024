@@ -128,7 +128,7 @@ from cyx.malloc_services import MallocService
 malloc_service=cy_kit.singleton(MallocService)
 logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
 
-@cy_web.middleware()
+# @cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     try:
         start_time = datetime.datetime.utcnow()

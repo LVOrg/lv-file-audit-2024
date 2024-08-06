@@ -1,0 +1,19 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-file-service
+  namespace: xdoc-2
+
+  labels:
+    app: lv-file-service
+spec:
+  ports:
+    - name: lv-file
+      protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: lv-file
+  type: ClusterIP
+
+

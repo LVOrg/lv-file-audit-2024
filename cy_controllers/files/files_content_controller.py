@@ -92,14 +92,14 @@ class FilesContentController(BaseController):
         return ret
 
     @controller.router.get(
-        "/api/{app_name}/file/{directory:path}" if not version2 else "/api/{app_name}/file-old/{directory:path}",
+        "/api/{app_name}/file/{directory:path}" ,
         tags=["FILES-CONTENT"]
     )
     # async def get_content(self, app_name: str, directory: str):
     #     return await self.file_util_service.get_file_content_async(self.request,app_name,directory)
     async def get_content_from_all(self, app_name: str, directory: str):
-        # if len(directory.split('/'))>2:
-        #     directory = directory.split('/')[0]+"/"+directory.split('/')[1]
+        if len(directory.split('/'))>2:
+            directory = directory.split('/')[0]+"/"+directory.split('/')[1]
         try:
             return await self.file_util_service.get_file_content_async(request=self.request,app_name=app_name,directory=directory)
         except requests.exceptions.HTTPError as ex:
@@ -114,6 +114,7 @@ class FilesContentController(BaseController):
     # )
     # async def get_content(self, app_name: str, directory: str):
     #     return await self.file_util_service.get_file_content_async(self.request,app_name,directory)
+
     async def get_content(self, app_name: str, directory: str):
         # if len(directory.split('/'))>2:
         #     directory = directory.split('/')[0]+"/"+directory.split('/')[1]

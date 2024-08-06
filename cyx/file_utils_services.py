@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime
 from humanize import naturalsize
 
+import bson.objectid
 import cy_docs.cy_docs_x
 import cy_kit
 from cyx.common import config
@@ -422,9 +423,14 @@ class FileUtilService(BaseUtilService):
                     file_name = upload[Repository.files.fields.FileName]
                     file_ext = pathlib.Path(file_name).suffix
                     file_type = file_ext[1:4] if file_ext else "unknown"
-
-                    real_file_location = os.path.join(config.file_storage_path,
-                                                      data["MainFileId"].split("://")[1]).__str__()
+                    object_fs_id = None
+                    try:
+                        object_fs_id = bson.objectid.ObjectId(data["MainFileId"])
+                        real_file_location=f"mongo://{data['MainFileId']}"
+                    except:
+                        object_fs_id = None
+                        real_file_location = os.path.join(config.file_storage_path,
+                                                          data["MainFileId"].split("://")[1]).__str__()
                     data["real_file_location"] = real_file_location
                     data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
                     data["NumOfChunksCompleted"] = data.get("NumOfChunksCompleted") or 0
@@ -471,14 +477,29 @@ class FileUtilService(BaseUtilService):
 
         if file_path is None:
             raise FileNotFoundError()
-        fs = open(file_path, "rb")
-        ret = await streaming_async(
-            fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
-        )
-        ret.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        if request.query_params.get('download') is not None:
-            ret.headers["Content-Disposition"] = f"attachment; filename={upload['FileName']}"
-        return ret
+        if file_path.startswith("mongo://"):
+            from gridfs import GridFS
+            db = Repository.files.app(app_name).context.collection.database
+            fs_obj = GridFS(db)
+            file_id = bson.objectid.ObjectId(file_path.split("://")[1])
+
+            fs = fs_obj.get(file_id)
+            ret = await streaming_async(
+                fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
+            )
+            ret.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            if request.query_params.get('download') is not None:
+                ret.headers["Content-Disposition"] = f"attachment; filename={upload['FileName']}"
+            return ret
+        else:
+            fs = open(file_path, "rb")
+            ret = await streaming_async(
+                fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
+            )
+            ret.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            if request.query_params.get('download') is not None:
+                ret.headers["Content-Disposition"] = f"attachment; filename={upload['FileName']}"
+            return ret
 
     async def get_content_from_google_drive_async(self, request, app_name, upload_id, content_type, upload):
         if upload.get("CloudId"):
