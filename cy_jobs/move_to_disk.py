@@ -39,13 +39,14 @@ from gridfs import GridFS
 
 
 def do_download_file(db: pymongo.database.Database, fs_id: bson.ObjectId, file_name: str, to_folder: str):
+    full_file_path = os.path.join(
+        to_folder,
+        file_name
+    )
     try:
         fs = GridFS(db)
         grid_out = fs.get(fs_id)
-        full_file_path = os.path.join(
-            to_folder,
-            file_name
-        )
+
         chunk_size = (1024 ** 2) * 5
         file_size = grid_out.length
         range_length = int(math.floor(file_size / chunk_size))
@@ -66,6 +67,8 @@ def do_download_file(db: pymongo.database.Database, fs_id: bson.ObjectId, file_n
 
     except gridfs.errors.CorruptGridFile as ex:
         print(f"{ex._message}")
+    except gridfs.errors.NoFile:
+        print(f"File not found in Mongodb. Extract to {full_file_path} fail. Skip")
 
     # fs.delete(fs_id)
 
@@ -116,7 +119,8 @@ def move_data(app_name: str):
     agg = file_context.context.aggregate().sort(
         file_context.fields.RegisterOn.desc()
     ).match(
-        (Repository.files.fields.IsExtracToDiskTime==None)
+        file_context.context.find_one(Repository.files.fields.StoragePath==None)
+        #(Repository.files.fields.IsExtracToDiskTime==None)
         #cy_docs.not_exists(file_context.fields.StoragePath) & (file_context.fields.Status == 1) & (file_context.fields.StorageType!="local")
 
     ).limit(10)
@@ -155,6 +159,7 @@ def move_data(app_name: str):
                 file_storage_path,
                 rel_path
             )
+            fs_id = None
             if not os.path.isdir(full_path):
                 os.makedirs(full_path, exist_ok=True)
             if is_bson_object(main_file_id):
@@ -170,6 +175,9 @@ def move_data(app_name: str):
                         Repository.files.fields.MainFileId << str(fs_id)
                     )
 
+            if not fs_id:
+                print(f"{full_path} not found skip")
+                continue
             if not os.path.isfile(os.path.join(full_path,file_name)):
                 do_download_file(
                     db=file_context.__client__.get_database(file_context.__db_name__),

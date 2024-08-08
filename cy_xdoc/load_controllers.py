@@ -23,8 +23,8 @@ from cy_controllers.files.file_privileges_controller import FilesPrivilegesContr
 from cy_controllers.systems.system_controllers import SystemsController
 from cy_controllers.health_check.health_check_controllers import HealthCheckController
 # from cy_controllers.azure.token_controller import AzureController
-from cy_controllers.wopi.wopi_controller import WOPIController
-from cy_controllers.office365.office365_controller import Office365Controller
+# from cy_controllers.wopi.wopi_controller import WOPIController
+# from cy_controllers.office365_delete.office365_controller import Office365Controller
 from cy_controllers.auth.auth_controller import AuthController
 from cy_controllers.files.files_source_controller import FilesSourceController
 from cy_controllers.global_settings.global_settinsg_controllers import GlobalSettingsController
@@ -59,8 +59,8 @@ controllers_list=[
         SystemsController,
         # AzureController,
         FilesSourceController,
-        WOPIController,
-        Office365Controller,
+        # WOPIController,
+        # Office365Controller,
         AuthController,
 
         GoogleController,
