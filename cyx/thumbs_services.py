@@ -63,9 +63,25 @@ class ThumbService:
             Repository.files.fields.Id==upload_id
         )
 
+
+
         if upload_item is None:
 
             return None
+        thunb_id = upload_item[Repository.files.fields.ThumbFileId]
+        if isinstance(thunb_id, bson.ObjectId):
+            return thunb_id
+        else:
+            try:
+                thunb_id = bson.objectid(thunb_id)
+                return thunb_id
+            except:
+                main_file_id =upload_item[Repository.files.fields.MainFileId]
+                try:
+                    _main_file_id = bson.ObjectId(main_file_id)
+                    return None
+                except:
+                    pass
 
         real_file_path = await self.file_util_service.get_physical_path_async(
             app_name=app_name,

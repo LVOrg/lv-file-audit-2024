@@ -395,6 +395,8 @@ class DocUploadRegister:
     IsUpdating: typing.Optional[bool]
     IsUpdateSearchFromCodx: typing.Optional[bool]
     UpdateMetaDataTime: typing.Optional[str]
+    IsExtracToDiskTime: typing.Optional[str]
+
 
 
 

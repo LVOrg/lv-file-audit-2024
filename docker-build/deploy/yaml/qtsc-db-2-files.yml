@@ -1,0 +1,51 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: qtsc-db2file
+  namespace: qtsc-db2file
+  annotations:
+    keel.sh/policy: glob:build-*
+    keel.sh/releaseNotes: kubernetes-cluster-qtsc-db2file
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qtsc-db2file
+  template:
+    metadata:
+      labels:
+        app: qtsc-db2file
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 10.200.16.15
+            path: /data/share/xdoc-web/files
+      containers:
+        - name: qtsc-db2file
+          image: docker.lacviet.vn/xdoc/qtsc-db2file:latest
+          args:
+            - python3
+            - /app/cy_jobs/move_to_disk.py
+            - tenants=default,hps-file-test
+            - db=mongodb://admin:Lacviet#123@10.200.16.15:27017
+            - admin_db_name=hps-file-test
+            - file_storage_path=/mnt/files
+          resources: {}
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+      imagePullSecrets:
+        - name: harbor-secret-registry
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: harbor-secret-registry
+  namespace: qtsc-db2file
+data:
+  .dockerconfigjson: >-
+    eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==
+type: kubernetes.io/dockerconfigjson
+
+

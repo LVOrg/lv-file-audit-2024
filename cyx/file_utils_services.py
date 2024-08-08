@@ -424,19 +424,26 @@ class FileUtilService(BaseUtilService):
                     file_ext = pathlib.Path(file_name).suffix
                     file_type = file_ext[1:4] if file_ext else "unknown"
                     object_fs_id = None
+                    if not data.get("MainFileId"):
+                        return None
                     try:
                         object_fs_id = bson.objectid.ObjectId(data["MainFileId"])
-                        real_file_location=f"mongo://{data['MainFileId']}"
+                        real_file_location=f"mongo://{str(data['MainFileId'])}"
                     except:
                         object_fs_id = None
                         real_file_location = os.path.join(config.file_storage_path,
                                                           data["MainFileId"].split("://")[1]).__str__()
+                        if not os.path.isfile(real_file_location) and data.get("StoragePath"):
+                            real_file_location = os.path.join(config.file_storage_path,
+                                                          data["StoragePath"].split("://")[1]).__str__()
+
                     data["real_file_location"] = real_file_location
                     data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
                     data["NumOfChunksCompleted"] = data.get("NumOfChunksCompleted") or 0
                     data["SizeUploaded"] = data.get("SizeUploaded") or 0
-                    os.makedirs(data["real_file_dir"], exist_ok=True)
-                    self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
+                    if not real_file_location.startswith("mongo://"):
+                        os.makedirs(data["real_file_dir"], exist_ok=True)
+                        self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
             return data
         else:
             upload = Repository.files.app(app_name).context.find_one(
@@ -478,12 +485,7 @@ class FileUtilService(BaseUtilService):
         if file_path is None:
             raise FileNotFoundError()
         if file_path.startswith("mongo://"):
-            from gridfs import GridFS
-            db = Repository.files.app(app_name).context.collection.database
-            fs_obj = GridFS(db)
-            file_id = bson.objectid.ObjectId(file_path.split("://")[1])
-
-            fs = fs_obj.get(file_id)
+            fs=self.get_fs_mongo(app_name,file_path.split("://")[1])
             ret = await streaming_async(
                 fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
             )
@@ -500,6 +502,14 @@ class FileUtilService(BaseUtilService):
             if request.query_params.get('download') is not None:
                 ret.headers["Content-Disposition"] = f"attachment; filename={upload['FileName']}"
             return ret
+    def get_fs_mongo(self,app_name,file_id):
+        db = Repository.files.app(app_name).context.collection.database
+        from gridfs import GridFS
+        fs_obj = GridFS(db)
+        if not isinstance(file_id,bson.ObjectId):
+            file_id = bson.ObjectId(file_id)
+        fs = fs_obj.get(file_id)
+        return fs
 
     async def get_content_from_google_drive_async(self, request, app_name, upload_id, content_type, upload):
         if upload.get("CloudId"):
