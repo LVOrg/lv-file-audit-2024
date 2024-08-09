@@ -1,7 +1,6 @@
-{{- $appName := "lv-office" }}
-  {{- $image :="nttlong/lv-libreoffice:1.14"}}
-{{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "office") }}
-
+{{- $appName := "lv-thumbs" }}
+  {{- $image :="nttlong/lv-thumbs"}}
+{{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "thumbs") }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,7 +23,6 @@ spec:
             server: {{.Values.storage.server}}
             path: {{.Values.storage.directory}}
       containers:
-
         - image: {{$image}}
           env:
             - name: MEMCACHED_SERVER
@@ -52,10 +50,10 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-      {{ if $hasNodePort  }}
-      nodePort: {{ .Values.nodePort.office }}
+      {{ if $hasNodePort }}
+      nodePort: {{ .Values.nodePort.thumbs }}
       {{ end }}
-  {{ if $hasNodePort  }}
+  {{ if $hasNodePort }}
   type: NodePort
   {{ end }}
   selector:

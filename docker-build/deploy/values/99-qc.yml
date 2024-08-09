@@ -37,4 +37,5 @@ nodePort:
   video: "32264"
   tika: "32265"
   ocr: "32266"
+  thumbs: "32267"
 

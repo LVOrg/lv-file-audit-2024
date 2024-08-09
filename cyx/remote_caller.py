@@ -3,19 +3,38 @@ class RemoteCallerService:
     def __init__(self):
         pass
 
-    def get_image_from_office(self, url:str, local_file, remote_file,memcache_server):
-        url=url.rstrip('/')
-        data = {}
+    def get_image_from_office(self, url_of_office_to_image_service:str, url_of_content:str, url_upload_file:str):
+        """
+        :param url_of_office_to_image_service:
+        :param url_of_content:
+        :param url_upload_file:
+        :return:
+        """
+        response = requests.post(url_of_office_to_image_service + "/get-image", json=dict(
+            url_of_content=url_of_content,
+            url_upload_file=url_upload_file
+        ))
+        try:
+            return response.json()
+        except:
+            print(response.text)
+            return dict(error=dict(Code="RemoteERR500", Description=response.text))
 
-        if local_file:
-            # Adjust data format based on your FastAPI implementation for local file handling
-            data["local_file"] = local_file
-        if remote_file:
-            data["remote_file"] = remote_file
-        data["memcache_server"] = memcache_server
+    def get_thumb(self, url_of_thumb_service:str, url_of_image:str, url_upload_file:str, size: int):
+        """
 
-        # Send POST request with data (adjust based on your API logic)
-        response = requests.post(url+"/get-image", json=data)
+        :param size: Thumb size
+        :param url_of_thumb_service: url of service process thumb
+        :param url_of_image: url of image
+        :param url_upload_file: url upload thumb file after process thumb
+        :return:
+        """
+        response = requests.post(url_of_thumb_service+"/get-thumb", json=dict(
+            size=size,
+            url_of_thumb_service = url_of_thumb_service,
+            url_of_image = url_of_image,
+            url_upload_file = url_upload_file
+        ))
         try:
             return response.json()
         except:

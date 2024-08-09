@@ -73,7 +73,8 @@ import cy_web
 from cyx.repository import Repository
 import os
 import cyx.common.msg
-
+import inspect
+from  cy_web.cy_web_x import streaming_async
 
 @controller.resource()
 class FilesLocalController(BaseController):
@@ -85,7 +86,7 @@ class FilesLocalController(BaseController):
     async def read_raw_content(self,
                                rel_path: str
                                ) -> None:
-        import urllib.parse
+
         local_share_id= self.request.query_params.get("local-share-id")
         token = self.request.query_params.get("token")
         is_ok = local_share_id or token
@@ -135,7 +136,40 @@ class FilesLocalController(BaseController):
                     request=self.request,
                     upload_id=upload_id
                 )
-        upload_item = await self.file_util_service.get_upload_by_upload_id_async(app_name=app_name,upload_id=upload_id)
-        if not upload_item:
-            return  Response(status_code=404,content="Contet wsa not found")
-        return  await self.file_util_service.get_file_content_async(self.request,app_name,f'{upload_id}/{upload_item["FileNameLower"]}')
+        else:
+            fs = open(server_path, "rb")
+            content_type, _ = mimetypes.guess_type(server_path)
+            ret = await streaming_async(
+                fs, self.request, content_type, streaming_buffering=1024 * 4 * 3 * 8
+            )
+            ret.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            return ret
+        # upload_item = await self.file_util_service.get_upload_by_upload_id_async(app_name=app_name,upload_id=upload_id)
+        # if not upload_item:
+        #     return  Response(status_code=404,content="Contet was not found")
+        # return  await self.file_util_service.get_file_content_async(self.request,app_name,f'{upload_id}/{upload_item["FileNameLower"]}')
+
+
+    @controller.route.post(
+        "/api/sys/admin/content-write/{rel_path:path}", summary="",
+        tags=["LOCAL"]
+    )
+
+    async def write_raw_content(self,rel_path: str,content: Annotated[UploadFile, File()]):
+        import aiofiles
+        local_share_id = self.request.query_params.get("local-share-id")
+        token = self.request.query_params.get("token")
+        is_ok = local_share_id or token
+        if not is_ok:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="")
+
+        server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
+        server_dir = pathlib.Path(server_path).parent.__str__()
+        os.makedirs(server_dir,exist_ok=True)
+        async with aiofiles.open(server_path, 'wb') as f:
+            while True:
+                chunk = await content.read(1024)
+                if not chunk:
+                    break
+                await f.write(chunk)
+        return server_path

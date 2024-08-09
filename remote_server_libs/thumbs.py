@@ -1,5 +1,6 @@
 import sys
 import pathlib
+import threading
 import traceback
 import typing
 import hashlib
@@ -21,10 +22,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 
 app = FastAPI()
 
-import cy_file_cryptor.context
 
-import cy_file_cryptor.wrappers
-import io
 import requests
 import hashlib
 @app.get("/hz")
@@ -54,32 +52,87 @@ def download_file(url,out_put_dir):
         return output_path, None
     except Exception as ex:
         return None, dict(error=dict(code="CanNotDownloadFile", message= traceback.format_exc()))
+from PIL import Image
+import webp
+def do_scale_size( file_path, size):
+    """
+    Create scale size of image in file_path in size of square size ex: size=120 square is 120x120
+    The scale file name is in format {size}.webp an place at the same folder of file_path
+    :param file_path:
+    :param size:
+    :return:
+    """
+
+    Image.MAX_IMAGE_PIXELS = None
+    ret_image_path = os.path.join(pathlib.Path(file_path).parent.__str__(), f"{size}.webp")
+    temp_ret_image_path = os.path.join(pathlib.Path(file_path).parent.__str__(), f"{size}_tmp.webp")
+    with Image.open(file_path) as img:
+        original_width, original_height = img.size
+        if size > max(original_width, original_height):
+            size = int(max(original_width, original_height))
+        rate = size / original_width
+        w, h = size, int(original_height * rate)
+        if original_height > original_width:
+            rate = size / original_height
+            w, h = int(original_width * rate), size
+        scaled_img = img.resize((w, h))  # High-quality resampling
 
 
-@app.post("/generate-thumbs")
-async def image_from_pdf(
-        local_file: typing.Optional[str] = Body(embed=True, default=None),
-        remote_file: typing.Optional[str] = Body(embed=True, default=None),
-        memcache_server: str = Body(embed=True)
+        webp.save_image(scaled_img, ret_image_path,
+                        lossless=True)  # Set lossless=False for lossy compression
+        scaled_img.close()
+        del scaled_img
+
+        return ret_image_path
+"""
+            size=size,
+            url_of_thumb_service = url_of_thumb_service,
+            url_of_image = url_of_image,
+            url_upload_file = url_upload_file
+"""
+def upload_file(url_upload_file, thumb_file_path):
+  """Uploads a file to a given URL.
+
+  Args:
+    url_upload_file: The URL endpoint for file upload.
+    thumb_file_path: The path to the file to be uploaded.
+
+  Returns:
+    The response from the server.
+  """
+
+  files = {'content': open(thumb_file_path, 'rb')}
+  response = requests.post(url_upload_file, files=files)
+  ret= response.json()
+  return ret
+@app.post("/get-thumb")
+async def generate_thumbs(
+        size:int=Body(embed=True),
+        url_of_image: str= Body(embed=True),
+        url_upload_file: str= Body(embed=True)
 
 ):
-    import cy_file_cryptor.context
-    memcache_server = os.getenv("MEMCACHED_SERVER") or memcache_server
-    cy_file_cryptor.context.set_server_cache(memcache_server)
-    dir_of_file = temp_processing_file
-    process_file = None
 
-    image_of_video_file,error = download_file(remote_file,temp_processing_file)
-    if error:
-        return  error
+    def runner():
+        dir_of_file = temp_processing_file
+        process_file = None
+
+        image_file,error = download_file(url_of_image,temp_processing_file)
+        if error:
+            return  error
+        thumb_file_path = do_scale_size(image_file,size)
+        upload_file(url_upload_file, thumb_file_path)
+        return "OK"
+    threading.Thread(target=runner).start()
+    return "Processing"
 
 
 
-    if os.path.isfile(image_of_video_file):
 
-        return dict(image_file=image_of_video_file, content_file=None)
-    else:
-        return dict(error=dict(code="CanNotRender", message=f"{local_file} or {remote_file} can not render"))
+
+
+
+
 
 
 if __name__ == "__main__":

@@ -294,6 +294,8 @@ class FilesContentController(BaseController):
         """
         # from cy_xdoc.controllers.apps import check_app
         # check_app(app_name)
+        if not directory.split('/')[-1].split('.')[0].isnumeric():
+            raise ValueError(f"{directory} must be end with number")
         size= int(directory.split('/')[-1].split('.')[0])
         file_path = await self.thumb_service.get_async(app_name, directory, size)
         if isinstance(file_path,bson.ObjectId):
@@ -306,11 +308,7 @@ class FilesContentController(BaseController):
 
             ret = await cy_web.cy_web_x.streaming_async(file_path, self.request, "image/webp")
             return ret
-            # image_file_path = self.local_file_caching_service.cache_file(
-            #     file_path
-            # )
-            # mt, _ = mimetypes.guess_type(image_file_path)
-            # return FileResponse(image_file_path)
+
         else:
             return Response(
                 status_code=404

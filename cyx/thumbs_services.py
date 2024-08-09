@@ -169,25 +169,21 @@ class ThumbService:
         if file_type !="image":
             image_file=f"{abs_file_path}.png"
         if os.path.isfile(image_file):
-            import PIL
-            try:
-                ret = self.do_scale_size(file_path=image_file,size=size)
-                self.memcache_services.set_str(key, ret)
-                return ret
-            except PIL.UnidentifiedImageError:
-                if os.path.isfile(image_file):
-                    os.remove(image_file)
-                self.run_generate_image(file_type=file_type,
-                                        file_process=abs_file_path,
-                                        is_in_thred=True,
-                                        app_name=app_name,
-                                        upload_id=upload_id,
-                                        size=size,
-                                        cache_key=key,
-                                        server_file=server_file,
-                                        )
-            except Exception as ex:
-                print(image_file)
+            url_of_image = server_file.split('?')[0]+".png"+"?"+server_file.split("?")[1]
+            url_upload_file = self.local_api_service.get_upload_path(
+                upload_item=upload_item,
+                app_name=app_name,
+                file_name=f"{size}.webp"
+            )
+            self.remote_caller_service.get_thumb(
+                url_of_thumb_service= config.remote_thumb,
+                url_of_image = url_of_image,
+                url_upload_file = url_upload_file,
+                size=size
+
+            )
+            return image_file
+
         else:
             self.run_generate_image(file_type=file_type,
                                     file_process=abs_file_path,
@@ -203,26 +199,7 @@ class ThumbService:
 
 
 
-    # async def get_customize_async(self, app_name, directory):
-    #     cache_key = f"{self.cache_group}/{app_name}/{directory}/get_customize_async".replace(" ", "_")
-    #     ret = self.memcache_services.get_str(cache_key)
-    #     if isinstance(ret, str) and os.path.isfile(ret):
-    #         return ret
-    #     name_only = pathlib.Path(directory).stem
-    #     if name_only.isnumeric():
-    #         ret = await self.get_async(
-    #             app_name=app_name,
-    #             directory=directory,
-    #             size=int(name_only)
-    #         )
-    #         self.memcache_services.set_str(cache_key,ret)
-    #         return ret
-    #     else:
-    #         return await self.get_async(
-    #             app_name=app_name,
-    #             directory=directory,
-    #             size=700
-    #         )
+
     @cache
     def get_cache_key(self, app_name, directory,size):
         """
@@ -290,12 +267,23 @@ class ThumbService:
 
     def run_generate_image(self, file_type, file_process,server_file,size,cache_key,app_name,upload_id, is_in_thred):
         def running(abs_file_path,server_file,size,key):
+            upload_image_url = self.local_api_service.get_upload_path_by_upload_id(
+                upload_id=upload_id,
+                app_name=app_name,
+                file_ext="png"
+
+            )
+            download_content_url = self.local_api_service.get_download_path_by_upload_id(
+                upload_id=upload_id,
+                app_name=app_name
+            )
+
+
             if file_type=="office":
                 data = self.remote_caller_service.get_image_from_office(
-                    url=f"{config.remote_office}",
-                    local_file=abs_file_path,
-                    remote_file=server_file,
-                    memcache_server = config.cache_server
+                    url_of_office_to_image_service=f"{config.remote_office}",
+                    url_upload_file=upload_image_url,
+                    url_of_content=download_content_url
                 )
                 if data.get("error"):
                     print(json.dumps(data.get("error"),indent=4))

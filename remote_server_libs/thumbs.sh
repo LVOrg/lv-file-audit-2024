@@ -11,9 +11,8 @@ PORT=$1
 
 # Run your Python script with the provided port
 # Assuming office.py is the main script
-echo "python3 /remote_server_libs/office.py port=$PORT"
-python3.10 $(pwd)/remote_server_libs/office.py port=$PORT
-#python3.10 /remote_server_libs/office.py port=8017
+echo "python3 /remote_server_libs/thumbs.py port=$PORT"
+python3.10 $(pwd)/remote_server_libs/thumbs.py port=$PORT
 
 # Handle potential errors from the Python script (optional)
 if [[ $? -ne 0 ]]; then

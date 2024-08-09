@@ -28,7 +28,7 @@ from cy_controllers.health_check.health_check_controllers import HealthCheckCont
 from cy_controllers.auth.auth_controller import AuthController
 from cy_controllers.files.files_source_controller import FilesSourceController
 from cy_controllers.global_settings.global_settinsg_controllers import GlobalSettingsController
-from cy_controllers.gemini_controller.gemini_controller import GeminiControllr
+
 from cy_controllers.files.file_local_controller import FilesLocalController
 from cyx.loggers import LoggerService
 from cy_controllers.google.auth_controller import GoogleController
@@ -43,7 +43,6 @@ import cy_kit
 logger_service = cy_kit.singleton(LoggerService)
 controllers_list=[
         GlobalSettingsController,
-        GeminiControllr,
         HealthCheckController,
         # FilesContentControllerNew,
         FilesContentController,
@@ -57,10 +56,8 @@ controllers_list=[
         FilesPrivilegesController,
         SearchController,
         SystemsController,
-        # AzureController,
+
         FilesSourceController,
-        # WOPIController,
-        # Office365Controller,
         AuthController,
 
         GoogleController,

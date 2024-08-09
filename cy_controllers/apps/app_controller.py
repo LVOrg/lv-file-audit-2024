@@ -139,7 +139,7 @@ class AppsController(BaseController):
             )
             return ret
         except Exception as e:
-            raise e
+
             ret.Error = ErrorResult(
                 Code=cy_xdoc.get_error_code(e),
                 Fields=cy_xdoc.get_error_fields(e),

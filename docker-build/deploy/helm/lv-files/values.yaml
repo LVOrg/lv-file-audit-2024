@@ -47,4 +47,5 @@ nodePort:
   tika: "32226"
   content: "32227"
   ocr: "32228"
+  thumbs: "32229"
 generation:

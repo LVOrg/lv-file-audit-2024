@@ -26,6 +26,7 @@ apps:
         - remote_pdf=http://lv-pdf-service.{{$valuesObject.namespace}}:80
         - remote_video=http://lv-video-service.{{$valuesObject.namespace}}:80
         - remote_ocr=http://lv-ocr-service.{{$valuesObject.namespace}}:80
+        - remote_thumb=http://lv-thumbs-service.{{$valuesObject.namespace}}:80
         - tika_server=http://tika-service.{{$valuesObject.namespace}}:80
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
