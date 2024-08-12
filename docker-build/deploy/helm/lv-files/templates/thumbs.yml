@@ -1,5 +1,5 @@
 {{- $appName := "lv-thumbs" }}
-  {{- $image :="nttlong/lv-thumbs"}}
+  {{- $image :="nttlong/lv-thumbs:1"}}
 {{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "thumbs") }}
 ---
 apiVersion: apps/v1

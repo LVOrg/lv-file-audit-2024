@@ -106,9 +106,12 @@ if hasattr(config, "auto_ssl_redirect") and config.auto_ssl_redirect == "on":
 
     cy_app_web.app.add_middleware(HTTPSRedirectMiddleware)
 from fastapi import HTTPException
-
-cy_web.add_cors(["*"])
+resaccept_domains =["*"]
+if hasattr(config,"domains"):
+    accept_domains=config.domains.split(",")
+cy_web.add_cors(accept_domains)
 from starlette.concurrency import iterate_in_threadpool
+# => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc:build-22.20240809151617@sha256:8aed962c11f2908bac67cc0ed3342b9b0d24eef7162d039ab1681cc69bd43448                                                                  0.5s
 
 from cyx.repository import Repository
 
@@ -130,7 +133,11 @@ logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
 
 @cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
+    orgigin = None
     try:
+
+        if request.headers.get("origin") or request.headers.get("Origin"):
+            orgigin = request.headers.get("origin") or request.headers.get("Origin")
         start_time = datetime.datetime.utcnow()
         res = await next(request)
         n = datetime.datetime.utcnow() - start_time
@@ -151,7 +158,7 @@ async def estimate_time(request: fastapi.Request, next):
                         res.set_cookie('access_token_cookie', data.get('access_token'))
                 except Exception as e:
                     pass
-
+        #build-22.20240809144938
         end_time = datetime.datetime.utcnow()
 
         async def apply_time(res):
@@ -159,6 +166,12 @@ async def estimate_time(request: fastapi.Request, next):
             return res
 
         res = await apply_time(res)
+        if orgigin:
+            #response.Headers.Append("Access-Control-Allow-Origin", value);
+            res.headers["access-control-allow-origin"] = orgigin
+        else:
+            res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
+        res.headers['access-control-allow-credentials'] ='true'
         return res
     except:
         error_content = traceback.format_exc()
@@ -172,11 +185,27 @@ async def estimate_time(request: fastapi.Request, next):
             )
         )
         if config.debug==True:
-            return  JSONResponse(content=ret_error,status_code=200)
+            res =  JSONResponse(content=ret_error,status_code=200)
+            if orgigin:
+                # response.Headers.Append("Access-Control-Allow-Origin", value);
+                res.headers["access-control-allow-origin"] = orgigin
+            else:
+                res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
+            res.headers['access-control-allow-credentials'] = 'true'
+
+            return res
         else:
-            return JSONResponse(content="Error on server", status_code=500)
+            res = JSONResponse(content="Error on server", status_code=500)
+            res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
+            res.headers['access-control-allow-credentials'] = 'true'
+            #build-22.20240809153222
+            #build-22.20240809153222
+            return res
     finally:
         malloc_service.reduce_memory()
+        #docker.lacviet.vn/xdoc/fs-tiny-qc:build-22.20240809150715@sha256:351485389189a1b1458ee3f43b04e811d3594d4d70a9279d75a7a9f1a8228f09
+        # => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc:build-22.20240809152514@sha256:89314da15692342fa6157d011b5f41e6ba9f0d640dd2eaf7b401b4c9feb4087d                                                                  0.6s
+
 
 
 

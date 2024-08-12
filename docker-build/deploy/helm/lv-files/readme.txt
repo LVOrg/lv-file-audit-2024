@@ -10,3 +10,4 @@ helm cm-push ./lv-files xdoc
 helm  template lv-files --values ./../values/91-filelv.yml>>test.yml
 helm upgrade --install files-cloud lv-files --values ./../values/91-filelv.yml
 #files
+helm upgrade --install xdoc-2 xdoc/lv-files --values /tmp/qc.yml

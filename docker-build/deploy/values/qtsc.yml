@@ -4,7 +4,7 @@ appConfig:
   name: lv-file
   host:
     path: lvfile
-    name: oms.qtsc.com.vn
+    name: test-oms.qtsc.com.vn
     protocol: https
   ingress:
 #    lv-file:
@@ -26,7 +26,7 @@ rabbit:
   server: codx-rabbitmq.rabbitmq.svc.cluster.local
   username: codx
   password: Lacviet#123
-customer: "qtcs"
+customer: "qc"
 imageTag: "latest"
 repository: "docker.lacviet.vn/xdoc"
 debugLibs: []

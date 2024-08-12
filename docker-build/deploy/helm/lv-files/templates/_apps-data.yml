@@ -31,6 +31,7 @@ apps:
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
         - debug=false
+        - domains=*
         {{ if hasKey $valuesObject "generation" }}
         - generation={{ $valuesObject.generation }}
         {{ end }}
