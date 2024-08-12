@@ -84,7 +84,7 @@ apps:
         name: {{ $valuesObject.storage.name }}
         server: {{ $valuesObject.storage.server }}
         directory: {{ $valuesObject.storage.directory }}
-
+s
     {{else}}
     - name: {{$value}}
       isError: True

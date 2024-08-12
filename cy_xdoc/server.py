@@ -106,7 +106,7 @@ if hasattr(config, "auto_ssl_redirect") and config.auto_ssl_redirect == "on":
 
     cy_app_web.app.add_middleware(HTTPSRedirectMiddleware)
 from fastapi import HTTPException
-resaccept_domains =["*"]
+accept_domains =["*"]
 if hasattr(config,"domains"):
     accept_domains=config.domains.split(",")
 cy_web.add_cors(accept_domains)
@@ -130,9 +130,36 @@ from fastapi.responses import JSONResponse
 from cyx.malloc_services import MallocService
 malloc_service=cy_kit.singleton(MallocService)
 logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
+async def dev_mode(request: fastapi.Request, next):
 
-@cy_web.middleware()
-async def estimate_time(request: fastapi.Request, next):
+
+    start_time = datetime.datetime.utcnow()
+    res = await next(request)
+    n = datetime.datetime.utcnow() - start_time
+    if not request.url.path.endswith("/api/healthz") and not request.url.path.endswith("/api/readyz"):
+        logger.info(f"{request.url}  in {n}")
+    if ((request.url._url == cy_web.get_host_url(request) + "/api/accounts/token")
+            or (request.url._url == cy_web.get_host_url(request) + "/lvfile/api/accounts/token")):
+        response_body = [chunk async for chunk in res.body_iterator]
+        res.body_iterator = iterate_in_threadpool(iter(response_body))
+        if len(response_body) > 0:
+            BODY_CONTENT = response_body[0].decode()
+
+            try:
+                data = json.loads(BODY_CONTENT)
+                del data
+                if data.get('access_token'):
+                    res.set_cookie('access_token_cookie', data.get('access_token'))
+            except Exception as e:
+                pass
+    # build-22.20240809144938
+    end_time = datetime.datetime.utcnow()
+    async def apply_time(res):
+        res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
+        return res
+    res = await apply_time(res)
+    return res
+async def release_mode(request: fastapi.Request, next):
     orgigin = None
     try:
 
@@ -169,8 +196,8 @@ async def estimate_time(request: fastapi.Request, next):
         if orgigin:
             #response.Headers.Append("Access-Control-Allow-Origin", value);
             res.headers["access-control-allow-origin"] = orgigin
-        else:
-            res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
+        # else:
+        #     res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
         res.headers['access-control-allow-credentials'] ='true'
         return res
     except:
@@ -189,24 +216,31 @@ async def estimate_time(request: fastapi.Request, next):
             if orgigin:
                 # response.Headers.Append("Access-Control-Allow-Origin", value);
                 res.headers["access-control-allow-origin"] = orgigin
-            else:
-                res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
+            # else:
+            #     res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
             res.headers['access-control-allow-credentials'] = 'true'
 
             return res
         else:
             res = JSONResponse(content="Error on server", status_code=500)
-            res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
+            # res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
             res.headers['access-control-allow-credentials'] = 'true'
             #build-22.20240809153222
             #build-22.20240809153222
             return res
     finally:
         malloc_service.reduce_memory()
-        #docker.lacviet.vn/xdoc/fs-tiny-qc:build-22.20240809150715@sha256:351485389189a1b1458ee3f43b04e811d3594d4d70a9279d75a7a9f1a8228f09
-        # => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc:build-22.20240809152514@sha256:89314da15692342fa6157d011b5f41e6ba9f0d640dd2eaf7b401b4c9feb4087d                                                                  0.6s
+is_dev_mode=hasattr(config,"is_dev_mode")
+@cy_web.middleware()
+async def estimate_time(request: fastapi.Request, next):
+    if is_dev_mode:
+        return await dev_mode(request, next)
+    else:
+        return await release_mode(request, next)
 
 
+
+# => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc-1:build-22.20240812113928@sha256:c744a5c07efc8bad58294ec7222122b188203523346edfa68c39f890502f7f8a                                                                0.4s
 
 
 from fastapi import Request, Response
