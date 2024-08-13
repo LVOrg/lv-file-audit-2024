@@ -82,8 +82,9 @@ COPY ./../cy_jobs /app/cy_jobs
 #RUN python3 -m pip install gradio-client==0.15.1
 RUN apt clean && apt autoclean">>$web_api_file
 web_api_tag=1
-current_datetime=$(date +"%Y%m%d%H%M%S")
-
+current_datetime=$(date +"%Y-%-m-%d-%H-%M-%S")
+filename="release-notes/$customer.txt"
+echo "$current_datetime:">>"$filename"
 if [ -z "$3" ]; then
   # No argument provided, use default repository
   web_api_tag_build=$web_api_core_tag.$current_datetime

@@ -84,7 +84,7 @@ class FilesLocalController(BaseController):
         tags=["LOCAL"]
     )
     async def read_raw_content(self,
-                               rel_path: str
+                               rel_path:str
                                ) -> None:
 
         local_share_id= self.request.query_params.get("local-share-id")

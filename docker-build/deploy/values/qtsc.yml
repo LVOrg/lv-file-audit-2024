@@ -1,40 +1,30 @@
-namespace: files
-#webAppName: lv-file-dev
 appConfig:
+  replicas: 2 # web api replicas
   name: lv-file
   host:
+    name: "test-oms.qtsc.com.vn"
     path: lvfile
-    name: test-oms.qtsc.com.vn
     protocol: https
   ingress:
-#    lv-file:
-#      pathType: Prefix
-
 db:
-  mongodb: mongodb://admin:Lacviet#123@10.200.16.15:27017
-  manage: 'lv-docs'
-search:
-  prefix_index: 'lv-codx'
-  server: 'http://10.200.16.16:9200'
-storage:
-  server: 10.200.16.15
-  directory: /data/share/xdoc-web
-  name: storage-files
-
-replicas: 2
+  mongodb: "mongodb://admin:Lacviet#123@10.200.16.15:27017"
+  manage: hps-file-test
+namespace: xdoc-qc
 rabbit:
-  server: codx-rabbitmq.rabbitmq.svc.cluster.local
-  username: codx
-  password: Lacviet#123
-customer: "qc"
+  port: 5672
+  server: "codx-rabbitmq.rabbitmq.svc.cluster.local"
+  username: 'codx'
+  password: 'Lacviet#123'
+replicas: 2 # job pod replicas
+search:
+  prefix_index: 'qtsc-codx'
+  server: 'http://10.200.16.16:9200'
+
+storage:
+  directory: "/data/share/xdoc-web"
+  name: storage-files
+  server: "10.200.16.15"
+customer: "qtsc"
 imageTag: "latest"
 repository: "docker.lacviet.vn/xdoc"
 debugLibs: []
-nodePort:
-  content: "32260"
-  office: "32261"
-  pdf: "32263"
-  video: "32264"
-  tika: "32265"
-  ocr: "32266"
-

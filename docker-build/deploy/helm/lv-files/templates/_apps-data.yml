@@ -31,7 +31,7 @@ apps:
         - cache_server=lv-file-cache-service.{{$valuesObject.namespace}}:11211
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
         - debug=false
-        - domains=*
+        - domains='*'
         {{ if hasKey $valuesObject "generation" }}
         - generation={{ $valuesObject.generation }}
         {{ end }}
@@ -84,7 +84,7 @@ apps:
         name: {{ $valuesObject.storage.name }}
         server: {{ $valuesObject.storage.server }}
         directory: {{ $valuesObject.storage.directory }}
-s
+
     {{else}}
     - name: {{$value}}
       isError: True

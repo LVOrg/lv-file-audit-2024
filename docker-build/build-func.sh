@@ -64,3 +64,24 @@ tag(){
     echo "arm$dev.$1"
   fi
 }
+function update_release() {
+  local url="https://docker.lacviet.vn/api/v2.0/projects/xdoc/repositories/$2"
+  local csrf_token="MTcyMzQyOTk3MHxJbTVJSzJGVlozbHVjekJzTjJodGIzcHdkMWMyVFU0M1JFMVpTVkl5Y0dneGQycGpiMnBNZEV0TVJsVTlJZ289fIxxJYu8X4o4AViOo8kH8oZ2VkjSuhRhQp3U99b31hbc"
+  local sid="8fffa39bc866750d03e84d81c2127057"
+  local harbor_csrf_token="UJI7SvY8FBhCnoppYB6xs8NlUxJOAjZuwQaMPDqvhcPM7aEY+punUTkY4FrHGwuDHaZikF/YrhsDMaSwgeWplg=="
+  if [[ -z "$(cat "$1")" ]]; then
+    echo "Error: Release note file is empty."
+    return 1
+  fi
+  # Read release note from file
+  release_note=$(cat "$1")
+
+  local data='{"description":"'$release_note'"}'
+
+  curl -X PUT \
+    -H "Cookie: _gorilla_csrf=$csrf_token; sid=$sid" \
+    -H "Content-Type: application/json" \
+    -H "x-harbor-csrf-token: $harbor_csrf_token" \
+    -d "$data" \
+    "$url"
+}
