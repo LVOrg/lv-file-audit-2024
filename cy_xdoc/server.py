@@ -1,3 +1,7 @@
+"""
+This file declare all info for web api start
+"""
+
 import functools
 import gc
 import json
@@ -8,13 +12,18 @@ import traceback
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
-
-print(os.getenv("DB__CNN"))
+"""
+For IIS host or dev mode running add current directory into sys. That will help Python load all libraries in the same applications
+"""
 sys.path.append("/app")
+"""
+add directory of all libs. When run on docker or K8S all source code deployment will be placed in /app directory
+"""
+
+
 from cyx.cache_service.memcache_service import MemcacheServices
 
-def health_check():
-    from  memcache import Client
+
 
 
 import cy_kit
@@ -130,6 +139,7 @@ from fastapi.responses import JSONResponse
 from cyx.malloc_services import MallocService
 malloc_service=cy_kit.singleton(MallocService)
 logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
+
 async def dev_mode(request: fastapi.Request, next):
 
 
@@ -237,8 +247,8 @@ async def estimate_time(request: fastapi.Request, next):
         return await dev_mode(request, next)
     else:
         return await release_mode(request, next)
-
-
+#/home/vmadmin/python/cy-py
+#test
 
 # => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc-1:build-22.20240812113928@sha256:c744a5c07efc8bad58294ec7222122b188203523346edfa68c39f890502f7f8a                                                                0.4s
 
