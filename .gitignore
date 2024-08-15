@@ -45,3 +45,6 @@ secret*
 /client_secrets.json
 /env-img-process/
 /a-data-set/
+/cy_vn_delete/
+/docker-cy/
+/gradio_test/
