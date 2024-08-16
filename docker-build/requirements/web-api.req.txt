@@ -46,4 +46,4 @@ pdfplumber
 PyPDF2
 PyMuPDF
 ics
-resource
+resource #resource manager
