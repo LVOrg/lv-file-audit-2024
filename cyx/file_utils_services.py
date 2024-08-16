@@ -407,8 +407,8 @@ class FileUtilService(BaseUtilService):
         if cache:
             data = self.memcache_service.get_dict("v2/" + app_name + "/" + upload_id)
             if isinstance(data, dict) and not data.get("real_file_location"):
-                real_file_location = os.path.join(config.file_storage_path,
-                                                  data["MainFileId"].split("://")[1]).__str__()
+                real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
+                                                  data["MainFileId"].split("://")[1].replace('/',os.path.sep)).__str__()
                 data["real_file_location"] = real_file_location
                 data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
                 self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
@@ -431,11 +431,11 @@ class FileUtilService(BaseUtilService):
                         real_file_location=f"mongo://{str(data['MainFileId'])}"
                     except:
                         object_fs_id = None
-                        real_file_location = os.path.join(config.file_storage_path,
-                                                          data["MainFileId"].split("://")[1]).__str__()
+                        real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
+                                                          data["MainFileId"].split("://")[1].replace('/',os.path.sep)).__str__()
                         if not os.path.isfile(real_file_location) and data.get("StoragePath"):
-                            real_file_location = os.path.join(config.file_storage_path,
-                                                          data["StoragePath"].split("://")[1]).__str__()
+                            real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
+                                                          data["MainFileId"].split("://")[1].replace('/',os.path.sep)).__str__()
 
                     data["real_file_location"] = real_file_location
                     data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()

@@ -21,7 +21,10 @@ class MemcacheServices:
     client = Client(server.split(','))
     @ft_cache
     def get_hash_key(self,key:str)->str:
-        ret = hashlib.sha256(key.encode()).hexdigest()
+        prefix ="v3"
+        if hasattr(config,"cache_prefix"):
+            prefix = config.cache_prefix
+        ret = hashlib.sha256(f"{prefix}/{key}".encode()).hexdigest()
         return ret
     def set_dict(self, key: str, data: dict, expiration=60 * 60 * 4) -> bool:
 
