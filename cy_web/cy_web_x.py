@@ -920,8 +920,7 @@ class WebApp(BaseWebApp):
         web_application = self
         self.request_handlers = dict()
 
-        if sys.platform == "win32":
-            self.app.middleware("http")(windows_fxi_javascript_resource)
+
         self.url_get_token = url_get_token
         self.jwt_algorithm = jwt_algorithm
         self.jwt_secret_key = jwt_secret_key
@@ -973,6 +972,8 @@ class WebApp(BaseWebApp):
             )
         else:
             self.app = fastapi.FastAPI()
+        if sys.platform in  ["win32","win64"]:
+            self.app.middleware("http")(windows_fix_javascript_resource)
         if self.static_dir is not None:
 
             if self.host_dir is not None and self.host_dir != "":
@@ -1073,7 +1074,13 @@ def add_controller(web_app, prefix_path: str, controller_dir):
     web_app.load_controller_from_dir(prefix_path, controller_dir)
 
 
-async def windows_fxi_javascript_resource(request: Request, call_next):
+async def windows_fix_javascript_resource(request: Request, call_next):
+    """
+    Middleware fix javascript run on module script at browser
+    :param request:
+    :param call_next:
+    :return:
+    """
     res = await call_next(request)
     if request.url.path.endswith('.js') and '/static/' in request.url.path:
         t, _ = mimetypes.guess_type(request.url.path)
