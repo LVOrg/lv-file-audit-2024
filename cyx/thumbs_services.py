@@ -302,21 +302,15 @@ class ThumbService:
                     return ret
             if file_type=="pdf":
                 data = self.remote_caller_service.get_image_from_office(
-                    url=f"{config.remote_pdf}",
-                    local_file=abs_file_path,
-                    remote_file=server_file,
-                    memcache_server=config.cache_server
+                    url_of_office_to_image_service=f"{config.remote_office}",
+                    url_upload_file=upload_image_url,
+                    url_of_content=download_content_url
                 )
-                if data.get("image_file"):
-                    office_image_file=data.get("image_file")
-                    self.move_to_storage(
-                        from_file=office_image_file,
-                        to_file = f"{abs_file_path}.png"
-                    )
-
-                    ret = self.do_scale_size(file_path=f"{abs_file_path}.png", size=size)
-                    self.memcache_services.set_str(key, ret)
-                    return ret
+                if data.get("error"):
+                    print(json.dumps(data.get("error"), indent=4))
+                    del data
+                    self.malloc_service.reduce_memory()
+                    return
             if file_type=="video":
                 data = self.remote_caller_service.get_image_from_office(
                     url=f"{config.remote_video}",

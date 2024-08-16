@@ -344,10 +344,7 @@ def run_action(action, action_type, url_file, download_file):
     else:
         raise NotImplemented("..")
 
-from gradio_client import Client
-__cache_gradio__ = {}
-def get_radio_client(url:str)->Client:
-    global __cache_gradio__
-    if __cache_gradio__.get(url) is None:
-        __cache_gradio__[url] = Client(url)
-    return __cache_gradio__[url]
+
+
+def get_radio_client(url:str):
+    raise Exception("No longer use it")

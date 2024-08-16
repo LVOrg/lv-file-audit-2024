@@ -5,7 +5,6 @@ import cyx.common.msg
 import cy_utils
 from cyx.local_api_services import LocalAPIService
 from cyx.repository import Repository
-from gradio_client import Client
 import os
 from cyx.processing_file_manager_services import ProcessManagerService
 class ImageService:

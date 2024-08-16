@@ -17,7 +17,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import hashlib
 from google.oauth2 import service_account
-from gradio_client import Client
 import cy_utils
 from cyx.processing_file_manager_services import ProcessManagerService
 from cyx.local_api_services import LocalAPIService
