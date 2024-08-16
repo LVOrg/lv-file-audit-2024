@@ -344,7 +344,7 @@ if __name__ == "__main__":
         _config_.application_path = "cy_web:get_fastapi_app()"
         import psutil
 
-        number_of_workers = psutil.cpu_count(logical=False) * 2
+        number_of_workers = psutil.cpu_count(logical=False) // 2
         _config_.workers = number_of_workers
         _config_.keep_alive_timeout = config.timeout_keep_alive
         if config.h2_max_concurrent_streams != "auto":
