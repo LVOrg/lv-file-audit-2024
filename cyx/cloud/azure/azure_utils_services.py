@@ -8,7 +8,6 @@ import requests
 import cy_docs
 import cy_kit
 from cyx.repository import Repository
-from msgraph import GraphServiceClient
 from azure.identity.aio import ClientSecretCredential
 from cyx.cloud.azure.azure_utils import call_ms_func
 from cyx.cloud_cache_services import CloudCacheService
