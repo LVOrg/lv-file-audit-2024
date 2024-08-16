@@ -46,4 +46,4 @@ pdfplumber
 PyPDF2
 PyMuPDF
 ics
-bcrypt
+bcrypt==4.1.2
