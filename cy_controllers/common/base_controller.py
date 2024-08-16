@@ -53,7 +53,6 @@ from  cyx.docs_contents_services import DocsContentsServices
 from cyx.image_services import ImageService
 from cyx.extract_content_service import ExtractContentService
 from cyx.g_drive_services import GDriveService
-from cyx.distribute_locking.distribute_lock_services import DistributeLockService
 from cyx.google_drive_utils.directories import GoogleDirectoryService
 from cyx.ms.ms_auth_services import MSAuthService
 from cyx.ms.ms_commom_service import MSCommonService

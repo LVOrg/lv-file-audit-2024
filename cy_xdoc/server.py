@@ -71,9 +71,7 @@ import cyx.common
 from fastapi.middleware.gzip import GZipMiddleware
 
 config = cyx.common.config
-from cyx.distribute_locking.distribute_lock_services import DistributeLockService
 
-# distribute_lock_service = cy_kit.singleton(DistributeLockService)
 
 if isinstance(config.get('rabbitmq'), dict):
     cy_kit.config_provider(

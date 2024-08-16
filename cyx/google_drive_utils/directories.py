@@ -18,7 +18,7 @@ from cyx.g_drive_services import GDriveService
 from cyx.cache_service.memcache_service import MemcacheServices
 import hashlib
 from cyx.repository import Repository
-from cyx.distribute_locking.distribute_lock_services import DistributeLockService
+
 import googleapiclient.errors
 from cyx.common import config
 import threading
@@ -42,13 +42,11 @@ class GoogleDriveInfo:
 class GoogleDirectoryService:
     def __init__(self,
                  g_drive_service=cy_kit.singleton(GDriveService),
-                 memcache_service=cy_kit.singleton(MemcacheServices),
-                 distribute_lock_service=cy_kit.singleton(DistributeLockService)
+                 memcache_service=cy_kit.singleton(MemcacheServices)
                  ):
         self.g_drive_service = g_drive_service
         self.memcache_service = memcache_service
         self.cache_key = f"{type(GoogleDirectoryService).__module__}"
-        self.distribute_lock_service = distribute_lock_service
         self.local_cache = {}
 
     def check_folder_structure(self, app_name: str, directory_path: typing.List[str]) -> typing.Tuple[
@@ -199,43 +197,18 @@ class GoogleDirectoryService:
         parent_path = "/".join(directory_path.split('/')[0:1])
         lock_path = f'{type(self).__module__}_{type(self).__name__}'
         try:
-            if self.distribute_lock_service.acquire_lock(app_name):
-                service, error = self.g_drive_service.get_service_by_app_name(app_name)
-                if error:
-                    return None, error
-                parent_id = self.__do_create_folder__(
-                    service=service,
-                    app_name=app_name,
-                    directory_path=directory_path
-                )
-                return parent_id, None
+            service, error = self.g_drive_service.get_service_by_app_name(app_name)
+            if error:
+                return None, error
+            parent_id = self.__do_create_folder__(
+                service=service,
+                app_name=app_name,
+                directory_path=directory_path
+            )
+            return parent_id, None
+
         except Exception as ex:
             raise ex
-        finally:
-            self.distribute_lock_service.release_lock(lock_path)
-
-        # with self.distribute_lock_service.accquire(lock_path):
-        #     service = self.g_drive_service.get_service_by_app_name(app_name)
-        #     parent_id = self.__do_create_folder__(
-        #         service=service,
-        #         app_name=app_name,
-        #         directory_path=directory_path
-        #     )
-        #     return parent_id
-        # try:
-        #     if self.distribute_lock_service.acquire_lock(lock_path):
-        #         service = self.g_drive_service.get_service_by_app_name(app_name)
-        #         parent_id = self.__do_create_folder__(
-        #             service=service,
-        #             app_name=app_name,
-        #             directory_path=directory_path
-        #         )
-        #         return parent_id
-        #     else:
-        #         print("Failed to acquire lock, retrying...")
-        # finally:
-        #     self.distribute_lock_service.release_lock(lock_path)
-
     def get_cache_id_delete(self, app_name, directory_path):
         key = f"{self.cache_key}/{app_name}/{directory_path}"
         id = self.local_cache.get(key)
