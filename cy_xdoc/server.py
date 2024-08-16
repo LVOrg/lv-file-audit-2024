@@ -311,46 +311,6 @@ if config.timeout_graceful_shutdown:
 import multiprocessing
 import subprocess
 import signal
-import resource
-
-
-def run_fastapi_app(number_of_workers):
-    """Runs the FastAPI application with limited memory in a background process.
-
-    Args:
-        number_of_workers (int): The desired number of Uvicorn workers.
-
-    Raises:
-        OSError: If memory limit cannot be set (Linux/macOS).
-    """
-
-    def start_app():
-        # Implement logic to start the FastAPI application with cy_web.start_with_uvicorn
-        cy_web.start_with_uvicorn(worker=number_of_workers)
-
-    # Create a new process with limited memory (Linux/macOS)
-    if hasattr(resource, 'RLIMIT_AS'):  # Check if resource module supports memory limit
-        soft_limit, hard_limit = resource.getrlimit(resource.RLIMIT_AS)
-        # Set a lower memory limit for the child process (adjust as needed)
-        new_limit = soft_limit // 20  # Example: Set memory limit to half of the available memory
-        try:
-            resource.setrlimit(resource.RLIMIT_MEMLOCK, (50 * 1024 ** 2, 50 * 1024 ** 2))
-        except OSError as e:
-            print("Failed to set memory limit:", e)
-
-    process = multiprocessing.Process(target=start_app)
-    process.start()
-
-    # Graceful termination (optional):
-    def handle_signal(sig, frame):
-        process.terminate()
-        print("FastAPI application terminated (signal:", sig, ")")
-
-    signal.signal(signal.SIGINT, handle_signal)  # Handle Ctrl+C interrupt
-    signal.signal(signal.SIGTERM, handle_signal)  # Handle termination signals
-
-    process.join()  # Wait for the child process to finish
-
 
 config.server_type = "default"
 
@@ -362,8 +322,6 @@ if __name__ == "__main__":
         config.server_type = "hypercorn"
     if config.server_type.lower() == "gunicorn":
         from gunicorn import workers
-
-        workers.SUPPORTED_WORKERS
         config.worker_class = "gthread"
         options = {
             "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
