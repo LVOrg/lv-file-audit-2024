@@ -20,17 +20,15 @@ sys.path.append("/app")
 add directory of all libs. When run on docker or K8S all source code deployment will be placed in /app directory
 """
 
-
 from cyx.cache_service.memcache_service import MemcacheServices
 
-
-
-
 import cy_kit
+
 memcache_services = cy_kit.singleton(MemcacheServices)
 memcache_services.check_connection(3600)
 from cyx.file_utils_services import FileUtilService
-file_util_service=cy_kit.singleton(FileUtilService)
+
+file_util_service = cy_kit.singleton(FileUtilService)
 
 from cyx.runtime_config_services import RuntimeConfigService
 
@@ -42,7 +40,8 @@ import cyx.framewwork_configs
 
 import cyx.common
 from cyx.common import config
-version2 = config.generation if hasattr(config,"generation") else None
+
+version2 = config.generation if hasattr(config, "generation") else None
 file_util_service.healthz() if version2 else print("Run firs generation")
 
 # if not skip_checking or (hasattr(config,"check_startup") and config.check_startup):
@@ -72,7 +71,6 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 config = cyx.common.config
 
-
 if isinstance(config.get('rabbitmq'), dict):
     cy_kit.config_provider(
         from_class=Broker,
@@ -92,11 +90,12 @@ if hasattr(config, "auto_ssl_redirect") and config.auto_ssl_redirect == "on":
         config.host_url = "https://" + config.host_url[len("http://"):]
 
 from cyx.common.base import DbConnect
+
 cnn = cy_kit.singleton(DbConnect)
 
 cnn.set_tracking(True)
-config.server_type="Uvicorn"
-config.worker_class="httptools"
+config.server_type = "Uvicorn"
+config.worker_class = "httptools"
 cy_app_web = cy_web.create_web_app(
     working_dir=WORKING_DIR,
     static_dir=config.static_dir,  #os.path.abspath(os.path.join(WORKING_DIR, config.static_dir)),
@@ -113,14 +112,16 @@ if hasattr(config, "auto_ssl_redirect") and config.auto_ssl_redirect == "on":
 
     cy_app_web.app.add_middleware(HTTPSRedirectMiddleware)
 from fastapi import HTTPException
-accept_domains =["*"]
-if hasattr(config,"domains"):
-    accept_domains=config.domains.split(",")
+
+accept_domains = ["*"]
+if hasattr(config, "domains"):
+    accept_domains = config.domains.split(",")
 cy_web.add_cors(accept_domains)
 from starlette.concurrency import iterate_in_threadpool
 # => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc:build-22.20240809151617@sha256:8aed962c11f2908bac67cc0ed3342b9b0d24eef7162d039ab1681cc69bd43448                                                                  0.5s
 
 from cyx.repository import Repository
+
 
 # Repository.sys_app_logs_coll.app("admin").context.delete(
 #     {}
@@ -132,15 +133,17 @@ def get_pod_name():
     f.close()
     full_pod_name = pod_name.lstrip('\n').rstrip('\n')
     return full_pod_name
+
+
 from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 from fastapi.responses import JSONResponse
 from cyx.malloc_services import MallocService
-malloc_service=cy_kit.singleton(MallocService)
+
+malloc_service = cy_kit.singleton(MallocService)
 logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
 
+
 async def dev_mode(request: fastapi.Request, next):
-
-
     start_time = datetime.datetime.utcnow()
     res = await next(request)
     n = datetime.datetime.utcnow() - start_time
@@ -162,11 +165,15 @@ async def dev_mode(request: fastapi.Request, next):
                 pass
     # build-22.20240809144938
     end_time = datetime.datetime.utcnow()
+
     async def apply_time(res):
         res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
         return res
+
     res = await apply_time(res)
     return res
+
+
 async def release_mode(request: fastapi.Request, next):
     orgigin = None
     try:
@@ -206,12 +213,12 @@ async def release_mode(request: fastapi.Request, next):
             res.headers["access-control-allow-origin"] = orgigin
         # else:
         #     res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
-        res.headers['access-control-allow-credentials'] ='true'
+        res.headers['access-control-allow-credentials'] = 'true'
         return res
     except:
         error_content = traceback.format_exc()
 
-        await logs_to_mongo_db_service.log_async(error_content,request.url.path)
+        await logs_to_mongo_db_service.log_async(error_content, request.url.path)
 
         ret_error = dict(
             Error=dict(
@@ -219,8 +226,8 @@ async def release_mode(request: fastapi.Request, next):
                 Message=error_content
             )
         )
-        if config.debug==True:
-            res =  JSONResponse(content=ret_error,status_code=200)
+        if config.debug == True:
+            res = JSONResponse(content=ret_error, status_code=200)
             if orgigin:
                 # response.Headers.Append("Access-Control-Allow-Origin", value);
                 res.headers["access-control-allow-origin"] = orgigin
@@ -238,34 +245,19 @@ async def release_mode(request: fastapi.Request, next):
             return res
     finally:
         malloc_service.reduce_memory()
-is_dev_mode=hasattr(config,"is_dev_mode")
+
+
+is_dev_mode = hasattr(config, "is_dev_mode")
+
+
 @cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     if is_dev_mode:
         return await dev_mode(request, next)
     else:
         return await release_mode(request, next)
-#/home/vmadmin/python/cy-py
-#test
-
-# => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc-1:build-22.20240812113928@sha256:c744a5c07efc8bad58294ec7222122b188203523346edfa68c39f890502f7f8a                                                                0.4s
 
 
-from fastapi import Request, Response
-
-# from requests_kerberos import HTTPKerberosAuth
-# import requests_kerberos.exceptions
-# @cy_web.middleware()
-# async def kerberos_auth_middleware(request: Request, call_next):
-#     try:
-#         auth = HTTPKerberosAuth()
-#         response = await call_next(request)
-#
-#         return response
-#     except requests_kerberos.exceptions.KerberosExchangeError as exc:
-#         return Response(status_code=401, content=f"Authentication failed: {exc}")
-
-# cy_web.load_controller_from_dir("api", "./cy_xdoc/controllers")
 app = cy_web.get_fastapi_app()
 
 from cyx.common.base import config
@@ -280,6 +272,7 @@ load_controller(
     app,
     cy_web.get_host_dir()
 )
+
 import multiprocessing
 
 
@@ -291,36 +284,6 @@ def get_number_of_cpus():
     physical_cpus = multiprocessing.cpu_count()
 
     return logical_cpus, physical_cpus
-
-
-from gunicorn.app.wsgiapp import (
-    WSGIApplication,
-    run, util, Application
-
-)
-from gunicorn.app.base import BaseApplication
-from typing import (
-    Callable, Dict, Any
-)
-
-
-class StandaloneApplication(BaseApplication):
-    def __init__(self, application: Callable, options: Dict[str, Any] = None):
-        self.options = options or {}
-        self.application = application
-        super().__init__()
-
-    def load_config(self):
-        config = {
-            key: value
-            for key, value in self.options.items()
-            if key in self.cfg.settings and value is not None
-        }
-        for key, value in config.items():
-            self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
 
 
 number_of_workers = get_number_of_cpus()[0]
@@ -349,6 +312,8 @@ import multiprocessing
 import subprocess
 import signal
 import resource
+
+
 def run_fastapi_app(number_of_workers):
     """Runs the FastAPI application with limited memory in a background process.
 
@@ -369,7 +334,7 @@ def run_fastapi_app(number_of_workers):
         # Set a lower memory limit for the child process (adjust as needed)
         new_limit = soft_limit // 20  # Example: Set memory limit to half of the available memory
         try:
-            resource.setrlimit(resource.RLIMIT_MEMLOCK, (50*1024**2, 50*1024**2))
+            resource.setrlimit(resource.RLIMIT_MEMLOCK, (50 * 1024 ** 2, 50 * 1024 ** 2))
         except OSError as e:
             print("Failed to set memory limit:", e)
 
@@ -385,14 +350,21 @@ def run_fastapi_app(number_of_workers):
     signal.signal(signal.SIGTERM, handle_signal)  # Handle termination signals
 
     process.join()  # Wait for the child process to finish
-config.server_type="default"
+
+
+config.server_type = "default"
 
 if __name__ == "__main__":
-
+    if sys.platform in ["win32", "win64"]:
+        """
+        If run on windows only support hypercorn
+        """
+        config.server_type = "hypercorn"
     if config.server_type.lower() == "gunicorn":
         from gunicorn import workers
+
         workers.SUPPORTED_WORKERS
-        config.worker_class="gthread"
+        config.worker_class = "gthread"
         options = {
             "bind": "%s:%s" % (cy_app_web.bind_ip, cy_app_web.bind_port),
             "workers": number_of_workers,
@@ -401,16 +373,20 @@ if __name__ == "__main__":
             "timeout_graceful_shutdown": 10
         }
         print(options)
-        logger.info(json.dumps(options))
-        StandaloneApplication(app, options).run()
+
+        if not sys.platform in ["win32", "win64"]:
+            from cy_web.standalone_application import StandaloneApplication
+
+            StandaloneApplication(app, options).run()
     elif config.server_type == "hypercorn":
         import hypercorn.config, hypercorn.run
 
         _config_ = hypercorn.config.Config()
         _config_.bind = [f"{cy_app_web.bind_ip}:{cy_app_web.bind_port}"]
         _config_.application_path = "cy_web:get_fastapi_app()"
-        import  psutil
-        number_of_workers = psutil.cpu_count(logical=False)*2
+        import psutil
+
+        number_of_workers = psutil.cpu_count(logical=False) * 2
         _config_.workers = number_of_workers
         _config_.keep_alive_timeout = config.timeout_keep_alive
         if config.h2_max_concurrent_streams != "auto":
@@ -424,13 +400,12 @@ if __name__ == "__main__":
         logger.info(json.dumps(_config_.__dict__))
         hypercorn.run.run(_config_)
     else:
-        if config.workers and isinstance(config.workers,str) and config.workers.lower()=="auto":
+        if config.workers and isinstance(config.workers, str) and config.workers.lower() == "auto":
             import psutil
-            number_of_workers= psutil.cpu_count(logical=False)
-        elif config.workers and isinstance(config.workers,str) and config.workers.isnumeric():
+
+            number_of_workers = psutil.cpu_count(logical=False)
+        elif config.workers and isinstance(config.workers, str) and config.workers.isnumeric():
             number_of_workers = int(config.workers)
-        elif config.workers and (isinstance(config.workers,int) or isinstance(config.workers,float)):
+        elif config.workers and (isinstance(config.workers, int) or isinstance(config.workers, float)):
             number_of_workers = int(config.workers)
         cy_web.start_with_uvicorn(worker=number_of_workers)
-
-
