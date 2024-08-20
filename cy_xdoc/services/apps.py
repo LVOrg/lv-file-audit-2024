@@ -66,36 +66,7 @@
 #         )
 #         return ret
 #
-#     def get_item(self, app_name, app_get: typing.Optional[str]):
-#         docs = self.db_connect.db(app_name).doc(App)
-#         ret = docs.context.aggregate().project(
-#             cy_docs.fields.AppId >> docs.fields.Id,
-#             docs.fields.Name,
-#             docs.fields.Description,
-#             docs.fields.Domain,
-#             docs.fields.LoginUrl,
-#             docs.fields.ReturnUrlAfterSignIn,
-#             docs.fields.ReturnSegmentKey,
-#             cy_docs.fields.Apps >> docs.fields.AppOnCloud,
-#             docs.fields.SizeInGB
-#
-#         ).match(docs.fields.NameLower == app_get.lower()).first_item()
-#         if ret is None:
-#             ret = docs.context.aggregate().project(
-#                 cy_docs.fields.AppId >> docs.fields.Id,
-#                 docs.fields.Name,
-#                 docs.fields.Description,
-#                 docs.fields.Domain,
-#                 docs.fields.LoginUrl,
-#                 docs.fields.ReturnUrlAfterSignIn,
-#                 docs.fields.ReturnSegmentKey,
-#                 cy_docs.fields.Apps >> docs.fields.AppOnCloud,
-#                 docs.fields.AppOnCloud,
-#                 docs.fields.SizeInGB
-#
-#             ).match(docs.fields.Name == app_get).first_item()
-#
-#         return ret
+
 #
 #     def get_item_with_cache(self, app_name):
 #         from cy_docs import DocumentObject
@@ -114,52 +85,7 @@
 #             )
 #             return app
 #
-#     def create(self,
-#                Name: str,
-#                Domain: str,
-#                Description: typing.Optional[str] = None,
-#                LoginUrl: str = None,
-#                ReturnUrlAfterSignIn: typing.Optional[str] = None,
-#                UserName: typing.Optional[str] = None,
-#                Password: typing.Optional[str] = None,
-#                ReturnSegmentKey: typing.Optional[str] = None,
-#                azure_app_name: typing.Optional[str] = None,
-#                azure_client_id: typing.Optional[str] = None,
-#                azure_tenant_id: typing.Optional[str] = None):
-#         docs = self.db_connect.db('admin').doc(App)
-#         doc = docs.fields
-#         app_id = str(uuid.uuid4())
-#         secret_key = str(uuid.uuid4())
-#         docs.context.insert_one(
-#             doc.Id << app_id,
-#             doc.Name << Name,
-#             doc.ReturnUrlAfterSignIn << ReturnUrlAfterSignIn,
-#             doc.Domain << Domain,
-#             doc.LoginUrl << LoginUrl,
-#             doc.Description << Description,
-#             doc.Username << UserName,
-#             doc.Password << Password,
-#             doc.SecretKey << secret_key,
-#             doc.RegisteredOn << datetime.datetime.utcnow(),
-#             doc.ReturnSegmentKey << ReturnSegmentKey,
-#             doc.AppOnCloud.Azure.Name << azure_app_name,
-#             doc.AppOnCloud.Azure.ClientID << azure_client_id,
-#             doc.AppOnCloud.Azure.TenantID << azure_tenant_id
-#
-#         )
-#
-#         ret = cy_docs.DocumentObject(
-#             AppId=app_id,
-#             Name=Name,
-#             ReturnUrlAfterSignIn=ReturnUrlAfterSignIn,
-#             Domain=Domain,
-#             LoginUrl=LoginUrl,
-#             Description=Description,
-#             Username=UserName,
-#             SecretKey=secret_key,
-#             RegisteredOn=datetime.datetime.utcnow()
-#         )
-#         return ret
+
 #
 #     def save_azure_access_token(self,
 #                                 request,

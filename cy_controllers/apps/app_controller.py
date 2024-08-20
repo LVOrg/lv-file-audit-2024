@@ -1,5 +1,7 @@
 import datetime
 import typing
+import uuid
+import pymongo.errors
 import cy_docs
 from cy_controllers.models.apps import (
     AppInfo,
@@ -33,6 +35,7 @@ class AppsController(BaseController):
     ]
 
     def __init__(self, request: Request):
+        super().__init__(request)
         self.request = request
 
     @controller.route.post(
@@ -53,11 +56,56 @@ class AppsController(BaseController):
 
         )
         return app_name
+    def create_app(self,
+               Name: str,
+               Domain: str,
+               Description: typing.Optional[str] = None,
+               LoginUrl: str = None,
+               ReturnUrlAfterSignIn: typing.Optional[str] = None,
+               UserName: typing.Optional[str] = None,
+               Password: typing.Optional[str] = None,
+               ReturnSegmentKey: typing.Optional[str] = None,
+               azure_app_name: typing.Optional[str] = None,
+               azure_client_id: typing.Optional[str] = None,
+               azure_tenant_id: typing.Optional[str] = None):
+        docs = Repository.apps.app('admin')
+        doc = docs.fields
+        app_id = str(uuid.uuid4())
+        secret_key = str(uuid.uuid4())
+        docs.context.insert_one(
+            doc.Id << app_id,
+            doc.Name << Name,
+            doc.ReturnUrlAfterSignIn << ReturnUrlAfterSignIn,
+            doc.Domain << Domain,
+            doc.LoginUrl << LoginUrl,
+            doc.Description << Description,
+            doc.Username << UserName,
+            doc.Password << Password,
+            doc.SecretKey << secret_key,
+            doc.RegisteredOn << datetime.datetime.utcnow(),
+            doc.ReturnSegmentKey << ReturnSegmentKey,
+            doc.AppOnCloud.Azure.Name << azure_app_name,
+            doc.AppOnCloud.Azure.ClientID << azure_client_id,
+            doc.AppOnCloud.Azure.TenantID << azure_tenant_id
 
+        )
+
+        ret = cy_docs.DocumentObject(
+            AppId=app_id,
+            Name=Name,
+            ReturnUrlAfterSignIn=ReturnUrlAfterSignIn,
+            Domain=Domain,
+            LoginUrl=LoginUrl,
+            Description=Description,
+            Username=UserName,
+            SecretKey=secret_key,
+            RegisteredOn=datetime.datetime.utcnow()
+        )
+        return ret
 
     def do_app_register(self, Data: AppInfoRegister) -> AppInfoRegisterResult:
         import cy_xdoc
-        if not self.request.username or self.request.username != "root":
+        if not  hasattr(self.request,"username") or  getattr(self.request,"username") != "root":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED
 
@@ -72,22 +120,21 @@ class AppsController(BaseController):
             }
             if data.get("RegisteredOn"):
                 del data["RegisteredOn"]
-            app = self.service_app.create(**save_data)
+            app = self.create_app(**save_data)
             ret.Data = app.to_pydantic()
-            self.apps_cache.clear_cache()
             return ret
         except pymongo.errors.DuplicateKeyError as e:
+
             ret.Error = ErrorResult(
-                Code=cy_xdoc.get_error_code(e),
-                Fields=cy_xdoc.get_error_fields(e),
-                Message=cy_xdoc.get_error_message(e)
+                Code= self.db_error_service.get_error_code(e),
+                Fields=self.db_error_service.get_error_fields(e),
+                Message=self.db_error_service.get_error_message(e)
             )
             return ret
         except Exception as e:
             ret.Error = ErrorResult(
-                Code=cy_xdoc.get_error_code(e),
-                Fields=cy_xdoc.get_error_fields(e),
-                Message=cy_xdoc.get_error_message(e)
+                Code="System",
+                Message="System error"
             )
             return ret
 
@@ -147,7 +194,36 @@ class AppsController(BaseController):
                 Message=cy_xdoc.get_error_message(e)
             )
             return ret
+    def get_app_info(self, app_name, app_get: typing.Optional[str]):
+        docs = Repository.apps.app(app_name)
+        ret = docs.context.aggregate().project(
+            cy_docs.fields.AppId >> docs.fields.Id,
+            docs.fields.Name,
+            docs.fields.Description,
+            docs.fields.Domain,
+            docs.fields.LoginUrl,
+            docs.fields.ReturnUrlAfterSignIn,
+            docs.fields.ReturnSegmentKey,
+            cy_docs.fields.Apps >> docs.fields.AppOnCloud,
+            docs.fields.SizeInGB
 
+        ).match(docs.fields.NameLower == app_get.lower()).first_item()
+        if ret is None:
+            ret = docs.context.aggregate().project(
+                cy_docs.fields.AppId >> docs.fields.Id,
+                docs.fields.Name,
+                docs.fields.Description,
+                docs.fields.Domain,
+                docs.fields.LoginUrl,
+                docs.fields.ReturnUrlAfterSignIn,
+                docs.fields.ReturnSegmentKey,
+                cy_docs.fields.Apps >> docs.fields.AppOnCloud,
+                docs.fields.AppOnCloud,
+                docs.fields.SizeInGB
+
+            ).match(docs.fields.Name == app_get).first_item()
+
+        return ret
     @controller.route.post("/api/admin/apps/get/{app_name}",
         tags=["APPS"])
     def get_info(self, app_name: str) -> AppInfo:
@@ -159,7 +235,7 @@ class AppsController(BaseController):
         :return:
         """
 
-        ret = self.service_app.get_item("admin", app_get=app_name)
+        ret = self.get_app_info("admin", app_get=app_name)
         if ret:
             return ret.to_pydantic()
         else:

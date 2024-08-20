@@ -9,6 +9,7 @@ import pathlib
 import sys
 import os
 import traceback
+from http.client import HTTPResponse
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
@@ -37,7 +38,7 @@ runtime_config_service.load(sys.argv)
 skip_checking = os.getenv("BUILD_IMAGE_TAG") is None
 
 import cyx.framewwork_configs
-
+from fastapi.responses import Response
 import cyx.common
 from cyx.common import config
 
@@ -145,33 +146,36 @@ logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
 
 async def dev_mode(request: fastapi.Request, next):
     start_time = datetime.datetime.utcnow()
-    res = await next(request)
-    n = datetime.datetime.utcnow() - start_time
-    if not request.url.path.endswith("/api/healthz") and not request.url.path.endswith("/api/readyz"):
-        logger.info(f"{request.url}  in {n}")
-    if ((request.url._url == cy_web.get_host_url(request) + "/api/accounts/token")
-            or (request.url._url == cy_web.get_host_url(request) + "/lvfile/api/accounts/token")):
-        response_body = [chunk async for chunk in res.body_iterator]
-        res.body_iterator = iterate_in_threadpool(iter(response_body))
-        if len(response_body) > 0:
-            BODY_CONTENT = response_body[0].decode()
+    try:
+        res = await next(request)
+        n = datetime.datetime.utcnow() - start_time
+        if not request.url.path.endswith("/api/healthz") and not request.url.path.endswith("/api/readyz"):
+            logger.info(f"{request.url}  in {n}")
+        if ((request.url._url == cy_web.get_host_url(request) + "/api/accounts/token")
+                or (request.url._url == cy_web.get_host_url(request) + "/lvfile/api/accounts/token")):
+            response_body = [chunk async for chunk in res.body_iterator]
+            res.body_iterator = iterate_in_threadpool(iter(response_body))
+            if len(response_body) > 0:
+                BODY_CONTENT = response_body[0].decode()
 
-            try:
-                data = json.loads(BODY_CONTENT)
-                del data
-                if data.get('access_token'):
-                    res.set_cookie('access_token_cookie', data.get('access_token'))
-            except Exception as e:
-                pass
-    # build-22.20240809144938
-    end_time = datetime.datetime.utcnow()
+                try:
+                    data = json.loads(BODY_CONTENT)
+                    del data
+                    if data.get('access_token'):
+                        res.set_cookie('access_token_cookie', data.get('access_token'))
+                except Exception as e:
+                    pass
+        # build-22.20240809144938
+        end_time = datetime.datetime.utcnow()
 
-    async def apply_time(res):
-        res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
+        async def apply_time(res):
+            res.headers["Server-Timing"] = f"total;dur={(end_time - start_time).total_seconds() * 1000}"
+            return res
+
+        res = await apply_time(res)
         return res
-
-    res = await apply_time(res)
-    return res
+    except:
+        return Response(content=traceback.format_exc(),status_code=500)
 
 
 async def release_mode(request: fastapi.Request, next):
@@ -250,7 +254,7 @@ async def release_mode(request: fastapi.Request, next):
 is_dev_mode = hasattr(config, "is_dev_mode")
 
 
-#@cy_web.middleware()
+@cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     if is_dev_mode:
         return await dev_mode(request, next)

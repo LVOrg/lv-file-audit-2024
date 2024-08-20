@@ -36,7 +36,7 @@ import cy_web
 from cyx.repository import Repository
 import os
 import cyx.common.msg
-
+import bson.errors
 
 @controller.resource()
 class FilesSourceController(BaseController):
@@ -125,7 +125,7 @@ class FilesSourceController(BaseController):
                 ret.headers["Content-Disposition"] = f"attachment; filename={data.uploadId}"
 
                 return ret
-            except FileNotFoundError:
+            except Exception:
                 UploadData = await Repository.files.app(data.appName).context.find_one_async(
                     Repository.files.fields.id == data.uploadId
                 )

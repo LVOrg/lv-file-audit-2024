@@ -69,10 +69,7 @@
 #
 #
 # def get_error_fields(ex):
-#     if isinstance(ex, pymongo.errors.DuplicateKeyError):
-#         if hasattr(ex,'details') and isinstance(ex.details,dict) and isinstance(ex.details.get("keyPattern"),dict):
-#             return list(ex.details["keyPattern"].keys())
-#     return []
+
 #
 #
 # def get_error_message(ex):

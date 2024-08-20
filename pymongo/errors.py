@@ -274,6 +274,9 @@ class WTimeoutError(WriteConcernError):
 class DuplicateKeyError(WriteError):
     """Raised when an insert or update fails due to a duplicate key error."""
 
+    def get_error_message(self):
+        pass
+
 
 def _wtimeout_error(error: Any) -> bool:
     """Return True if this writeConcernError doc is a caused by a timeout."""

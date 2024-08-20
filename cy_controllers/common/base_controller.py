@@ -48,6 +48,7 @@ from cyx.cloud_cache_services import CloudCacheService
 from cyx.malloc_services import MallocService
 import cyx.common.basic_auth
 from cyx.file_utils_services import FileUtilService
+from cyx.db_services.error_services import DbErrorServices
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -92,6 +93,7 @@ class BaseController:
     ms_office_365_service: MSOffice365Service = cy_kit.singleton(MSOffice365Service)
     cloud_cache_service:CloudCacheService = cy_kit.singleton(CloudCacheService)
     file_util_service:FileUtilService =cy_kit.singleton(FileUtilService)
+    db_error_service: DbErrorServices = cy_kit.singleton(DbErrorServices)
 
     def __init__(self, request: Request):
         self.request = request

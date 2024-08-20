@@ -4,7 +4,7 @@ FROM docker.io/nttlong/fs:fs.tiny.core.amd.22
 ARG TARGETARCH
 ARG OS
 #COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
-ENV PRODUCTION_BUILT_ON="2024-08-19 16:28:13"
+ENV PRODUCTION_BUILT_ON="2024-08-20 13:31:12"
 ENV BUILD_IMAGE_TAG="fs.tiny.core.amd.22"
 RUN python3 -m pip install webp
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
@@ -27,7 +27,6 @@ COPY ./../cy_utils /app/cy_utils
 RUN rm -fr /app/cy_vn_suggestion/data
 COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
-COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
 #COPY ./../cy_fw_microsoft_delete /app/cy_fw_microsoft_delete
 COPY ./../cyx /app/cyx
