@@ -18,6 +18,7 @@ from fastapi import (
     Response, Body
 )
 from cy_xdoc.auths import Authenticate
+from cyx.repository import Repository
 
 router = APIRouter()
 controller = Controller(router)
@@ -174,6 +175,29 @@ class AppsController(BaseController):
         :return:
         """
         app_name = "admin"
-        for app in self.service_app.get_list(app_name):
+
+
+        apps = Repository.apps.app(app_name).context.aggregate().project(
+            cy_docs.fields.AppId >> Repository.files.fields.id,
+            Repository.apps.fields.name,
+            Repository.apps.fields.description,
+            Repository.apps.fields.domain,
+            Repository.apps.fields.login_url,
+            Repository.apps.fields.return_url_afterSignIn,
+            Repository.apps.fields.LatestAccess,
+            Repository.apps.fields.AccessCount,
+            Repository.apps.fields.RegisteredOn,
+            cy_docs.fields.AzurePersonalAccountUrlLogin >> Repository.apps.fields.AppOnCloud.Azure.PersonalAccountUrlLogin,
+            cy_docs.fields.AzureBusinessAccountUrlLogin >> Repository.apps.fields.AppOnCloud.Azure.BusinessAccountUrlLogin,
+            Repository.apps.fields.AppOnCloud,
+            Repository.apps.fields.SizeInGB
+
+        ).sort(
+            Repository.apps.fields.LatestAccess.desc(),
+            Repository.apps.fields.Name.asc(),
+            Repository.apps.fields.RegisteredOn.desc()
+        )
+
+        for app in apps:
 
             yield app.to_pydantic()

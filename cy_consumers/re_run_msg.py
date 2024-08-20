@@ -16,7 +16,7 @@ import cy_kit
 msg = cy_kit.singleton(RabitmqMsg)
 files = cy_kit.singleton(FileServices)
 apps = cy_kit.singleton(AppServices)
-apps_list = apps.get_list("admin")
+apps_list = apps.get_list(app_name="admin")
 for app in apps_list:
     # if app.Name not in ["default"]:
     #     continue

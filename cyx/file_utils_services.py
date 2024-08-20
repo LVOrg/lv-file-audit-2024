@@ -7,6 +7,7 @@ import tempfile
 import threading
 import time
 import traceback
+import typing
 import uuid
 from datetime import datetime
 from humanize import naturalsize
@@ -34,14 +35,6 @@ from cyx.file_utils_services_base import BaseUtilService
 
 
 class FileUtilService(BaseUtilService):
-    # memcache_service = cy_kit.singleton(MemcacheServices),
-    # g_drive_service: GDriveService = cy_kit.singleton(GDriveService),
-    # cloud_service_utils: CloudServiceUtils = cy_kit.singleton(CloudServiceUtils),
-    # elastic_Search_util_service: ElasticSearchUtilService = cy_kit.singleton(ElasticSearchUtilService),
-    # cloud_storage_sync_service: CloudStorageSyncService = cy_kit.singleton(CloudStorageSyncService),
-    # local_api_service: LocalAPIService = cy_kit.singleton(LocalAPIService),
-    # extract_content_service: ExtractContentService = cy_kit.singleton(ExtractContentService)
-
     def healthz(self):
         def check():
             try:
@@ -80,18 +73,24 @@ class FileUtilService(BaseUtilService):
                 Repository.files.fields.Id == upload_id,
                 Repository.files.fields.BrokerErrorLog << traceback_string
             )
+    @staticmethod
+    def get_update_expr(upload:typing.Dict[typing.AnyStr,typing.Any])->typing.Tuple:
+        return (
+            Repository.files.fields.NumOfChunksCompleted << upload.get(Repository.files.fields.NumOfChunksCompleted.__name__),
+            Repository.files.fields.SizeUploaded << upload.get(Repository.files.fields.SizeUploaded.__name__),
+            Repository.files.fields.Status << upload.get(Repository.files.fields.Status.__name__,0),
+            Repository.files.fields.CloudId << upload.get(Repository.files.fields.CloudId.__name__),
+            Repository.files.fields.SizeInHumanReadable <<upload.get(Repository.files.fields.SizeInHumanReadable.__name__)
+        )
 
-    def update_upload(self, app_name, upload_id, upload,update_cache_only=False):
+
+    def update_upload(self, app_name:str, upload_id:str, upload: typing.Dict[typing.AnyStr,typing.Any],update_cache_only:bool=False):
         self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, upload)
         if update_cache_only:
             return
         ret = Repository.files.app(app_name).context.update(
             Repository.files.fields.id == upload_id,
-            Repository.files.fields.NumOfChunksCompleted << upload["NumOfChunksCompleted"],
-            Repository.files.fields.SizeUploaded << upload["SizeUploaded"],
-            Repository.files.fields.Status << upload.get("Status", 0),
-            Repository.files.fields.CloudId << upload.get("CloudId"),
-            Repository.files.fields.SizeInHumanReadable << upload.get("SizeInHumanReadable")
+            *FileUtilService.get_update_expr(upload)
         )
         return ret
 
@@ -397,7 +396,7 @@ class FileUtilService(BaseUtilService):
                 )
             )
 
-    def get_upload(self, app_name, upload_id, cache=True):
+    def get_upload(self, app_name, upload_id, cache=True)->typing.Dict[str,typing.Any]:
         """
         Get upload with cache
         :param app_name:

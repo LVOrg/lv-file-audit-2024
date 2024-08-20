@@ -8,55 +8,18 @@ from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
     Depends,
-    FastAPI,
-    HTTPException,
-    status,
-    Request,
-    Response,
-    UploadFile,
-    Form, File,Body
+    Body
 )
 from cy_xdoc.auths import Authenticate
-import cy_xdoc.models.files
-import cy_kit
-from cy_xdoc.services.files import FileServices
 
-from cyx.common.msg import MessageService
-from cy_xdoc.models.files import DocUploadRegister
-from cyx.common.temp_file import TempFiles
-from cyx.common.brokers import Broker
-from cyx.common.rabitmq_message import RabitmqMsg
-from cy_controllers.models.files_upload import (
-    UploadChunkResult, ErrorResult, UploadFilesChunkInfoResult
-)
-import datetime
-import mimetypes
-import threading
-from typing import Annotated
-from fastapi.requests import Request
-import traceback
-import humanize
 
 router = APIRouter()
 controller = Controller(router)
-import threading
 import cy_docs
-import cyx.common.msg
-from cyx.common.file_storage_mongodb import (
-    MongoDbFileService,MongoDbFileStorage
-)
 
-from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
 from cy_controllers.models.files import (
-    FileUploadRegisterInfo,
-    DataMoveTanent,
-    DataMoveTanentParam,
-    FileContentSaveData,
-    FileContentSaveResult,
-    CloneFileResult,
-    FileContentSaveArgs,
-    ErrorInfo,
+
     AddPrivilegesResult,
     PrivilegesType
 )

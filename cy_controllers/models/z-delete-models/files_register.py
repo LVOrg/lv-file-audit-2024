@@ -82,7 +82,7 @@ class RegisterUploadInfoResult:
     Data: RegisterUploadResult
     Error: Error
 import typing
-from cy_xdoc.controllers.models.files_register import PrivilegesType
+from cy_controllers.models.models import PrivilegesType
 
 @cy_web.model()
 class FileContentSaveResult:

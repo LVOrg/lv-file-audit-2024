@@ -178,8 +178,7 @@ class SearchController(BaseController):
         """
         from cy_xdoc.controllers import files_content_search_utils
 
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
+
         if highlight is None:
             highlight = False
         # search_services: cy_xdoc.services.search_engine.SearchEngine = cy_kit.singleton(

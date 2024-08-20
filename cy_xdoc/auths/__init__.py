@@ -16,7 +16,7 @@ class Authenticate:
     def validate(self,
                  request: Request,
                  username: str,
-                 application: str, apps=cy_kit.inject(cy_xdoc.services.apps.AppServices)) -> bool:
+                 application: str, apps=None) -> bool:
 
         return True
 

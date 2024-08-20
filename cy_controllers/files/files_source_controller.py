@@ -19,55 +19,19 @@ from fastapi import (
 )
 from starlette.responses import StreamingResponse
 from cy_xdoc.auths import Authenticate
-import cy_xdoc.models.files
-import cy_kit
-from cy_xdoc.services.files import FileServices
+import cyx.db_models.files
 
 from cyx.common.msg import MessageService
-from cy_xdoc.models.files import DocUploadRegister
-from cyx.common.temp_file import TempFiles
-from cyx.common.brokers import Broker
-from cyx.common.rabitmq_message import RabitmqMsg
-from cy_controllers.models.files_upload import (
-    UploadChunkResult, ErrorResult, UploadFilesChunkInfoResult
-)
-import datetime
 import mimetypes
-import threading
-from typing import Annotated
-from fastapi.requests import Request
-import traceback
-import humanize
-
 router = APIRouter()
 controller = Controller(router)
-import threading
 import cy_docs
 import cyx.common.msg
-from cyx.common.file_storage_mongodb import (
-    MongoDbFileService, MongoDbFileStorage
-)
-from fastapi import responses
-
 from cy_controllers.models import (
     files as controller_model_files
 )
-from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
-from cy_controllers.models.files import (
-    FileUploadRegisterInfo,
-    DataMoveTanent,
-    DataMoveTanentParam,
-    FileContentSaveData,
-    FileContentSaveResult,
-    CloneFileResult,
-    FileContentSaveArgs,
-    ErrorInfo,
-    AddPrivilegesResult,
-    PrivilegesType,
-    CheckoutResource
-)
-
+from cy_controllers.models.files import CheckoutResource
 import cy_web
 from cyx.repository import Repository
 import os
@@ -89,9 +53,7 @@ class FilesSourceController(BaseController):
         :param app_name:
         :return:
         """
-        from cyx.common.content_marterial_utils import check_is_thumbnails_able
-
-        doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
+        doc_context = Repository.files.app(app_name).context
         upload_info = await doc_context.context.find_one_async(
             doc_context.fields.id == UploadId
         )

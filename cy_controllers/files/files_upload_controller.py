@@ -2,6 +2,7 @@ import datetime
 import gc
 import os
 import pathlib
+import typing
 
 from cyx.common import config
 from fastapi_router_controller import Controller
@@ -16,19 +17,13 @@ from fastapi import (
     UploadFile,
     Form, File
 )
-from cyx.repository import Repository
-import bson
-from cy_xdoc.auths import Authenticate
-import cy_kit
-from cy_xdoc.services.files import FileServices
 
-from cyx.common.msg import MessageService
-from cy_xdoc.models.files import DocUploadRegister
-from cyx.common.temp_file import TempFiles
-from cyx.common.brokers import Broker
-from cyx.common.rabitmq_message import RabitmqMsg
+# from cyx.fix_es import index
+from cyx.repository import Repository
+from cy_xdoc.auths import Authenticate
+from cyx.db_models.files import DocUploadRegister
 from cy_controllers.models.files_upload import (
-    UploadChunkResult, ErrorResult, UploadFilesChunkInfoResult
+    ErrorResult, UploadFilesChunkInfoResult
 )
 import datetime
 import mimetypes
@@ -43,14 +38,10 @@ router = APIRouter()
 controller = Controller(router)
 import threading
 import cy_docs
-import cyx.common.msg
-from cyx.common.file_storage_mongodb import (
-    MongoDbFileService, MongoDbFileStorage
-)
 
-from cyx.cache_service.memcache_service import MemcacheServices
+
+
 from cy_controllers.common.base_controller import BaseController
-from concurrent.futures import ThreadPoolExecutor
 
 async def get_main_file_id_async(fs):
     st = datetime.datetime.utcnow()
@@ -58,7 +49,7 @@ async def get_main_file_id_async(fs):
     n = (datetime.datetime.utcnow() - st).total_seconds()
     print(f"get_main_file_id_async={n}")
     return ret
-
+import cy_file_cryptor.context
 version2 = config.generation if hasattr(config,"generation") else None
 
 @controller.resource()
@@ -76,14 +67,14 @@ class FilesUploadController(BaseController):
         await FilePart.close()
         return content_part
 
-    async def create_storage_file_async(self, app_name, rel_file_path, chunk_size, content_type, size):
-        fs = await self.file_storage_service.create_async(
-            app_name=app_name,
-            rel_file_path=rel_file_path,
-            chunk_size=chunk_size,
-            content_type=content_type,
-            size=size)
-        return fs
+    # async def create_storage_file_async(self, app_name, rel_file_path, chunk_size, content_type, size):
+    #     fs = await self.file_storage_service.create_async(
+    #         app_name=app_name,
+    #         rel_file_path=rel_file_path,
+    #         chunk_size=chunk_size,
+    #         content_type=content_type,
+    #         size=size)
+    #     return fs
 
     def delete_cache_upload_register(self, app_name, upload_id):
         # global __cache__
@@ -172,18 +163,7 @@ class FilesUploadController(BaseController):
         data_from_cache.MainFileId = main_file_id
         data_from_cache.StoragePath = main_file_id
 
-    async def push_file_async(self, app_name: str, upload_id: str, fs: MongoDbFileStorage, content_part, Index):
 
-        st = datetime.datetime.utcnow()
-
-        def pushing_file():
-            fs.push(content_part, Index)
-
-        th = threading.Thread(target=pushing_file)
-        th.start()
-        th.join()
-        n = (datetime.datetime.utcnow() - st).total_seconds()
-        print(f"push_file_async={n}")
 
     async def update_search_engine_async(self, app_name, id, content, data_item, update_meta):
         """
@@ -212,16 +192,16 @@ class FilesUploadController(BaseController):
             threading.Thread(target=update_search_engine_content, args=()).start()
         except Exception as e:
             raise e
-            print(e)
 
-    async def post_msg_upload_file_async(self, app_name, data, upload_id):
+
+    async def post_msg_upload_file_async(self, app_name: str, data:typing.Dict[typing.AnyStr,typing.Any], upload_id: str):
         upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
 
         def post_msg_upload():
-            if data[upload_register_doc.fields.FileExt] is None:
+            if data.get(upload_register_doc.fields.FileExt.__name__) is None:
                 return
             try:
-                local_share_id = self.local_api_service.generate_local_share_id(app_name=app_name, upload_id=data.id)
+                local_share_id = self.local_api_service.generate_local_share_id(app_name=app_name, upload_id=data.get("_id"))
                 data.local_share_id = local_share_id
                 self.extract_content_service.save_search_engine(
                     data = data,
@@ -255,7 +235,7 @@ class FilesUploadController(BaseController):
         # try:
 
         content_part = await self.get_upload_binary_async(FilePart)
-        upload_item = self.file_service.get_upload_register_with_cache(
+        upload_item = self.file_util_service.get_upload(
             app_name=app_name,
             upload_id=UploadId
         )
@@ -269,79 +249,77 @@ class FilesUploadController(BaseController):
             ret.Error.Code="ItemWasNotFound"
             ret.Message="Upload was not found or has been remove"
             return ret
-        upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
-        file_size = upload_item.SizeInBytes
-        # path_to_broker_share = os.path.join(path_to_broker_share,f"{UploadId}.{upload_item.get(docs.Files.FileExt.__name__)}")
-        size_uploaded = upload_item.SizeUploaded or 0
-        num_of_chunks_complete = upload_item.NumOfChunksCompleted or 0
-        nun_of_chunks = upload_item.NumOfChunks or 0
-        # main_file_id = upload_item.MainFileId
-        chunk_size_in_bytes = upload_item.ChunkSizeInBytes or 0
-        server_file_name = upload_item.FullFileNameLower
+        # upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
+        file_size = upload_item[Repository.files.fields.SizeInBytes.__name__]
+        size_uploaded = upload_item[Repository.files.fields.SizeUploaded.__name__] or 0
+        num_of_chunks_complete = upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] or 0
+        nun_of_chunks = upload_item[Repository.files.fields.NumOfChunks.__name__] or 0
+        # chunk_size_in_bytes = upload_item[Repository.files.fields.ChunkSizeInBytes.__name__] or 0
+        server_file_name = upload_item[Repository.files.fields.FullFileNameLower.__name__]
         content_type, _ = mimetypes.guess_type(server_file_name)
-
-        if num_of_chunks_complete == 0:
-            fs = await self.create_storage_file_async(
+        if not upload_item.get("real_file_location"):
+            file_path = await self.file_util_service.get_physical_path_async(
                 app_name=app_name,
-                rel_file_path=server_file_name,
-                chunk_size=chunk_size_in_bytes,
-                content_type=content_type,
-                size=file_size
+                upload_id=UploadId
             )
-
-            await self.push_file_async(
-                app_name=app_name,
-                upload_id=UploadId,
-                fs=fs,
-                content_part=content_part,
-                Index=Index
-            )
-
-
-
-
-            upload_item.MainFileId = await get_main_file_id_async(fs)
-
-            main_file_id = upload_item.MainFileId
-            if not upload_item.MainFileId.startswith("local://"):
-                await self.push_file_to_temp_folder_async(
-                    app_name=app_name,
-                    content=content_part,
-                    upload_id=UploadId,
-                    file_ext=upload_item[upload_register_doc.fields.FileExt]
-                )
         else:
-            fs = await self.file_storage_service.get_file_by_name_async(
-                app_name=app_name,
-                rel_file_path=server_file_name
-            )
-            if not upload_item.MainFileId.startswith("local://"):
-                await self.push_file_async(
-                    app_name=app_name,
-                    upload_id=UploadId,
-                    fs=fs,
-                    content_part=content_part,
-                    Index=Index
-                )
-                await self.push_temp_file_async(
-                    app_name=app_name,
-                    content=content_part,
-                    upload_id=UploadId,
-                    file_ext=upload_item[upload_register_doc.fields.FileExt]
-                )
-            await self.push_file_async(
-                app_name=app_name,
-                upload_id=UploadId,
-                fs=fs,
-                content_part=content_part,
-                Index=Index
-            )
-        if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
-            upload_item["Status"] = 1
+            file_path = upload_item.get("real_file_location")
+        mode = "wb" if Index == 0 else "ab"
+        import cy_file_cryptor.context
+        file_size_in_bytes = upload_item.get(Repository.files.fields.SizeInBytes.__name__)
+        chunk_size_in_kb = upload_item.get(Repository.files.fields.ChunkSizeInKB.__name__)
+        with open(file_path, mode, encrypt=True,file_size=file_size_in_bytes,chunk_size_in_kb=chunk_size_in_kb) as fs:
+            fs.write(content_part)
 
-            if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"), dict) and (
-                    upload_item["SkipActions"].get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
-                    upload_item["SkipActions"].get("All", False) == False
+
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #     main_file_id = upload_item.MainFileId
+        #     if not upload_item.MainFileId.startswith("local://"):
+        #         await self.push_file_to_temp_folder_async(
+        #             app_name=app_name,
+        #             content=content_part,
+        #             upload_id=UploadId,
+        #             file_ext=upload_item[Repository.files.fields.FileExt]
+        #         )
+        # else:
+        #     fs = await self.file_storage_service.get_file_by_name_async(
+        #         app_name=app_name,
+        #         rel_file_path=server_file_name
+        #     )
+        #     if not upload_item.MainFileId.startswith("local://"):
+        #         await self.push_file_async(
+        #             app_name=app_name,
+        #             upload_id=UploadId,
+        #             fs=fs,
+        #             content_part=content_part,
+        #             Index=Index
+        #         )
+        #         await self.push_temp_file_async(
+        #             app_name=app_name,
+        #             content=content_part,
+        #             upload_id=UploadId,
+        #             file_ext=upload_item[Repository.files.fields.FileExt]
+        #         )
+        #     await self.push_file_async(
+        #         app_name=app_name,
+        #         upload_id=UploadId,
+        #         fs=fs,
+        #         content_part=content_part,
+        #         Index=Index
+        #     )
+        skip_action: typing.Dict[str,typing.Any]|None = upload_item.get(Repository.files.fields.SkipActions.__name__)
+        if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
+            upload_item[Repository.files.fields.Status.__name__] = 1
+
+            if skip_action is None or (isinstance(skip_action, dict) and (
+                    skip_action.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
+                    skip_action.get("All", False) == False
             )):
                 await self.update_search_engine_async(
                     app_name=app_name,
@@ -350,16 +328,11 @@ class FilesUploadController(BaseController):
                     data_item=upload_item,
                     update_meta=False
                 )
-            if upload_item.get("SkipActions") is None or (isinstance(upload_item.get("SkipActions"), dict) and (
-                    upload_item["SkipActions"].get("All", False) == False
-            )):
-
                 await self.post_msg_upload_file_async(
                     app_name=app_name,
                     upload_id=UploadId,
                     data=upload_item
                 )
-
         size_uploaded += len(content_part)
         ret = cy_docs.DocumentObject()
         ret.Data = cy_docs.DocumentObject()
@@ -383,63 +356,47 @@ class FilesUploadController(BaseController):
                 import cy_file_cryptor.crypt_info
                 cy_file_cryptor.crypt_info.clear_cache(fs.full_path+".cryptor")
             status = 1
-            cloud_id = upload_item.CloudId or upload_item.CloudIdUpdating
+            cloud_id = upload_item.get(Repository.files.fields.CloudId.__name__) or upload_item.get(Repository.files.fields.CloudIdUpdating.__name__)
             if cloud_id:
                 await Repository.files.app(app_name).context.update_async(
-                    Repository.files.fields.id == upload_item.Id,
+                    Repository.files.fields.id == upload_item.get("_id"),
                     Repository.files.fields.CloudId << None,
                     Repository.files.fields.CloudIdUpdating << cloud_id
 
                 )
                 key = f"{self.cache_type}/{app_name}/{upload_item.Id}"
                 self.memcache_service.remove(key)
-                self.file_util_service.clear_cache_file(app_name=app_name,upload_id=upload_item.Id)
+                self.file_util_service.clear_cache_file(app_name=app_name,upload_id=upload_item.get("_id"))
 
-        await self.update_upload_status_async(
+
+
+        upload_item[Repository.files.fields.SizeUploaded.__name__] = size_uploaded
+        upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] = num_of_chunks_complete
+        upload_item[Repository.files.fields.Status.__name__] = status
+
+        self.file_util_service.update_upload(
             app_name=app_name,
-            upload_id=UploadId,
-            size_uploaded=size_uploaded,
-            num_of_chunks_complete=num_of_chunks_complete,
-            status=status,
-            main_file_id=fs.get_id()
-        )
-        upload_item.SizeUploaded = size_uploaded
-        upload_item.NumOfChunksCompleted = num_of_chunks_complete
-        upload_item.Status = status
-        upload_item.MainFileId = fs.get_id()
-        self.file_service.set_upload_register_to_cache(
-            app_name=app_name,
-            upload_id=UploadId,
-            data=upload_item
+            upload_id=upload_item.get("_id"),
+            upload=upload_item
         )
 
         ret_data = ret.to_pydantic()
 
         if status == 1:
-            await  Repository.files.app(app_name).context.update_async(
-                Repository.files.fields.id==UploadId,
-                Repository.files.fields.Status<<1
-            )
-
-
-
             map = {
                 "onedrive": "Azure",
                 "google-drive": "Google",
                 "s3":"AWS"
             }
-            if map.get(upload_item.StorageType):
+            storage_type:str = upload_item[Repository.files.fields.StorageType.__name__]
+            if map.get(storage_type):
                 self.cloud_service_utils.do_sync_data(
                     app_name=app_name,
-                    cloud_name=map.get(upload_item.StorageType),
+                    cloud_name=map.get(storage_type),
                     upload_item= upload_item
-
                 )
 
-            self.delete_cache_upload_register(
-                app_name=app_name,
-                upload_id=UploadId
-            )
+
 
 
         return ret_data

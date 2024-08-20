@@ -72,7 +72,6 @@ COPY ./../cy_utils /app/cy_utils
 RUN rm -fr /app/cy_vn_suggestion/data
 COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
-COPY ./../cylibs /app/cylibs
 COPY ./../cy_plugins /app/cy_plugins
 #COPY ./../cy_fw_microsoft_delete /app/cy_fw_microsoft_delete
 COPY ./../cyx /app/cyx

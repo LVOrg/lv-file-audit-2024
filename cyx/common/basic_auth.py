@@ -19,14 +19,12 @@ class BasicAuth:
     def __init__(self,
                     token_verifier:TokenVerifier=cy_kit.singleton(TokenVerifier),
                     cacher: cyx.common.cacher.CacherService = cy_kit.singleton(cyx.common.cacher.CacherService),
-                    app_services:cy_xdoc.services.apps.AppServices = cy_kit.singleton(cy_xdoc.services.apps.AppServices),
-                 local_app_service:LocalAPIService = cy_kit.singleton(LocalAPIService)
+                    local_app_service:LocalAPIService = cy_kit.singleton(LocalAPIService)
 
                 ):
         self.token_verifier=token_verifier
         self.share_key = cyx.common.config.jwt.secret_key
         self.cacher = cacher
-        self.app_services=app_services
         self.local_app_service = local_app_service
 
     def raise_expr(self,ret_url:str=None, app_name:str=None):

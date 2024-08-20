@@ -11,7 +11,7 @@ from cy_docs import get_doc
 from pymongo.mongo_client import MongoClient
 from typing import TypeVar, Generic
 import urllib
-
+from cyx.repository import Repository
 T = TypeVar("T")
 
 __client__ = {}
@@ -88,7 +88,7 @@ class DbConnect:
 
     def do_tracking(self, app_name):
         def run():
-            from cy_xdoc.models.apps import App
+            # from cy_xdoc.models.apps import App
             db = DB(client=self.client, db_name=self.admin_db_name)
             db_stats = dict()
             try:
@@ -96,7 +96,7 @@ class DbConnect:
                 print(db_stats.get("storageSize"))
             except:
                 pass
-            db_context = db.doc(App)
+            db_context = Repository.apps.app("admin")
             storage_size = db_stats.get("storageSize",0)
             db_context.context.update(
                 db_context.fields.Name == app_name,

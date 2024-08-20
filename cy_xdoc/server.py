@@ -250,7 +250,7 @@ async def release_mode(request: fastapi.Request, next):
 is_dev_mode = hasattr(config, "is_dev_mode")
 
 
-@cy_web.middleware()
+#@cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
     if is_dev_mode:
         return await dev_mode(request, next)

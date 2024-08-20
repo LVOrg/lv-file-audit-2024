@@ -15,7 +15,6 @@ import cy_xdoc.services.files
 from cy_xdoc.services.search_engine import SearchEngine
 import cyx.common.file_storage
 from cy_xdoc.models.files import DocUploadRegister
-from cy_xdoc.controllers.models.files_register import FileContentSaveData,FileContentSaveResult,PrivilegesType
 
 search_engine = cy_kit.singleton(SearchEngine)
 file_service = cy_kit.singleton(cy_xdoc.services.files.FileServices)
@@ -37,8 +36,7 @@ def files_content_get_layout_detection_by_id(
     :param token:
     :return:
     """
-    # from cy_xdoc.controllers.apps import check_app
-    # check_app(app_name)
+
     doc = search_engine.get_doc(
         app_name=app_name,
         id=id

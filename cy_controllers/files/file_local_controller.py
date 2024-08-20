@@ -1,81 +1,24 @@
-import datetime
-import gc
-import json
-import pathlib
-import typing
-import uuid
 
-import pydantic
+import pathlib
 from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
-    Depends,
-    FastAPI,
     HTTPException,
     status,
-    Request,
-    Response,
     UploadFile,
-    Form, File, Body,Query
+    File
 )
 from starlette.responses import StreamingResponse
-from cy_xdoc.auths import Authenticate
-import cy_xdoc.models.files
-import cy_kit
-from cy_xdoc.services.files import FileServices
 
-from cyx.common.msg import MessageService
-from cy_xdoc.models.files import DocUploadRegister
-from cyx.common.temp_file import TempFiles
-from cyx.common.brokers import Broker
-from cyx.common.rabitmq_message import RabitmqMsg
-from cy_controllers.models.files_upload import (
-    UploadChunkResult, ErrorResult, UploadFilesChunkInfoResult
-)
-import datetime
 import mimetypes
-import threading
 from typing import Annotated
-from fastapi.requests import Request
-import traceback
-import humanize
-
 router = APIRouter()
 controller = Controller(router)
-import threading
-import cy_docs
-import cyx.common.msg
-from cyx.common.file_storage_mongodb import (
-    MongoDbFileService, MongoDbFileStorage
-)
-from fastapi import responses
-
-from cy_controllers.models import (
-    files as controller_model_files
-)
-from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
-from cy_controllers.models.files import (
-    FileUploadRegisterInfo,
-    DataMoveTanent,
-    DataMoveTanentParam,
-    FileContentSaveData,
-    FileContentSaveResult,
-    CloneFileResult,
-    FileContentSaveArgs,
-    ErrorInfo,
-    AddPrivilegesResult,
-    PrivilegesType,
-    CheckoutResource
-)
-
-import cy_web
 from cyx.repository import Repository
 import os
-import cyx.common.msg
-import inspect
 from  cy_web.cy_web_x import streaming_async
-
+import cy_file_cryptor.context
 @controller.resource()
 class FilesLocalController(BaseController):
     @controller.route.get(
@@ -144,11 +87,6 @@ class FilesLocalController(BaseController):
             )
             ret.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
             return ret
-        # upload_item = await self.file_util_service.get_upload_by_upload_id_async(app_name=app_name,upload_id=upload_id)
-        # if not upload_item:
-        #     return  Response(status_code=404,content="Contet was not found")
-        # return  await self.file_util_service.get_file_content_async(self.request,app_name,f'{upload_id}/{upload_item["FileNameLower"]}')
-
 
     @controller.route.post(
         "/api/sys/admin/content-write/{rel_path:path}", summary="",
@@ -156,7 +94,6 @@ class FilesLocalController(BaseController):
     )
 
     async def write_raw_content(self,rel_path: str,content: Annotated[UploadFile, File()]):
-        import aiofiles
         local_share_id = self.request.query_params.get("local-share-id")
         token = self.request.query_params.get("token")
         is_ok = local_share_id or token
@@ -166,10 +103,11 @@ class FilesLocalController(BaseController):
         server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
         server_dir = pathlib.Path(server_path).parent.__str__()
         os.makedirs(server_dir,exist_ok=True)
-        async with aiofiles.open(server_path, 'wb') as f:
-            while True:
-                chunk = await content.read(1024)
-                if not chunk:
-                    break
-                await f.write(chunk)
-        return server_path
+        with cy_file_cryptor.context.EncryptContext(server_path):
+            with open(server_path, 'wb') as f:
+                while True:
+                    chunk = content.read(1024)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+            return server_path

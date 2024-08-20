@@ -6,11 +6,8 @@ import typing
 import bson
 from cyx.repository import Repository
 from fastapi_router_controller import Controller
-import cy_xdoc.models.files
 from fastapi import (
     APIRouter,
-    Depends,
-    Request,
     Response,
     Body
 
@@ -23,8 +20,9 @@ from cy_controllers.models.file_contents import (
 import fastapi.requests
 import cy_web
 import os
+
 from cy_controllers.common.base_controller import (
-    BaseController, FileResponse, mimetypes
+    BaseController
 )
 import requests.exceptions
 router = APIRouter()
@@ -58,10 +56,8 @@ class FilesContentController(BaseController):
         :return:
         """
 
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
-        upload_id = None
-        is_file_not_found = False
+
+
         file_path = await self.thumb_service.get_async(app_name,directory,700)
         if file_path is not None:
 
@@ -292,8 +288,7 @@ class FilesContentController(BaseController):
         :param app_name:
         :return:
         """
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
+
         if not directory.split('/')[-1].split('.')[0].isnumeric():
             raise ValueError(f"{directory} must be end with number")
         size= int(directory.split('/')[-1].split('.')[0])
@@ -329,8 +324,7 @@ class FilesContentController(BaseController):
         :param token:
         :return:
         """
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
+
         id = data.id
         doc = self.search_engine.get_doc(
             app_name=app_name,
@@ -356,4 +350,4 @@ class FilesContentController(BaseController):
                 data= data_info
             )
 
-        pass
+

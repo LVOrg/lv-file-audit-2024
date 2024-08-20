@@ -3,14 +3,10 @@ import os.path
 import uuid
 import pymongo.errors
 from cyx.repository import Repository
-from cy_controllers.common.base_controller import (
-    BaseController,
-    Authenticate,
-    APIRouter,
-    Controller,
-    Depends
-
-)
+from fastapi import APIRouter,Depends
+from fastapi_router_controller import Controller
+from cy_xdoc.auths import Authenticate
+from cy_controllers.common.base_controller import BaseController
 import cy_web
 import typing
 from pydantic import BaseModel

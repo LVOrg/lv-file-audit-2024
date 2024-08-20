@@ -3,22 +3,15 @@ import os.path
 import uuid
 import pymongo.errors
 from cyx.repository import Repository
-from cy_controllers.common.base_controller import (
-    BaseController,
-    Authenticate,
-    APIRouter,
-    Controller,
-    Depends
-
-)
+from cy_controllers.common.base_controller import BaseController
+from fastapi import APIRouter, Depends
+from cy_xdoc.auths import Authenticate
+from fastapi_router_controller import Controller
 import cy_web
 import typing
 from pydantic import BaseModel
-from fastapi.responses import Response, JSONResponse
-
 router = APIRouter()
 controller = Controller(router)
-
 
 class PrivilegesType(BaseModel):
     Type: str

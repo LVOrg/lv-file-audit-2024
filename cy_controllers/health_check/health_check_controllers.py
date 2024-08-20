@@ -2,32 +2,19 @@ import typing
 
 import pika
 from fastapi_router_controller import Controller
-import cy_xdoc.models.files
 from fastapi import (
     APIRouter,
-    Depends,
-    Request,
     Response,
-    Body
 
 )
 
 import pymongo
-from cy_controllers.models.file_contents import (
-    UploadInfoResult, ParamFileGetInfo,ReadableParam
-)
-import fastapi.requests
-import cy_web
-import os
-from cy_controllers.common.base_controller import (
-    BaseController, FileResponse, mimetypes
-)
 
+import os
+from cy_controllers.common.base_controller import BaseController
 router = APIRouter()
 controller = Controller(router)
-from fastapi.responses import FileResponse
-import mimetypes
-import cy_docs
+
 import elasticsearch
 
 @controller.resource()

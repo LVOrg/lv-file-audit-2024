@@ -1,6 +1,6 @@
 import cy_kit
 from cyx.common import config
-from cy_xdoc.models.files import DocUploadRegister
+from cyx.db_models.files import DocUploadRegister
 from cyx.cloud.cloud_service_utils import CloudServiceUtils
 from cyx.elastic_search_utils_service import ElasticSearchUtilService
 from cyx.cloud_storage_sync_services import CloudStorageSyncService

@@ -17,7 +17,7 @@ import cy_docs
 import cy_kit
 import cy_web
 import gridfs.errors
-from cy_xdoc.models.files import DocUploadRegister, Privileges, PrivilegesValues
+from cyx.db_models.files import DocUploadRegister, Privileges, PrivilegesValues
 import cyx.common.file_storage
 import cy_xdoc.services.search_engine
 import cyx.common.base

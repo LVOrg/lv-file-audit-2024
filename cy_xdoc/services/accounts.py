@@ -4,8 +4,8 @@ import uuid
 import cy_kit
 
 from cyx.common.base import DbConnect
-from cy_xdoc.models.users import User
-from cy_xdoc.models.sso import SSO
+from cyx.db_models.users import User
+from cyx.db_models.sso import SSO
 from passlib.context import CryptContext
 from cyx.cache_service.memcache_service import MemcacheServices
 

@@ -15,7 +15,7 @@ import cy_xdoc.services.files
 from cy_xdoc.services.search_engine import SearchEngine
 import cyx.common.file_storage
 from cy_xdoc.models.files import DocUploadRegister
-from cy_xdoc.controllers.models.files_register import FileContentSaveData,FileContentSaveResult,PrivilegesType
+from cy_controllers.models.models import FileContentSaveData,FileContentSaveResult,PrivilegesType
 
 search_engine = cy_kit.singleton(SearchEngine)
 file_service = cy_kit.singleton(cy_xdoc.services.files.FileServices)
@@ -37,8 +37,7 @@ def file_content_save(
     :param token:
     :return:
     """
-    # from cy_xdoc.controllers.apps import check_app
-    # check_app(app_name)
+
     if not data.DocId  or data.DocId == "":
         data.DocId = str(uuid.uuid4())
 

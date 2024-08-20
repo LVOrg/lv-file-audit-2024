@@ -11,7 +11,7 @@ import cy_file_cryptor.context
 import cy_kit
 import cyx.common.msg
 from cyx.cache_service.memcache_service import MemcacheServices
-from cy_xdoc.models.files import DocUploadRegister
+
 from cyx.common.mongo_db_services import MongodbService
 from cyx.common import config
 from cyx.remote_caller import RemoteCallerService
@@ -24,8 +24,7 @@ from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.local_api_services import LocalAPIService
 from cyx.repository import Repository
 from cyx.malloc_services import MallocService
-from cyx.common.brokers import Broker
-from cyx.common import msg
+
 from cyx.file_utils_services import FileUtilService
 
 class ThumbService:

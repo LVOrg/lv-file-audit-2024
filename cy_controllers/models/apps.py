@@ -1,7 +1,6 @@
 import datetime
 import typing
-import cy_web
-from cy_xdoc.controllers.models.errors import ErrorResult
+from cy_controllers.models.errors import ErrorResult
 from pydantic import BaseModel
 
 
@@ -52,9 +51,6 @@ class AppInfo(BaseModel):
     SizeInGB: typing.Optional[float]
 
 
-from pydantic import Field
-
-
 class AppInfoRegister(AppInfo):
     UserName: typing.Optional[str]
     """
@@ -70,3 +66,4 @@ class AppInfoRegisterModel(BaseModel):
 class AppInfoRegisterResult(BaseModel):
     Data: typing.Optional[AppInfo]
     Error: typing.Optional[ErrorResult]
+

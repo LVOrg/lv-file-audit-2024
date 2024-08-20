@@ -10,57 +10,25 @@ from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
     Depends,
-    FastAPI,
-    HTTPException,
-    status,
-    Request,
-    Response,
-    UploadFile,
-    Form, File, Body
+    Body
 )
 from cy_xdoc.auths import Authenticate
-import cy_xdoc.models.files
-import cy_kit
-from cy_xdoc.services.files import FileServices
+import cyx.db_models.files
 
 from cyx.common.msg import MessageService
-from cy_xdoc.models.files import DocUploadRegister
-from cyx.common.temp_file import TempFiles
-from cyx.common.brokers import Broker
-from cyx.common.rabitmq_message import RabitmqMsg
-from cy_controllers.models.files_upload import (
-    UploadChunkResult, ErrorResult, UploadFilesChunkInfoResult
-)
+from cyx.db_models.files import DocUploadRegister
 import datetime
-import mimetypes
-import threading
-from typing import Annotated
-from fastapi.requests import Request
-import traceback
-import humanize
 from cyx.repository import Repository
 
 router = APIRouter()
 controller = Controller(router)
-import threading
-import cy_docs
 import cyx.common.msg
-from cyx.common.file_storage_mongodb import (
-    MongoDbFileService, MongoDbFileStorage
-)
-from fastapi import responses
-
 from cy_controllers.models import (
     files as controller_model_files
 )
-from cyx.cache_service.memcache_service import MemcacheServices
 from cy_controllers.common.base_controller import BaseController
 from cy_controllers.models.files import (
-    FileUploadRegisterInfo,
-    DataMoveTanent,
     DataMoveTanentParam,
-    FileContentSaveData,
-    FileContentSaveResult,
     CloneFileResult,
     FileContentSaveArgs,
     ErrorInfo,
@@ -89,25 +57,15 @@ class FilesController(BaseController):
         :param token:
         :return:
         """
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
-        # file_services: cy_xdoc.services.files.FileServices = cy_kit.singleton(cy_xdoc.services.files.FileServices)
-        # search_services: cy_xdoc.services.search_engine.SearchEngine = cy_kit.singleton(
-        #     cy_xdoc.services.search_engine.SearchEngine)
-        doc_context = self.file_service.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
+        doc_context = Repository.files.app(app_name).context
         delete_item = doc_context.context @ UploadId
         if delete_item is None:
             return {}
-        # gfs = db_context.get_grid_fs()
-        # main_file_id = delete_item.get(Files.MainFileId.__name__)
-
-        ret = doc_context.context.update(
+        doc_context.context.update(
             doc_context.fields.id == UploadId,
             doc_context.fields.MarkDelete << IsDelete
         )
         self.search_engine.mark_delete(app_name=app_name, id=UploadId, mark_delete_value=IsDelete)
-
-        # search_engine.get_client().delete(index=fasty.configuration.search_engine.index, id=es_id)
         return dict()
 
     @controller.router.post("/api/{app_name}/files", tags=["FILES"])
@@ -120,8 +78,7 @@ class FilesController(BaseController):
             ValueSearch: typing.Optional[str] = Body(default=None),
             DocType: typing.Optional[str] = Body(default="AllTypes")
     ):
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
+
         try:
             items = self.file_service.get_list(
                 app_name=app_name,
@@ -290,8 +247,6 @@ class FilesController(BaseController):
         :param token:
         :return:
         """
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
         data = args.data
         if not data.DocId or data.DocId == "":
             data.DocId = str(uuid.uuid4())
@@ -355,8 +310,6 @@ class FilesController(BaseController):
             self,
             app_name: str,
             UploadIds: typing.List[str] = Body(embed=True)):
-        # from cy_xdoc.controllers.apps import check_app
-        # check_app(app_name)
         ret = []
         for UploadId in UploadIds:
             upload_item = self.file_service.get_upload_register(app_name, upload_id=UploadId)
