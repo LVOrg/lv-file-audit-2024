@@ -1,0 +1,19 @@
+
+FROM ubuntu:20.04
+RUN apt update && apt upgrade -y
+#RUN add-apt-repository ppa:deadsnakes/ppa -y
+RUN apt install software-properties-common -y
+RUN add-apt-repository ppa:deadsnakes/ppa -y
+RUN apt update
+RUN apt install libreoffice -y;exit 0
+RUN  apt-get update --fix-missing
+RUN apt install libreoffice -y
+#COPy ./../venv-remote-office-38/lib/python3.8/site-packages /usr/local/lib/python3.8/dist-packages
+#RUN python3 -c "import sys;print(sys.version);import fastapi"
+#RUN apt install curl -y
+#RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
+#RUN python3 -m pip install fastapi
+#COPY ./../remote_server_libs /app
+RUN apt clean && apt autoclean
+#ENTRYPOINT ["/app/office.sh"]
+

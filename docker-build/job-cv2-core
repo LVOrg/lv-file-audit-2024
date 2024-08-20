@@ -1,0 +1,11 @@
+
+FROM docker.io/python:3.10.12-slim-bookworm
+RUN apt update
+#RUN apt install socat -y
+COPY  ./../env_jobs_slim/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+RUN   apt update && apt install python3-opencv -y
+
+COPY ./../cy-commands /cmd
+RUN apt clean && apt autoclean
+ENTRYPOINT ["python3","/cmd/video.py"]
+

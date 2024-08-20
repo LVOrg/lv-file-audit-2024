@@ -1,0 +1,12 @@
+ARG BASE
+FROM nttlong/libre-office:1
+RUN apt-get install python3.10 -y
+#COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+#COPY ./../remote_server_libs /remote_server_libs
+#COPY ./../cy-commands /cmd
+#RUN apt-get update --fix-missing
+RUN apt install python3-pip -y
+#RUN python3.9 -m pip install gradio
+RUN apt clean && apt autoclean
+#ENTRYPOINT ["python3.9", "/cmd/office.py"]
+
