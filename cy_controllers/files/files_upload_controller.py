@@ -271,48 +271,6 @@ class FilesUploadController(BaseController):
         with open(file_path, mode, encrypt=True,file_size=file_size_in_bytes,chunk_size_in_kb=chunk_size_in_kb) as fs:
             fs.write(content_part)
 
-
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        #     main_file_id = upload_item.MainFileId
-        #     if not upload_item.MainFileId.startswith("local://"):
-        #         await self.push_file_to_temp_folder_async(
-        #             app_name=app_name,
-        #             content=content_part,
-        #             upload_id=UploadId,
-        #             file_ext=upload_item[Repository.files.fields.FileExt]
-        #         )
-        # else:
-        #     fs = await self.file_storage_service.get_file_by_name_async(
-        #         app_name=app_name,
-        #         rel_file_path=server_file_name
-        #     )
-        #     if not upload_item.MainFileId.startswith("local://"):
-        #         await self.push_file_async(
-        #             app_name=app_name,
-        #             upload_id=UploadId,
-        #             fs=fs,
-        #             content_part=content_part,
-        #             Index=Index
-        #         )
-        #         await self.push_temp_file_async(
-        #             app_name=app_name,
-        #             content=content_part,
-        #             upload_id=UploadId,
-        #             file_ext=upload_item[Repository.files.fields.FileExt]
-        #         )
-        #     await self.push_file_async(
-        #         app_name=app_name,
-        #         upload_id=UploadId,
-        #         fs=fs,
-        #         content_part=content_part,
-        #         Index=Index
-        #     )
         skip_action: typing.Dict[str,typing.Any]|None = upload_item.get(Repository.files.fields.SkipActions.__name__)
         if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
             upload_item[Repository.files.fields.Status.__name__] = 1
