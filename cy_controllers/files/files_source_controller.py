@@ -112,52 +112,6 @@ class FilesSourceController(BaseController):
 
     @controller.router.post("/api/files/check_out_source",tags=["SOURCE"])
     async def check_out_source(self, data: CheckoutResource):
-        if not self.request.headers.get("mac_address_id"):
-            try:
-                fs = self.file_service.get_main_file_of_upload(
-                    app_name=data.appName,
-                    upload_id=data.uploadId
-                )
-                ret = await cy_web.cy_web_x.streaming_async(
-                    fs, self.request, "application/octet-stream", streaming_buffering=1024 * 4 * 3 * 8
-                )
-
-                ret.headers["Content-Disposition"] = f"attachment; filename={data.uploadId}"
-
-                return ret
-            except Exception:
-                UploadData = await Repository.files.app(data.appName).context.find_one_async(
-                    Repository.files.fields.id == data.uploadId
-                )
-                if not UploadData:
-                    raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
-                if UploadData.StorageType == "google-drive" and UploadData.CloudId:
-                    m,_ = mimetypes.guess_type(UploadData.FileName)
-                    return await self.g_drive_service.get_content_async(
-                        app_name=data.appName,
-                        cloud_id=UploadData.CloudId,
-                        client_file_name=UploadData.FileName,
-                        request=self.request,
-                        upload_id=data.uploadId,
-                        content_type=m
-
-                    )
-                if UploadData.StorageType == "onedrive" and UploadData.CloudId:
-                    m, _ = mimetypes.guess_type(UploadData.FileName)
-                    return await self.azure_utils_service.get_content_async(
-                        app_name=data.appName,
-                        cloud_file_id=UploadData.CloudId,
-                        content_type=m,
-                        request=self.request,
-                        upload_id=data.uploadId
-                    )
-                raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
-        if not self.request.headers.get("hash_len") or not str(self.request.headers.get("hash_len")).isnumeric():
-            raise HTTPException(
-                status_code=400,
-                detail="Please enter hash_len in the request headers (hash_len is a number of hash256 segment of file "
-                       "for check out)",
-            )
         UploadData = await Repository.files.app(data.appName).context.find_one_async(
             Repository.files.fields.id == data.uploadId
         )

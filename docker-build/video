@@ -43,3 +43,12 @@ COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 RUN apt clean && apt autoclean
 ENTRYPOINT ["/remote_server_libs/video.sh"]
 
+
+FROM docker.io/nttlong/fs:fs.cv2.core.amd.5
+ARG TARGETARCH
+ARG OS
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+RUN apt clean && apt autoclean
+ENTRYPOINT ["/remote_server_libs/video.sh"]
+

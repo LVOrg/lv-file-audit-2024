@@ -10,6 +10,8 @@ import traceback
 import typing
 import uuid
 from datetime import datetime
+from distutils.command.upload import upload
+
 from humanize import naturalsize
 
 import bson.objectid
@@ -28,6 +30,8 @@ from cy_web.cy_web_x import streaming_async
 import cy_file_cryptor.wrappers
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
+
+from pymongo import version
 
 MAX_WORKERS = 10
 WORKERS = dict()
@@ -334,8 +338,11 @@ class FileUtilService(BaseUtilService):
                     "Privileges":[],"meta_data":{},
                     "storageType":"local","onedriveScope":"anonymous","encryptContent":true,"googlePath":"long-test-2024-07-09"}}
         """
-        file_size_in_bytes = register_data["FileSize"]
-        chunk_size_in_kb = register_data["ChunkSizeInKB"]
+        file_size_in_bytes = register_data[Repository.files.fields.SizeInBytes.__name__]
+        chunk_size_in_kb = register_data[Repository.files.fields.ChunkSizeInKB.__name__]
+        version_number = upload_data.get(Repository.files.fields.VersionNumber.__name__) or 0
+        version_number += 1
+        upload_data[Repository.files.fields.VersionNumber.__name__] = version_number
         chunk_size_in_bytes = chunk_size_in_kb * 1024
         m_type,_ = mimetypes.guess_type(register_data["FileName"])
         num_of_chunks = file_size_in_bytes // chunk_size_in_bytes + (1 if file_size_in_bytes % chunk_size_in_bytes > 0 else 0)
@@ -350,7 +357,8 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.ChunkSizeInBytes << chunk_size_in_bytes,
             Repository.files.fields.SizeUploaded << 0,
             Repository.files.fields.NumOfChunksCompleted << 0,
-            Repository.files.fields.MimeType <<m_type
+            Repository.files.fields.MimeType <<m_type,
+            Repository.files.fields.VersionNumber << version_number
 
         )
         key = f"{self.cache_type}/{app_name}/{register_data['UploadId']}"
@@ -621,4 +629,66 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.Id == upload_id
         )
 
+    async def save_file_single_thread_async(self,
+                                            app_name:str,
+                                            upload_id:str,
+                                            file_path:str,
+                                            chunk_index:int,
+                                            content_part):
+
+        upload_item = self.get_upload(
+            app_name=app_name,
+            upload_id=upload_id
+        )
+        file_size_in_bytes = upload_item.get(Repository.files.fields.SizeInBytes.__name__)
+        chunk_size_in_kb = upload_item.get(Repository.files.fields.ChunkSizeInKB.__name__)
+        num_of_chunks = upload_item.get(Repository.files.fields.NumOfChunks.__name__)
+        version_number = upload_item.get(Repository.files.fields.VersionNumber.__name__) or 1
+        mode = "wb" if chunk_index==0 else "ab"
+        tem_file_path = self.generate_main_file_path(app_name=app_name, upload= upload_item,version = version_number)
+        dir_path = pathlib.Path(tem_file_path).parent.__str__()
+        os.makedirs(dir_path,exist_ok=True)
+        with open(tem_file_path, mode, encrypt=True, file_size=file_size_in_bytes, chunk_size_in_kb=chunk_size_in_kb) as fs:
+            fs.write(content_part)
+
+        if num_of_chunks==chunk_index:
+
+            upload_item[Repository.files.fields.Status.__name__] = 1
+            upload_item[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(app_name=app_name, upload= upload_item,storage_type="local",version=version_number)
+        self.update_upload(
+            app_name = app_name,
+            upload_id = upload_item.get("_id"),
+            upload = upload_item,
+
+        )
+        return
+
+    def generate_main_file_id(self, app_name: str, upload: typing.Dict[str, typing.Any], storage_type: str,version:int|None)-> str:
+
+        file_name:str = upload.get(Repository.files.fields.FileName.__name__)
+        file_name = file_name.lower().replace('(','_').replace(')','_')
+        ext_file ="unknown"
+        if upload.get(Repository.files.fields.FileExt.__name__):
+            ext_file = upload.get(Repository.files.fields.FileExt.__name__)[0:3]
+        registered_on_iso: str = upload.get(Repository.files.fields.RegisterOn.__name__)
+        registered_on = datetime.fromisoformat(registered_on_iso)
+        registered_on_str = registered_on.strftime("%Y/%m/%d")
+        if version is None:
+            return f'{storage_type}://{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'
+        else:
+            return f'{storage_type}://{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'
+    def generate_main_file_path(self, app_name: str, upload: typing.Dict[str, typing.Any], version:int|None)-> str:
+
+        file_name:str = upload.get(Repository.files.fields.FileName.__name__)
+        file_name = file_name.lower().replace('(','_').replace(')','_')
+        ext_file ="unknown"
+        if upload.get(Repository.files.fields.FileExt.__name__):
+            ext_file = upload.get(Repository.files.fields.FileExt.__name__)[0:3]
+        registered_on_iso: str = upload.get(Repository.files.fields.RegisterOn.__name__)
+        registered_on = datetime.fromisoformat(registered_on_iso)
+        registered_on_str = registered_on.strftime("%Y/%m/%d")
+        if version is None:
+            return f'{config.file_storage_path}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'.replace('/',os.path.sep)
+        else:
+            return f'{config.file_storage_path}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'.replace('/',os.path.sep)
 

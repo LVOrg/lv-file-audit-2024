@@ -247,7 +247,7 @@ class FilesUploadController(BaseController):
             ret = UploadFilesChunkInfoResult()
             ret.Error =ErrorResult()
             ret.Error.Code="ItemWasNotFound"
-            ret.Message="Upload was not found or has been remove"
+            ret.Error.Message="Upload was not found or has been remove"
             return ret
         # upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
         file_size = upload_item[Repository.files.fields.SizeInBytes.__name__]
@@ -264,12 +264,16 @@ class FilesUploadController(BaseController):
             )
         else:
             file_path = upload_item.get("real_file_location")
-        mode = "wb" if Index == 0 else "ab"
-        import cy_file_cryptor.context
-        file_size_in_bytes = upload_item.get(Repository.files.fields.SizeInBytes.__name__)
-        chunk_size_in_kb = upload_item.get(Repository.files.fields.ChunkSizeInKB.__name__)
-        with open(file_path, mode, encrypt=True,file_size=file_size_in_bytes,chunk_size_in_kb=chunk_size_in_kb) as fs:
-            fs.write(content_part)
+
+
+        await self.file_util_service.save_file_single_thread_async(
+            app_name=app_name,
+            upload_id=UploadId,
+            file_path =file_path,
+            chunk_index=Index,
+            content_part = content_part
+        )
+
 
         skip_action: typing.Dict[str,typing.Any]|None = upload_item.get(Repository.files.fields.SkipActions.__name__)
         if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
@@ -299,35 +303,6 @@ class FilesUploadController(BaseController):
         num_of_chunks_complete += 1
         ret.Data.NumOfChunksCompleted = num_of_chunks_complete
         ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
-
-
-        status = 0
-        if num_of_chunks_complete == nun_of_chunks:
-            if hasattr(fs,"full_path") and isinstance(fs.full_path,str) and os.path.isfile(fs.full_path+".processing"):
-                old_file = pathlib.Path(fs.full_path+".processing")
-                new_file = pathlib.Path(fs.full_path)
-                old_file.rename(new_file)
-                if os.path.isfile(fs.full_path+".processing.cryptor"):
-                    old_file = pathlib.Path(fs.full_path + ".processing.cryptor")
-                    new_file = pathlib.Path(fs.full_path+".cryptor")
-                    old_file.rename(new_file)
-                import cy_file_cryptor.crypt_info
-                cy_file_cryptor.crypt_info.clear_cache(fs.full_path+".cryptor")
-            status = 1
-            cloud_id = upload_item.get(Repository.files.fields.CloudId.__name__) or upload_item.get(Repository.files.fields.CloudIdUpdating.__name__)
-            if cloud_id:
-                await Repository.files.app(app_name).context.update_async(
-                    Repository.files.fields.id == upload_item.get("_id"),
-                    Repository.files.fields.CloudId << None,
-                    Repository.files.fields.CloudIdUpdating << cloud_id
-
-                )
-                key = f"{self.cache_type}/{app_name}/{upload_item.Id}"
-                self.memcache_service.remove(key)
-                self.file_util_service.clear_cache_file(app_name=app_name,upload_id=upload_item.get("_id"))
-
-
-
         upload_item[Repository.files.fields.SizeUploaded.__name__] = size_uploaded
         upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] = num_of_chunks_complete
         upload_item[Repository.files.fields.Status.__name__] = status

@@ -7,11 +7,11 @@ import pymongo.database
 import cy_docs
 import cy_kit
 from cyx.common import config
-from cy_docs import get_doc
+
 from pymongo.mongo_client import MongoClient
 from typing import TypeVar, Generic
 import urllib
-from cyx.repository import Repository
+
 T = TypeVar("T")
 
 __client__ = {}
@@ -89,6 +89,7 @@ class DbConnect:
     def do_tracking(self, app_name):
         def run():
             # from cy_xdoc.models.apps import App
+            from cyx.repository import Repository
             db = DB(client=self.client, db_name=self.admin_db_name)
             db_stats = dict()
             try:

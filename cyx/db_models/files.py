@@ -396,6 +396,13 @@ class DocUploadRegister:
     IsUpdateSearchFromCodx: typing.Optional[bool]
     UpdateMetaDataTime: typing.Optional[str]
     IsExtracToDiskTime: typing.Optional[str]
+    VersionNumber: typing.Optional[int]
+    """
+    Everytime when update the version will be increase one value. This update is fix multi access control in one file
+    Even if End-User do not access the file. The file will be access by unfinished auto process such as 'orc', 'thumbs' 
+    Mỗi khi cập nhật phiên bản sẽ tăng một giá trị. Bản cập nhật này sửa lỗi kiểm soát đa truy cập trong một tệp
+    Ngay cả khi Người dùng cuối không truy cập tệp. Tệp sẽ được truy cập bằng quá trình tự động chưa hoàn thành như 'orc', 'thumbs'
+    """
 
 
 
