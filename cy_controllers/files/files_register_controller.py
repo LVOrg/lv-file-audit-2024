@@ -271,7 +271,8 @@ class FilesRegisterController(BaseController):
             url_google_upload=url_google_upload,
             google_file_id=google_file_id,
             google_folder_id=folder_id,
-            google_folder_path=Data.googlePath
+            google_folder_path=Data.googlePath,
+            version=1
 
         )
         ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())

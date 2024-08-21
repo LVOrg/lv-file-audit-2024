@@ -9,10 +9,10 @@ class ProcessManagerService:
     def __init__(self):
         pass
 
-    def submit(self, data, app_name, action_type):
-        if data.ProcessInfo is None:
+    def submit(self, data:dict[str,any], app_name:str, action_type:str):
+        if data.get(Repository.files.fields.ProcessInfo.__name__) is None:
             Repository.files.app(app_name).context.update(
-                Repository.files.fields.id == data.id,
+                Repository.files.fields.id == data.get("_id"),
                 Repository.files.fields.ProcessInfo << {action_type: dict(
 
                     IsError=False,
@@ -23,7 +23,7 @@ class ProcessManagerService:
             )
         else:
             Repository.files.app(app_name).context.update(
-                Repository.files.fields.id == data.id,
+                Repository.files.fields.id == data.get("_id"),
                 getattr(Repository.files.fields.ProcessInfo, action_type) << dict(
                     IsError=False,
                     Error="",
@@ -36,9 +36,9 @@ class ProcessManagerService:
 
         if not isinstance(error,str):
             error = traceback.format_exc()
-        if data.ProcessInfo is None:
+        if data.get(Repository.files.fields.ProcessInfo.__name__) is None:
             Repository.files.app(app_name).context.update(
-                Repository.files.fields.id == data.id,
+                Repository.files.fields.id ==  data.get("_id"),
                 Repository.files.fields.ProcessInfo << {action_type: dict(
 
                     IsError=True,
@@ -49,7 +49,7 @@ class ProcessManagerService:
             )
         else:
             Repository.files.app(app_name).context.update(
-                Repository.files.fields.id == data.id,
+                Repository.files.fields.id == data.get("_id"),
                 getattr(Repository.files.fields.ProcessInfo, action_type) << dict(
                     IsError=True,
                     Error=error,

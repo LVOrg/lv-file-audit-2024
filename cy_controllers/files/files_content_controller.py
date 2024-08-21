@@ -146,7 +146,10 @@ class FilesContentController(BaseController):
         upload_id = directory.split('/')[0]
         upload = self.file_service.get_upload_register_with_cache(app_name, upload_id)
 
-        server_file_path = await self.file_util_service.get_physical_path_async(app_name=app_name,upload_id=upload_id)
+        server_file_path = await self.file_util_service.get_physical_path_async(
+            app_name=app_name,
+            upload_id=upload_id
+        )
         if server_file_path.endswith(".chunks"):
             return await self.file_util_service.get_file_content_async(self.request, app_name, directory)
 

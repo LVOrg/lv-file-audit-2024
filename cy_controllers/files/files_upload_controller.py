@@ -1,24 +1,17 @@
-import datetime
-import gc
-import os
-import pathlib
-import typing
 
+import typing
+from cyx.repository import Repository
+fx = Repository.files.fields.Status
 from cyx.common import config
 from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
     Depends,
-    FastAPI,
-    HTTPException,
-    status,
-    Request,
-    Response,
     UploadFile,
     Form, File
 )
 
-# from cyx.fix_es import index
+
 from cyx.repository import Repository
 from cy_xdoc.auths import Authenticate
 from cyx.db_models.files import DocUploadRegister
@@ -27,7 +20,7 @@ from cy_controllers.models.files_upload import (
 )
 import datetime
 import mimetypes
-import threading
+
 from typing import Annotated
 from fastapi.requests import Request
 import traceback
@@ -202,7 +195,7 @@ class FilesUploadController(BaseController):
                 return
             try:
                 local_share_id = self.local_api_service.generate_local_share_id(app_name=app_name, upload_id=data.get("_id"))
-                data.local_share_id = local_share_id
+                data[Repository.files.fields.local_share_id.__name__] = local_share_id
                 self.extract_content_service.save_search_engine(
                     data = data,
                     app_name = app_name
@@ -273,11 +266,20 @@ class FilesUploadController(BaseController):
             chunk_index=Index,
             content_part = content_part
         )
-
+        """
+        Save content is OK. Cache and infor of upload file in db has been changed
+        """
+        upload_item = self.file_util_service.get_upload(
+            app_name=app_name,
+            upload_id=UploadId
+        )
+        """
+        Fetch again for new value ffrom cache
+        """
 
         skip_action: typing.Dict[str,typing.Any]|None = upload_item.get(Repository.files.fields.SkipActions.__name__)
         if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
-            upload_item[Repository.files.fields.Status.__name__] = 1
+
 
             if skip_action is None or (isinstance(skip_action, dict) and (
                     skip_action.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
@@ -295,6 +297,8 @@ class FilesUploadController(BaseController):
                     upload_id=UploadId,
                     data=upload_item
                 )
+
+
         size_uploaded += len(content_part)
         ret = cy_docs.DocumentObject()
         ret.Data = cy_docs.DocumentObject()
@@ -303,19 +307,9 @@ class FilesUploadController(BaseController):
         num_of_chunks_complete += 1
         ret.Data.NumOfChunksCompleted = num_of_chunks_complete
         ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
-        upload_item[Repository.files.fields.SizeUploaded.__name__] = size_uploaded
-        upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] = num_of_chunks_complete
-        upload_item[Repository.files.fields.Status.__name__] = status
-
-        self.file_util_service.update_upload(
-            app_name=app_name,
-            upload_id=upload_item.get("_id"),
-            upload=upload_item
-        )
-
         ret_data = ret.to_pydantic()
-
-        if status == 1:
+        media_status:int = upload_item[Repository.files.fields.Status.__name__]
+        if media_status == 1:
             map = {
                 "onedrive": "Azure",
                 "google-drive": "Google",

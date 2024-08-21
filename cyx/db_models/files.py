@@ -403,7 +403,7 @@ class DocUploadRegister:
     Mỗi khi cập nhật phiên bản sẽ tăng một giá trị. Bản cập nhật này sửa lỗi kiểm soát đa truy cập trong một tệp
     Ngay cả khi Người dùng cuối không truy cập tệp. Tệp sẽ được truy cập bằng quá trình tự động chưa hoàn thành như 'orc', 'thumbs'
     """
-
+    local_share_id: typing.Optional[str]
 
 
 

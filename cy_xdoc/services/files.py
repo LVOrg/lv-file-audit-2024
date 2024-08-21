@@ -266,6 +266,7 @@ class FileServices:
                                         google_file_id: typing.Optional[str] = None,
                                         google_folder_id: typing.Optional[str] = None,
                                         google_folder_path: typing.Optional[str] = None,
+                                        version:int = 1
                                         ):
         return self.add_new_upload_info(
             app_name=app_name,
@@ -286,7 +287,8 @@ class FileServices:
             url_google_upload = url_google_upload,
             google_file_id = google_file_id,
             google_folder_id = google_folder_id,
-            google_folder_path = google_folder_path
+            google_folder_path = google_folder_path,
+            version = version
 
         )
 
@@ -309,7 +311,8 @@ class FileServices:
                             url_google_upload: typing.Optional[str]= None,
                             google_file_id : typing.Optional[str] = None,
                             google_folder_id: typing.Optional[str] = None,
-                            google_folder_path: typing.Optional[str] = None):
+                            google_folder_path: typing.Optional[str] = None,
+                            version:int=1):
         from cyx.repository import Repository
         __registerde_on__ = datetime.datetime.utcnow()
         privileges_server, privileges_client = None, None
@@ -414,6 +417,7 @@ class FileServices:
             cache_doc[doc.fields.OnedriveScope] = onedriveScope
             cache_doc[doc.fields.OnedrivePassword] = onedrive_password
             cache_doc[doc.fields.OnedriveExpiration] = onedrive_expiration
+            cache_doc[doc.fields.VersionNumber] = version
             if isinstance(google_folder_path,str):
                 cache_doc[doc.fields.FullPathOnCloud] = os.path.join(google_folder_path,client_file_name)
 
@@ -489,7 +493,8 @@ class FileServices:
                             doc.fields.IsEncryptContent << is_encrypt_content,
                             doc.fields.url_google_upload<< url_google_upload,
                             doc.fields.google_file_id <<google_file_id,
-                            doc.fields.google_folder_id << google_folder_id
+                            doc.fields.google_folder_id << google_folder_id,
+                            doc.fields.VersionNumber << version
                         )
                     else:
                         doc.context.update(
@@ -540,7 +545,8 @@ class FileServices:
                             doc.fields.url_google_upload << url_google_upload,
                             doc.fields.google_file_id << google_file_id,
                             doc.fields.google_folder_id << google_folder_id,
-                            doc.fields.FullPathOnCloud << cloud_path
+                            doc.fields.FullPathOnCloud << cloud_path,
+                            doc.fields.VersionNumber << version
                         )
                     retry_count=0
                 except Exception as e:

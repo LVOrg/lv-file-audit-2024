@@ -84,7 +84,8 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.SizeUploaded << upload.get(Repository.files.fields.SizeUploaded.__name__),
             Repository.files.fields.Status << upload.get(Repository.files.fields.Status.__name__,0),
             Repository.files.fields.CloudId << upload.get(Repository.files.fields.CloudId.__name__),
-            Repository.files.fields.SizeInHumanReadable <<upload.get(Repository.files.fields.SizeInHumanReadable.__name__)
+            Repository.files.fields.SizeInHumanReadable <<upload.get(Repository.files.fields.SizeInHumanReadable.__name__),
+            Repository.files.fields.MainFileId << upload.get(Repository.files.fields.MainFileId.__name__)
         )
 
 
@@ -297,6 +298,13 @@ class FileUtilService(BaseUtilService):
             Data=ret_data
         )
     async def register_upload_update_async(self, app_name, from_host, register_data):
+        """
+
+        @param app_name:
+        @param from_host:
+        @param register_data: Register dta is a data from client
+        @return:
+        """
         upload_data = await self.get_upload_by_upload_id_async(
             app_name=app_name,
             upload_id=register_data.get("UploadId")
@@ -338,7 +346,7 @@ class FileUtilService(BaseUtilService):
                     "Privileges":[],"meta_data":{},
                     "storageType":"local","onedriveScope":"anonymous","encryptContent":true,"googlePath":"long-test-2024-07-09"}}
         """
-        file_size_in_bytes = register_data[Repository.files.fields.SizeInBytes.__name__]
+        file_size_in_bytes = register_data["FileSize"]
         chunk_size_in_kb = register_data[Repository.files.fields.ChunkSizeInKB.__name__]
         version_number = upload_data.get(Repository.files.fields.VersionNumber.__name__) or 0
         version_number += 1
@@ -415,7 +423,7 @@ class FileUtilService(BaseUtilService):
             data = self.memcache_service.get_dict("v2/" + app_name + "/" + upload_id)
             if isinstance(data, dict) and not data.get("real_file_location"):
                 real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                  data["MainFileId"].split("://")[1].replace('/',os.path.sep)).__str__()
+                                                  data[Repository.files.fields.MainFileId.__name__].split("://")[1].replace('/',os.path.sep)).__str__()
                 data["real_file_location"] = real_file_location
                 data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
                 self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
@@ -434,20 +442,20 @@ class FileUtilService(BaseUtilService):
                     if not data.get("MainFileId"):
                         return None
                     try:
-                        object_fs_id = bson.objectid.ObjectId(data["MainFileId"])
-                        real_file_location=f"mongo://{str(data['MainFileId'])}"
+                        object_fs_id = bson.objectid.ObjectId(data[Repository.files.fields.MainFileId.__name__])
+                        real_file_location=f"mongo://{str(data[Repository.files.fields.MainFileId.__name__])}"
                     except:
                         object_fs_id = None
                         real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                          data["MainFileId"].split("://")[1].replace('/',os.path.sep)).__str__()
-                        if not os.path.isfile(real_file_location) and data.get("StoragePath"):
+                                                          data[Repository.files.fields.MainFileId.__name__].split("://")[1].replace('/',os.path.sep)).__str__()
+                        if not os.path.isfile(real_file_location) and data.get(Repository.files.fields.StoragePath.__name__):
                             real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                          data["MainFileId"].split("://")[1].replace('/',os.path.sep)).__str__()
+                                                          data[Repository.files.fields.MainFileId.__name__].split("://")[1].replace('/',os.path.sep)).__str__()
 
                     data["real_file_location"] = real_file_location
                     data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
-                    data["NumOfChunksCompleted"] = data.get("NumOfChunksCompleted") or 0
-                    data["SizeUploaded"] = data.get("SizeUploaded") or 0
+                    data[Repository.files.fields.NumOfChunksCompleted.__name__] = data.get(Repository.files.fields.NumOfChunksCompleted.__name__) or 0
+                    data[Repository.files.fields.SizeUploaded.__name__] = data.get(Repository.files.fields.SizeUploaded.__name__) or 0
                     if not real_file_location.startswith("mongo://"):
                         os.makedirs(data["real_file_dir"], exist_ok=True)
                         self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
@@ -552,7 +560,7 @@ class FileUtilService(BaseUtilService):
         content_type = upload.get("MimeType") or content_type
         if not upload:
             raise FileNotFoundError(f"{app_name}/{directory} was not found")
-        storage_type = upload.get("StorageType", "local")
+        storage_type = upload.get(Repository.files.fields.StorageType.__name__, "local")
         if storage_type == "local":
             return await self.get_content_from_local_async(
                 app_name=app_name,
@@ -580,7 +588,13 @@ class FileUtilService(BaseUtilService):
                     upload=upload
                 )
 
-    async def get_physical_path_async(self, app_name, upload_id):
+    async def get_physical_path_async(self, app_name:str, upload_id:str):
+        """
+
+        @param app_name:
+        @param upload_id:
+        @return:
+        """
         upload = self.get_upload(app_name, upload_id)
         if upload is None:
             return None
@@ -600,7 +614,7 @@ class FileUtilService(BaseUtilService):
     def clear_cache_file(self, app_name, upload_id):
         self.memcache_service.remove(f"get_upload/{app_name}/{upload_id}")
 
-    async def get_upload_async(self, app_name, upload_id, from_cache=True):
+    async def get_upload_async(self, app_name, upload_id, from_cache=True)->typing.Dict[str,typing.Any]:
         if from_cache:
             ret = self.memcache_service.get_dict(f"get_upload/{app_name}/{upload_id}")
             if isinstance(ret, dict):
@@ -651,10 +665,18 @@ class FileUtilService(BaseUtilService):
         with open(tem_file_path, mode, encrypt=True, file_size=file_size_in_bytes, chunk_size_in_kb=chunk_size_in_kb) as fs:
             fs.write(content_part)
 
-        if num_of_chunks==chunk_index:
-
+        if num_of_chunks-1==chunk_index:
+            """
+            Finished set real location of file
+            """
             upload_item[Repository.files.fields.Status.__name__] = 1
-            upload_item[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(app_name=app_name, upload= upload_item,storage_type="local",version=version_number)
+            upload_item[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(
+                app_name=app_name,
+                upload=upload_item,
+                storage_type="local",
+                version = version_number
+            )
+            upload_item["real_file_location"] = tem_file_path
         self.update_upload(
             app_name = app_name,
             upload_id = upload_item.get("_id"),
@@ -664,6 +686,18 @@ class FileUtilService(BaseUtilService):
         return
 
     def generate_main_file_id(self, app_name: str, upload: typing.Dict[str, typing.Any], storage_type: str,version:int|None)-> str:
+        """
+        This method generate a info of file location
+        1- For local: the path start with local://
+        2- For google drive path start with google-drive://
+        3 - ..
+
+        @param app_name:
+        @param upload:
+        @param storage_type: start of return value will get value from this argument. Exp: storage_type is 'local' return value will be local://
+        @param version: since 08-21-2004 we discovery that error will be occur if file name change while it was accessing by  any unexpected process. The version of upload content is a solution
+        @return:
+        """
 
         file_name:str = upload.get(Repository.files.fields.FileName.__name__)
         file_name = file_name.lower().replace('(','_').replace(')','_')
@@ -674,9 +708,9 @@ class FileUtilService(BaseUtilService):
         registered_on = datetime.fromisoformat(registered_on_iso)
         registered_on_str = registered_on.strftime("%Y/%m/%d")
         if version is None:
-            return f'{storage_type}://{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'
+            return f'{storage_type}://{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'
         else:
-            return f'{storage_type}://{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'
+            return f'{storage_type}://{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'
     def generate_main_file_path(self, app_name: str, upload: typing.Dict[str, typing.Any], version:int|None)-> str:
 
         file_name:str = upload.get(Repository.files.fields.FileName.__name__)
@@ -688,7 +722,7 @@ class FileUtilService(BaseUtilService):
         registered_on = datetime.fromisoformat(registered_on_iso)
         registered_on_str = registered_on.strftime("%Y/%m/%d")
         if version is None:
-            return f'{config.file_storage_path}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'.replace('/',os.path.sep)
+            return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'.replace('/',os.path.sep)
         else:
-            return f'{config.file_storage_path}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'.replace('/',os.path.sep)
+            return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'.replace('/',os.path.sep)
 
