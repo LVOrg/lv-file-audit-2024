@@ -106,7 +106,8 @@ class ThumbService:
             self.remote_caller_service.get_thumb(
                 url_of_thumb_service = config.remote_thumb,
                 url_of_image = download_file_path,
-                url_upload_file = upload_file_path
+                url_upload_file = upload_file_path,
+                size = size
             )
 
             return real_file_path
@@ -172,7 +173,8 @@ class ThumbService:
             self.remote_caller_service.get_thumb(
                 url_of_thumb_service=config.remote_thumb,
                 url_of_image=download_file_path,
-                url_upload_file=upload_file_path
+                url_upload_file=upload_file_path,
+                size = size
             )
 
             return file_path_image

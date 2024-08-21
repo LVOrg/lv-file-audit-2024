@@ -5,15 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change afterPath="$PROJECT_DIR$/docker-build/requirements/web-api-req-313.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/py-files-sv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/py-files-sv.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_web/cy_web_x.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_web/setup.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_web/standalone_application.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/local_api_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_api_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/requirements/web-api.req.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/requirements/web-api.req.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,7 +192,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
-          <line>114</line>
+          <line>115</line>
           <option name="timeStamp" value="103" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -206,12 +202,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
-          <line>192</line>
+          <line>194</line>
           <option name="timeStamp" value="109" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
-          <line>208</line>
+          <line>210</line>
           <option name="timeStamp" value="113" />
         </line-breakpoint>
       </breakpoints>
