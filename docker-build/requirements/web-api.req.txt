@@ -40,10 +40,10 @@ tqdm
 webp
 pillow
 google-generativeai
-spacy
+#spacy
 chardet
 pdfplumber
-PyPDF2
-PyMuPDF
+#PyPDF2
+#PyMuPDF
 ics
 bcrypt==4.1.2

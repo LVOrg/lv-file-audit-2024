@@ -5,6 +5,8 @@ import pathlib
 import threading
 import time
 import traceback
+import typing
+from datetime import datetime
 
 import bson.objectid
 import cy_file_cryptor.context
@@ -50,7 +52,7 @@ class ThumbService:
                 return "video"
         return ext_file
 
-    async def get_async(self, app_name: str, directory: str, size: int):
+    async def get_async(self, app_name: str, directory: str, size: int)->typing.Union[str,bson.ObjectId]|None:
         key = self.get_cache_key(app_name=app_name,directory=directory,size=size)
         ret= self.memcache_services.get_str(key)
         if ret and os.path.isfile(ret):
@@ -58,25 +60,26 @@ class ThumbService:
 
 
         upload_id = directory.split('/')[0]
-        upload_item = await Repository.files.app(app_name).context.find_one_async(
-            Repository.files.fields.Id==upload_id
+        original_file_path = await self.file_util_service.get_physical_path_async(app_name,upload_id)
+        original_dir = pathlib.Path(original_file_path).parent.__str__()
+        thumb_file_path = os.path.join(original_dir,f"{size},webp")
+        if os.path.isfile(thumb_file_path):
+            self.memcache_services.set_str(key,thumb_file_path)
+            return thumb_file_path
+
+        upload_item = self.file_util_service.get_upload(
+            app_name = app_name,
+            upload_id = upload_id
         )
+
         if upload_item is None:
             return None
-        thunb_id = upload_item[Repository.files.fields.ThumbFileId]
-        if isinstance(thunb_id, bson.ObjectId):
-            return thunb_id
-        else:
-            try:
-                thunb_id = bson.objectid(thunb_id)
-                return thunb_id
-            except:
-                main_file_id =upload_item[Repository.files.fields.MainFileId]
-                try:
-                    _main_file_id = bson.ObjectId(main_file_id)
-                    return None
-                except:
-                    pass
+        thumb_id = upload_item.get(Repository.files.fields.ThumbFileId.__name__)
+        if isinstance(thumb_id, bson.ObjectId):
+            return thumb_id
+        if bson.ObjectId.is_valid(thumb_id):
+            return bson.ObjectId(thumb_id) if isinstance(thumb_id,str) else thumb_id
+
 
         real_file_path = await self.file_util_service.get_physical_path_async(
             app_name=app_name,
@@ -84,47 +87,48 @@ class ThumbService:
         )
         if real_file_path is None:
             return None
-        mime_type, _ = mimetypes.guess_type(real_file_path)
+        if upload_item.get(Repository.files.fields.FileExt.__name__):
+            mime_type, _ = mimetypes.guess_type(f'test.{upload_item.get(Repository.files.fields.FileExt.__name__)}')
+        else:
+            mime_type, _ = mimetypes.guess_type(real_file_path)
+
+
         if mime_type.startswith("image/"):
-            try:
-                ret = self.do_scale_size(file_path=real_file_path, size=size)
-                self.memcache_services.set_str(key, ret)
-                return ret
-            except UnidentifiedImageError:
-                server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
-                    upload_item=upload_item,
-                    app_name=app_name
-                )
-                file_ext = pathlib.Path(rel_file_path).suffix.lstrip(".")
-                file_type = self.get_thumb_type(file_ext)
+            download_file_path, _, _, _, _ = self.local_api_service.get_download_path(
+                upload_item=upload_item,
+                app_name=app_name
+            )
+            upload_file_path = self.local_api_service.get_upload_path(
+                upload_item=upload_item,
+                app_name=app_name,
+                file_name=f"{size}.webp"
+            )
+            self.remote_caller_service.get_thumb(
+                url_of_thumb_service = config.remote_thumb,
+                url_of_image = download_file_path,
+                url_upload_file = upload_file_path
+            )
 
-                self.run_generate_image(file_type=file_type,
-                                        file_process=real_file_path,
-                                        is_in_thred=True,
-                                        app_name=app_name,
-                                        upload_id=upload_id,
-                                        size=size,
-                                        cache_key=key,
-                                        server_file=server_file,
-                                        )
-            except Exception as ex:
-                return None
+            return real_file_path
 
-        if not upload_item.get("MainFileId") or  not isinstance(upload_item[Repository.files.fields.MainFileId],str) or not "://" in upload_item[Repository.files.fields.MainFileId]:
+        main_field_id = upload_item.get(Repository.files.fields.MainFileId.__name__)
+        if (not main_field_id or
+                not isinstance(main_field_id,str) or
+                not "://" in main_field_id):
             """
             Recalculate file storage and location if upload's file is still in mongoDb
             """
             file_ext="unknown"
-            if upload_item.get("FileExt"):
-                file_ext = upload_item.get("FileExt").lower()[0:3]
-            register_on = upload_item[Repository.files.fields.RegisterOn]
+            if upload_item.get(Repository.files.fields.FileExt.__name__):
+                file_ext = upload_item.get(Repository.files.fields.FileExt.__name__).lower()[0:3]
+            register_on = datetime.fromisoformat(upload_item.get(Repository.files.fields.RegisterOn.__name__))
             rel_path =  f'{app_name}/{register_on.strftime("%Y/%m/%d")}/{file_ext}/{upload_id}/{upload_item[Repository.files.fields.FileName].lower()}'
             folder_path = os.path.join(config.file_storage_path, app_name,
                                        register_on.strftime("%Y/%m/%d").replace('/', os.sep),file_ext, upload_id)
             os.makedirs(folder_path, exist_ok=True)
-            file_path = os.path.join(folder_path, upload_item[Repository.files.fields.FileName].lower())
+            file_path = os.path.join(folder_path, upload_item.get(Repository.files.fields.FileName.__name__).lower())
             import requests
-            server_file = config.private_web_api +f"/api/{app_name}/file/{upload_item.id}/{upload_item[Repository.files.fields.FileName].lower()}"
+            server_file = config.private_web_api +f"/api/{app_name}/file/{upload_item.get('_id')}/{upload_item[Repository.files.fields.FileName].lower()}"
             response = requests.get(server_file)
             if not os.path.isfile(file_path):
                 """
@@ -144,27 +148,50 @@ class ThumbService:
                     )
                 else:
                     raise Exception(f"Can not donwload file {server_file}")
+
+        if not upload_item.get(Repository.files.fields.FileExt.__name__):
+            return None
         server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
             upload_item=upload_item,
             app_name=app_name
         )
 
 
+        file_path_image = f'{rel_file_path}.png'
+        if os.path.isfile(file_path_image):
+            download_file_path, _, _, _, _ = self.local_api_service.get_download_path(
+                upload_item=upload_item,
+                app_name=app_name,
+                to_file_ext="png"
+            )
+            upload_file_path = self.local_api_service.get_upload_path(
+                upload_item=upload_item,
+                app_name=app_name,
+                file_name=f"{size}.webp"
+            )
+            self.remote_caller_service.get_thumb(
+                url_of_thumb_service=config.remote_thumb,
+                url_of_image=download_file_path,
+                url_upload_file=upload_file_path
+            )
 
-        file_ext = pathlib.Path(rel_file_path).suffix.lstrip(".")
+            return file_path_image
+
+
+        file_ext = upload_item.get(Repository.files.fields.FileExt.__name__)
         file_type = self.get_thumb_type(file_ext)
-        abs_file_path = os.path.join(config.file_storage_path, rel_file_path)
 
 
-        folder_dir = pathlib.Path(abs_file_path).parent.__str__()
+
+        folder_dir = pathlib.Path(real_file_path).parent.__str__()
         thumb_file = os.path.join(folder_dir,f"{size}.webp")
 
         if os.path.isfile(thumb_file):
             self.memcache_services.set_str(key,thumb_file)
             return thumb_file
-        image_file = abs_file_path
+        image_file = real_file_path
         if file_type !="image":
-            image_file=f"{abs_file_path}.png"
+            image_file=f"{real_file_path}.png"
         if os.path.isfile(image_file):
             url_of_image = server_file.split('?')[0]+".png"+"?"+server_file.split("?")[1]
             url_upload_file = self.local_api_service.get_upload_path(
@@ -183,7 +210,7 @@ class ThumbService:
 
         else:
             self.run_generate_image(file_type=file_type,
-                                    file_process=abs_file_path,
+                                    file_process=real_file_path,
                                     is_in_thred=True,
                                     app_name=app_name,
                                     upload_id=upload_id,
@@ -346,6 +373,9 @@ class ThumbService:
             th=threading.Thread(target=running_if_fail_raise_message,args=(file_process,server_file,size,cache_key,))
             th.start()
         else:
-            running_if_fail_raise_message(file_process,server_file,size,cache_key)
+            running_if_fail_raise_message(
+                file_process,server_file,size,cache_key
+            )
+
 
 

@@ -15,7 +15,7 @@ import requests
 from cyx.repository import Repository
 from cyx.cache_service.memcache_service import MemcacheServices
 
-
+from datetime import datetime
 class LocalAPIService:
     memcache_services = cy_kit.singleton(MemcacheServices)
 
@@ -118,7 +118,7 @@ class LocalAPIService:
 
 
 
-    def get_download_path(self, upload_item, app_name) -> typing.Tuple[
+    def get_download_path(self, upload_item:typing.Dict[str,typing.Any], app_name:str,to_file_ext:str|None = None) -> typing.Tuple[
         str | None, str | None, str | None, str | None, str | None]:
         """
         Get all info of server_file, rel_file_path, download_file_path, token, local_share_id
@@ -129,7 +129,9 @@ class LocalAPIService:
 
         server_file, rel_file_path, download_file_path, token, local_share_id = None, None, None, None, None
         try:
-            rel_file_path: str = upload_item["MainFileId"].split("://")[1]
+            rel_file_path: str = upload_item[Repository.files.fields.MainFileId.__name__].split("://")[1]
+            if to_file_ext:
+                rel_file_path = f'{rel_file_path}.{to_file_ext}'
             file_ext = pathlib.Path(rel_file_path).suffix
         except:
             file_name = upload_item[Repository.files.fields.FileName].lower()
@@ -170,27 +172,28 @@ class LocalAPIService:
             self.memcache_services.set_str(key,ret_url)
         return ret_url
 
-    def get_upload_path(self, upload_item, app_name:str, file_name:str|None = None, file_ext: str|None = None) -> str:
+    def get_upload_path(self, upload_item:typing.Dict[str,typing.Any], app_name:str, file_name:str|None = None, file_ext: str|None = None) -> str:
         """
         Get get_upload_path
         :param file_ext:
         :param file_name: if is None file_name is file_name in upload_item[Repository.files.fields.FileName]
         :param upload_item:
         :param app_name:
-        :return: server_file, rel_file_path, download_file_path, token, local_share_id
+        :return: local_upload_uri
         """
         if file_name is None and file_ext is None:
             raise ValueError(f"file_name is None and file_ext is None")
 
-        file_name = file_name or (upload_item[Repository.files.fields.FileName]+"."+file_ext)
-        register_on = upload_item[Repository.files.fields.RegisterOn]
-        register_dir = register_on.strftime("%Y/%m/%d")
+        file_name = file_name or (upload_item.get(Repository.files.fields.FileName.__name__)+"."+file_ext)
+        register_on = upload_item.get(Repository.files.fields.RegisterOn.__name__)
+        register_dir = datetime.fromisoformat(register_on).strftime("%Y/%m/%d")
         register_app_dir = f"{app_name}/{register_dir}"
         sub_dir = "unknown"
-        if upload_item[Repository.files.fields.FileExt]:
-            sub_dir = upload_item[Repository.files.fields.FileExt][0:3]
-        #/lvfile/api/sys/admin/content-write/{rel_path}
-        server_file = f"{config.private_web_api}/api/sys/admin/content-write/{register_app_dir}/{sub_dir}/{upload_item.id}/{file_name}"
+        file_ext_of_upload = upload_item.get(Repository.files.fields.FileExt.__name__)
+        if file_ext_of_upload:
+            sub_dir = file_ext_of_upload[0:3]
+
+        server_file = f"{config.private_web_api}/api/sys/admin/content-write/{register_app_dir}/{sub_dir}/{upload_item.get('_id')}/{file_name}"
 
         if not upload_item.get("local_share_id"):
             token = self.get_access_token("admin/root", "root")
