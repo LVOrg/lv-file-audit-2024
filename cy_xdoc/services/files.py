@@ -140,7 +140,8 @@ class FileServices:
                 doc.fields.CloudId,
                 doc.fields.SyncFromPath,
                 doc.fields.google_file_id,
-                doc.fields.HasThumb
+                doc.fields.HasThumb,
+                doc.fields.VersionNumber
 
 
             )

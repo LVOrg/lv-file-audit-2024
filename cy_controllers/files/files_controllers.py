@@ -78,6 +78,16 @@ class FilesController(BaseController):
             ValueSearch: typing.Optional[str] = Body(default=None),
             DocType: typing.Optional[str] = Body(default="AllTypes")
     ):
+        """
+        Get list of file by tenant
+        @param app_name: Tenant Name
+        @param PageSize:
+        @param PageIndex:
+        @param FieldSearch:
+        @param ValueSearch:
+        @param DocType:
+        @return:
+        """
 
         try:
             items = self.file_service.get_list(

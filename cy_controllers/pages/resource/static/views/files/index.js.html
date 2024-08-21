@@ -242,10 +242,13 @@
 
                             <div class="bkg" style="overflow:hidden;text-overflow:ellipsis;grid-column:1/-1">
                                 <a style="" ng-if="p.MimeType.indexOf('video/')==0" href="javascript:void(0);" ng-click="doOpenInWindows(p).then()">
-                                    {{p.FileName}}
+                                    {{p.FileName}}&nbsp;({{p.VersionNumber || 1}})
                                 </a>
 
-                                <a style="text-overflow:ellipsis;white-space:nowrap" ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">{{p.FileName}}</a>
+                                <a style="text-overflow:ellipsis;white-space:nowrap" ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">
+                                    {{p.FileName}}
+                                    &nbsp;({{p.VersionNumber || 1 }})
+                                </a>
 
                             </div>
                             <label>
