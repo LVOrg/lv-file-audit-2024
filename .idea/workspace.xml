@@ -5,15 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change beforePath="$PROJECT_DIR$/.idea/py-files-sv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/py-files-sv.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/processing_file_manager_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/processing_file_manager_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_consumers/start.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_xdoc/auths/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/auths/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/start.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/watcher.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -198,11 +195,6 @@
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
           <line>556</line>
           <option name="timeStamp" value="42" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>499</line>
-          <option name="timeStamp" value="46" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>

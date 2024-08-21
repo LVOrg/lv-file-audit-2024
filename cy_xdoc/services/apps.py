@@ -173,15 +173,4 @@
 #
 #         return ret_app
 #
-#     def create_default_app(self, domain: str, login_url: str, return_url_after_sign_in: str):
-#         document = self.db_connect.db('admin').doc(App)
-#         default_amdin_db = self.admin_db
-#         application = document.context @ (document.fields.Name == default_amdin_db)
-#         if application is None:
-#             document.context.insert_one(
-#                 document.fields.Name << default_amdin_db,
-#                 document.fields.Domain << domain,
-#                 document.fields.RegisteredOn << datetime.datetime.utcnow(),
-#                 document.fields.LoginUrl << login_url,
-#                 document.fields.ReturnUrlAfterSignIn << return_url_after_sign_in
-#             )
+
