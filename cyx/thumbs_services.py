@@ -19,7 +19,7 @@ __version__ = "0.5"
 from functools import cache
 import hashlib
 import webp
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.local_api_services import LocalAPIService
 from cyx.repository import Repository
@@ -61,11 +61,7 @@ class ThumbService:
         upload_item = await Repository.files.app(app_name).context.find_one_async(
             Repository.files.fields.Id==upload_id
         )
-
-
-
         if upload_item is None:
-
             return None
         thunb_id = upload_item[Repository.files.fields.ThumbFileId]
         if isinstance(thunb_id, bson.ObjectId):
@@ -86,14 +82,15 @@ class ThumbService:
             app_name=app_name,
             upload_id=upload_id
         )
+        if real_file_path is None:
+            return None
         mime_type, _ = mimetypes.guess_type(real_file_path)
         if mime_type.startswith("image/"):
-            import PIL
             try:
                 ret = self.do_scale_size(file_path=real_file_path, size=size)
                 self.memcache_services.set_str(key, ret)
                 return ret
-            except PIL.UnidentifiedImageError:
+            except UnidentifiedImageError:
                 server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
                     upload_item=upload_item,
                     app_name=app_name
@@ -112,6 +109,7 @@ class ThumbService:
                                         )
             except Exception as ex:
                 return None
+
         if not upload_item.get("MainFileId") or  not isinstance(upload_item[Repository.files.fields.MainFileId],str) or not "://" in upload_item[Repository.files.fields.MainFileId]:
             """
             Recalculate file storage and location if upload's file is still in mongoDb

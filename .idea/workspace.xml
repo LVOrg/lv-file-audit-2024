@@ -6,11 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_consumers/start.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/auths/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/auths/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/apps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/start.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/watcher.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,34 +178,9 @@
           <option name="timeStamp" value="25" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>348</line>
-          <option name="timeStamp" value="27" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_controllers/files/files_content_controller.py</url>
           <line>119</line>
           <option name="timeStamp" value="40" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_content_controller.py</url>
-          <line>101</line>
-          <option name="timeStamp" value="41" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>556</line>
-          <option name="timeStamp" value="42" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>463</line>
-          <option name="timeStamp" value="56" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
-          <line>229</line>
-          <option name="timeStamp" value="60" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/processing_file_manager_services.py</url>
@@ -215,26 +191,6 @@
           <url>file://$PROJECT_DIR$/cyx/processing_file_manager_services.py</url>
           <line>12</line>
           <option name="timeStamp" value="69" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
-          <line>279</line>
-          <option name="timeStamp" value="73" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>679</line>
-          <option name="timeStamp" value="74" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>92</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>307</line>
-          <option name="timeStamp" value="78" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

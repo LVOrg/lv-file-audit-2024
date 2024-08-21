@@ -10,7 +10,6 @@ import traceback
 import typing
 import uuid
 from datetime import datetime
-from distutils.command.upload import upload
 
 from humanize import naturalsize
 
@@ -412,9 +411,10 @@ class FileUtilService(BaseUtilService):
                 )
             )
 
-    def get_upload(self, app_name, upload_id, cache=True)->typing.Dict[str,typing.Any]:
+    def get_upload(self, app_name, upload_id, cache:bool=True)->typing.Dict[str,typing.Any]|None:
         """
-        Get upload with cache
+        Get upload with cache if cache do not contains data with app and upload_id. The method will get from Mongodb if found item cache will be update to cache
+        The first get data from cache if cache is True, get directly from db instead
         :param app_name:
         :param upload_id:
         :return:
@@ -428,29 +428,33 @@ class FileUtilService(BaseUtilService):
                 data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
                 self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
             if not data:
-                upload = Repository.files.app(app_name).context.find_one(
+                ret_upload = Repository.files.app(app_name).context.find_one(
                     Repository.files.fields.id == upload_id
                 )
-                if upload is None:
+                if ret_upload is None:
                     return None
                 else:
-                    data = upload.to_json_convertable()
-                    file_name = upload[Repository.files.fields.FileName]
+                    data = ret_upload.to_json_convertable()
+                    file_name = ret_upload[Repository.files.fields.FileName]
                     file_ext = pathlib.Path(file_name).suffix
-                    file_type = file_ext[1:4] if file_ext else "unknown"
-                    object_fs_id = None
-                    if not data.get("MainFileId"):
-                        return None
-                    try:
-                        object_fs_id = bson.objectid.ObjectId(data[Repository.files.fields.MainFileId.__name__])
-                        real_file_location=f"mongo://{str(data[Repository.files.fields.MainFileId.__name__])}"
-                    except:
-                        object_fs_id = None
+
+                    main_file_id = data.get(Repository.files.fields.MainFileId.__name__)
+                    if not main_file_id:
+                        return ret_upload
+                    if bson.ObjectId.is_valid(main_file_id):
+                        """
+                        Still support load file in MongoDb if main_file_id is the id of GridFS
+                        """
+                        real_file_location=f"mongo://{main_file_id}"
+                    elif "://" in main_file_id:
                         real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                          data[Repository.files.fields.MainFileId.__name__].split("://")[1].replace('/',os.path.sep)).__str__()
+                                                          main_file_id.split("://")[1].replace('/',os.path.sep)).__str__()
                         if not os.path.isfile(real_file_location) and data.get(Repository.files.fields.StoragePath.__name__):
                             real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                          data[Repository.files.fields.MainFileId.__name__].split("://")[1].replace('/',os.path.sep)).__str__()
+                                                          main_file_id.split("://")[1].replace('/',os.path.sep)).__str__()
+                    else:
+                        return None
+
 
                     data["real_file_location"] = real_file_location
                     data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
@@ -460,6 +464,7 @@ class FileUtilService(BaseUtilService):
                         os.makedirs(data["real_file_dir"], exist_ok=True)
                         self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
             return data
+
         else:
             upload = Repository.files.app(app_name).context.find_one(
                 Repository.files.fields.id == upload_id

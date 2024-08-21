@@ -169,27 +169,37 @@ class FilesController(BaseController):
             )
 
     @controller.router.post("/api/{app_name}/files/delete", tags=["FILES"])
-    def files_delete(self, app_name: str,
+    async def files_delete(self, app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> controller_model_files.DeleteFileResult:
+        """
+        This is not only delete physical file it is also delete file has been uploaded to cloud such as: Google Drive, One drive,...
+        @param app_name:
+        @param UploadId:
+        @return:
+        """
+        file_path = await self.file_util_service.get_physical_path_async(
+            app_name =app_name,
+            upload_id= UploadId
+        )
+
+
+
+
+        if file_path and os.path.isfile(file_path):
+            abs_dir = pathlib.Path(file_path).parent.__str__()
+
+            import shutil
+
+            try:
+                if os.path.isdir(abs_dir):
+                    shutil.rmtree(abs_dir,ignore_errors=True)
+                    print(f"Directory '{abs_dir}' deleted successfully.")
+            except OSError as e:
+                print(f"Error deleting directory '{abs_dir}': {e}")
 
         upload_item = Repository.files.app(app_name).context.find_one(
             Repository.files.fields.Id == UploadId
         )
-        server_file, rel_file_path, download_file_path, token, local_share_id = self.local_api_service.get_download_path(
-            upload_item=upload_item,
-            app_name=app_name
-        )
-        abs_file=os.path.join("/mnt/files",rel_file_path)
-        abs_dir = pathlib.Path(abs_file).parent.__str__()
-
-        import shutil
-
-        try:
-            if os.path.isdir(abs_dir):
-                shutil.rmtree(abs_dir,ignore_errors=True)
-                print(f"Directory '{abs_dir}' deleted successfully.")
-        except OSError as e:
-            print(f"Error deleting directory '{abs_dir}': {e}")
         if upload_item is None:
             ret = controller_model_files.DeleteFileResult()
             ret.AffectedCount = 0
