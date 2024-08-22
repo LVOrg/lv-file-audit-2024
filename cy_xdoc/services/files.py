@@ -351,72 +351,72 @@ class FileServices:
             )
 
 
-        def cahe_register():
-            cache_doc = cy_docs.DocumentObject()
-            cache_doc[doc.fields.id] = id
-            cache_doc[doc.fields.FileName] = client_file_name
-            cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
-            cache_doc[doc.fields.IsEncryptContent] = is_encrypt_content
-            cache_doc[doc.fields.url_google_upload] = url_google_upload
-            cache_doc[doc.fields.google_file_id] = google_file_id
-            cache_doc[doc.fields.google_folder_id] = google_folder_id
+        # def cahe_register():
+        #     cache_doc = cy_docs.DocumentObject()
+        #     cache_doc[doc.fields.id] = id
+        #     cache_doc[doc.fields.FileName] = client_file_name
+        #     cache_doc[doc.fields.FileNameOnly] = pathlib.Path(client_file_name).stem
+        #     cache_doc[doc.fields.IsEncryptContent] = is_encrypt_content
+        #     cache_doc[doc.fields.url_google_upload] = url_google_upload
+        #     cache_doc[doc.fields.google_file_id] = google_file_id
+        #     cache_doc[doc.fields.google_folder_id] = google_folder_id
+        #
+        #     cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
+        #     if len(os.path.splitext(client_file_name)[1].split('.')) > 1:
+        #         cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
+        #
+        #     cache_doc[doc.fields.FullFileName] = f"{id}/{server_file_name_only}"
+        #     cache_doc[doc.fields.FullFileNameLower] = f"{id}/{server_file_name_only}".lower()
+        #     cache_doc[doc.fields.FullFileNameWithoutExtenstion] = f"{id}/{pathlib.Path(server_file_name_only).stem}"
+        #     cache_doc[
+        #         doc.fields.FullFileNameWithoutExtenstionLower] = f"{id}/{pathlib.Path(server_file_name_only).stem}".lower()
+        #     if len(os.path.splitext(server_file_name_only)[1].split('.')) > 1:
+        #         cache_doc[
+        #             doc.fields.ServerFileName] = f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
+        #     else:
+        #         cache_doc[
+        #             doc.fields.ServerFileName] = f"{id}"
+        #     cache_doc[doc.fields.AvailableThumbSize] = thumbs_support
+        #     cache_doc[doc.fields.ChunkSizeInKB] = chunk_size / 1024
+        #     cache_doc[doc.fields.ChunkSizeInBytes] = chunk_size
+        #     cache_doc[doc.fields.NumOfChunks] = num_of_chunks
+        #     cache_doc[doc.fields.NumOfChunksCompleted] = 0
+        #     cache_doc[doc.fields.SizeInHumanReadable] = humanize.filesize.naturalsize(file_size)
+        #     cache_doc[doc.fields.SizeUploaded] = 0
+        #     cache_doc[doc.fields.ProcessHistories] = []
+        #     cache_doc[doc.fields.MimeType] = mime_type
+        #     cache_doc[doc.fields.IsPublic] = is_public
+        #     cache_doc[doc.fields.Status] = 0
+        #     cache_doc[doc.fields.RegisterOn] = datetime.datetime.utcnow()
+        #     cache_doc[doc.fields.RegisterOnDays] = datetime.datetime.utcnow().day
+        #     cache_doc[doc.fields.RegisterOnMonths] = datetime.datetime.utcnow().month
+        #     cache_doc[doc.fields.RegisterOnYears] = datetime.datetime.utcnow().year
+        #     cache_doc[doc.fields.RegisterOnHours] = datetime.datetime.utcnow().hour
+        #     cache_doc[doc.fields.RegisterOnMinutes] = datetime.datetime.utcnow().minute
+        #     cache_doc[doc.fields.RegisterOnSeconds] = datetime.datetime.utcnow().second
+        #     cache_doc[doc.fields.RegisteredBy] = app_name
+        #     cache_doc[doc.fields.HasThumb] = _has_thumb_
+        #     cache_doc[doc.fields.LastModifiedOn] = datetime.datetime.utcnow()
+        #     cache_doc[doc.fields.SizeInBytes] = file_size
+        #     cache_doc[doc.fields.Privileges] = privileges_server
+        #     cache_doc[doc.fields.ClientPrivileges] = privileges_client
+        #     cache_doc[doc.fields.meta_data] = meta_data
+        #     cache_doc[doc.fields.SkipActions] = skip_option
+        #     cache_doc[doc.fields.StorageType] = storage_type
+        #     cache_doc[doc.fields.OnedriveScope] = onedriveScope
+        #     cache_doc[doc.fields.OnedrivePassword] = onedrive_password
+        #     cache_doc[doc.fields.OnedriveExpiration] = onedrive_expiration
+        #     cache_doc[doc.fields.VersionNumber] = version
+        #     if isinstance(google_folder_path,str):
+        #         cache_doc[doc.fields.FullPathOnCloud] = os.path.join(google_folder_path,client_file_name)
+        #
+        #     self.set_upload_register_to_cache(
+        #         app_name=app_name,
+        #         upload_id=id,
+        #         data=cache_doc
+        #     )
 
-            cache_doc[doc.fields.FileNameLower] = client_file_name.lower()
-            if len(os.path.splitext(client_file_name)[1].split('.')) > 1:
-                cache_doc[doc.fields.FileExt] = os.path.splitext(client_file_name)[1].split('.')[1]
-
-            cache_doc[doc.fields.FullFileName] = f"{id}/{server_file_name_only}"
-            cache_doc[doc.fields.FullFileNameLower] = f"{id}/{server_file_name_only}".lower()
-            cache_doc[doc.fields.FullFileNameWithoutExtenstion] = f"{id}/{pathlib.Path(server_file_name_only).stem}"
-            cache_doc[
-                doc.fields.FullFileNameWithoutExtenstionLower] = f"{id}/{pathlib.Path(server_file_name_only).stem}".lower()
-            if len(os.path.splitext(server_file_name_only)[1].split('.')) > 1:
-                cache_doc[
-                    doc.fields.ServerFileName] = f"{id}.{os.path.splitext(server_file_name_only)[1].split('.')[1]}"
-            else:
-                cache_doc[
-                    doc.fields.ServerFileName] = f"{id}"
-            cache_doc[doc.fields.AvailableThumbSize] = thumbs_support
-            cache_doc[doc.fields.ChunkSizeInKB] = chunk_size / 1024
-            cache_doc[doc.fields.ChunkSizeInBytes] = chunk_size
-            cache_doc[doc.fields.NumOfChunks] = num_of_chunks
-            cache_doc[doc.fields.NumOfChunksCompleted] = 0
-            cache_doc[doc.fields.SizeInHumanReadable] = humanize.filesize.naturalsize(file_size)
-            cache_doc[doc.fields.SizeUploaded] = 0
-            cache_doc[doc.fields.ProcessHistories] = []
-            cache_doc[doc.fields.MimeType] = mime_type
-            cache_doc[doc.fields.IsPublic] = is_public
-            cache_doc[doc.fields.Status] = 0
-            cache_doc[doc.fields.RegisterOn] = datetime.datetime.utcnow()
-            cache_doc[doc.fields.RegisterOnDays] = datetime.datetime.utcnow().day
-            cache_doc[doc.fields.RegisterOnMonths] = datetime.datetime.utcnow().month
-            cache_doc[doc.fields.RegisterOnYears] = datetime.datetime.utcnow().year
-            cache_doc[doc.fields.RegisterOnHours] = datetime.datetime.utcnow().hour
-            cache_doc[doc.fields.RegisterOnMinutes] = datetime.datetime.utcnow().minute
-            cache_doc[doc.fields.RegisterOnSeconds] = datetime.datetime.utcnow().second
-            cache_doc[doc.fields.RegisteredBy] = app_name
-            cache_doc[doc.fields.HasThumb] = _has_thumb_
-            cache_doc[doc.fields.LastModifiedOn] = datetime.datetime.utcnow()
-            cache_doc[doc.fields.SizeInBytes] = file_size
-            cache_doc[doc.fields.Privileges] = privileges_server
-            cache_doc[doc.fields.ClientPrivileges] = privileges_client
-            cache_doc[doc.fields.meta_data] = meta_data
-            cache_doc[doc.fields.SkipActions] = skip_option
-            cache_doc[doc.fields.StorageType] = storage_type
-            cache_doc[doc.fields.OnedriveScope] = onedriveScope
-            cache_doc[doc.fields.OnedrivePassword] = onedrive_password
-            cache_doc[doc.fields.OnedriveExpiration] = onedrive_expiration
-            cache_doc[doc.fields.VersionNumber] = version
-            if isinstance(google_folder_path,str):
-                cache_doc[doc.fields.FullPathOnCloud] = os.path.join(google_folder_path,client_file_name)
-
-            self.set_upload_register_to_cache(
-                app_name=app_name,
-                upload_id=id,
-                data=cache_doc
-            )
-
-        cahe_register()
+        # cahe_register()
 
         def insert_register():
             server_file_name = id
