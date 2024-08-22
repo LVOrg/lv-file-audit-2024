@@ -489,7 +489,7 @@ class FileServices:
                             doc.fields.OnedrivePassword << onedrive_password,
                             doc.fields.OnedriveExpiration << onedrive_expiration,
                             doc.fields.MsgRequires << require_msg_process,
-                            doc.fields.MainFileId << f"{local_path_dir}/{client_file_name}",
+                            doc.fields.MainFileId << f"{local_path_dir}/data.{file_ext.lower()}-version-{version}",
                             doc.fields.ThumbFileId << main_thumb_file,
                             doc.fields.IsEncryptContent << is_encrypt_content,
                             doc.fields.url_google_upload<< url_google_upload,

@@ -1654,7 +1654,8 @@ async def streaming_async(fsg, request, content_type, streaming_buffering=1024 *
     if isinstance(fsg,str):
         if os.path.isfile(fsg):
             file_size = os.stat(fsg).st_size
-            content_type,_ = mimetypes.guess_type(fsg)
+            if not content_type:
+                content_type,_ = mimetypes.guess_type(fsg)
             fsg = open(fsg, "rb")
         else:
             raise FileNotFoundError("File was not found")

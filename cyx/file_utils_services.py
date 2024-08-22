@@ -616,6 +616,27 @@ class FileUtilService(BaseUtilService):
 
         ret = upload["real_file_location"]
         if not os.path.isfile(ret):
+            """
+            Fix by update version
+            """
+            directory = pathlib.Path(ret).parent.__str__()
+            if not os.path.isdir(directory):
+                return ret
+            filename="data"
+            if upload.get(Repository.files.fields.FileExt.__name__):
+                filename=filename+"."+upload.get(Repository.files.fields.FileExt.__name__)
+            ret = os.path.join(directory, f'{filename}-version-{upload.get(Repository.files.fields.VersionNumber.__name__,1)}')
+            if os.path.isfile(ret):
+                upload[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(app_name,upload,upload[Repository.files.fields.StorageType.__name__],upload[Repository.files.fields.VersionNumber.__name__])
+                upload["real_file_location"] = ret
+                await Repository.files.app(app_name).context.update_async(
+                    Repository.files.fields.id==upload_id,
+                    Repository.files.fields.MainFileId << upload[Repository.files.fields.MainFileId.__name__]
+                )
+                return ret
+
+
+        if not os.path.isfile(ret):
             ret = ret.lower().replace('(','_').replace(')','_')
             if os.path.isfile(ret):
                 upload["real_file_location"]=ret
@@ -748,4 +769,5 @@ class FileUtilService(BaseUtilService):
             return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'.replace('/',os.path.sep)
         else:
             return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'.replace('/',os.path.sep)
+
 
