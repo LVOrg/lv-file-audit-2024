@@ -32,33 +32,21 @@ from cyx.common import config
 
 from cyx.common.rabitmq_message import RabitmqMsg
 #from cyx.repository import Repository
-
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
     """
-
+    file_storage_service: MongoDbFileService = cy_kit.singleton(MongoDbFileService)
+    search_engine = cy_kit.singleton(cy_xdoc.services.search_engine.SearchEngine)
+    db_connect = cy_kit.singleton(cyx.common.base.DbConnect)
+    cacher = cy_kit.singleton(cyx.common.cacher.CacherService)
+    logger = cy_kit.singleton(LoggerService)
+    memcache_service = cy_kit.singleton(MemcacheServices)
+    broker: RabitmqMsg = cy_kit.singleton(RabitmqMsg)
     def __init__(self,
-                 file_storage_service: MongoDbFileService = cy_kit.singleton(
-                     MongoDbFileService),
-                 search_engine=cy_kit.singleton(cy_xdoc.services.search_engine.SearchEngine),
-                 db_connect=cy_kit.singleton(cyx.common.base.DbConnect),
-                 cacher=cy_kit.singleton(cyx.common.cacher.CacherService),
-                 logger=cy_kit.singleton(LoggerService),
-                 memcache_service=cy_kit.singleton(MemcacheServices),
+                 ):
 
-                 broker: RabitmqMsg = cy_kit.singleton(RabitmqMsg)):
-
-        self.file_storage_service = file_storage_service
-        self.search_engine = search_engine
-        self.db_connect = db_connect
-        # self.cacher = cacher
-        self.cache_type = f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
-        self.logger = logger
-        self.memcache_service = memcache_service
         self.config = config
-        self.broker = broker
-
     def get_queryable_doc(self, app_name: str) -> cyx.common.base.DbCollection[DocUploadRegister]:
         """
         MongoDb DocUploadRegister Collection as Queryable
@@ -735,6 +723,7 @@ class FileServices:
         item[document_context.fields.RegisteredBy] = "root"
 
         file_id_to_copy = item[document_context.fields.MainFileId]
+
         del item[document_context.fields.MainFileId]
         to_location = item[document_context.fields.FullFileNameLower].lower()
         new_fsg = self.file_storage_service.copy_by_id(

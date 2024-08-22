@@ -53,7 +53,7 @@ class FilesSourceController(BaseController):
         :param app_name:
         :return:
         """
-        doc_context = Repository.files.app(app_name).context
+        doc_context = Repository.files.app(app_name)
         upload_info = await doc_context.context.find_one_async(
             doc_context.fields.id == UploadId
         )

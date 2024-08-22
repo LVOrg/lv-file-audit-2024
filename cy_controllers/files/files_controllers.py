@@ -2,6 +2,7 @@ import datetime
 import gc
 import os
 import pathlib
+import traceback
 import typing
 import uuid
 
@@ -154,28 +155,37 @@ class FilesController(BaseController):
         return obsever_id
 
     @controller.router.post("/api/{app_name}/files/clone", tags=["FILES"])
-    def clone_to_new(self,
+    async def clone_to_new_async(self,
                      app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> CloneFileResult:
+        try:
+            item = await self.file_util_service.do_copy_async(
+                app_name=app_name,
+                upload_id=UploadId,
+                request=self.request
+            )
 
-        item = self.file_service.do_copy(
-            app_name=app_name,
-            upload_id=UploadId,
-            request=self.request
-        )
+            if item is None:
+                return CloneFileResult(
+                    Error=pydantic.BaseModel(
+                        Code="fileNotFound",
+                        Message="File not found"
 
-        if item is None:
+                    )
+                )
+            else:
+
+                return CloneFileResult(
+                    Info=item.to_json_convertable()
+                )
+        except:
+            print(traceback.format_exc())
             return CloneFileResult(
                 Error=pydantic.BaseModel(
-                    Code="fileNotFound",
-                    Message="File not found"
+                    Code="System",
+                    Message="Cannot copy files"
 
                 )
-            )
-        else:
-
-            return CloneFileResult(
-                Info=item.to_json_convertable()
             )
 
     @controller.router.post("/api/{app_name}/files/delete", tags=["FILES"])

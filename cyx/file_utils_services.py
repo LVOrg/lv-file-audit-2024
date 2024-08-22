@@ -771,3 +771,56 @@ class FileUtilService(BaseUtilService):
             return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'.replace('/',os.path.sep)
 
 
+    async def do_copy_async(self, app_name, upload_id, request):
+        """
+        Re-modify on 2024-06-26 to fix Masant requirement
+        :param app_name:
+        :param upload_id:
+        :param request:
+        :return:
+        """
+        document_context = Repository.files.app(app_name)
+        item = document_context.context @ upload_id
+        main_file_id = item.MainFileId
+        if item is None:
+            return None
+
+        source_file_path = await self.get_physical_path_async(app_name, upload_id)
+
+        item.id = str(uuid.uuid4())
+        dest_file_path = source_file_path.replace(f'{upload_id}/',f'/{item.id}/')
+        #Copy all file in directory of source_file_path into directory of dest_file_path
+
+        source_dir = os.path.dirname(source_file_path)
+        dest_dir = os.path.dirname(dest_file_path)
+        os.makedirs(dest_dir, exist_ok=True)
+        for file_name in os.listdir(source_dir):
+            source_file_path = os.path.join(source_dir, file_name)
+            dest_file_path = os.path.join(dest_dir, file_name)
+
+            # Copy the file, preserving metadata
+            shutil.copy2(source_file_path, dest_file_path)
+
+        item[document_context.fields.FullFileName] = f"{item.id}/{item[document_context.fields.FileName]}"
+        item[document_context.fields.FullFileNameLower] = item[document_context.fields.FullFileName].lower()
+        item[document_context.fields.Status] = 0
+        item[document_context.fields.PercentageOfUploaded] = 100
+        item[document_context.fields.MarkDelete] = False
+        item.ServerFileName = f"{item.id}.{item[document_context.fields.FileExt]}"
+        item.RegisterOn = datetime.utcnow()
+        item[document_context.fields.RegisteredBy] = "root"
+
+
+
+        del item[document_context.fields.MainFileId]
+        to_location = item[document_context.fields.FullFileNameLower].lower()
+        json_data = item.to_json_convertable()
+        main_file_id = self.generate_main_file_id(
+            app_name=app_name,
+            upload= json_data,
+            version = item[Repository.files.fields.VersionNumber] or 1,
+            storage_type= item[Repository.files.fields.StorageType]
+        )
+        item[Repository.files.fields.MainFileId]= main_file_id
+        Repository.files.app(app_name).context.insert_one(item)
+
