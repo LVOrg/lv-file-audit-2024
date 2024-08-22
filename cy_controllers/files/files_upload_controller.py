@@ -1,6 +1,8 @@
 
 import typing
+
 from cyx.repository import Repository
+
 fx = Repository.files.fields.Status
 from cyx.common import config
 from fastapi_router_controller import Controller
@@ -220,13 +222,35 @@ class FilesUploadController(BaseController):
         "/api/{app_name}/files/upload" if not version2 else "/api/{app_name}/files/upload_old", summary="Upload file",
         tags=["FILES"]
     )
+    async def upload_async_debug(self,
+                           app_name: str,
+                           UploadId: Annotated[str, Form()],
+                           Index: Annotated[int, Form()],
+                           FilePart: Annotated[UploadFile, File()]):
+        try:
+            rea = await self.upload_async(
+                app_name,
+                UploadId,
+                Index,
+                FilePart
+
+            )
+            return rea
+        except:
+            from fastapi.responses import Response
+            return Response(
+                content = traceback.format_exc(),
+                status_code=500
+            )
+
+
     async def upload_async(self,
                            app_name: str,
                            UploadId: Annotated[str, Form()],
                            Index: Annotated[int, Form()],
                            FilePart: Annotated[UploadFile, File()]) :
         # try:
-
+        self.search_engine
         content_part = await self.get_upload_binary_async(FilePart)
         upload_item = self.file_util_service.get_upload(
             app_name=app_name,
@@ -242,40 +266,18 @@ class FilesUploadController(BaseController):
             ret.Error.Code="ItemWasNotFound"
             ret.Error.Message="Upload was not found or has been remove"
             return ret
-        # upload_register_doc = self.file_service.db_connect.db(app_name).doc(DocUploadRegister)
         file_size = upload_item[Repository.files.fields.SizeInBytes.__name__]
         size_uploaded = upload_item[Repository.files.fields.SizeUploaded.__name__] or 0
-        num_of_chunks_complete = upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] or 0
         nun_of_chunks = upload_item[Repository.files.fields.NumOfChunks.__name__] or 0
-        # chunk_size_in_bytes = upload_item[Repository.files.fields.ChunkSizeInBytes.__name__] or 0
         server_file_name = upload_item[Repository.files.fields.FullFileNameLower.__name__]
         content_type, _ = mimetypes.guess_type(server_file_name)
-        if not upload_item.get("real_file_location"):
-            file_path = await self.file_util_service.get_physical_path_async(
-                app_name=app_name,
-                upload_id=UploadId
-            )
-        else:
-            file_path = upload_item.get("real_file_location")
-
-
-        await self.file_util_service.save_file_single_thread_async(
+        upload_item = await self.file_util_service.save_file_single_thread_async(
             app_name=app_name,
             upload_id=UploadId,
-            file_path =file_path,
             chunk_index=Index,
             content_part = content_part
         )
-        """
-        Save content is OK. Cache and infor of upload file in db has been changed
-        """
-        upload_item = self.file_util_service.get_upload(
-            app_name=app_name,
-            upload_id=UploadId
-        )
-        """
-        Fetch again for new value ffrom cache
-        """
+        num_of_chunks_complete = upload_item.get(Repository.files.fields.NumOfChunksCompleted.__name__,0)
 
         skip_action: typing.Dict[str,typing.Any]|None = upload_item.get(Repository.files.fields.SkipActions.__name__)
         if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
@@ -304,7 +306,7 @@ class FilesUploadController(BaseController):
         ret.Data = cy_docs.DocumentObject()
         ret.Data.Percent = round((size_uploaded * 100) / file_size, 2)
         ret.Data.SizeUploadedInHumanReadable = humanize.filesize.naturalsize(size_uploaded)
-        num_of_chunks_complete += 1
+
         ret.Data.NumOfChunksCompleted = num_of_chunks_complete
         ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
         ret_data = ret.to_pydantic()

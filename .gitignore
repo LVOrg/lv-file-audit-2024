@@ -48,3 +48,4 @@ secret*
 /cy_vn_delete/
 /docker-cy/
 /gradio_test/
+/docker-build/deploy/values/

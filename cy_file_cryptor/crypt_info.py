@@ -45,7 +45,7 @@ def read_dict(file_path, original_open,full_file_size) -> dict:
     from cy_file_cryptor import context
     ret = context.read_from_cache(f"{pre_fix_cache_key}/{file_path}")
     if isinstance(ret, dict):
-        if full_file_size and  ret["wrap-size"]>full_file_size:
+        if full_file_size and  ret.get("wrap-size",0)>full_file_size:
             ret["wrap-size"]=full_file_size
         return ret
     else:

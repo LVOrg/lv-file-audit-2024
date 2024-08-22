@@ -103,11 +103,10 @@ class FilesLocalController(BaseController):
         server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
         server_dir = pathlib.Path(server_path).parent.__str__()
         os.makedirs(server_dir,exist_ok=True)
-        with cy_file_cryptor.context.EncryptContext(server_path):
-            with open(server_path, 'wb') as f:
-                while True:
-                    chunk = content.read(1024)
-                    if not chunk:
-                        break
-                    f.write(chunk)
-            return server_path
+        file_size = content.size
+        with open(server_path, 'wb',encrypt=True,file_size=file_size,chunk_size_in_kb=2048) as f:
+            data_write = await content.read(2048)
+            while data_write:
+                f.write(data_write)
+                data_write = await content.read(2048)
+        return server_path

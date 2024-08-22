@@ -55,15 +55,15 @@ class ThumbService:
     async def get_async(self, app_name: str, directory: str, size: int)->typing.Union[str,bson.ObjectId]|None:
         key = self.get_cache_key(app_name=app_name,directory=directory,size=size)
         ret= self.memcache_services.get_str(key)
-        if ret and os.path.isfile(ret):
+        if ret and os.path.isfile(ret) and os.stat(ret).st_size>0:
             return ret
 
 
         upload_id = directory.split('/')[0]
         original_file_path = await self.file_util_service.get_physical_path_async(app_name,upload_id)
         original_dir = pathlib.Path(original_file_path).parent.__str__()
-        thumb_file_path = os.path.join(original_dir,f"{size},webp")
-        if os.path.isfile(thumb_file_path):
+        thumb_file_path = os.path.join(original_dir,f"{size}.webp")
+        if os.path.isfile(thumb_file_path) and os.stat(thumb_file_path).st_size>0:
             self.memcache_services.set_str(key,thumb_file_path)
             return thumb_file_path
 

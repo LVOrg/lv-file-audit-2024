@@ -427,7 +427,7 @@ class SearchEngine:
 
     def make_index_content(self, app_name: str,
                            upload_id: str,
-                           data_item: dict,
+                           data_item: dict|None,
                            privileges: dict,
                            path_to_file_content: str = None,
                            content: str = None,
@@ -477,19 +477,6 @@ class SearchEngine:
             file_name=file_name,
             mark_delete=mark_delete,
             content=content,
-            # vn_non_accent_content=vn_non_accent_content,
-            # meta_info=cy_es.convert_to_vn_predict_seg(
-            #     meta_info or data_item.get('meta_data'),
-            #     segment_handler=self.vn.parse_word_segment,
-            #     handler=self.vn_predictor.get_text,
-            #     clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-            # ),
-            # data_item=cy_es.convert_to_vn_predict_seg(
-            #     data_item or {},
-            #     segment_handler=self.vn.parse_word_segment,
-            #     handler=self.vn_predictor.get_text,
-            #     clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-            # ),
             meta_info = meta_info or data_item.get('meta_data'),
             data_item = data_item or {},
             privileges=privileges,
@@ -558,12 +545,7 @@ class SearchEngine:
                     app_name=app_name,
                     privileges=privileges,
                     upload_id=upload_id,
-                    # data_item=cy_es.convert_to_vn_predict_seg(
-                    #     data_item,
-                    #     segment_handler=self.vn.parse_word_segment,
-                    #     handler=self.vn_predictor.get_text,
-                    #     clear_accent_mark_handler=self.text_process_service.vn_clear_accent_mark
-                    # ),
+
                     data_item = data_item,
                     meta_info=meta_info
                 )
@@ -573,8 +555,7 @@ class SearchEngine:
                     privileges=privileges,
                     upload_id=upload_id,
                     data_item=None,
-                    meta_info=meta_info,
-                    force_replace=force_replace
+                    meta_info=meta_info
                 )
 
     def is_exist(self, app_name: str, id: str) -> bool:

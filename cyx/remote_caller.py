@@ -31,7 +31,7 @@ class RemoteCallerService:
         """
         response = requests.post(url_of_thumb_service+"/get-thumb", json=dict(
             size=size,
-            url_of_thumb_service = url_of_thumb_service,
+            url_of_thumb_service = f'{url_of_thumb_service}/get-thumb',
             url_of_image = url_of_image,
             url_upload_file = url_upload_file
         ))

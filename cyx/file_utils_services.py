@@ -84,11 +84,21 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.Status << upload.get(Repository.files.fields.Status.__name__,0),
             Repository.files.fields.CloudId << upload.get(Repository.files.fields.CloudId.__name__),
             Repository.files.fields.SizeInHumanReadable <<upload.get(Repository.files.fields.SizeInHumanReadable.__name__),
-            Repository.files.fields.MainFileId << upload.get(Repository.files.fields.MainFileId.__name__)
+            Repository.files.fields.MainFileId << upload.get(Repository.files.fields.MainFileId.__name__),
+            Repository.files.fields.NumOfChunksCompleted << upload.get(Repository.files.fields.NumOfChunksCompleted.__name__),
+            Repository.files.fields.SizeUploaded << upload.get(Repository.files.fields.SizeUploaded.__name__)
         )
 
 
     def update_upload(self, app_name:str, upload_id:str, upload: typing.Dict[typing.AnyStr,typing.Any],update_cache_only:bool=False):
+        """
+        Update register info to cache and datbase
+        @param app_name:
+        @param upload_id:
+        @param upload:
+        @param update_cache_only:
+        @return:
+        """
         self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, upload)
         if update_cache_only:
             return
@@ -651,9 +661,8 @@ class FileUtilService(BaseUtilService):
     async def save_file_single_thread_async(self,
                                             app_name:str,
                                             upload_id:str,
-                                            file_path:str,
                                             chunk_index:int,
-                                            content_part):
+                                            content_part)->typing.Dict[str,typing.Any]|None:
 
         upload_item = self.get_upload(
             app_name=app_name,
@@ -667,6 +676,7 @@ class FileUtilService(BaseUtilService):
         tem_file_path = self.generate_main_file_path(app_name=app_name, upload= upload_item,version = version_number)
         dir_path = pathlib.Path(tem_file_path).parent.__str__()
         os.makedirs(dir_path,exist_ok=True)
+        size_uploaded = upload_item.get(Repository.files.fields.SizeUploaded.__name__,0)
         with open(tem_file_path, mode, encrypt=True, file_size=file_size_in_bytes, chunk_size_in_kb=chunk_size_in_kb) as fs:
             fs.write(content_part)
 
@@ -682,13 +692,18 @@ class FileUtilService(BaseUtilService):
                 version = version_number
             )
             upload_item["real_file_location"] = tem_file_path
+        num_of_chunks_completed = upload_item.get(Repository.files.fields.NumOfChunksCompleted.__name__, 0)
+        num_of_chunks_completed+=1
+        upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] =num_of_chunks_completed
+        upload_item[Repository.files.fields.SizeUploaded.__name__] = size_uploaded + len(content_part)
+        del content_part
         self.update_upload(
             app_name = app_name,
             upload_id = upload_item.get("_id"),
             upload = upload_item,
 
         )
-        return
+        return upload_item
 
     def generate_main_file_id(self, app_name: str, upload: typing.Dict[str, typing.Any], storage_type: str,version:int|None)-> str:
         """
@@ -703,9 +718,9 @@ class FileUtilService(BaseUtilService):
         @param version: since 08-21-2004 we discovery that error will be occur if file name change while it was accessing by  any unexpected process. The version of upload content is a solution
         @return:
         """
-
-        file_name:str = upload.get(Repository.files.fields.FileName.__name__)
-        file_name = file_name.lower().replace('(','_').replace(')','_')
+        file_name = "data"
+        if upload.get(Repository.files.fields.FileExt.__name__):
+            file_name = f'{file_name}.{upload.get(Repository.files.fields.FileExt.__name__)}'
         ext_file ="unknown"
         if upload.get(Repository.files.fields.FileExt.__name__):
             ext_file = upload.get(Repository.files.fields.FileExt.__name__)[0:3]
@@ -718,7 +733,10 @@ class FileUtilService(BaseUtilService):
             return f'{storage_type}://{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'
     def generate_main_file_path(self, app_name: str, upload: typing.Dict[str, typing.Any], version:int|None)-> str:
 
-        file_name:str = upload.get(Repository.files.fields.FileName.__name__)
+        # file_name:str = upload.get(Repository.files.fields.FileName.__name__)
+        file_name = "data"
+        if upload.get(Repository.files.fields.FileExt.__name__):
+            file_name=f'{file_name}.{upload.get(Repository.files.fields.FileExt.__name__)}'
         file_name = file_name.lower().replace('(','_').replace(')','_')
         ext_file ="unknown"
         if upload.get(Repository.files.fields.FileExt.__name__):
