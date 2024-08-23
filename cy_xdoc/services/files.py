@@ -31,6 +31,9 @@ from cyx.common.msg import MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE
 from cyx.common import config
 
 from cyx.common.rabitmq_message import RabitmqMsg
+from cyx.repository import Repository
+
+
 #from cyx.repository import Repository
 class FileServices:
     """
@@ -823,7 +826,7 @@ class FileServices:
             privileges_type_from_client=privileges
         )
 
-        doc_context = self.db_connect.db(app_name).doc(cy_xdoc.models.files.DocUploadRegister)
+        doc_context = Repository.files.app(app_name)
         upload = (doc_context.context @ upload_id)
         if upload is not None:
 

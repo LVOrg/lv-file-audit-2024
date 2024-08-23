@@ -185,8 +185,11 @@ class LocalAPIService:
             raise ValueError(f"file_name is None and file_ext is None")
 
         file_name = file_name or (upload_item.get(Repository.files.fields.FileName.__name__)+"."+file_ext)
-        register_on = upload_item.get(Repository.files.fields.RegisterOn.__name__)
-        register_dir = datetime.fromisoformat(register_on).strftime("%Y/%m/%d")
+        register_on:str|datetime = upload_item.get(Repository.files.fields.RegisterOn.__name__)
+        if isinstance(register_on,datetime):
+            register_dir = register_on.strftime("%Y/%m/%d")
+        else:
+            register_dir = datetime.fromisoformat(register_on).strftime("%Y/%m/%d")
         register_app_dir = f"{app_name}/{register_dir}"
         sub_dir = "unknown"
         file_ext_of_upload = upload_item.get(Repository.files.fields.FileExt.__name__)

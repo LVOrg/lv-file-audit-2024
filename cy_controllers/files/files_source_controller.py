@@ -112,78 +112,49 @@ class FilesSourceController(BaseController):
 
     @controller.router.post("/api/files/check_out_source",tags=["SOURCE"])
     async def check_out_source(self, data: CheckoutResource):
-        UploadData = await Repository.files.app(data.appName).context.find_one_async(
-            Repository.files.fields.id == data.uploadId
-        )
+        UploadData = self.file_util_service.get_upload(app_name=data.appName,upload_id=data.uploadId)
         if not UploadData:
             raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
-        if isinstance(UploadData.MainFileId, str) and UploadData.MainFileId.startswith("local://"):
-            file_path = os.path.join(self.config.file_storage_path, UploadData.MainFileId.split("://")[1])
-            if not os.path.isfile(file_path):
-                raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
-            await self.content_manager_service.do_check_out_async(
-                app_name=data.appName,
-                upload_id=data.uploadId,
-                file_path=file_path,
-                client_mac_address=self.request.headers.get("mac_address_id"),
-                hash_len=int(self.request.headers.get("hash_len"))
-            )
-            try:
-                fs = self.file_service.get_main_file_of_upload(
-                    app_name=data.appName,
-                    upload_id=data.uploadId
-                )
-                ret = await cy_web.cy_web_x.streaming_async(
-                    fs, self.request, "application/octet-stream", streaming_buffering=1024 * 4 * 3 * 8
-                )
+        file_path = await self.file_util_service.get_physical_path_async(
+            app_name=data.appName, upload_id=data.uploadId
+        )
+        if not os.path.isfile(file_path):
+            raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
 
-                ret.headers["Content-Disposition"] = f"attachment; filename={data.uploadId}"
+        ret = await cy_web.cy_web_x.streaming_async(
+            file_path,
+            self.request, "application/octet-stream", streaming_buffering=1024 * 4 * 3 * 8
+        )
 
-                return ret
-            except FileNotFoundError:
-                raise HTTPException(status_code=404, detail=f"{data.uploadId} not found in {data.appName}")
+        ret.headers["Content-Disposition"] = f"attachment; filename={data.uploadId}"
+
+        return ret
+
 
     @controller.router.post("/api/files/check_in_source",tags=["SOURCE"])
     async def check_in_source(self, appName: str = Body(embed=True), uploadId: str = Body(embed=True),
                               content: UploadFile = File(...)):
-        try:
-            upload_data = await Repository.files.app(appName).context.find_one_async(
-                Repository.files.fields.id == uploadId
-            )
-            if upload_data is None:
-                raise HTTPException(status_code=404, detail=f"{uploadId} not found in {appName}")
-            if isinstance(upload_data.MainFileId, str) and upload_data.MainFileId.startswith("local://"):
-                file_path = os.path.join(self.config.file_storage_path, upload_data.MainFileId.split("://")[1])
-                if not os.path.isfile(file_path):
-                    raise HTTPException(status_code=404, detail=f"{uploadId} not found in {appName}")
-                with open(file_path, "wb") as f:
-                    while contents := content.file.read(1024 * 1024):
-                        f.write(contents)
-                    self.content_manager_service.remove_check_out(
-                        app_name=appName,
-                        upload_id=uploadId,
-                        client_mac_address=self.request.headers.get('mac_address_id')
 
-                    )
-                    self.raise_re_do_message(
-                        file_path=file_path,
-                        app_name=appName,
-                        data=upload_data
-                    )
+        UploadData = self.file_util_service.get_upload(app_name=appName, upload_id=uploadId)
+        if not UploadData:
+            raise HTTPException(status_code=404, detail=f"{uploadId} not found in {appName}")
+        file_path = await self.file_util_service.get_physical_path_async(app_name=appName, upload_id=uploadId)
+        with open(file_path, "wb") as f:
+            while contents := content.file.read(1024 * 1024):
+                f.write(contents)
+            self.content_manager_service.remove_check_out(
+                app_name=appName,
+                upload_id=uploadId,
+                client_mac_address=self.request.headers.get('mac_address_id')
 
-                    return dict(message="Update is Ok")
-                if not self.request.headers.get("hash_len") or not str(
-                        self.request.headers.get("hash_len")).isnumeric():
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Please enter hash_len in the request headers (hash_len is a number of hash256 segment of file for check out)",
-                    )
-        except Exception as e:
-            print(e)
-            raise HTTPException(
-                status_code=500,
-                detail=str(e),
             )
+            self.raise_re_do_message(
+                file_path=file_path,
+                app_name=appName,
+                data=UploadData
+            )
+            return dict(message="Update is Ok")
+
 
     def raise_re_do_message(self, file_path, app_name, data):
         self.broker.emit(

@@ -250,7 +250,7 @@ class FilesUploadController(BaseController):
                            Index: Annotated[int, Form()],
                            FilePart: Annotated[UploadFile, File()]) :
         # try:
-        self.search_engine
+
         content_part = await self.get_upload_binary_async(FilePart)
         upload_item = self.file_util_service.get_upload(
             app_name=app_name,
@@ -280,7 +280,7 @@ class FilesUploadController(BaseController):
         num_of_chunks_complete = upload_item.get(Repository.files.fields.NumOfChunksCompleted.__name__,0)
 
         skip_action: typing.Dict[str,typing.Any]|None = upload_item.get(Repository.files.fields.SkipActions.__name__)
-        if num_of_chunks_complete == nun_of_chunks - 1 and self.temp_files.is_use:
+        if num_of_chunks_complete == nun_of_chunks and self.temp_files.is_use:
 
 
             if skip_action is None or (isinstance(skip_action, dict) and (
@@ -299,6 +299,18 @@ class FilesUploadController(BaseController):
                     upload_id=UploadId,
                     data=upload_item
                 )
+                map = {
+                    "onedrive": "Azure",
+                    "google-drive": "Google",
+                    "s3": "AWS"
+                }
+                storage_type: str = upload_item[Repository.files.fields.StorageType.__name__]
+                if map.get(storage_type):
+                    self.cloud_service_utils.do_sync_data(
+                        app_name=app_name,
+                        cloud_name=map.get(storage_type),
+                        upload_item=upload_item
+                    )
 
 
         size_uploaded += len(content_part)
@@ -310,41 +322,9 @@ class FilesUploadController(BaseController):
         ret.Data.NumOfChunksCompleted = num_of_chunks_complete
         ret.Data.SizeInHumanReadable = humanize.filesize.naturalsize(file_size)
         ret_data = ret.to_pydantic()
-        media_status:int = upload_item[Repository.files.fields.Status.__name__]
-        if media_status == 1:
-            map = {
-                "onedrive": "Azure",
-                "google-drive": "Google",
-                "s3":"AWS"
-            }
-            storage_type:str = upload_item[Repository.files.fields.StorageType.__name__]
-            if map.get(storage_type):
-                self.cloud_service_utils.do_sync_data(
-                    app_name=app_name,
-                    cloud_name=map.get(storage_type),
-                    upload_item= upload_item
-                )
-
-
-
-
         return ret_data
 
-        # except Exception as ex:
-        #     # self.logger_service.error(ex, more_info=dict(
-        #     #     app_name=app_name,
-        #     #     UploadId=UploadId,
-        #     #     Index=Index
-        #     # ))
-        #     import traceback
-        #     ret = UploadFilesChunkInfoResult()
-        #     ret.Error = ErrorResult()
-        #     ret.Error.Code = "System"
-        #     ret.Error.Message =repr(ex)
-        #     return ret
-        # finally:
-        #     del content_part
-        #     self.malloc_service.reduce_memory()
+
 
     async def push_temp_file_async(self, app_name, content, upload_id, file_ext):
         st = datetime.datetime.utcnow()
@@ -357,4 +337,6 @@ class FilesUploadController(BaseController):
             )
         n = (datetime.datetime.utcnow() - st).total_seconds()
         print(f"push_temp_file_async={n}")
+
+
 

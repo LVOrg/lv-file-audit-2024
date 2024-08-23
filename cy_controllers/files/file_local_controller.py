@@ -26,7 +26,15 @@ class FilesLocalController(BaseController):
         response_class=StreamingResponse,
         tags=["LOCAL"]
     )
-    async def read_raw_content(self,
+    async def read_raw_content_async(self,
+                                      rel_path: str
+                                      ) -> None:
+        try:
+            ret = await  self.read_raw_content_caller_async(rel_path)
+            return ret
+        except:
+            return None
+    async def read_raw_content_caller_async(self,
                                rel_path:str
                                ) -> None:
 

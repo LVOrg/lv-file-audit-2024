@@ -1,4 +1,5 @@
 import datetime
+import typing
 
 import cy_kit
 from cyx.cloud.cloud_file_sync_service_azure import CloudFileSyncServiceAzure
@@ -15,10 +16,10 @@ class FileSync:
         self.azure=azure
         self.google=google
         self.msg = msg
-    def do_sync(self, app_name:str, cloud_name:str, upload_item):
+    def do_sync(self, app_name:str, cloud_name:str, upload_item:typing.Dict[str,typing.Any]):
         cloud_file_sync_content=Repository.cloud_file_sync.app(app_name=app_name)
         cloud_file_sync_item = cloud_file_sync_content.context.find_one(
-            cloud_file_sync_content.fields.UploadId==upload_item.Id
+            cloud_file_sync_content.fields.UploadId==upload_item.get("_id")
         )
         if cloud_file_sync_item:
             print("Update")
@@ -26,7 +27,7 @@ class FileSync:
             Repository.cloud_file_sync.app(app_name=app_name).context.insert_one(
                 Repository.cloud_file_sync.fields.SyncCount<<0,
                 Repository.cloud_file_sync.fields.CloudName << cloud_name,
-                Repository.cloud_file_sync.fields.UploadId<< upload_item.Id,
+                Repository.cloud_file_sync.fields.UploadId<< upload_item.get("_id"),
                 Repository.cloud_file_sync.fields.CreatedOn<< datetime.datetime.utcnow(),
                 Repository.cloud_file_sync.fields.IsError<<False
             )

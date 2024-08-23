@@ -176,7 +176,7 @@ class SearchController(BaseController):
         :param token:
         :return:
         """
-        from cy_xdoc.controllers import files_content_search_utils
+
 
 
         if highlight is None:

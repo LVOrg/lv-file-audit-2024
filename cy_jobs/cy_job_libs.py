@@ -28,16 +28,16 @@ import cy_utils
 import cy_utils.texts
 import mimetypes
 from cy_xdoc.services.search_engine import SearchEngine
-import gradio_client
 
-print(gradio_client.__version__)
+
+
 from cyx.cloud.azure.azure_utils_services import AzureUtilsServices
-from gradio_client import Client
+
 from cyx.processing_file_manager_services import ProcessManagerService
 from cyx.google_drive_utils.directories import GoogleDirectoryService
 from cyx.common import config
 import cy_file_cryptor.context
-from kazoo.client import KazooClient
+
 from memcache import Client as MClient
 import requests
 import multiprocessing

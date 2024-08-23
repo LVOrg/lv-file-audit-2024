@@ -6,7 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/file_local_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/file_local_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_source_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_source_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/search/search_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/search/search_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/cy_job_libs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/cy_job_libs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_google_file_sync.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_google_file_sync.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_xdoc/services/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/local_api_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_api_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
@@ -57,6 +67,7 @@
     "Python.checkfile.executor": "Debug",
     "Python.server (1).executor": "Debug",
     "Python.server.executor": "Debug",
+    "Python.task_google_file_sync.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
     "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/cy_xdoc/models",
@@ -185,8 +196,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="task_google_file_sync" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_google_file_sync.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.task_google_file_sync" />
         <item itemvalue="Python.che_write_file_with_encrypt" />
         <item itemvalue="Python.server" />
         <item itemvalue="Python.checkfile" />
@@ -258,23 +292,13 @@
           <option name="timeStamp" value="137" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_register_controller.py</url>
-          <line>175</line>
-          <option name="timeStamp" value="139" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_xdoc/services/files.py</url>
-          <line>305</line>
+          <line>308</line>
           <option name="timeStamp" value="140" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>434</line>
-          <option name="timeStamp" value="156" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>751</line>
+          <line>808</line>
           <option name="timeStamp" value="158" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -294,7 +318,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>257</line>
+          <line>264</line>
           <option name="timeStamp" value="164" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -303,44 +327,54 @@
           <option name="timeStamp" value="166" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_register_controller.py</url>
-          <line>277</line>
-          <option name="timeStamp" value="167" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_xdoc/services/files.py</url>
-          <line>479</line>
-          <option name="timeStamp" value="168" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_content_controller.py</url>
-          <line>60</line>
-          <option name="timeStamp" value="169" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_controllers/files/files_controllers.py</url>
           <line>161</line>
           <option name="timeStamp" value="182" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_source_controller.py</url>
-          <line>55</line>
-          <option name="timeStamp" value="184" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_xdoc/services/files.py</url>
-          <line>724</line>
+          <line>727</line>
           <option name="timeStamp" value="185" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>794</line>
+          <line>854</line>
           <option name="timeStamp" value="189" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_register_controller.py</url>
-          <line>254</line>
-          <option name="timeStamp" value="190" />
+          <url>file://$PROJECT_DIR$/cy_controllers/files/file_privileges_controller.py</url>
+          <line>165</line>
+          <option name="timeStamp" value="210" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_xdoc/services/files.py</url>
+          <line>828</line>
+          <option name="timeStamp" value="211" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_xdoc/services/search_engine.py</url>
+          <line>243</line>
+          <option name="timeStamp" value="215" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_xdoc/services/search_engine.py</url>
+          <line>238</line>
+          <option name="timeStamp" value="217" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/search/search_controller.py</url>
+          <line>210</line>
+          <option name="timeStamp" value="218" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/search/search_controller.py</url>
+          <line>181</line>
+          <option name="timeStamp" value="219" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/file_local_controller.py</url>
+          <line>35</line>
+          <option name="timeStamp" value="221" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

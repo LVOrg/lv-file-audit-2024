@@ -3,9 +3,7 @@ import mimetypes
 import os
 import pathlib
 import shutil
-import tempfile
-import threading
-import time
+
 import traceback
 import typing
 import uuid
@@ -14,19 +12,14 @@ from datetime import datetime
 from humanize import naturalsize
 
 import bson.objectid
-import cy_docs.cy_docs_x
-import cy_kit
-from cyx.common import config
-import asyncio
-import aiohttp
+
 from cyx.common import config
 import requests
-import aiohttp.client_exceptions
+
 from cyx.repository import Repository
-from cyx.cache_service.memcache_service import MemcacheServices
-from fastapi import FastAPI
+
 from cy_web.cy_web_x import streaming_async
-import cy_file_cryptor.wrappers
+
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
@@ -35,6 +28,13 @@ from pymongo import version
 MAX_WORKERS = 10
 WORKERS = dict()
 from cyx.file_utils_services_base import BaseUtilService
+
+
+class RegisterUploadException(Exception):
+    def __init__(self, Code: str, Message: str):
+        super().__init__(f"[{Code}]\n{Message}")
+        self.Code = Code
+        self.Message = Message
 
 
 class FileUtilService(BaseUtilService):
@@ -76,21 +76,30 @@ class FileUtilService(BaseUtilService):
                 Repository.files.fields.Id == upload_id,
                 Repository.files.fields.BrokerErrorLog << traceback_string
             )
+
     @staticmethod
-    def get_update_expr(upload:typing.Dict[typing.AnyStr,typing.Any])->typing.Tuple:
+    def get_update_expr(upload: typing.Dict[typing.AnyStr, typing.Any]) -> typing.Tuple:
         return (
-            Repository.files.fields.NumOfChunksCompleted << upload.get(Repository.files.fields.NumOfChunksCompleted.__name__),
+            Repository.files.fields.NumOfChunksCompleted << upload.get(
+                Repository.files.fields.NumOfChunksCompleted.__name__),
             Repository.files.fields.SizeUploaded << upload.get(Repository.files.fields.SizeUploaded.__name__),
-            Repository.files.fields.Status << upload.get(Repository.files.fields.Status.__name__,0),
+            Repository.files.fields.Status << upload.get(Repository.files.fields.Status.__name__, 0),
             Repository.files.fields.CloudId << upload.get(Repository.files.fields.CloudId.__name__),
-            Repository.files.fields.SizeInHumanReadable <<upload.get(Repository.files.fields.SizeInHumanReadable.__name__),
+            Repository.files.fields.SizeInHumanReadable << upload.get(
+                Repository.files.fields.SizeInHumanReadable.__name__),
             Repository.files.fields.MainFileId << upload.get(Repository.files.fields.MainFileId.__name__),
-            Repository.files.fields.NumOfChunksCompleted << upload.get(Repository.files.fields.NumOfChunksCompleted.__name__),
-            Repository.files.fields.SizeUploaded << upload.get(Repository.files.fields.SizeUploaded.__name__)
+            Repository.files.fields.NumOfChunksCompleted << upload.get(
+                Repository.files.fields.NumOfChunksCompleted.__name__),
+            Repository.files.fields.SizeUploaded << upload.get(Repository.files.fields.SizeUploaded.__name__),
+            Repository.files.fields.FileName << upload.get(Repository.files.fields.FileName.__name__),
+            Repository.files.fields.SizeInBytes << upload.get(Repository.files.fields.SizeInBytes.__name__),
+            Repository.files.fields.ChunkSizeInKB << upload.get(Repository.files.fields.ChunkSizeInKB.__name__),
+            Repository.files.fields.FileExt << upload.get(Repository.files.fields.FileExt.__name__),
+            Repository.files.fields.MimeType << upload.get(Repository.files.fields.MimeType.__name__)
         )
 
-
-    def update_upload(self, app_name:str, upload_id:str, upload: typing.Dict[typing.AnyStr,typing.Any],update_cache_only:bool=False):
+    def update_upload(self, app_name: str, upload_id: str, upload: typing.Dict[typing.AnyStr, typing.Any],
+                      update_cache_only: bool = False):
         """
         Update register info to cache and datbase
         @param app_name:
@@ -133,12 +142,12 @@ class FileUtilService(BaseUtilService):
                 upload["SizeUploaded"] = sum([os.stat(os.path.join(dir_of_chunks, f)).st_size for f in files])
                 upload["SizeUploadedInHumanReadable"] = naturalsize(upload["SizeUploaded"])
                 if upload["SizeInBytes"] == upload["SizeUploaded"]:
-                    if os.path.isdir( f"{real_file_location}.chunks"):
+                    if os.path.isdir(f"{real_file_location}.chunks"):
                         os.rename(f"{real_file_location}.chunks", f"{real_file_location}.chunks.deleting")
-                    if os.path.isdir( f"{real_file_location}.chunks.uploading"):
+                    if os.path.isdir(f"{real_file_location}.chunks.uploading"):
                         os.rename(f"{real_file_location}.chunks.uploading", f"{real_file_location}.chunks")
                     if os.path.isdir(f"{real_file_location}.chunks.deleting"):
-                        shutil.rmtree(f"{real_file_location}.chunks.deleting",ignore_errors=True)
+                        shutil.rmtree(f"{real_file_location}.chunks.deleting", ignore_errors=True)
                     upload["Status"] = 1
                     upload["SizeInHumanReadable"] = naturalsize(upload["SizeUploaded"])
                     update_upload(app_name, upload["_id"], upload)
@@ -193,8 +202,6 @@ class FileUtilService(BaseUtilService):
                 RunInTask=run_in_task
             )
         )
-
-
 
     async def register_new_upload_google_drive_async(self, app_name, from_host, register_data):
         if not self.cloud_service_utils.is_ready_for(app_name=app_name, cloud_name="Google"):
@@ -306,6 +313,7 @@ class FileUtilService(BaseUtilService):
         return dict(
             Data=ret_data
         )
+
     async def register_upload_update_async(self, app_name, from_host, register_data):
         """
 
@@ -361,8 +369,9 @@ class FileUtilService(BaseUtilService):
         version_number += 1
         upload_data[Repository.files.fields.VersionNumber.__name__] = version_number
         chunk_size_in_bytes = chunk_size_in_kb * 1024
-        m_type,_ = mimetypes.guess_type(register_data["FileName"])
-        num_of_chunks = file_size_in_bytes // chunk_size_in_bytes + (1 if file_size_in_bytes % chunk_size_in_bytes > 0 else 0)
+        m_type, _ = mimetypes.guess_type(register_data["FileName"])
+        num_of_chunks = file_size_in_bytes // chunk_size_in_bytes + (
+            1 if file_size_in_bytes % chunk_size_in_bytes > 0 else 0)
         await Repository.files.app(app_name).context.update_async(
             Repository.files.fields.id == register_data["UploadId"],
             Repository.files.fields.SizeInBytes << file_size_in_bytes,
@@ -374,13 +383,13 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.ChunkSizeInBytes << chunk_size_in_bytes,
             Repository.files.fields.SizeUploaded << 0,
             Repository.files.fields.NumOfChunksCompleted << 0,
-            Repository.files.fields.MimeType <<m_type,
+            Repository.files.fields.MimeType << m_type,
             Repository.files.fields.VersionNumber << version_number
 
         )
         key = f"{self.cache_type}/{app_name}/{register_data['UploadId']}"
         self.memcache_service.remove(key)
-        self.clear_cache_file(app_name,upload_id=register_data['UploadId'])
+        self.clear_cache_file(app_name, upload_id=register_data['UploadId'])
 
         return dict(
             Data=dict(
@@ -391,7 +400,8 @@ class FileUtilService(BaseUtilService):
                 SizeInHumanReadable=naturalsize(file_size_in_bytes)
             )
         )
-    async def register_upload_async(self,from_host, app_name, register_data: dict):
+
+    async def register_upload_async(self, from_host, app_name, register_data: typing.Dict[str, typing.Any]):
         """
         Create nw upload before upload content
         :param from_host: when call from FastAOI controller host url of this web API must put here
@@ -401,7 +411,40 @@ class FileUtilService(BaseUtilService):
         """
         try:
             if register_data.get("UploadId"):
-                return  await self.register_upload_update_async(
+                """
+                If register upload with specific UploadID value. That mean we are updating content of material
+                1- The first we need to reset all status of Upload Info except status
+                """
+                upload_item = self.get_upload(
+                    app_name=app_name,
+                    upload_id=register_data.get("UploadId")
+                )
+                if upload_item is None:
+                    raise RegisterUploadException(Code="System",
+                                                  Message="The material was delete or move to another location")
+                upload_item[Repository.files.fields.SizeUploaded.__name__] = 0
+                file_size: int = register_data.get("FileSize")
+                chunk_size_in_kb: int = register_data.get("ChunkSizeInKB")
+                chunk_size = chunk_size_in_kb * 1024
+                num_of_chunks = (file_size // chunk_size) + (1 if file_size % chunk_size > 0 else 0)
+                file_name = register_data.get("FileName")
+                file_ext = pathlib.Path(file_name).suffix[1:].lower()
+                upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] = 0
+                upload_item[Repository.files.fields.NumOfChunks.__name__] = num_of_chunks
+                upload_item[Repository.files.fields.Status.__name__] = 0
+                upload_item[Repository.files.fields.ChunkSizeInKB.__name__] = chunk_size_in_kb
+                upload_item[Repository.files.fields.ChunkSizeInBytes.__name__] = chunk_size
+                upload_item[Repository.files.fields.SizeInBytes.__name__] = file_size
+                upload_item[Repository.files.fields.FileExt.__name__] = file_ext
+                upload_item[Repository.files.fields.FileName.__name__] = file_name
+                mime_type,_ = mimetypes.guess_type(file_name)
+                upload_item[Repository.files.fields.MimeType.__name__] = mime_type
+                self.update_upload(
+                    app_name=app_name,
+                    upload=upload_item,
+                    upload_id=register_data.get("UploadId")
+                )
+                return await self.register_upload_update_async(
                     app_name=app_name,
                     from_host=from_host,
                     register_data=register_data
@@ -421,7 +464,8 @@ class FileUtilService(BaseUtilService):
                 )
             )
 
-    def get_upload(self, app_name, upload_id, cache:bool=True)->typing.Dict[str,typing.Any]|None:
+
+    def get_upload(self, app_name, upload_id, cache: bool = True) -> typing.Dict[str, typing.Any] | None:
         """
         Get upload with cache if cache do not contains data with app and upload_id. The method will get from Mongodb if found item cache will be update to cache
         The first get data from cache if cache is True, get directly from db instead
@@ -432,8 +476,9 @@ class FileUtilService(BaseUtilService):
         if cache:
             data = self.memcache_service.get_dict("v2/" + app_name + "/" + upload_id)
             if isinstance(data, dict) and not data.get("real_file_location"):
-                real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                  data[Repository.files.fields.MainFileId.__name__].split("://")[1].replace('/',os.path.sep)).__str__()
+                real_file_location = os.path.join(config.file_storage_path.replace('/', os.sep),
+                                                  data[Repository.files.fields.MainFileId.__name__].split("://")[1].replace(
+                                                      '/', os.path.sep)).__str__()
                 data["real_file_location"] = real_file_location
                 data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
                 self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
@@ -455,21 +500,24 @@ class FileUtilService(BaseUtilService):
                         """
                         Still support load file in MongoDb if main_file_id is the id of GridFS
                         """
-                        real_file_location=f"mongo://{main_file_id}"
+                        real_file_location = f"mongo://{main_file_id}"
                     elif "://" in main_file_id:
-                        real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                          main_file_id.split("://")[1].replace('/',os.path.sep)).__str__()
-                        if not os.path.isfile(real_file_location) and data.get(Repository.files.fields.StoragePath.__name__):
-                            real_file_location = os.path.join(config.file_storage_path.replace('/',os.sep),
-                                                          main_file_id.split("://")[1].replace('/',os.path.sep)).__str__()
+                        real_file_location = os.path.join(config.file_storage_path.replace('/', os.sep),
+                                                          main_file_id.split("://")[1].replace('/', os.path.sep)).__str__()
+                        if not os.path.isfile(real_file_location) and data.get(
+                                Repository.files.fields.StoragePath.__name__):
+                            real_file_location = os.path.join(config.file_storage_path.replace('/', os.sep),
+                                                              main_file_id.split("://")[1].replace('/',
+                                                                                                   os.path.sep)).__str__()
                     else:
                         return None
 
-
                     data["real_file_location"] = real_file_location
                     data["real_file_dir"] = pathlib.Path(real_file_location).parent.__str__()
-                    data[Repository.files.fields.NumOfChunksCompleted.__name__] = data.get(Repository.files.fields.NumOfChunksCompleted.__name__) or 0
-                    data[Repository.files.fields.SizeUploaded.__name__] = data.get(Repository.files.fields.SizeUploaded.__name__) or 0
+                    data[Repository.files.fields.NumOfChunksCompleted.__name__] = data.get(
+                        Repository.files.fields.NumOfChunksCompleted.__name__) or 0
+                    data[Repository.files.fields.SizeUploaded.__name__] = data.get(
+                        Repository.files.fields.SizeUploaded.__name__) or 0
                     if not real_file_location.startswith("mongo://"):
                         os.makedirs(data["real_file_dir"], exist_ok=True)
                         self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
@@ -497,6 +545,7 @@ class FileUtilService(BaseUtilService):
                 self.memcache_service.set_dict("v2/" + app_name + "/" + upload_id, data)
             return data
 
+
     async def get_content_from_local_async(self, request, app_name, upload_id, content_type, upload):
         """
         get content from local path
@@ -515,7 +564,7 @@ class FileUtilService(BaseUtilService):
         if file_path is None:
             raise FileNotFoundError()
         if file_path.startswith("mongo://"):
-            fs=self.get_fs_mongo(app_name,file_path.split("://")[1])
+            fs = self.get_fs_mongo(app_name, file_path.split("://")[1])
             ret = await streaming_async(
                 fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
             )
@@ -532,14 +581,17 @@ class FileUtilService(BaseUtilService):
             if request.query_params.get('download') is not None:
                 ret.headers["Content-Disposition"] = f"attachment; filename={upload['FileName']}"
             return ret
-    def get_fs_mongo(self,app_name,file_id):
+
+
+    def get_fs_mongo(self, app_name, file_id):
         db = Repository.files.app(app_name).context.collection.database
         from gridfs import GridFS
         fs_obj = GridFS(db)
-        if not isinstance(file_id,bson.ObjectId):
+        if not isinstance(file_id, bson.ObjectId):
             file_id = bson.ObjectId(file_id)
         fs = fs_obj.get(file_id)
         return fs
+
 
     async def get_content_from_google_drive_async(self, request, app_name, upload_id, content_type, upload):
         if upload.get("CloudId"):
@@ -567,6 +619,7 @@ class FileUtilService(BaseUtilService):
                 request=request,
                 upload=upload
             )
+
 
     async def get_file_content_async(self, request, app_name: str, directory: str):
         upload_id = directory.split('/')[0]
@@ -603,7 +656,8 @@ class FileUtilService(BaseUtilService):
                     upload=upload
                 )
 
-    async def get_physical_path_async(self, app_name:str, upload_id:str):
+
+    async def get_physical_path_async(self, app_name: str, upload_id: str):
         """
 
         @param app_name:
@@ -622,35 +676,38 @@ class FileUtilService(BaseUtilService):
             directory = pathlib.Path(ret).parent.__str__()
             if not os.path.isdir(directory):
                 return ret
-            filename="data"
+            filename = "data"
             if upload.get(Repository.files.fields.FileExt.__name__):
-                filename=filename+"."+upload.get(Repository.files.fields.FileExt.__name__)
-            ret = os.path.join(directory, f'{filename}-version-{upload.get(Repository.files.fields.VersionNumber.__name__,1)}')
+                filename = filename + "." + upload.get(Repository.files.fields.FileExt.__name__)
+            ret = os.path.join(directory,
+                               f'{filename}-version-{upload.get(Repository.files.fields.VersionNumber.__name__, 1)}')
             if os.path.isfile(ret):
-                upload[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(app_name,upload,upload[Repository.files.fields.StorageType.__name__],upload[Repository.files.fields.VersionNumber.__name__])
+                upload[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(app_name, upload, upload[
+                    Repository.files.fields.StorageType.__name__], upload[Repository.files.fields.VersionNumber.__name__])
                 upload["real_file_location"] = ret
                 await Repository.files.app(app_name).context.update_async(
-                    Repository.files.fields.id==upload_id,
+                    Repository.files.fields.id == upload_id,
                     Repository.files.fields.MainFileId << upload[Repository.files.fields.MainFileId.__name__]
                 )
                 return ret
 
-
         if not os.path.isfile(ret):
-            ret = ret.lower().replace('(','_').replace(')','_')
+            ret = ret.lower().replace('(', '_').replace(')', '_')
             if os.path.isfile(ret):
-                upload["real_file_location"]=ret
-                self.update_upload(app_name=app_name,upload_id=upload_id,upload=upload,update_cache_only=True)
+                upload["real_file_location"] = ret
+                self.update_upload(app_name=app_name, upload_id=upload_id, upload=upload, update_cache_only=True)
                 return ret
         if not os.path.isfile(ret):
             if os.path.isdir(f'{upload["real_file_location"]}.chunks'):
                 return f'{upload["real_file_location"]}.chunks'
         return ret
 
+
     def clear_cache_file(self, app_name, upload_id):
         self.memcache_service.remove(f"get_upload/{app_name}/{upload_id}")
 
-    async def get_upload_async(self, app_name, upload_id, from_cache=True)->typing.Dict[str,typing.Any]:
+
+    async def get_upload_async(self, app_name, upload_id, from_cache=True) -> typing.Dict[str, typing.Any]:
         if from_cache:
             ret = self.memcache_service.get_dict(f"get_upload/{app_name}/{upload_id}")
             if isinstance(ret, dict):
@@ -672,19 +729,17 @@ class FileUtilService(BaseUtilService):
                 return ret
 
 
-
-
     async def get_upload_by_upload_id_async(self, app_name, upload_id):
         return await Repository.files.app(app_name).context.find_one_async(
             Repository.files.fields.Id == upload_id
         )
 
-    async def save_file_single_thread_async(self,
-                                            app_name:str,
-                                            upload_id:str,
-                                            chunk_index:int,
-                                            content_part)->typing.Dict[str,typing.Any]|None:
 
+    async def save_file_single_thread_async(self,
+                                            app_name: str,
+                                            upload_id: str,
+                                            chunk_index: int,
+                                            content_part) -> typing.Dict[str, typing.Any] | None:
         upload_item = self.get_upload(
             app_name=app_name,
             upload_id=upload_id
@@ -693,15 +748,15 @@ class FileUtilService(BaseUtilService):
         chunk_size_in_kb = upload_item.get(Repository.files.fields.ChunkSizeInKB.__name__)
         num_of_chunks = upload_item.get(Repository.files.fields.NumOfChunks.__name__)
         version_number = upload_item.get(Repository.files.fields.VersionNumber.__name__) or 1
-        mode = "wb" if chunk_index==0 else "ab"
-        tem_file_path = self.generate_main_file_path(app_name=app_name, upload= upload_item,version = version_number)
+        mode = "wb" if chunk_index == 0 else "ab"
+        tem_file_path = self.generate_main_file_path(app_name=app_name, upload=upload_item, version=version_number)
         dir_path = pathlib.Path(tem_file_path).parent.__str__()
-        os.makedirs(dir_path,exist_ok=True)
-        size_uploaded = upload_item.get(Repository.files.fields.SizeUploaded.__name__,0)
+        os.makedirs(dir_path, exist_ok=True)
+        size_uploaded = upload_item.get(Repository.files.fields.SizeUploaded.__name__, 0)
         with open(tem_file_path, mode, encrypt=True, file_size=file_size_in_bytes, chunk_size_in_kb=chunk_size_in_kb) as fs:
             fs.write(content_part)
 
-        if num_of_chunks-1==chunk_index:
+        if num_of_chunks - 1 == chunk_index:
             """
             Finished set real location of file
             """
@@ -710,23 +765,25 @@ class FileUtilService(BaseUtilService):
                 app_name=app_name,
                 upload=upload_item,
                 storage_type="local",
-                version = version_number
+                version=version_number
             )
             upload_item["real_file_location"] = tem_file_path
         num_of_chunks_completed = upload_item.get(Repository.files.fields.NumOfChunksCompleted.__name__, 0)
-        num_of_chunks_completed+=1
-        upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] =num_of_chunks_completed
+        num_of_chunks_completed += 1
+        upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] = num_of_chunks_completed
         upload_item[Repository.files.fields.SizeUploaded.__name__] = size_uploaded + len(content_part)
         del content_part
         self.update_upload(
-            app_name = app_name,
-            upload_id = upload_item.get("_id"),
-            upload = upload_item,
+            app_name=app_name,
+            upload_id=upload_item.get("_id"),
+            upload=upload_item,
 
         )
         return upload_item
 
-    def generate_main_file_id(self, app_name: str, upload: typing.Dict[str, typing.Any], storage_type: str,version:int|None)-> str:
+
+    def generate_main_file_id(self, app_name: str, upload: typing.Dict[str, typing.Any], storage_type: str,
+                              version: int | None) -> str:
         """
         This method generate a info of file location
         1- For local: the path start with local://
@@ -742,7 +799,7 @@ class FileUtilService(BaseUtilService):
         file_name = "data"
         if upload.get(Repository.files.fields.FileExt.__name__):
             file_name = f'{file_name}.{upload.get(Repository.files.fields.FileExt.__name__)}'
-        ext_file ="unknown"
+        ext_file = "unknown"
         if upload.get(Repository.files.fields.FileExt.__name__):
             ext_file = upload.get(Repository.files.fields.FileExt.__name__)[0:3]
         registered_on_iso: str = upload.get(Repository.files.fields.RegisterOn.__name__)
@@ -752,23 +809,26 @@ class FileUtilService(BaseUtilService):
             return f'{storage_type}://{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'
         else:
             return f'{storage_type}://{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'
-    def generate_main_file_path(self, app_name: str, upload: typing.Dict[str, typing.Any], version:int|None)-> str:
 
+
+    def generate_main_file_path(self, app_name: str, upload: typing.Dict[str, typing.Any], version: int | None) -> str:
         # file_name:str = upload.get(Repository.files.fields.FileName.__name__)
         file_name = "data"
         if upload.get(Repository.files.fields.FileExt.__name__):
-            file_name=f'{file_name}.{upload.get(Repository.files.fields.FileExt.__name__)}'
-        file_name = file_name.lower().replace('(','_').replace(')','_')
-        ext_file ="unknown"
+            file_name = f'{file_name}.{upload.get(Repository.files.fields.FileExt.__name__)}'
+        file_name = file_name.lower().replace('(', '_').replace(')', '_')
+        ext_file = "unknown"
         if upload.get(Repository.files.fields.FileExt.__name__):
             ext_file = upload.get(Repository.files.fields.FileExt.__name__)[0:3]
         registered_on_iso: str = upload.get(Repository.files.fields.RegisterOn.__name__)
         registered_on = datetime.fromisoformat(registered_on_iso)
         registered_on_str = registered_on.strftime("%Y/%m/%d")
         if version is None:
-            return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'.replace('/',os.path.sep)
+            return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}'.replace(
+                '/', os.path.sep)
         else:
-            return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'.replace('/',os.path.sep)
+            return f'{config.file_storage_path}/{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'.replace(
+                '/', os.path.sep)
 
 
     async def do_copy_async(self, app_name, upload_id, request):
@@ -788,8 +848,8 @@ class FileUtilService(BaseUtilService):
         source_file_path = await self.get_physical_path_async(app_name, upload_id)
 
         item.id = str(uuid.uuid4())
-        dest_file_path = source_file_path.replace(f'{upload_id}/',f'/{item.id}/')
-        #Copy all file in directory of source_file_path into directory of dest_file_path
+        dest_file_path = source_file_path.replace(f'{upload_id}/', f'/{item.id}/')
+        # Copy all file in directory of source_file_path into directory of dest_file_path
 
         source_dir = os.path.dirname(source_file_path)
         dest_dir = os.path.dirname(dest_file_path)
@@ -810,17 +870,14 @@ class FileUtilService(BaseUtilService):
         item.RegisterOn = datetime.utcnow()
         item[document_context.fields.RegisteredBy] = "root"
 
-
-
         del item[document_context.fields.MainFileId]
         to_location = item[document_context.fields.FullFileNameLower].lower()
         json_data = item.to_json_convertable()
         main_file_id = self.generate_main_file_id(
             app_name=app_name,
-            upload= json_data,
-            version = item[Repository.files.fields.VersionNumber] or 1,
-            storage_type= item[Repository.files.fields.StorageType]
+            upload=json_data,
+            version=item[Repository.files.fields.VersionNumber] or 1,
+            storage_type=item[Repository.files.fields.StorageType]
         )
-        item[Repository.files.fields.MainFileId]= main_file_id
+        item[Repository.files.fields.MainFileId] = main_file_id
         Repository.files.app(app_name).context.insert_one(item)
-

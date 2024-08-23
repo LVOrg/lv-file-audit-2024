@@ -201,7 +201,7 @@ class SearchEngine:
                          page_index: typing.Optional[int],
                          highlight: typing.Optional[bool],
                          privileges: typing.Optional[dict],
-                         sort: typing.List[str] = ["data_item.RegisterOn:desc"],
+                         sort: typing.List[str]|None = None,
                          logic_filter=None):
         """
         There are many ways to search in Elasticsearch \n
@@ -227,55 +227,36 @@ class SearchEngine:
         :param logic_filter:
         :return:
         """
-        content = content or ""
-        original_content = content
+        if sort is None:
+            sort = ["data_item.RegisterOn:desc"]
+
 
         if isinstance(privileges, dict):
             privileges = cy_es.text_lower(privileges)
-        # content = self.vn_predictor.get_text(content)
-        # content = original_content + " " + content
-        # content_boots = self.vn.parse_word_segment(content=content, boot=[3])
+
 
         search_expr = (cy_es.buiders.mark_delete == False) | (cy_es.buiders.mark_delete == None)
         if privileges is not None and privileges != {}:
-            search_expr = search_expr & cy_es.create_filter_from_dict(
-                filter=
-                cy_es.nested(
-                    field_name="privileges",
+            wrapper_filter =   cy_es.nested(
+                    prefix="",
                     filter=privileges
-                ),
-                suggest_handler=self.vn_predictor.get_text
+                )
+            search_expr = search_expr & cy_es.create_filter_from_dict(
+                expr =  wrapper_filter,
+
             )
-        # if content is not None and content != "" and content.lstrip().rstrip().strip() != "":
-        #     content_search_match_phrase = cy_es.match_phrase(
-        #         field=getattr(cy_es.buiders, "content"),
-        #         content=content,
-        #         boost=0.01,
-        #         # slop=1,
-        #         # analyzer="stop"
-        #
-        #     )
-        #
-        #     qr = cy_es.query_string(
-        #         fields=[getattr(cy_es.buiders, f"{self.get_content_field_name()}_seg")],
-        #         query=content_boots
-        #         # slop=1
-        #
-        #     )
-        #
-        #     search_expr = search_expr & (content_search_match_phrase | qr)
-        # search_expr.set_minimum_should_match(1)
+
         skip = page_index
         highlight_expr = None
         if highlight:
             """
             "highlight": {
-    "require_field_match": "false",
-    "fields": {
-      "title": {},
-      "email": {}
-    }
-  }
+                "require_field_match": "false",
+                "fields": {
+                  "title": {},
+                  "email": {}
+                }
+              }
             """
             highlight_expr = [
                 getattr(cy_es.buiders, f"content"),
