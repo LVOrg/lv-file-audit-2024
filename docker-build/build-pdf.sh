@@ -26,13 +26,13 @@ fi
 rm -f $build_file
 echo "
 FROM python:3.10.13-bullseye
-COPY ./../venv-remote-pdf/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY ./../venv-fdf-image/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 COPY ./../remote_server_libs /remote_server_libs
 COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 RUN apt clean && apt autoclean
 ENTRYPOINT [\"/remote_server_libs/pdf.sh\"]
 ">>$build_file
-ocr_core_tag=4
+ocr_core_tag=5
 
 
 #ocr_core_image="$repository/fs:"$ocr_core_tag_build

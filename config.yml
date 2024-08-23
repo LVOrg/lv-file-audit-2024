@@ -47,7 +47,7 @@ ext_office_file: [
                    sql,log,email,eml,emlx,msg,oft,ost,pst,vcf,bat,py,pl,
                    sh,asp,aspx,cs,csx,css,htm,js,jsp,php,rss,xhtml,key,opd,pps,odtc,class,
                    cpp,h,java,swift,vb,vbx,ods,wpd,rtf,tex,
-                   docx,doc,xls,xlsx,txt,pdf,ppx,pptx,json,psd,html,xml,js,otg,svg,vsd,
+                   docx,doc,xls,xlsx,txt,pdf,ppt,ppx,pptx,json,psd,html,xml,js,otg,svg,vsd,
                     odt,csv,db,doc,docx,dotx,fodp,fods,fodt,mml,odb,odf,odg,odm,odp,ods,otg,otp,ots,ott,oxt,
                     pptx,psw,sda,sdc,sdd,sdp,sdw,slk,smf,stc ,
                     std,sti,stw,sxc,sxg,sxi,sxm,uof,uop,uos,uot
@@ -83,16 +83,16 @@ clouds_support:
 
 # below settings are subsidiaries
 remote_office: http://172.16.7.99:32261
-remote_office_: http://localhost:8017
-remote_pdf: http://172.16.7.99:32263
+remote_pdf_: http://172.16.7.99:32263
+remote_pdf: http://172.16.13.72:8001
 remote_video: http://172.16.7.99:32264
 remote_ocr: http://172.16.7.99:32266
 tika_server: http://172.16.7.99:32265
 remote_thumb_: http://172.16.7.99:32267
 remote_thumb: http://172.16.7.99:32267
 
-private_web_api: http://172.16.13.72:8012/lvfile
-
+private_web_api_: http://172.16.13.72:8012/lvfile
+private_web_api: http://172.16.7.99/lvfile
 #content_service: http://172.16.13.72:8087
 #generation:
 #default_tenant: test-sync-file

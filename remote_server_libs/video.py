@@ -20,13 +20,23 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
 app = FastAPI()
-from remote_server_libs.utils import libs
-import cy_file_cryptor.context
-
-import cy_file_cryptor.wrappers
-import io
+import requests
 from remote_server_libs.utils.video2image import get_image
+def upload_file(url_upload_file, thumb_file_path):
+  """Uploads a file to a given URL.
 
+  Args:
+    url_upload_file: The URL endpoint for file upload.
+    thumb_file_path: The path to the file to be uploaded.
+
+  Returns:
+    The response from the server.
+  """
+
+  files = {'content': open(thumb_file_path, 'rb')}
+  response = requests.post(url_upload_file, files=files)
+  ret= response.json()
+  return ret
 @app.get("/hz")
 async def hz():
     return "OK"
@@ -34,26 +44,22 @@ async def hz():
 
 @app.post("/get-image")
 async def image_from_pdf(
-        local_file: typing.Optional[str] = Body(embed=True, default=None),
-        remote_file: typing.Optional[str] = Body(embed=True, default=None),
-        memcache_server: str = Body(embed=True)
+        download_url: typing.Optional[str] = Body(embed=True, default=None),
+        upload_url: typing.Optional[str] = Body(embed=True, default=None)
 
 ):
-    import cy_file_cryptor.context
-    memcache_server = os.getenv("MEMCACHED_SERVER") or memcache_server
-    cy_file_cryptor.context.set_server_cache(memcache_server)
-    dir_of_file = temp_processing_file
-    process_file = None
-
-    image_of_video_file = get_image(remote_file,temp_processing_file)
 
 
-
+    temp_path = "/tmp/download"
+    os.makedirs(temp_path,exist_ok=True)
+    image_of_video_file = get_image(download_url,temp_path)
+    upload_file(upload_url,image_of_video_file)
+    os.remove(image_of_video_file)
     if os.path.isfile(image_of_video_file):
 
         return dict(image_file=image_of_video_file, content_file=None)
     else:
-        return dict(error=dict(code="CanNotRender", message=f"{local_file} or {remote_file} can not render"))
+        return dict(error=dict(code="CanNotRender", message=f"{download_url} can not render"))
 
 
 if __name__ == "__main__":

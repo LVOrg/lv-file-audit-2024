@@ -1,4 +1,7 @@
+import threading
+
 import requests
+from cyx.common import config
 class RemoteCallerService:
     def __init__(self):
         pass
@@ -40,3 +43,33 @@ class RemoteCallerService:
         except:
             print(response.text)
             return dict(error=dict(Code="RemoteERR500",Description=response.text))
+
+    def get_image_from_pdf(self, download_url, upload_url):
+        uri:str = f'{config.remote_pdf}/get-image'
+        def running():
+            response = requests.post(uri , json=dict(
+                download_url = download_url,
+                upload_url = upload_url
+            ))
+            try:
+                return response.json()
+            except:
+                print(response.text)
+                return dict(error=dict(Code="RemoteERR500", Description=response.text))
+        threading.Thread(target=running).start()
+
+    def get_image_from_video(self, download_url, upload_url):
+        uri: str = f'{config.remote_video}/get-image'
+
+        def running():
+            response = requests.post(uri, json=dict(
+                download_url=download_url,
+                upload_url=upload_url
+            ))
+            try:
+                return response.json()
+            except:
+                print(response.text)
+                return dict(error=dict(Code="RemoteERR500", Description=response.text))
+
+        threading.Thread(target=running).start()

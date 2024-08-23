@@ -292,92 +292,46 @@ class ThumbService:
         os.remove(from_file)
 
     def run_generate_image(self, file_type, file_process,server_file,size,cache_key,app_name,upload_id, is_in_thred):
-        def running(abs_file_path,server_file,size,key):
-            upload_image_url = self.local_api_service.get_upload_path_by_upload_id(
-                upload_id=upload_id,
+        def running():
+            upload_item = self.file_util_service.get_upload(
+                app_name = app_name,
+                upload_id = upload_id
+            )
+            real_file_path = self.file_util_service.get_physical_path(app_name=app_name,
+                                                                                  upload_id=upload_item.get("_id"))
+            file_name = pathlib.Path(real_file_path).name
+            upload_url = self.local_api_service.get_upload_path(
+                upload_item=upload_item,
                 app_name=app_name,
+                file_name=f'{file_name}',
                 file_ext="png"
 
             )
-            download_content_url = self.local_api_service.get_download_path_by_upload_id(
-                upload_id=upload_id,
+            download_url, _, _, _, _ = self.local_api_service.get_download_path(
+                upload_item=upload_item,
                 app_name=app_name
             )
 
 
             if file_type=="office":
-                data = self.remote_caller_service.get_image_from_office(
+
+                self.remote_caller_service.get_image_from_office(
                     url_of_office_to_image_service=f"{config.remote_office}",
-                    url_upload_file=upload_image_url,
-                    url_of_content=download_content_url
+                    url_upload_file=upload_url,
+                    url_of_content=download_url
                 )
-                if data.get("error"):
-                    print(json.dumps(data.get("error"),indent=4))
-                    del data
-                    self.malloc_service.reduce_memory()
-                    return
-                if data.get("image_file"):
-                    office_image_file=data.get("image_file")
-                    self.move_to_storage(
-                        from_file=office_image_file,
-                        to_file = f"{abs_file_path}.png"
-                    )
 
-                    ret = self.do_scale_size(file_path=f"{abs_file_path}.png", size=size)
-                    self.memcache_services.set_str(key, ret)
-                    return ret
-            if file_type=="pdf":
-                data = self.remote_caller_service.get_image_from_office(
-                    url_of_office_to_image_service=f"{config.remote_office}",
-                    url_upload_file=upload_image_url,
-                    url_of_content=download_content_url
+            elif file_type=="pdf":
+                self.remote_caller_service.get_image_from_pdf(
+                    download_url=download_url,
+                    upload_url=upload_url
                 )
-                if data.get("error"):
-                    print(json.dumps(data.get("error"), indent=4))
-                    del data
-                    self.malloc_service.reduce_memory()
-                    return
-            if file_type=="video":
-                data = self.remote_caller_service.get_image_from_office(
-                    url=f"{config.remote_video}",
-                    local_file=abs_file_path,
-                    remote_file=server_file,
-                    memcache_server=config.cache_server
+            elif file_type=="video":
+                self.remote_caller_service.get_image_from_video(
+                    download_url=download_url,
+                    upload_url=upload_url
                 )
-                if data.get("image_file"):
-                    video_image_file=data.get("image_file")
-                    self.move_to_storage(
-                        from_file=video_image_file,
-                        to_file = f"{abs_file_path}.png"
-                    )
-
-                    ret = self.do_scale_size(file_path=f"{abs_file_path}.png", size=size)
-                    self.memcache_services.set_str(key, ret)
-                    return ret
-
-        def running_if_fail_raise_message(abs_file_path,server_file,size,key):
-
-            try:
-                running(abs_file_path, server_file, size, key)
-            except Exception as ex:
-                upload = Repository.files.app(app_name).context.find_one(
-                    Repository.files.fields.Id==upload_id
-                )
-                if not upload:
-                    return
-                self.msg.emit(
-                    app_name=app_name,
-                    data=upload,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_IMAGE
-                )
-                print(traceback.format_exc())
-        if is_in_thred:
-            th=threading.Thread(target=running_if_fail_raise_message,args=(file_process,server_file,size,cache_key,))
-            th.start()
-        else:
-            running_if_fail_raise_message(
-                file_process,server_file,size,cache_key
-            )
+        threading.Thread(target=running).start()
 
 
 

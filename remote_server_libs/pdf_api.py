@@ -20,12 +20,47 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
 app = FastAPI()
-from remote_server_libs.utils import libs
-import cy_file_cryptor.context
-
-import cy_file_cryptor.wrappers
-import io
+import requests
 from fastapi import Request, HTTPException, Response
+from remote_server_libs.utils.pdf2image import get_image
+def upload_file(url_upload_file, thumb_file_path):
+  """Uploads a file to a given URL.
+
+  Args:
+    url_upload_file: The URL endpoint for file upload.
+    thumb_file_path: The path to the file to be uploaded.
+
+  Returns:
+    The response from the server.
+  """
+
+  files = {'content': open(thumb_file_path, 'rb')}
+  response = requests.post(url_upload_file, files=files)
+  ret= response.json()
+  return ret
+def download_file(url,out_put_dir):
+
+    """Downloads a file from the given URL to the specified output path.
+
+    Args:
+      url: The URL of the file to download.
+      output_path: The local path where the file should be saved.
+      :param url:
+      :param output_path:
+    """
+    try:
+        file_name = hashlib.sha256(url.encode('utf8')).hexdigest()
+        file_ext = pathlib.Path(url.split("?")[0]).suffix
+        output_path = os.path.join(out_put_dir,file_name+file_ext)
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        with open(output_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        return output_path, None
+    except Exception as ex:
+        return None, dict(error=dict(code="CanNotDownloadFile", message= traceback.format_exc()))
 @app.middleware("http")
 async def log_request(request: Request, call_next):
     """Logs information about incoming requests."""
@@ -40,7 +75,7 @@ async def log_request(request: Request, call_next):
         print(traceback.format_exc())
         return Response(content=traceback.format_exc(),status_code=500)
 
-
+temp_dir = "/tmp/download"
 @app.get("/hz")
 async def hz():
     return "OK"
@@ -48,45 +83,19 @@ async def hz():
 
 @app.post("/get-image")
 async def image_from_pdf(
-        local_file: typing.Optional[str] = Body(embed=True, default=None),
-        remote_file: typing.Optional[str] = Body(embed=True, default=None),
-        memcache_server: str = Body(embed=True)
+        download_url: typing.Optional[str] = Body(embed=True, default=None),
+        upload_url: typing.Optional[str] = Body(embed=True, default=None)
 
 ):
-    import cy_file_cryptor.context
-    memcache_server= os.getenv("MEMCACHED_SERVER") or memcache_server
-    cy_file_cryptor.context.set_server_cache(memcache_server)
-    dir_of_file = temp_processing_file
-    process_file = None
 
-
-    if process_file is None:
-        """
-        Download file from server
-        """
-        if remote_file.startswith("http://") or remote_file.startswith("https://"):
-            hash_object = hashlib.sha256(remote_file.encode())
-            load_file_name = hash_object.hexdigest()
-            process_file = f"{load_file_name}{pathlib.Path(local_file).suffix}"
-            process_file, error = download_file.download_file_with_progress(
-                url=remote_file, filename=process_file
-            )
-            if error:
-                return error
-    if process_file is None:
-        return dict(code="FileNotFound", message="File was not found")
-    """
-    Make an image from pdf file
-    """
-    image_of_pdf_file = get_image(process_file,temp_processing_file)
-    process_file_name = pathlib.Path(process_file).stem
-
-    ret_file = os.path.join(dir_of_file, process_file_name) + ".png"
-    if os.path.isfile(ret_file):
-        os.remove(process_file)
-        return dict(image_file=ret_file, content_file=process_file)
-    else:
-        return dict(error=dict(code="CanNotRender", message=f"{local_file} or {remote_file} can not render"))
+    os.makedirs(temp_dir,exist_ok=True)
+    ret_file,error = download_file(download_url,temp_dir)
+    if error:
+        return error
+    image_file = get_image(ret_file,temp_dir)
+    upload_file(upload_url, image_file)
+    os.remove(ret_file)
+    return ret_file
 
 
 if __name__ == "__main__":

@@ -197,6 +197,8 @@ class LocalAPIService:
             sub_dir = file_ext_of_upload[0:3]
 
         server_file = f"{config.private_web_api}/api/sys/admin/content-write/{register_app_dir}/{sub_dir}/{upload_item.get('_id')}/{file_name}"
+        if file_ext:
+            server_file = f'{server_file}.{file_ext}'
 
         if not upload_item.get("local_share_id"):
             token = self.get_access_token("admin/root", "root")

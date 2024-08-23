@@ -656,8 +656,7 @@ class FileUtilService(BaseUtilService):
                     upload=upload
                 )
 
-
-    async def get_physical_path_async(self, app_name: str, upload_id: str):
+    def get_physical_path(self, app_name: str, upload_id: str):
         """
 
         @param app_name:
@@ -685,7 +684,7 @@ class FileUtilService(BaseUtilService):
                 upload[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(app_name, upload, upload[
                     Repository.files.fields.StorageType.__name__], upload[Repository.files.fields.VersionNumber.__name__])
                 upload["real_file_location"] = ret
-                await Repository.files.app(app_name).context.update_async(
+                Repository.files.app(app_name).context.update(
                     Repository.files.fields.id == upload_id,
                     Repository.files.fields.MainFileId << upload[Repository.files.fields.MainFileId.__name__]
                 )
@@ -701,6 +700,14 @@ class FileUtilService(BaseUtilService):
             if os.path.isdir(f'{upload["real_file_location"]}.chunks'):
                 return f'{upload["real_file_location"]}.chunks'
         return ret
+    async def get_physical_path_async(self, app_name: str, upload_id: str):
+        """
+
+        @param app_name:
+        @param upload_id:
+        @return:
+        """
+        return self.get_physical_path(app_name,upload_id)
 
 
     def clear_cache_file(self, app_name, upload_id):

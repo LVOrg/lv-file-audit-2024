@@ -1,4 +1,4 @@
-
+import pathlib
 import typing
 
 from cyx.repository import Repository
@@ -299,6 +299,39 @@ class FilesUploadController(BaseController):
                     upload_id=UploadId,
                     data=upload_item
                 )
+                ext_file = (upload_item.get(Repository.files.fields.FileExt.__name__) or "").lower()
+                download_url,_,_,_,_ = self.local_api_service.get_download_path(
+                    upload_item = upload_item,
+                    app_name = app_name
+                )
+                real_file_path = await self.file_util_service.get_physical_path_async(app_name=app_name,upload_id=upload_item.get("_id"))
+                file_name = pathlib.Path(real_file_path).name
+                upload_url = self.local_api_service.get_upload_path(
+                    upload_item = upload_item,
+                    app_name = app_name,
+                    file_name = f'{file_name}',
+                    file_ext = "png"
+
+
+                )
+                m_t, _ = mimetypes.guess_type(f"a.{ext_file}")
+                if ext_file =="pdf":
+                    self.remote_caller_service.get_image_from_pdf(
+                        download_url = download_url,
+                        upload_url = upload_url
+                    )
+                elif ext_file in config.ext_office_file:
+                    self.remote_caller_service.get_image_from_office(
+                        url_of_content=download_url,
+                        url_upload_file=upload_url,
+                        url_of_office_to_image_service= config.remote_office
+                    )
+                elif m_t.startswith("video/"):
+                    self.remote_caller_service.get_image_from_video(
+                        download_url=download_url,
+                        upload_url=upload_url
+                    )
+
                 map = {
                     "onedrive": "Azure",
                     "google-drive": "Google",
