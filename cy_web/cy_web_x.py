@@ -1,10 +1,6 @@
-import gc
+from cy_file_cryptor.wrappers import cy_open_file
 import mimetypes
-import pathlib
-import time
-import os
-from yaml import SafeDumper
-import typing
+
 mime_data = {}
 mime_data[".323"] = "text/h323"
 mime_data[".3g2"] = "video/3gpp2"
@@ -1403,7 +1399,7 @@ def cache_content(relative_folder: str, file_name, content: bytes) ->typing.Opti
             file_cache = os.path.join(file_cache, file_name)
             if not os.path.isfile(file_cache):
                 if isinstance(content,bytes):
-                    with open(file_cache, "wb") as f:
+                    with cy_open_file(file_cache, "wb") as f:
                         f.write(content)
                 else:
                     return  None
@@ -1656,12 +1652,14 @@ async def streaming_async(fsg, request, content_type, streaming_buffering=1024 *
             file_size = os.stat(fsg).st_size
             if not content_type:
                 content_type,_ = mimetypes.guess_type(fsg)
-            fsg = open(fsg, "rb")
+            fsg = cy_open_file(fsg, "rb")
         else:
             raise FileNotFoundError("File was not found")
     else:
         if hasattr(fsg,"get_size"):
             file_size = fsg.get_size()
+        elif not hasattr(fsg,"length") and hasattr(fsg,"name") and os.path.isfile(fsg.name):
+            file_size = os.stat(fsg.name).st_size
         else:
             file_size = fsg.length
 

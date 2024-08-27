@@ -86,7 +86,7 @@ while row_count>0:
             if doc_type == "pdf":
                 extract_content_service.update_by_using_ocr_pdf(
                     download_url=download_url,
-                    rel_path=rel_path,
+
                     data=data_item,
                     app_name=app_name
                 )

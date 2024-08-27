@@ -283,70 +283,66 @@ class GDriveService:
             return None, error
         return ret, None
 
-    def sync_to_drive(self, app_name, upload_item) -> dict | None:
-        download_url, rel_path, download_file, token, share_id = self.local_api_service.get_download_path(upload_item,
-                                                                                                          app_name)
-
-        def running():
-            g_token, error = self.get_access_token_from_refresh_token(app_name)
-            if error:
-                Repository.cloud_file_sync.app(app_name=app_name).context.update(
-                    Repository.cloud_file_sync.fields.UploadId == upload_item.Id,
-                    Repository.cloud_file_sync.fields.IsError << True,
-                    Repository.cloud_file_sync.fields.ErrorContent << json.dumps(error, indent=4)
-                )
-
-            full_path = os.path.join("/mnt/files", rel_path)
-            client_id, secret_key, email, error = self.get_id_and_secret(app_name)
-            process_services_host = config.process_services_host or "http://localhost"
-
-            url_google_upload = upload_item.url_google_upload
-            google_file_id = upload_item.google_file_id
-            try:
-                txt_json = json.dumps(dict(
-                    token=g_token,
-                    file_path=full_path,
-                    app_name=app_name,
-                    url_google_upload=url_google_upload,
-                    google_file_id=google_file_id,
-                    client_id=client_id,
-                    secret_key=secret_key,
-                    google_file_name=upload_item.FileName,
-                    memcache_server=config.cache_server,
-                    folder_id=upload_item.google_folder_id,
-
-                    #config.cache_server
-
-                ))
-                print(txt_json)
-                client = Client(f"{process_services_host}:1116/")
-                result = client.predict(
-                    txt_json,
-                    api_name="/predict"
-                )
-                Repository.files.app(app_name).context.update(
-                    Repository.files.fields.Id == upload_item.Id,
-                    Repository.files.fields.CloudId << result
-
-                )
-
-                upload_item[Repository.files.fields.CloudId] = result
-                self.file_services.cache_upload_register_set(upload_item.Id, upload_item)
-                Repository.cloud_file_sync.app(app_name=app_name).context.delete(
-                    Repository.cloud_file_sync.fields.UploadId == upload_item.Id
-                )
-                try:
-                    os.remove(full_path)
-                except:
-                    pass
-            except Exception as ex:
-                Repository.cloud_file_sync.app(app_name=app_name).context.update(
-                    Repository.cloud_file_sync.fields.UploadId == upload_item.Id,
-                    Repository.cloud_file_sync.fields.IsError << True,
-                    Repository.cloud_file_sync.fields.ErrorContent << repr(ex)
-                )
-
-        threading.Thread(target=running).start()
+    # def sync_to_drive(self, app_name, upload_item) -> dict | None:
+    #     download_url, rel_path, download_file, token, share_id = self.local_api_service.get_download_path(upload_item,
+    #                                                                                                       app_name)
+    #
+    #     def running():
+    #         g_token, error = self.get_access_token_from_refresh_token(app_name)
+    #         if error:
+    #             Repository.cloud_file_sync.app(app_name=app_name).context.update(
+    #                 Repository.cloud_file_sync.fields.UploadId == upload_item.Id,
+    #                 Repository.cloud_file_sync.fields.IsError << True,
+    #                 Repository.cloud_file_sync.fields.ErrorContent << json.dumps(error, indent=4)
+    #             )
+    #
+    #         full_path = os.path.join("/mnt/files", rel_path)
+    #         client_id, secret_key, email, error = self.get_id_and_secret(app_name)
+    #         process_services_host = config.process_services_host or "http://localhost"
+    #
+    #         url_google_upload = upload_item.url_google_upload
+    #         google_file_id = upload_item.google_file_id
+    #         try:
+    #             txt_json = json.dumps(dict(
+    #                 token=g_token,
+    #                 file_path=full_path,
+    #                 app_name=app_name,
+    #                 url_google_upload=url_google_upload,
+    #                 google_file_id=google_file_id,
+    #                 client_id=client_id,
+    #                 secret_key=secret_key,
+    #                 google_file_name=upload_item.FileName,
+    #                 memcache_server=config.cache_server,
+    #                 folder_id=upload_item.google_folder_id,
+    #
+    #                 #config.cache_server
+    #
+    #             ))
+    #
+    #
+    #             Repository.files.app(app_name).context.update(
+    #                 Repository.files.fields.Id == upload_item.Id,
+    #                 Repository.files.fields.CloudId << result
+    #
+    #             )
+    #
+    #             upload_item[Repository.files.fields.CloudId] = result
+    #             self.file_services.cache_upload_register_set(upload_item.Id, upload_item)
+    #             Repository.cloud_file_sync.app(app_name=app_name).context.delete(
+    #                 Repository.cloud_file_sync.fields.UploadId == upload_item.Id
+    #             )
+    #             try:
+    #                 os.remove(full_path)
+    #             except:
+    #                 pass
+    #         except Exception as ex:
+    #             Repository.cloud_file_sync.app(app_name=app_name).context.update(
+    #                 Repository.cloud_file_sync.fields.UploadId == upload_item.Id,
+    #                 Repository.cloud_file_sync.fields.IsError << True,
+    #                 Repository.cloud_file_sync.fields.ErrorContent << repr(ex)
+    #             )
+    #
+    #     threading.Thread(target=running).start()
 
     def get_access_token_from_access_token(self, app_name, nocache=False) -> typing.Tuple[str | None, dict | None]:
         """

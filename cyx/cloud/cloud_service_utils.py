@@ -10,19 +10,12 @@ from cyx.cloud.cloud_file_sync_service import FileSync
 
 
 class CloudServiceUtils:
-    def __init__(self,
-                 memcache_service: MemcacheServices = cy_kit.singleton(MemcacheServices),
-                 mail_service: MailService = cy_kit.singleton(MailService),
-                 drive_service: DriveService = cy_kit.singleton(DriveService),
-                 file_sync: FileSync = cy_kit.singleton(FileSync)
-                 ):
-        self.memcache_service = memcache_service
-        self.mail_service = mail_service
-        self.drive_service = drive_service
-        """
-        Drive service for google-drive and onedrive
-        """
-        self.file_sync = file_sync
+    memcache_service: MemcacheServices = cy_kit.singleton(MemcacheServices)
+    mail_service: MailService = cy_kit.singleton(MailService)
+    drive_service: DriveService = cy_kit.singleton(DriveService)
+    file_sync: FileSync = cy_kit.singleton(FileSync)
+    def __init__(self):
+
         self.cache_key = f"{type(self).__module__}/{type(self).__name__}/check-ready"
 
     def cache_delete(self, app_name):

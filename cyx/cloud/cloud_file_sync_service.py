@@ -8,14 +8,10 @@ from cyx.repository import Repository
 from cyx.common.brokers import Broker
 from cyx.common import msg
 class FileSync:
-    def __init__(self,
-                 azure:CloudFileSyncServiceAzure=cy_kit.singleton(CloudFileSyncServiceAzure),
-                 google: CloudFileSyncServiceGoogle=cy_kit.singleton(CloudFileSyncServiceGoogle),
-                 msg:Broker = cy_kit.singleton(Broker)
-                 ):
-        self.azure=azure
-        self.google=google
-        self.msg = msg
+    azure: CloudFileSyncServiceAzure = cy_kit.singleton(CloudFileSyncServiceAzure)
+    google: CloudFileSyncServiceGoogle = cy_kit.singleton(CloudFileSyncServiceGoogle)
+    msg: Broker = cy_kit.singleton(Broker)
+
     def do_sync(self, app_name:str, cloud_name:str, upload_item:typing.Dict[str,typing.Any]):
         cloud_file_sync_content=Repository.cloud_file_sync.app(app_name=app_name)
         cloud_file_sync_item = cloud_file_sync_content.context.find_one(

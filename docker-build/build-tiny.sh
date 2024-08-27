@@ -44,10 +44,11 @@ web_api_file="web-api"
 rm -f $web_api_file
 du -sh $(pwd)/../env_webapi/lib/python3.10/site-packages/* | sort -h
 echo "ARG BASE
-FROM $web_api_core_image
-#FROM python:3.10.13-bullseye
+#FROM $web_api_core_image
+FROM python:3.12.5-bullseye
 ARG TARGETARCH
 ARG OS
+COPY ./../web-api-312/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 #COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 ENV PRODUCTION_BUILT_ON=\"$(date +"%Y-%m-%d %H:%M:%S")\"
 ENV BUILD_IMAGE_TAG=\"$web_api_core_tag_build\"

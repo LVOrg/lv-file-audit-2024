@@ -218,10 +218,7 @@ class FilesUploadController(BaseController):
 
         threading.Thread(target=post_msg_upload, args=()).start()
 
-    @controller.route.post(
-        "/api/{app_name}/files/upload" if not version2 else "/api/{app_name}/files/upload_old", summary="Upload file",
-        tags=["FILES"]
-    )
+
     async def upload_async_debug(self,
                            app_name: str,
                            UploadId: Annotated[str, Form()],
@@ -243,7 +240,10 @@ class FilesUploadController(BaseController):
                 status_code=500
             )
 
-
+    @controller.route.post(
+        "/api/{app_name}/files/upload" if not version2 else "/api/{app_name}/files/upload_old", summary="Upload file",
+        tags=["FILES"]
+    )
     async def upload_async(self,
                            app_name: str,
                            UploadId: Annotated[str, Form()],
@@ -287,13 +287,14 @@ class FilesUploadController(BaseController):
                     skip_action.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
                     skip_action.get("All", False) == False
             )):
-                await self.update_search_engine_async(
-                    app_name=app_name,
-                    id=UploadId,
-                    content="",
-                    data_item=upload_item,
-                    update_meta=False
-                )
+                if not isinstance(config.elastic_search,bool):
+                    await self.update_search_engine_async(
+                        app_name=app_name,
+                        id=UploadId,
+                        content="",
+                        data_item=upload_item,
+                        update_meta=False
+                    )
                 await self.post_msg_upload_file_async(
                     app_name=app_name,
                     upload_id=UploadId,

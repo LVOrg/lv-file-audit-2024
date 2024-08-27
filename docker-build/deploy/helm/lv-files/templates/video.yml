@@ -1,5 +1,5 @@
 {{- $appName := "lv-video" }}
-  {{- $image :="nttlong/lv-video:5.2"}}
+  {{- $image :="nttlong/lv-video:5.3"}}
 {{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "video") }}
 ---
 apiVersion: apps/v1
@@ -58,3 +58,4 @@ spec:
   {{ end }}
   selector:
     app: {{$appName}}
+  

@@ -1,16 +1,16 @@
-import datetime
+
 import os.path
-import traceback
+
 import typing
 
 from cyx.common import config
-from cyx.common import get_doc_type
+
 from cyx.common.brokers import Broker
 import cy_kit
 import cyx.common.msg
 import cy_utils
 from cyx.local_api_services import LocalAPIService
-from cyx.repository import Repository
+
 import cy_utils.texts
 from cy_xdoc.services.search_engine import SearchEngine
 from cyx.processing_file_manager_services import ProcessManagerService
@@ -91,7 +91,30 @@ class ExtractContentService:
             raise ex
         finally:
             self.malloc_service.reduce_memory()
-    def get_content_from_pdf_ocr(self, tika_server, url_content)->typing.Tuple[str,typing.Union[dict,str]]:
+    def get_url(self)->str:
+        return config.remote_ocr
+    def health_check_ocr(self,timeout_in_second: int=2) -> bool:
+        """
+        Checks the health of the remote OCR service.
+
+        Args:
+            timeout_in_second: Maximum time to wait for a response before considering the check failed.
+
+        Returns:
+            True if the service is healthy, False otherwise.
+        """
+
+        url = f"{config.remote_ocr}/hz"
+
+        try:
+            response = requests.get(url, timeout=timeout_in_second)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            return True
+        except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
+            print(f"Failed to connect to remote OCR service: {e}")
+            return False
+
+    def get_content_from_pdf_ocr(self, tika_server, url_content)->typing.Tuple[str|None,typing.Union[dict,str]]:
         data = {
             "tika_server": tika_server,
             "remote_file": url_content
@@ -110,7 +133,7 @@ class ExtractContentService:
             return  ret_data.get("result"), None
         # Check for successful response
 
-    def update_by_using_ocr_pdf(self, download_url, rel_path, data, app_name):
+    def update_by_using_ocr_pdf(self, download_url,  data, app_name):
         tika_server = config.tika_server
         content,error = self.get_content_from_pdf_ocr(tika_server=tika_server,url_content= download_url)
         if not error:

@@ -1,5 +1,5 @@
 {{- $appName := "lv-pdf" }}
-{{- $image :="nttlong/lv-pdf:4"}}
+{{- $image :="nttlong/lv-pdf:5"}}
   {{ $hasNodePort := and (hasKey .Values "nodePort") (hasKey (index .Values "nodePort") "pdf") }}
 {{- $memcacheKey :="MEMCACHED_SERVER"}}
 ---

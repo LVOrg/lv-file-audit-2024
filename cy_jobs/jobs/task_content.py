@@ -1,7 +1,7 @@
 import datetime
 import sys
 import pathlib
-import threading
+
 import traceback
 
 sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
@@ -16,18 +16,18 @@ from cyx.repository import Repository
 import cyx.common.msg
 from cyx.rabbit_utils import Consumer, MesssageBlock
 
-from cyx.common import config
+
 import cy_utils
 from cyx.extract_content_service import ExtractContentService
-from cyx.common.rabitmq_message import RabitmqMsg
+
 import json
 import pathlib
 
-extract_content_service = cy_kit.singleton(ExtractContentService)
+extract_content_service:ExtractContentService = cy_kit.singleton(ExtractContentService)
 
-from cy_jobs.cy_job_libs import screen_logs_cache, screen_logs,print_screen_logs
+
 from cyx.logs_to_mongo_db_services import LogsToMongoDbService
-logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
+logs_to_mongo_db_service:LogsToMongoDbService = cy_kit.singleton(LogsToMongoDbService)
 def run():
     print("run")
     consumer = Consumer(cyx.common.msg.MSG_FILE_GENERATE_CONTENT)
@@ -41,6 +41,7 @@ def run():
                 file_item = {}
                 app_name = msg.app_name
                 upload_item = msg.data
+                download_url:str = "unknown"
                 try:
 
                     print(f"Process app={app_name}")
@@ -51,7 +52,7 @@ def run():
                     )
                     if download_url is None:
                         continue
-                    file_context = Repository.files.app(msg.app_name).context
+
                     file_item = Repository.files.app(msg.app_name).context.find_one(
                         Repository.files.fields.id == msg.data["_id"]
                     )
@@ -60,8 +61,7 @@ def run():
                     is_ready_content = (file_item.ProcessInfo or {}).get('content') and (
                             (file_item.ProcessInfo or {}).get('content', {}).get("IsError", "False") == "False")
 
-                    is_ready_image = (file_item.ProcessInfo or {}).get('image') and (
-                            (file_item.ProcessInfo or {}).get('image', {}).get("IsError", "False") == "False")
+
                     file_ext = file_item[Repository.files.fields.FileExt]
                     if file_ext is None:
                         file_ext = pathlib.Path(file_item[Repository.files.fields.FileNameLower]).suffix.replace(".", "")
@@ -70,9 +70,15 @@ def run():
                     if doc_type == "unknown":
                         continue
                     if doc_type == "pdf":
+                        if not extract_content_service.health_check_ocr():
+                            """
+                            Service is really busy. So stop and move next msg
+                            """
+                            print(f"Ocr service at {extract_content_service.get_url()} was busy")
+                            consumer.resume(msg)
+                            continue
                         extract_content_service.update_by_using_ocr_pdf(
                             download_url=download_url,
-                            rel_path=rel_path,
                             data=file_item,
                             app_name=app_name
                         )
@@ -81,7 +87,7 @@ def run():
                             Repository.lv_file_content_process_report.fields.LocalPath << download_url,
                             Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
                                 "SyncFromPath") or "",
-                            Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
+                            Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.now(datetime.UTC)
                         )
                     elif not is_ready_content:
                         if doc_type == "office":
@@ -96,7 +102,7 @@ def run():
                                 Repository.lv_file_content_process_report.fields.LocalPath << download_url,
                                 Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
                                     "SyncFromPath") or "",
-                                Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
+                                Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.now(datetime.UTC)
                             )
 
                         else:
@@ -116,7 +122,7 @@ def run():
                         Repository.lv_file_content_process_report.fields.LocalPath << download_url,
                         Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
                             "SyncFromPath") or "",
-                        Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow(),
+                        Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.now(datetime.UTC),
                         Repository.lv_file_content_process_report.fields.IsError << True,
                         Repository.lv_file_content_process_report.fields.Error << traceback.format_exc()
                     )
@@ -134,7 +140,7 @@ def run():
                         Repository.lv_file_content_process_report.fields.LocalPath << download_url,
                         Repository.lv_file_content_process_report.fields.CustomerPath << upload_item.get(
                             "SyncFromPath") or "",
-                        Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow(),
+                        Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.now(datetime.UTC),
                         Repository.lv_file_content_process_report.fields.IsError << True,
                         Repository.lv_file_content_process_report.fields.Error << traceback.format_exc()
                     )

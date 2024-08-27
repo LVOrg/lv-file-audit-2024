@@ -33,8 +33,7 @@ from cyx.common import config
 from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.repository import Repository
 
-
-#from cyx.repository import Repository
+import hashlib
 class FileServices:
     """
     The service access to FileUploadRegister MongoDb Collection
@@ -48,7 +47,9 @@ class FileServices:
     broker: RabitmqMsg = cy_kit.singleton(RabitmqMsg)
     def __init__(self,
                  ):
+        self.cache_key_hash:str = f"{Repository.files.__cls__.__module__}/{Repository.files.__cls__.__name__}"
 
+        self.cache_type =hashlib.sha256(self.cache_key_hash.encode()).hexdigest()
         self.config = config
     def get_queryable_doc(self, app_name: str) -> cyx.common.base.DbCollection[DocUploadRegister]:
         """
@@ -547,8 +548,8 @@ class FileServices:
                     if retry_count <=0:
                         self.logger.error(e)
 
-        # insert_register()
-        threading.Thread(target=insert_register).start()
+        insert_register()
+        # threading.Thread(target=insert_register).start()
 
         def search_engine_create_or_update_privileges():
             re_try_count = 0
@@ -581,19 +582,21 @@ class FileServices:
                     re_try_count += 1
                     time.sleep(0.5)
 
-        if (skip_option is None or
-                (isinstance(skip_option, dict) and (
-                        skip_option.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
-                        skip_option.get("All", False) == False)
-                )):
-            th = threading.Thread(
-                target=search_engine_create_or_update_privileges,
-                args=()
-            )
-            st = datetime.datetime.utcnow()
-            th.start()
-        else:
-            st = datetime.datetime.utcnow()
+        st = datetime.datetime.now(datetime.UTC)
+        if not isinstance(config.elastic_search,bool):
+            if (skip_option is None or
+                    (isinstance(skip_option, dict) and (
+                            skip_option.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
+                            skip_option.get("All", False) == False)
+                    )):
+                th = threading.Thread(
+                    target=search_engine_create_or_update_privileges,
+                    args=()
+                )
+                st = datetime.datetime.now(datetime.UTC)
+                th.start()
+            else:
+                st = datetime.datetime.now(datetime.UTC)
 
         return cy_docs.DocumentObject(
             NumOfChunks=num_of_chunks,
@@ -608,7 +611,7 @@ class FileServices:
             FileSize=file_size,
             UrlThumb=f"{web_host_root_url}/api/{app_name}/thumb/{id}/{pathlib.Path(server_file_name_only).name.lower()}.webp",
             OriginalFileName=client_file_name,
-            SearchEngineInsertTimeInSecond=(datetime.datetime.utcnow() - st).total_seconds()
+            SearchEngineInsertTimeInSecond=(datetime.datetime.now(datetime.UTC) - st).total_seconds()
         )
 
     def get_upload_register(self, app_name: str, upload_id: str) -> typing.Union[

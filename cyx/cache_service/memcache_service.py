@@ -91,7 +91,7 @@ class MemcacheServices:
         return ret
 
     def check_connection(self, timeout) -> bool:
-        start_time = datetime.datetime.utcnow()
+        start_time = datetime.datetime.now(datetime.UTC)
         print("check memcache server")
 
         def run_check():

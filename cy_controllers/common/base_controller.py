@@ -50,6 +50,7 @@ import cyx.common.basic_auth
 from cyx.file_utils_services import FileUtilService
 from cyx.db_services.error_services import DbErrorServices
 from cyx.remote_caller import RemoteCallerService
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)
@@ -60,8 +61,7 @@ class BaseController:
     memcache_service = cy_kit.singleton(MemcacheServices)
     logger_service = cy_kit.singleton(LoggerService)
     file_cacher_service = cy_kit.singleton(FileCacherService)
-    # service_app: AppServices = cy_kit.singleton(AppServices)
-    # apps_cache: AppsCacheService = cy_kit.singleton(AppsCacheService)
+
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
     search_engine = cy_kit.singleton(SearchEngine)
@@ -75,7 +75,7 @@ class BaseController:
     content_manager_service: ContentManagerService = cy_kit.singleton(ContentManagerService)
     global_settings_service: GlobalSettingsService = cy_kit.singleton(GlobalSettingsService)
     gemini_service: GeminiService = cy_kit.singleton(GeminiService)
-    # image_extractor_service = cy_kit.singleton(ImageExtractorService)
+
     tika_contents_service = cy_kit.singleton(ContentsServices)
     local_api_service:LocalAPIService = cy_kit.singleton(LocalAPIService)
     token_verifier: TokenVerifier = cy_kit.singleton(TokenVerifier)
@@ -85,7 +85,7 @@ class BaseController:
     image_service:ImageService = cy_kit.singleton(ImageService)
     extract_content_service:ExtractContentService = cy_kit.singleton(ExtractContentService)
     g_drive_service:GDriveService = cy_kit.singleton(GDriveService)
-    # distribute_lock_service:DistributeLockService = cy_kit.singleton(DistributeLockService)
+
     google_directory_service:GoogleDirectoryService = cy_kit.singleton(GoogleDirectoryService)
     ms_service:MSAuthService = cy_kit.singleton(MSAuthService)
     ms_common_service:MSCommonService = cy_kit.singleton(MSCommonService)
@@ -96,6 +96,6 @@ class BaseController:
     file_util_service:FileUtilService =cy_kit.singleton(FileUtilService)
     db_error_service: DbErrorServices = cy_kit.singleton(DbErrorServices)
     remote_caller_service: RemoteCallerService =cy_kit.singleton(RemoteCallerService)
-
+    logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
     def __init__(self, request: Request):
         self.request = request

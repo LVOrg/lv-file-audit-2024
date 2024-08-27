@@ -335,27 +335,7 @@ class PDFService:
             return out_put_file_path
         except Exception as e:
             self.logger.error(e)
-    def ocr_depriciate(self, pdf_file):
-        """
-                        Thuc hien ocr pdf file trong tien tring rieng biet
-                        :param file_path:
-                        :param out_put_file_path:
-                        :return:
-                        """
-        file_name_only = pathlib.Path(pdf_file).stem
-        out_put_file_path = os.path.join(self.processing_folder, f"{file_name_only}.pdf")
-        fx = ocrmypdf.ocr(
-            input_file=pdf_file,
-            output_file=out_put_file_path,
-            progress_bar=False,
-            language="vie+eng",
-            use_threads=False,
-            skip_text=False,
-            force_ocr=True,
-            jobs=100,
-            keep_temporary_files=False
-        )
-        return out_put_file_path
+
 
 
 

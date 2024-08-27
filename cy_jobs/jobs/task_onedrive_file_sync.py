@@ -34,7 +34,6 @@ import mimetypes
 from cy_xdoc.services.search_engine import SearchEngine
 # import gradio_client
 # print(gradio_client.__version__)
-from gradio_client import Client
 from cyx.processing_file_manager_services import ProcessManagerService
 from cyx.cloud.cloud_upload_azure_service import CloudUploadAzureService
 import traceback

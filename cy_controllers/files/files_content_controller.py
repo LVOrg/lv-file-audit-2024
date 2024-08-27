@@ -12,12 +12,12 @@ from fastapi import (
     Body
 
 )
-import gridfs.errors
+
 import cyx.common.msg
 from cy_controllers.models.file_contents import (
-    UploadInfoResult, ParamFileGetInfo, ReadableParam
+     ReadableParam
 )
-import fastapi.requests
+import cy_file_cryptor.wrappers
 import cy_web
 import os
 
@@ -96,16 +96,16 @@ class FilesContentController(BaseController):
     # async def get_content(self, app_name: str, directory: str):
     #     return await self.file_util_service.get_file_content_async(self.request,app_name,directory)
     async def get_content_from_all(self, app_name: str, directory: str):
+
         if len(directory.split('/'))>2:
             directory = directory.split('/')[0]+"/"+directory.split('/')[1]
         try:
             return await self.file_util_service.get_file_content_async(request=self.request,app_name=app_name,directory=directory)
         except requests.exceptions.HTTPError as ex:
-            return Response(content=ex.response.content,status_code=ex.response.status_code)
+            return Response(content=traceback.format_exc(),status_code=ex.response.status_code)
         except FileNotFoundError as ex:
             return Response(content="Content was not found", status_code=404)
-        except Exception as ex:
-            return Response(content="ServerError", status_code=500)
+
     # @controller.router.get(
     #     "/api/{app_name}/file/{directory:path}" if not version2 else "/api/{app_name}/file-old/{directory:path}"  ,
     #     tags=["FILES-CONTENT"]

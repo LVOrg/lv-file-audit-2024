@@ -7,8 +7,10 @@
       <excludeFolder url="file://$MODULE_DIR$/venv-fdf-image" />
       <excludeFolder url="file://$MODULE_DIR$/venv-remote-server-pdf" />
       <excludeFolder url="file://$MODULE_DIR$/venv-web-api-py-313" />
+      <excludeFolder url="file://$MODULE_DIR$/web-api-312" />
+      <excludeFolder url="file://$MODULE_DIR$/web-api-313" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (py-files-sv)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.12 (py-files-sv)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

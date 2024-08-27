@@ -7,14 +7,13 @@ import shutil
 import traceback
 import typing
 import uuid
-from datetime import datetime
+from datetime import datetime,UTC
 
 from humanize import naturalsize
 
 import bson.objectid
 
 from cyx.common import config
-import requests
 
 from cyx.repository import Repository
 
@@ -23,11 +22,12 @@ from cy_web.cy_web_x import streaming_async
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
-from pymongo import version
+
 
 MAX_WORKERS = 10
 WORKERS = dict()
 from cyx.file_utils_services_base import BaseUtilService
+from cy_file_cryptor.wrappers import cy_open_file
 
 
 class RegisterUploadException(Exception):
@@ -39,24 +39,7 @@ class RegisterUploadException(Exception):
 
 class FileUtilService(BaseUtilService):
     def healthz(self):
-        def check():
-            try:
-                print(f"call {self.content_service}/healthz")
-                response = requests.get(f"{self.content_service}/healthz")
-                response.raise_for_status()  # Raise an exception for non-200 status codes
 
-                # Process successful response
-                print(f"Status Code: {response.status_code}")
-                print(f"Response Text: {response.text}")
-            except:
-                print(f"call {self.content_service}/api/healthz was fail")
-                return False
-            return True
-
-        # ok = check()
-        # while not ok:
-        #     time.sleep(1)
-        #     ok = check()
         return "OK"
 
     def post_msg_upload_file(self, app_name, data, upload_id):
@@ -122,8 +105,8 @@ class FileUtilService(BaseUtilService):
         if not isinstance(WORKERS.get(upload_id), dict):
             WORKERS[upload_id] = dict(executor=ThreadPoolExecutor(max_workers=MAX_WORKERS), tasks=[])
 
-        start = datetime.utcnow()
-        # fast_api_path = content.temp_file_path
+        start = datetime.now(UTC)
+
         data = await content.read()
         file_size = len(data)
 
@@ -135,7 +118,7 @@ class FileUtilService(BaseUtilService):
                 dir_of_chunks = f"{real_file_location}.chunks.uploading"
                 os.makedirs(dir_of_chunks, exist_ok=True)
                 chunk_file_path = os.path.join(dir_of_chunks, f"{index}")
-                with open(chunk_file_path, "wb") as fs:
+                with cy_open_file(chunk_file_path, "wb") as fs:
                     fs.write(data)
                 del data
                 _, _, files = list(os.walk(dir_of_chunks))[0]
@@ -188,7 +171,7 @@ class FileUtilService(BaseUtilService):
                 WORKERS[upload_id]["tasks"] = []
                 print("done")
 
-            asyncio.create_task(wait_for())
+            await asyncio.create_task(wait_for())
             await run_async(data, upload, self.update_upload, index)
             run_in_task = False
 
@@ -197,37 +180,13 @@ class FileUtilService(BaseUtilService):
                 SizeInHumanReadable=size_in_human_readable,
                 SizeUploadedInHumanReadable=size_uploaded_in_human_readable,
                 Percent=percent,
-                ProcessingTime=(datetime.utcnow() - start).total_seconds() * 1000,
+                ProcessingTime=(datetime.now(UTC) - start).total_seconds() * 1000,
                 NumOfChunksCompleted=upload["NumOfChunksCompleted"],
                 RunInTask=run_in_task
             )
         )
 
-    async def register_new_upload_google_drive_async(self, app_name, from_host, register_data):
-        if not self.cloud_service_utils.is_ready_for(app_name=app_name, cloud_name="Google"):
-            return dict(
-                Error=dict(
-                    Code="GoogleWasNotReady",
-                    Message=f"Google did not bestow for {app_name}"
-                )
-            )
-        if register_data["googlePath"] is None or len(register_data["googlePath"]) == 0:
-            return dict(
-                Error=dict(
-                    Code="MissField",
-                    Message=f"Google drive upload require googlePath field"
-                )
-            )
-        else:
-            total_space, error = self.cloud_service_utils.drive_service.get_available_space(
-                app_name=app_name,
-                cloud_name="Google"
-            )
-            if error:
-                return dict(
-                    Error=error
-                )
-        return await self.register_local_async(from_host=from_host, app_name=app_name, register_data=register_data)
+
 
     async def register_upload_create_async(self, from_host, app_name, register_data: dict):
         context = Repository.files.app(app_name).context
@@ -242,7 +201,7 @@ class FileUtilService(BaseUtilService):
         is_public = register_data["IsPublic"]
         privileges = register_data["Privileges"]
         meta_data = register_data["meta_data"]
-        register_on = datetime.utcnow()
+        register_on = datetime.now(UTC)
         formatted_date = register_on.strftime("%Y/%m/%d")
 
         file_name_only = pathlib.Path(file_name).stem
@@ -285,7 +244,7 @@ class FileUtilService(BaseUtilService):
             insert_data += [Repository.files.fields.FullPathOnCloud << googlePath]
         ret = await context.insert_one_async(*insert_data)
 
-        t = datetime.utcnow()
+        t = datetime.now(UTC)
         upload = await context.find_one_async(
             Repository.files.fields.id == upload_id
         )
@@ -297,7 +256,7 @@ class FileUtilService(BaseUtilService):
             privileges=privileges,
             meta_info=meta_data
         )
-        print((datetime.utcnow() - t).total_seconds())
+        print((datetime.now(UTC) - t).total_seconds())
         ret_data = dict(
             NumOfChunks=num_of_chunks,
             ChunkSizeInBytes=chunk_size_in_bytes,
@@ -308,7 +267,7 @@ class FileUtilService(BaseUtilService):
             UrlOfServerPath=f"{from_host}/api/{app_name}/{upload_id}/{file_name.lower()}",
             OriginalFileName=file_name,
             FileSize=file_size,
-            UpdateESTime=(datetime.utcnow() - t).total_seconds()
+            UpdateESTime=(datetime.now(UTC) - t).total_seconds()
         )
         return dict(
             Data=ret_data
@@ -573,7 +532,7 @@ class FileUtilService(BaseUtilService):
                 ret.headers["Content-Disposition"] = f"attachment; filename={upload['FileName']}"
             return ret
         else:
-            fs = open(file_path, "rb")
+            fs = cy_open_file(file_path, "rb")
             ret = await streaming_async(
                 fs, request, content_type, streaming_buffering=1024 * 4 * 3 * 8
             )
@@ -714,7 +673,7 @@ class FileUtilService(BaseUtilService):
         self.memcache_service.remove(f"get_upload/{app_name}/{upload_id}")
 
 
-    async def get_upload_async(self, app_name, upload_id, from_cache=True) -> typing.Dict[str, typing.Any]:
+    async def get_upload_async(self, app_name, upload_id, from_cache=True) -> typing.Dict[str, typing.Any]|None:
         if from_cache:
             ret = self.memcache_service.get_dict(f"get_upload/{app_name}/{upload_id}")
             if isinstance(ret, dict):
@@ -760,7 +719,7 @@ class FileUtilService(BaseUtilService):
         dir_path = pathlib.Path(tem_file_path).parent.__str__()
         os.makedirs(dir_path, exist_ok=True)
         size_uploaded = upload_item.get(Repository.files.fields.SizeUploaded.__name__, 0)
-        with open(tem_file_path, mode, encrypt=True, file_size=file_size_in_bytes, chunk_size_in_kb=chunk_size_in_kb) as fs:
+        with cy_open_file(tem_file_path, mode, encrypt=True, file_size=file_size_in_bytes, chunk_size_in_kb=chunk_size_in_kb) as fs:
             fs.write(content_part)
 
         if num_of_chunks - 1 == chunk_index:
@@ -847,8 +806,10 @@ class FileUtilService(BaseUtilService):
         :return:
         """
         document_context = Repository.files.app(app_name)
-        item = document_context.context @ upload_id
-        main_file_id = item.MainFileId
+        item = await document_context.context.find_one_async(
+            Repository.files.fields.id==upload_id
+        )
+
         if item is None:
             return None
 
@@ -870,11 +831,11 @@ class FileUtilService(BaseUtilService):
 
         item[document_context.fields.FullFileName] = f"{item.id}/{item[document_context.fields.FileName]}"
         item[document_context.fields.FullFileNameLower] = item[document_context.fields.FullFileName].lower()
-        item[document_context.fields.Status] = 0
+        item[document_context.fields.Status] = 1
         item[document_context.fields.PercentageOfUploaded] = 100
         item[document_context.fields.MarkDelete] = False
         item.ServerFileName = f"{item.id}.{item[document_context.fields.FileExt]}"
-        item.RegisterOn = datetime.utcnow()
+        item.RegisterOn = datetime.now(UTC)
         item[document_context.fields.RegisteredBy] = "root"
 
         del item[document_context.fields.MainFileId]
@@ -888,3 +849,4 @@ class FileUtilService(BaseUtilService):
         )
         item[Repository.files.fields.MainFileId] = main_file_id
         Repository.files.app(app_name).context.insert_one(item)
+        return item

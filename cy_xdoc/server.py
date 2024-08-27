@@ -3,13 +3,12 @@ This file declare all info for web api start
 """
 
 import functools
-import gc
 import json
 import pathlib
 import sys
 import os
 import traceback
-from http.client import HTTPResponse
+
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
@@ -37,17 +36,13 @@ runtime_config_service = cy_kit.singleton(RuntimeConfigService)
 runtime_config_service.load(sys.argv)
 skip_checking = os.getenv("BUILD_IMAGE_TAG") is None
 
-import cyx.framewwork_configs
+
 from fastapi.responses import Response
 import cyx.common
 from cyx.common import config
 
 version2 = config.generation if hasattr(config, "generation") else None
 file_util_service.healthz() if version2 else print("Run firs generation")
-
-# if not skip_checking or (hasattr(config,"check_startup") and config.check_startup):
-#import cyx.check_start_up
-# if hasattr(config,"file_storage_encrypt") and config.file_storage_encrypt==True:
 import cy_file_cryptor.wrappers
 from PIL import Image
 
@@ -64,7 +59,7 @@ import fastapi
 import datetime
 
 import cy_web
-from cyx.common.msg import MessageService
+
 from cyx.common.brokers import Broker
 from cyx.common.rabitmq_message import RabitmqMsg
 import cyx.common
@@ -233,19 +228,13 @@ async def release_mode(request: fastapi.Request, next):
         if config.debug == True:
             res = JSONResponse(content=ret_error, status_code=200)
             if orgigin:
-                # response.Headers.Append("Access-Control-Allow-Origin", value);
-                res.headers["access-control-allow-origin"] = orgigin
-            # else:
-            #     res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
-            res.headers['access-control-allow-credentials'] = 'true'
 
+                res.headers["access-control-allow-origin"] = orgigin
+            res.headers['access-control-allow-credentials'] = 'true'
             return res
         else:
             res = JSONResponse(content="Error on server", status_code=500)
-            # res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
             res.headers['access-control-allow-credentials'] = 'true'
-            #build-22.20240809153222
-            #build-22.20240809153222
             return res
     finally:
         malloc_service.reduce_memory()
@@ -371,3 +360,5 @@ if __name__ == "__main__":
         elif config.workers and (isinstance(config.workers, int) or isinstance(config.workers, float)):
             number_of_workers = int(config.workers)
         cy_web.start_with_uvicorn(worker=number_of_workers)
+
+#helm install kestra kestra/kestra --namespace kestra

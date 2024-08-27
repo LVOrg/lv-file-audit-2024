@@ -58,16 +58,28 @@ class FilesController(BaseController):
         :param token:
         :return:
         """
-        doc_context = Repository.files.app(app_name).context
-        delete_item = doc_context.context @ UploadId
-        if delete_item is None:
-            return {}
-        doc_context.context.update(
-            doc_context.fields.id == UploadId,
-            doc_context.fields.MarkDelete << IsDelete
-        )
-        self.search_engine.mark_delete(app_name=app_name, id=UploadId, mark_delete_value=IsDelete)
-        return dict()
+        try:
+            doc_context = Repository.files.app(app_name).context
+            delete_item = doc_context.context @ UploadId
+            if delete_item is None:
+                return {}
+            doc_context.context.update(
+                doc_context.fields.id == UploadId,
+                doc_context.fields.MarkDelete << IsDelete
+            )
+            self.search_engine.mark_delete(app_name=app_name, id=UploadId, mark_delete_value=IsDelete)
+            return dict()
+        except:
+            await self.logs_to_mongo_db_service.log_async(
+                error_content=traceback.format_exc(),
+                url=self.request.url.path
+            )
+            return dict(
+                Error=dict(
+                    Message=f"system"
+                )
+            )
+
 
     @controller.router.post("/api/{app_name}/files", tags=["FILES"])
     async def get_list(
@@ -102,8 +114,11 @@ class FilesController(BaseController):
 
             )
             return [x.to_json_convertable() for x in items]
-        except Exception as e:
-            self.logger_service.error(e)
+        except:
+            await self.logs_to_mongo_db_service.log_async(
+                error_content=traceback.format_exc(),
+                url=self.request.url.path
+            )
             return []
 
     @controller.router.post("/api/admin/files/move_tenant", tags=["FILES"])
@@ -123,14 +138,14 @@ class FilesController(BaseController):
                 app_get=Data.ToAppName
         ):
             return dict(
-                error=dict(
-                    message=f"{Data.ToAppName} was not found"
+                Error=dict(
+                    Message=f"{Data.ToAppName} was not found"
                 )
             )
         if Data.FromAppName == Data.ToAppName:
             return dict(
-                error=dict(
-                    message=f"Can not move from '{Data.FromAppName}' to '{Data.ToAppName}'"
+                Error=dict(
+                    Message=f"Can not move from '{Data.FromAppName}' to '{Data.ToAppName}'"
                 )
             )
         from cy_xdoc.services.files import FileServices
@@ -158,35 +173,28 @@ class FilesController(BaseController):
     async def clone_to_new_async(self,
                      app_name: str,
                      UploadId: typing.Annotated[str, Body(embed=True)]) -> CloneFileResult:
-        try:
-            item = await self.file_util_service.do_copy_async(
-                app_name=app_name,
-                upload_id=UploadId,
-                request=self.request
-            )
+        item = await self.file_util_service.do_copy_async(
+            app_name=app_name,
+            upload_id=UploadId,
+            request=self.request
+        )
 
-            if item is None:
-                return CloneFileResult(
-                    Error=pydantic.BaseModel(
-                        Code="fileNotFound",
-                        Message="File not found"
-
-                    )
-                )
-            else:
-
-                return CloneFileResult(
-                    Info=item.to_json_convertable()
-                )
-        except:
-            print(traceback.format_exc())
+        if item is None:
             return CloneFileResult(
                 Error=pydantic.BaseModel(
-                    Code="System",
-                    Message="Cannot copy files"
+                    Code="fileNotFound",
+                    Message="File not found"
 
                 )
             )
+        else:
+
+            return CloneFileResult(
+                Info=item.to_json_convertable()
+            )
+
+
+
 
     @controller.router.post("/api/{app_name}/files/delete", tags=["FILES"])
     async def files_delete(self, app_name: str,
@@ -281,47 +289,61 @@ class FilesController(BaseController):
         if not data.DocId or data.DocId == "":
             data.DocId = str(uuid.uuid4())
 
-        data_item = self.file_service.get_upload_register(
+        data_item = self.file_util_service.get_upload(
             app_name=app_name,
             upload_id=data.DocId,
 
         )
-        if data_item and data.Privileges:
-            json_privilege = {}
+
+
+        if data_item:
+            privileges = data_item.get(Repository.files.fields.Privileges.__name__) or {}
+            client_privileges = []
             for x in data.Privileges or []:
-                if json_privilege.get(x.Type.lower()):
-                    json_privilege[x.Type.lower()] += x.Values.split(',')
+                if privileges.get(x.Type.lower()):
+                    privileges[x.Type.lower()] += x.Values.split(',')
+                    client_privileges+=[{
+                        x.Type.lower():x.Values
+                    }]
                 else:
-                    json_privilege[x.Type.lower()] = x.Values.split(',')
-            data_item["Privileges"] = json_privilege
-        else:
-            _source = self.search_engine.get_doc(
-                app_name=app_name,
-                id=data.DocId
+                    privileges[x.Type.lower()] = x.Values.split(',')
+                    client_privileges += [{
+                        x.Type.lower(): x.Values
+                    }]
+            data_item[Repository.files.fields.Privileges.__name__] = privileges
+            Repository.files.app(app_name).context.update(
+                Repository.files.fields.id==data.DocId,
+                Repository.files.fields.Privileges<<privileges,
+                Repository.files.fields.ClientPrivileges <<privileges
             )
-            _source_data_item = None
-            if _source:
-                _source_data_item = _source.source.data_item
-            fx = DocUploadRegister()
 
-            json_privilege = {}
-            for x in data.Privileges or []:
-                if json_privilege.get(x.Type.lower()):
-                    json_privilege[x.Type.lower()] += x.Values.split(',')
-                else:
-                    json_privilege[x.Type.lower()] = x.Values.split(',')
+        _source = self.search_engine.get_doc(
+            app_name=app_name,
+            id=data.DocId
+        )
+        _source_data_item = None
+        if _source:
+            _source_data_item = _source.source.data_item
+        fx = DocUploadRegister()
 
-            data_item = _source_data_item or {
-                "FileName": "Unknown",
-                "Status": 1,
-                "MarkDelete": False,
-                "RegisterOn": datetime.datetime.utcnow(),
-                "_id": data.DocId,
-                "SizeInBytes": 0,
-                "Privileges": json_privilege
-            }
-            if data.Privileges is not None:
-                data_item["Privileges"] = json_privilege
+        json_privilege = {}
+        for x in data.Privileges or []:
+            if json_privilege.get(x.Type.lower()):
+                json_privilege[x.Type.lower()] += x.Values.split(',')
+            else:
+                json_privilege[x.Type.lower()] = x.Values.split(',')
+
+        data_item = _source_data_item or {
+            "FileName": "Unknown",
+            "Status": 1,
+            "MarkDelete": False,
+            "RegisterOn": datetime.datetime.utcnow(),
+            "_id": data.DocId,
+            "SizeInBytes": 0,
+            "Privileges": json_privilege
+        }
+        if data.Privileges is not None:
+            data_item["Privileges"] = json_privilege
 
         self.search_engine.update_content(
             app_name=app_name,
