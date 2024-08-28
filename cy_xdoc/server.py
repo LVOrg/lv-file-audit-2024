@@ -11,7 +11,7 @@ import traceback
 import psutil
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
-sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
+sys.path.append(pathlib.Path(__file__).parent.parent)
 """
 For IIS host or dev mode running add current directory into sys. That will help Python load all libraries in the same applications
 """
@@ -114,14 +114,7 @@ if hasattr(config, "domains"):
     accept_domains = config.domains.split(",")
 cy_web.add_cors(accept_domains)
 from starlette.concurrency import iterate_in_threadpool
-# => => pushing manifest for docker.lacviet.vn/xdoc/fs-tiny-qc:build-22.20240809151617@sha256:8aed962c11f2908bac67cc0ed3342b9b0d24eef7162d039ab1681cc69bd43448                                                                  0.5s
 
-from cyx.repository import Repository
-
-
-# Repository.sys_app_logs_coll.app("admin").context.delete(
-#     {}
-# )
 @functools.cache
 def get_pod_name():
     f = open('/etc/hostname')
@@ -245,10 +238,13 @@ is_dev_mode = hasattr(config, "is_dev_mode")
 
 @cy_web.middleware()
 async def estimate_time(request: fastapi.Request, next):
-    if is_dev_mode:
-        return await dev_mode(request, next)
-    else:
-        return await release_mode(request, next)
+    try:
+        if is_dev_mode:
+            return await dev_mode(request, next)
+        else:
+            return await release_mode(request, next)
+    except FileNotFoundError():
+        return Response(status_code=404,content="Resource was not found")
 
 
 app = cy_web.get_fastapi_app()
@@ -285,10 +281,7 @@ if config.workers != "auto":
         number_of_workers = config.workers
     else:
         number_of_workers = 1
-from cyx.cache_service.memcache_service import MemcacheServices
 
-# cache_service = cy_kit.singleton(MemcacheServices)
-# cache_service.check_connection(timeout=60*60*2)
 if config.worker_class:
     worker_class = f"uvicorn.workers.{config.worker_class}"
 else:
@@ -302,8 +295,7 @@ if config.timeout_graceful_shutdown:
 
 # if __name__ =="__main__":
 import multiprocessing
-import subprocess
-import signal
+
 
 config.server_type = "default"
 

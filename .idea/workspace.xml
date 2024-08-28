@@ -5,56 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change afterPath="$PROJECT_DIR$/delete-package/z-delete-models/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/delete-package/z-delete-office365_delete/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/delete-package/z-delete-wopi/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server-3.12.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_checking/clear_logs.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/clear_logs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_web/cy_web_x.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_web/cy_web_x.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/extract_content_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/extract_content_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/logs/logs_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/logs/logs_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/check.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/long_test/test_func.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/file_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/file_upload.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/files_clone.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/files_clone.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/files_register.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/files_register.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-gemini_controller/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/long_test/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-gemini_controller/gemini_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-gemini_controller/gemini_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-office365_delete/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-gemini_controller/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-office365_delete/office365_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-office365_delete/office365_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-wopi/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-wopi/wopi_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-wopi/wopi_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_objective.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/contents.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/contents.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_web/cy_web_x.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_web/cy_web_x.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_xdoc/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,7 +96,7 @@
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.check">
+  <component name="RunManager" selected="Python.server (1)">
     <configuration name="check" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -275,8 +231,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.check" />
         <item itemvalue="Python.clear_logs" />
+        <item itemvalue="Python.check" />
         <item itemvalue="Python.task_content" />
         <item itemvalue="Python.contents" />
         <item itemvalue="Python.load_check" />
@@ -512,6 +468,21 @@
           <url>file://$PROJECT_DIR$/a_checking/check.py</url>
           <line>2</line>
           <option name="timeStamp" value="300" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/files_content_controller.py</url>
+          <line>122</line>
+          <option name="timeStamp" value="306" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_xdoc/server.py</url>
+          <line>246</line>
+          <option name="timeStamp" value="308" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_xdoc/server.py</url>
+          <line>241</line>
+          <option name="timeStamp" value="309" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
