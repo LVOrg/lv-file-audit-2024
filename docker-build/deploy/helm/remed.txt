@@ -1,0 +1,1 @@
+helm  template lv-files -f ../values/99-qc.yml -o test.yaml

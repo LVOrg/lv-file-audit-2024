@@ -5,11 +5,9 @@ from fastapi_router_controller import Controller
 from fastapi import (
     APIRouter,
     Depends,
-    FastAPI,
-    HTTPException,
-    status,
+
     Request,
-    Response
+
 )
 
 import cy_docs

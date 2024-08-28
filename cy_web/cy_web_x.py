@@ -1011,27 +1011,45 @@ class WebApp(BaseWebApp):
             raise Exception("Web application can not start")
         run_path = f"{start_path}:web_application.app"
         print(run_path)
+        uvicorn.run(
+            app=run_path,  # Import path to your ASGI application
+            host=self.bind_ip,  # Host IP address to bind to
+            port=self.bind_port,  # Port number to listen on
+            log_level="debug",  # Log level (options: info, debug, warning, error)
+            lifespan='on',  # Enable ASGI lifespan protocol
+            ws_max_size=8 * 8 * 1024 * 1024,  # Maximum WebSocket message size
+            reload=self.dev_mode,  # Enable automatic reloading in development mode
+            # reload_dirs=self.working_dir,  # Optional: Directories to watch for changes (uncomment if needed)
+            workers=worker,  # Number of worker processes
+            # ws='websockets',  # Optional: Use a custom WebSocket library (uncomment if needed)
+            # backlog=1000,  # Optional: Maximum number of queued connections (uncomment if needed)
+            interface='asgi3',  # ASGI version (usually don't need to change)
+            timeout_keep_alive=True,  # Keep connections open for HTTP keep-alive
+            h11_max_incomplete_event_size=1024 * 1024 * 8*8,  # Maximum allowed size for incomplete HTTP/1.1 events
+            http="httptools",  # HTTP parser library (usually don't need to change)
+            loop="uvloop"
+        )
         # if not self.dev_mode:
         #     run_path=web_application.app
         # if self.dev_mode:
-        uvicorn.run(
-            app=run_path,
-            # loop="asyncio",
-            host=self.bind_ip,
-            port=self.bind_port,
-            log_level="debug",
-            lifespan='on',
-            ws_max_size=8*8 * 1024*1024,
-            reload=self.dev_mode,
-            # reload_dirs=self.working_dir,
-            workers=worker,
-            ws='websockets',
-            # backlog=1000,
-            interface='asgi3',
-            timeout_keep_alive=True,
-            h11_max_incomplete_event_size=1024 * 1024 * 8,
-            http="httptools",
-        )
+        # uvicorn.run(
+        #     app=run_path,
+        #     # loop="asyncio",
+        #     host=self.bind_ip,
+        #     port=self.bind_port,
+        #     log_level="debug",
+        #     lifespan='on',
+        #     ws_max_size=8*8 * 1024*1024,
+        #     reload=self.dev_mode,
+        #     # reload_dirs=self.working_dir,
+        #     workers=worker,
+        #     ws='websockets',
+        #     # backlog=1000,
+        #     interface='asgi3',
+        #     timeout_keep_alive=True,
+        #     h11_max_incomplete_event_size=1024 * 1024 * 8,
+        #     http="httptools",
+        # )
         # else:
         #     uvicorn.run(
         #         run_path,

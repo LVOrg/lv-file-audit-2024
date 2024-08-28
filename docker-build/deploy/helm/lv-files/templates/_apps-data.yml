@@ -60,7 +60,7 @@ apps:
     - name: {{$value}}
       configMapName: {{ $appConfig.name }}-config
       customer:  {{ $valuesObject.customer}}
-      image:  {{$valuesObject.repository}}/{{ $imagesObject.main }}-{{$valuesObject.customer}}:{{$valuesObject.imageTag}}
+      image:  {{$valuesObject.repository}}/{{ $imagesObject.main }}-libs:{{$valuesObject.imageTag}}
       namespace: {{ $valuesObject.namespace }}
       replicas: {{$app.replicas}}
       isUseES: {{$valuesObject.search}}

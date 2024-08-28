@@ -5,41 +5,56 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change afterPath="$PROJECT_DIR$/a_checking/check_id.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_checking/load_check.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/kestar-value.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/py-files-sv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/py-files-sv.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/delete-package/z-delete-models/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/delete-package/z-delete-office365_delete/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/delete-package/z-delete-wopi/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server-3.12.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c-setup-tem/cy_web_setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/c-setup-tem/cy_web_setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/common/base_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/common/base_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_checking/clear_logs.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/clear_logs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_web/cy_web_x.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_web/cy_web_x.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/extract_content_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/extract_content_service.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_content.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_content.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_onedrive_file_sync.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_onedrive_file_sync.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/logs/logs_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/logs/logs_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/check.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/long_test/test_func.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/file_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/file_upload.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/files_clone.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/files_clone.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/models/z-delete-models/files_register.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/files_register.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-gemini_controller/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/long_test/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-gemini_controller/gemini_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-gemini_controller/gemini_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-office365_delete/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-gemini_controller/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-office365_delete/office365_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-office365_delete/office365_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-wopi/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/z-delete-wopi/wopi_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete-package/z-delete-wopi/wopi_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_objective.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/contents.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/contents.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_web/cy_web_x.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_web/cy_web_x.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_web/setup.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_xdoc/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_service_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_service_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/g_drive_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/g_drive_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/pdf.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/media/pdf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/build-tiny.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-tiny.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/pdf.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/pdf.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/video.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/video.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/requirements/web-api.req.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/requirements/web-api.req.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.sh" beforeDir="false" afterPath="$PROJECT_DIR$/server.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,9 +101,11 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.che_write_file_with_encrypt.executor": "Debug",
+    "Python.check.executor": "Debug",
     "Python.check_id.executor": "Debug",
     "Python.check_list.executor": "Debug",
     "Python.checkfile.executor": "Debug",
+    "Python.clear_logs.executor": "Debug",
     "Python.contents.executor": "Debug",
     "Python.load_check.executor": "Debug",
     "Python.pdf_api.executor": "Debug",
@@ -98,7 +115,7 @@
     "Python.task_google_file_sync.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/cy_xdoc/models",
+    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -112,17 +129,19 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/cy_xdoc/models" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/delete-package" />
       <recent name="$PROJECT_DIR$/cyx/db_models" />
       <recent name="$PROJECT_DIR$/cyx" />
       <recent name="$PROJECT_DIR$/cy_controllers/models" />
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.server (1)">
-    <configuration name="check_id" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.check">
+    <configuration name="check" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -135,7 +154,29 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/check_id.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/check.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="clear_logs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_checking" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/clear_logs.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -202,7 +243,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_xdoc/server.py" />
-      <option name="PARAMETERS" value="elastic_search=false" />
+      <option name="PARAMETERS" value="server_type=Uvicorn worker_class=uvicorn.workers.UvicornWorker" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -232,35 +273,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="task_google_file_sync" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py-files-sv" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_google_file_sync.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.load_check" />
-        <item itemvalue="Python.check_id" />
-        <item itemvalue="Python.contents" />
-        <item itemvalue="Python.task_google_file_sync" />
+        <item itemvalue="Python.check" />
+        <item itemvalue="Python.clear_logs" />
         <item itemvalue="Python.task_content" />
+        <item itemvalue="Python.contents" />
+        <item itemvalue="Python.load_check" />
       </list>
     </recent_temporary>
   </component>
@@ -326,7 +345,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>774</line>
+          <line>776</line>
           <option name="timeStamp" value="158" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -351,7 +370,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
-          <line>143</line>
+          <line>145</line>
           <option name="timeStamp" value="166" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -361,7 +380,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>822</line>
+          <line>824</line>
           <option name="timeStamp" value="189" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -391,22 +410,22 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>136</line>
+          <line>141</line>
           <option name="timeStamp" value="255" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>117</line>
+          <line>122</line>
           <option name="timeStamp" value="256" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>123</line>
+          <line>128</line>
           <option name="timeStamp" value="257" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>125</line>
+          <line>130</line>
           <option name="timeStamp" value="258" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -460,14 +479,39 @@
           <option name="timeStamp" value="286" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
-          <line>289</line>
-          <option name="timeStamp" value="288" />
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_content.py</url>
+          <line>72</line>
+          <option name="timeStamp" value="290" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_xdoc/services/files.py</url>
-          <line>51</line>
-          <option name="timeStamp" value="289" />
+          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
+          <line>255</line>
+          <option name="timeStamp" value="291" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
+          <line>305</line>
+          <option name="timeStamp" value="292" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
+          <line>195</line>
+          <option name="timeStamp" value="293" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
+          <line>220</line>
+          <option name="timeStamp" value="296" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/a_checking/check.py</url>
+          <line>3</line>
+          <option name="timeStamp" value="299" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/a_checking/check.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="300" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -2,7 +2,7 @@ import pathlib
 import typing
 
 from cyx.repository import Repository
-
+import cyx.common.msg
 fx = Repository.files.fields.Status
 from cyx.common import config
 from fastapi_router_controller import Controller
@@ -198,6 +198,8 @@ class FilesUploadController(BaseController):
             try:
                 local_share_id = self.local_api_service.generate_local_share_id(app_name=app_name, upload_id=data.get("_id"))
                 data[Repository.files.fields.local_share_id.__name__] = local_share_id
+
+
                 self.extract_content_service.save_search_engine(
                     data = data,
                     app_name = app_name
@@ -283,23 +285,29 @@ class FilesUploadController(BaseController):
         if num_of_chunks_complete == nun_of_chunks and self.temp_files.is_use:
 
 
+
             if skip_action is None or (isinstance(skip_action, dict) and (
                     skip_action.get(MSG_FILE_UPDATE_SEARCH_ENGINE_FROM_FILE, False) == False and
                     skip_action.get("All", False) == False
             )):
-                if not isinstance(config.elastic_search,bool):
-                    await self.update_search_engine_async(
-                        app_name=app_name,
-                        id=UploadId,
-                        content="",
-                        data_item=upload_item,
-                        update_meta=False
-                    )
-                await self.post_msg_upload_file_async(
+                # if not isinstance(config.elastic_search,bool):
+                #     await self.update_search_engine_async(
+                #         app_name=app_name,
+                #         id=UploadId,
+                #         content="",
+                #         data_item=upload_item,
+                #         update_meta=False
+                #     )
+                self.broker.emit(
                     app_name=app_name,
-                    upload_id=UploadId,
+                    message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
                     data=upload_item
                 )
+                # await self.post_msg_upload_file_async(
+                #     app_name=app_name,
+                #     upload_id=UploadId,
+                #     data=upload_item
+                # )
                 ext_file = (upload_item.get(Repository.files.fields.FileExt.__name__) or "").lower()
                 download_url,_,_,_,_ = self.local_api_service.get_download_path(
                     upload_item = upload_item,

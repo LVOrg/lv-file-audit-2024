@@ -8,7 +8,7 @@ import pathlib
 import sys
 import os
 import traceback
-
+import psutil
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
@@ -335,7 +335,7 @@ if __name__ == "__main__":
         _config_ = hypercorn.config.Config()
         _config_.bind = [f"{cy_app_web.bind_ip}:{cy_app_web.bind_port}"]
         _config_.application_path = "cy_web:get_fastapi_app()"
-        import psutil
+
 
         number_of_workers = psutil.cpu_count(logical=False) // 2
         _config_.workers = number_of_workers
@@ -352,13 +352,14 @@ if __name__ == "__main__":
         hypercorn.run.run(_config_)
     else:
         if config.workers and isinstance(config.workers, str) and config.workers.lower() == "auto":
-            import psutil
+
 
             number_of_workers = psutil.cpu_count(logical=False)
         elif config.workers and isinstance(config.workers, str) and config.workers.isnumeric():
             number_of_workers = int(config.workers)
         elif config.workers and (isinstance(config.workers, int) or isinstance(config.workers, float)):
             number_of_workers = int(config.workers)
+
         cy_web.start_with_uvicorn(worker=number_of_workers)
 
 #helm install kestra kestra/kestra --namespace kestra

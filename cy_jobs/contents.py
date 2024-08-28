@@ -25,6 +25,7 @@ execute_files = [
 
 from cy_jobs import cy_job_libs
 from cy_jobs.cy_job_libs import print_screen_logs
-cy_job_libs.run_all(execute_files=execute_files,args=runtime_args, side_kick_path="python3")
+if __name__ == "__main__":
+    cy_job_libs.run_all(execute_files=execute_files,args=runtime_args, side_kick_path="python3")
 
 

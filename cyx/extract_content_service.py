@@ -27,38 +27,43 @@ class ExtractContentService:
         if config.elastic_search == False:
             return
         try:
-            download_url, rel_path, file_name, token, lolca_share_id = self.local_api_service.get_download_path(
-                upload_item= data,
-                app_name = app_name
+            self.broker.emit(
+                app_name=app_name,
+                message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
+                data=data
             )
-            doc_type = cyx.common.get_doc_type(file_name)
-            if doc_type=="image":
-                self.broker.emit(
-                    app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
-                    data=data
-                )
-                return
-
-            print("update content is OK")
-            if doc_type=="office":
-                self.update_by_using_tika(
-                    download_url=download_url,
-                    rel_path=rel_path,
-                    data=data,
-                    app_name=app_name
-                )
-                self.process_manager_service.submit(
-                    data=data,
-                    app_name=app_name,
-                    action_type="content"
-                )
-            if doc_type=="pdf":
-                self.broker.emit(
-                    app_name=app_name,
-                    message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
-                    data=data
-                )
+            # download_url, rel_path, file_name, token, lolca_share_id = self.local_api_service.get_download_path(
+            #     upload_item= data,
+            #     app_name = app_name
+            # )
+            # doc_type = cyx.common.get_doc_type(file_name)
+            # if doc_type=="image":
+            #     self.broker.emit(
+            #         app_name=app_name,
+            #         message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
+            #         data=data
+            #     )
+            #     return
+            #
+            # print("update content is OK")
+            # if doc_type=="office":
+            #     self.update_by_using_tika(
+            #         download_url=download_url,
+            #         rel_path=rel_path,
+            #         data=data,
+            #         app_name=app_name
+            #     )
+            #     self.process_manager_service.submit(
+            #         data=data,
+            #         app_name=app_name,
+            #         action_type="content"
+            #     )
+            # if doc_type=="pdf":
+            #     self.broker.emit(
+            #         app_name=app_name,
+            #         message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
+            #         data=data
+            #     )
         except Exception as ex:
             self.process_manager_service.submit_error(
                 data=data,

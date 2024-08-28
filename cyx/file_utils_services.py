@@ -583,6 +583,8 @@ class FileUtilService(BaseUtilService):
     async def get_file_content_async(self, request, app_name: str, directory: str):
         upload_id = directory.split('/')[0]
         upload = await self.get_upload_async(app_name, upload_id)
+        if upload is None:
+            raise FileNotFoundError()
         content_type, _ = mimetypes.guess_type(directory)
         content_type = upload.get("MimeType") or content_type
         if not upload:

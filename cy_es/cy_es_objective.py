@@ -3,7 +3,7 @@ import inspect
 import math
 import time
 import typing
-from datetime import date
+
 
 import elasticsearch.exceptions
 from elasticsearch import Elasticsearch
@@ -208,7 +208,7 @@ def get_docs(client: Elasticsearch, index: str, doc_type: str = "_doc", limit=10
     return []
 
 
-def select(client: Elasticsearch, index: str, doc_type: str = "_doc", fields=[], filter=None, sort=None, skip=0,
+def select(client: Elasticsearch, index: str, doc_type: str = "_doc", fields=None, filter=None, sort=None, skip=0,
            limit=1000, highlight_fields=None) -> SearchResult:
     """
     Select some field in Elasticsearch index
@@ -222,6 +222,8 @@ def select(client: Elasticsearch, index: str, doc_type: str = "_doc", fields=[],
     :param limit:
     :return:
     """
+    if fields is None:
+        fields = []
     index = index.lower()
     _select_fields_ = []
     if isinstance(fields, dict):
@@ -252,7 +254,7 @@ def select(client: Elasticsearch, index: str, doc_type: str = "_doc", fields=[],
           "_source": false
         }
     """
-    _filter_ = None
+    _filter_: typing.Dict[str,typing.Any]|None = None
     if isinstance(filter, dict):
         _filter_ = dict(query=filter)
 
@@ -345,7 +347,7 @@ def get_map_struct(client: Elasticsearch, index: str):
 
 def search(client: Elasticsearch,
            index: str,
-           filter,
+           filter:typing.Any,
            excludes: typing.Optional[typing.List[DocumentFields]] = None,
            skip: int = 0,
            limit: int = 50,
@@ -419,12 +421,7 @@ def search(client: Elasticsearch,
             "pre_tags": ["<em>"],
             "post_tags": ["</em>"],
             "fields": fields,
-            # "order": "score",
-            # "encoder": "html",
-            # "require_field_match": True,
-            # "fields": {
-            #     "*": {}
-            # }
+
         }
         body["highlight"] = __highlight
     elif highlight:
@@ -451,25 +448,7 @@ def search(client: Elasticsearch,
                 }
             }
         ]
-    # if sort is not None:
-    #     if isinstance(sort, list):
-    #         for x in sort:
-    #             if isinstance(x, DocumentFields):
-    #                 _sort += x.__get_expr__() + ","
-    #             elif isinstance(x, str):
-    #                 _sort += x + ","
-    #
-    # _sort = _sort[:-1]
-    #
-    # body["aggs"]= {
-    #     "keywords" : {
-    #         "significant_text" : {
-    #             "field" : "content",
-    #             "filter_duplicate_text": True,
-    #             "min_doc_count":1
-    #             }
-    #         }
-    # }
+
     try:
         if len(script_fields) > 0:
             body["script_fields"] = {
@@ -485,24 +464,24 @@ def search(client: Elasticsearch,
                 }
             }
         body["sort"] = _sort_fields_
-        ret = client.search(index=index, doc_type=doc_type, body=body, request_timeout=30)
-        return SearchResult(ret)
+        search_result = client.search(index=index, doc_type=doc_type, body=body, request_timeout=30)
+        return SearchResult(search_result)
     except elasticsearch.exceptions.RequestError as e:
-        import cy_es.cy_es_manager
-        max_analyzed_offset = cy_es.cy_es_manager.get_max_analyzed_offset(e)
-        if max_analyzed_offset > -1:
-            if not ret.isnumeric():
-                settings = {
-                    "settings": {
-                        "index.highlight.max_analyzed_offset": max_analyzed_offset + int(
-                            math.floor(max_analyzed_offset / 10))
-                    }
-                }
-                client.indices.create(index=index, body=settings)
-                ret = client.search(index=index, doc_type=doc_type, body=body, request_timeout=30)
-                return SearchResult(ret)
-        print(body['query'])
-        print(e.error)
+        # import cy_es.cy_es_manager
+        # max_analyzed_offset = cy_es.cy_es_manager.get_max_analyzed_offset(e)
+        # if max_analyzed_offset > -1:
+        #     if not ret.isnumeric():
+        #         settings = {
+        #             "settings": {
+        #                 "index.highlight.max_analyzed_offset": max_analyzed_offset + int(
+        #                     math.floor(max_analyzed_offset / 10))
+        #             }
+        #         }
+        #         client.indices.create(index=index, body=settings)
+        #         ret = client.search(index=index, doc_type=doc_type, body=body, request_timeout=30)
+        #         return SearchResult(ret)
+        # print(body['query'])
+        # print(e.error)
         raise e
     except Exception as e:
         print(body['query'])
@@ -1041,7 +1020,7 @@ def __clean_up__():
 
 
 def loop_threading(loop_data: typing.Union[range, list, set, tuple]):
-    import multiprocessing as mp
+
     from threading import Thread
     def __wrapper__(func: typing.Callable):
 
@@ -1080,160 +1059,7 @@ def loop_threading(loop_data: typing.Union[range, list, set, tuple]):
     return __wrapper__
 
 
-def hash_words(content: str, suggest_handler=None):
-    words = content.lstrip(' ').rstrip(' ').replace('  ', ' ').split(' ')
-    index_hash = []
-    for i in range(0, len(words)):
-        index_hash += [
-            dict(
-                index=i,
-                # suggest_handler=suggest_handler,
-                words=words
 
-            )
-        ]
-
-    @loop_threading(index_hash)
-    def calculate_hash(data: dict):
-        left_len = len(data["words"]) - data["index"]
-        right_len = data["index"] - len(data["words"])
-        left = " ".join(data["words"][:left_len])
-        right = " ".join(data["words"][right_len:])
-        if suggest_handler:
-            try:
-                left_remain = suggest_handler(left)
-            except Exception as e:
-                left_remain = left
-            try:
-                right_remain = suggest_handler(right)
-            except Exception as e:
-                right_remain = right
-        return (left, left_len), (right, -right_len), (left_remain, left_len), (right_remain, -right_len)
-
-    ret = calculate_hash(False)
-    return ret
-
-
-def __build_search__depreciate_(fields, content, suggest_handler=None):
-    """
-
-    :param fields:
-    :param content:
-    :return:
-    """
-    """
-    "query": {
-    "multi_match" : {
-      "query" : "this is a test",
-      "fields" : [ "subject^3", "message" ] 
-    }
-  }
-    """
-    multi_match_ret = DocumentFields()
-    match_fields = []
-    list_of_hash = hash_words(content, suggest_handler)
-    if callable(suggest_handler):
-        suggest_content = suggest_handler(content)
-
-    # for x in fields:
-    #     if "^" in x:
-    #         match_fields += [x]
-    #     else:
-    #         match_fields += [x, f"{x}_seg^2", f"{x}_bm25_seg^1"]
-
-    fx_query_string_content_exactly = DocumentFields()
-    content_exactly = []
-    skip_count = 1
-    for ((left, left_len), (right, right_len), (left_suggest, _), (right_suggest, _)) in list_of_hash:
-        if left_len > skip_count:
-            content_exactly += [
-                {"constant_score":
-                    {
-                        "boost": 2000 * (left_len + 1),
-                        "filter": {
-                            "query_string": {
-                                "query": f'\"{left}\"  \"{left_suggest}\"',
-                                "fields": fields,
-                                "fuzziness": "0.5"
-                            }}}}
-            ]
-        if right_len > skip_count:
-            content_exactly += [
-                {"constant_score":
-                    {
-                        "boost": 2000 * (right_len + 1),
-                        "filter": {
-                            "query_string": {
-                                "query": f'\"{right}\"  \"{right_suggest}\"',
-                                "fields": fields,
-                                "fuzziness": "0.5"
-                            }}}}
-            ]
-
-    fx_query_string_content_exactly.__es_expr__ = {
-        "should": content_exactly
-    }
-    fx_query_string_content_exactly.__is_bool__ = True
-
-    # fx_query_string_content_suggest_exactly = DocumentFields()
-    # fx_query_string_content_suggest_exactly.__es_expr__ = {
-    #     "should": content_suggest_exactly
-    # }
-    # fx_query_string_content_suggest_exactly.__is_bool__ = True
-    fx_query_string_content = DocumentFields()
-    fx_query_string_content.__es_expr__ = {
-        "must": {
-            "query_string": {
-                "query": content,
-                "fields": fields
-            }
-        }
-    }
-    fx_query_string_content.__is_bool__ = True
-
-    fx_query_string_content_suggest = DocumentFields()
-    fx_query_string_content_suggest.__es_expr__ = {
-        "must": {
-            "query_string": {
-                "query": suggest_content,
-                "fields": fields,
-                "min_term_freq": 1,
-                "max_query_terms": 12
-            }
-        }
-    }
-    fx_query_string_content_suggest.__is_bool__ = True
-    """
-        {
-            "query": {
-                "more_like_this" : {
-                    "fields" : ["title"],
-                    "like" : "elasticsearch is fast",
-                    "min_term_freq" : 1,
-                    "max_query_terms" : 12
-                }
-            }
-
-        }
-    """
-    fx_more_like_this = DocumentFields(is_bool=True)
-    fx_more_like_this.__es_expr__ = {
-        "must": {
-            "more_like_this": {
-                "fields": fields,
-                "like": content,
-                "min_term_freq": 1,
-                "max_query_terms": 12,
-                "boost": 10000
-            }
-        }
-    }
-    fx_more_like_this.__highlight_fields__ = fields
-
-    ret = fx_query_string_content_exactly | \
-          fx_query_string_content
-    ret = fx_query_string_content
-    return ret
 
 
 def __build_search__(fields, content: str, suggest_handler=None):
@@ -1280,18 +1106,12 @@ def __build_search__(fields, content: str, suggest_handler=None):
         ret = ret.rstrip(" OR ")
         return ret
 
-    from vws import RDRSegmenter, Tokenizer
-    rdrsegment = RDRSegmenter.RDRSegmenter()
-    tokenizer = Tokenizer.Tokenizer()
+    # from vws import RDRSegmenter, Tokenizer
+    # rdrsegment = RDRSegmenter.RDRSegmenter()
+    # tokenizer = Tokenizer.Tokenizer()
 
     def make_expr(content: str, start_score: float) -> str:
-        seg_words = rdrsegment.segmentRawSentences(tokenizer, content)
-        seg_words = [x for x in seg_words if ' ' in x and len(x.rstrip(' ').lstrip(' ').strip(' ')) > 0]
-        and_content_seg, or_content_seg = make_search(seg_words)
         ret = jon_expr([
-
-            and_content_seg,
-            or_content_seg,
             content
         ], start_score)
         return ret

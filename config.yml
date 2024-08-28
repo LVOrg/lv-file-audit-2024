@@ -61,7 +61,7 @@ ext_image_file: [
 rabbitmq:
   server: 172.16.7.99
   port: 32358
-  msg: xyzdsc-2024
+  msg: xyzdsc-2024 #rabbitmq.msg: xyzdsc-2024
   username: codx
   password: Lacviet#123
 services:
@@ -83,13 +83,13 @@ clouds_support:
 
 # below settings are subsidiaries
 remote_office: http://172.16.7.99:32261
-remote_pdf_: http://172.16.7.99:32263
-remote_pdf: http://172.16.13.72:8001
+remote_pdf: http://172.16.7.99:32263
+remote_pdf_: http://172.16.13.72:8001
 remote_video: http://172.16.7.99:32264
 remote_ocr: http://172.16.7.99:32266
 tika_server: http://172.16.7.99:32265
-remote_thumb_: http://172.16.7.99:32267
 remote_thumb: http://172.16.7.99:32267
+remote_thumb_: http://172.16.7.99:32267
 
 private_web_api_: http://172.16.13.72:8012/lvfile
 private_web_api: http://172.16.7.99/lvfile

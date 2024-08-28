@@ -296,6 +296,8 @@ class FilesContentController(BaseController):
             raise ValueError(f"{directory} must be end with number")
         size= int(directory.split('/')[-1].split('.')[0])
         file_path = await self.thumb_service.get_async(app_name, directory, size)
+        if file_path is None:
+            raise FileNotFoundError()
         if isinstance(file_path,bson.ObjectId):
             fs= self.file_util_service.get_fs_mongo(app_name,file_id=file_path)
             ret = await cy_web.cy_web_x.streaming_async(fs, self.request, "image/webp")
