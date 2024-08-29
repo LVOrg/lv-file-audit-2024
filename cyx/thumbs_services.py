@@ -26,9 +26,9 @@ from cyx.common.rabitmq_message import RabitmqMsg
 from cyx.local_api_services import LocalAPIService
 from cyx.repository import Repository
 from cyx.malloc_services import MallocService
-
+import requests
 from cyx.file_utils_services import FileUtilService
-
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 class ThumbService:
     memcache_services = cy_kit.singleton(MemcacheServices)
     mongodb_service = cy_kit.singleton(MongodbService)
@@ -38,6 +38,7 @@ class ThumbService:
     malloc_service = cy_kit.singleton(MallocService)
     cache_group = f"/v03/{config.file_storage_path}/ThumbService/thumb"
     file_util_service = cy_kit.singleton(FileUtilService)
+    logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
     def get_thumb_type(self, ext_file) -> str:
         if ext_file.lower() == "pdf":
             return "pdf"
@@ -89,8 +90,8 @@ class ThumbService:
         )
         if real_file_path is None:
             return None
-        if upload_item.get(Repository.files.fields.FileExt.__name__):
-            mime_type, _ = mimetypes.guess_type(f'test.{upload_item.get(Repository.files.fields.FileExt.__name__)}')
+        if check_ext_file:=upload_item.get(Repository.files.fields.FileExt.__name__):
+            mime_type, _ = mimetypes.guess_type(f'test.{check_ext_file}')
         else:
             mime_type, _ = mimetypes.guess_type(real_file_path)
 
@@ -115,9 +116,7 @@ class ThumbService:
             return real_file_path
 
         main_field_id = upload_item.get(Repository.files.fields.MainFileId.__name__)
-        if (not main_field_id or
-                not isinstance(main_field_id,str) or
-                not "://" in main_field_id):
+        if (bson.objectid.ObjectId.is_valid(main_field_id)):
             """
             Recalculate file storage and location if upload's file is still in mongoDb
             """
@@ -130,7 +129,7 @@ class ThumbService:
                                        register_on.strftime("%Y/%m/%d").replace('/', os.sep),file_ext, upload_id)
             os.makedirs(folder_path, exist_ok=True)
             file_path = os.path.join(folder_path, upload_item.get(Repository.files.fields.FileName.__name__).lower())
-            import requests
+
             server_file = config.private_web_api +f"/api/{app_name}/file/{upload_item.get('_id')}/{upload_item[Repository.files.fields.FileName].lower()}"
             response = requests.get(server_file)
             if not os.path.isfile(file_path):
@@ -161,7 +160,7 @@ class ThumbService:
 
 
         file_path_image = f'{rel_file_path}.png'
-        if os.path.isfile(file_path_image):
+        if os.path.isfile(file_path_image) and os.stat(file_path_image).st_size>0:
             download_file_path, _, _, _, _ = self.local_api_service.get_download_path(
                 upload_item=upload_item,
                 app_name=app_name,
@@ -190,13 +189,13 @@ class ThumbService:
         folder_dir = pathlib.Path(real_file_path).parent.__str__()
         thumb_file = os.path.join(folder_dir,f"{size}.webp")
 
-        if os.path.isfile(thumb_file):
+        if os.path.isfile(thumb_file) and os.stat(thumb_file).st_size>0:
             self.memcache_services.set_str(key,thumb_file)
             return thumb_file
         image_file = real_file_path
         if file_type !="image":
             image_file=f"{real_file_path}.png"
-        if os.path.isfile(image_file):
+        if os.path.isfile(image_file) and os.stat(image_file).st_size>0:
             url_of_image = server_file.split('?')[0]+".png"+"?"+server_file.split("?")[1]
             url_upload_file = self.local_api_service.get_upload_path(
                 upload_item=upload_item,
@@ -333,7 +332,15 @@ class ThumbService:
                     download_url=download_url,
                     upload_url=upload_url
                 )
-        threading.Thread(target=running).start()
+        def run_with_exception():
+            try:
+                running()
+            except:
+                self.logs_to_mongo_db_service.log(
+                    error_content=traceback.format_exc(),
+                    url=f'{type(self).__module__}/{type(self).__name__}/run_generate_image'
+                )
+        threading.Thread(target=run_with_exception).start()
 
 
 

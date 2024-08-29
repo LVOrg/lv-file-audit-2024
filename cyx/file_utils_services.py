@@ -1,3 +1,8 @@
+"""
+This lib is all about for file:
+Get Upload from mongodb with cache
+Get File content
+"""
 import math
 import mimetypes
 import os
@@ -62,7 +67,7 @@ class FileUtilService(BaseUtilService):
 
     @staticmethod
     def get_update_expr(upload: typing.Dict[typing.AnyStr, typing.Any]) -> typing.Tuple:
-        return (
+        ret = (
             Repository.files.fields.NumOfChunksCompleted << upload.get(
                 Repository.files.fields.NumOfChunksCompleted.__name__),
             Repository.files.fields.SizeUploaded << upload.get(Repository.files.fields.SizeUploaded.__name__),
@@ -78,8 +83,16 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.SizeInBytes << upload.get(Repository.files.fields.SizeInBytes.__name__),
             Repository.files.fields.ChunkSizeInKB << upload.get(Repository.files.fields.ChunkSizeInKB.__name__),
             Repository.files.fields.FileExt << upload.get(Repository.files.fields.FileExt.__name__),
-            Repository.files.fields.MimeType << upload.get(Repository.files.fields.MimeType.__name__)
+            Repository.files.fields.MimeType << upload.get(Repository.files.fields.MimeType.__name__),
+            Repository.files.fields.OriginalFileExt << (upload.get(Repository.files.fields.OriginalFileExt.__name__) or
+                                                        upload.get(Repository.files.fields.FileExt.__name__))
         )
+        if upload.get(Repository.files.fields.VersionNumber.__name__):
+            ret=ret.__add__((Repository.files.fields.VersionNumber << upload.get(Repository.files.fields.VersionNumber.__name__),))
+        if upload.get(Repository.files.fields.MimeType.__name__):
+            ret = ret.__add__(
+                (Repository.files.fields.MimeType << upload.get(Repository.files.fields.MimeType.__name__),))
+        return ret
 
     def update_upload(self, app_name: str, upload_id: str, upload: typing.Dict[typing.AnyStr, typing.Any],
                       update_cache_only: bool = False):
@@ -238,7 +251,8 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.IsPublic << register_data.get("IsPublic", True),
             Repository.files.fields.FullFileNameWithoutExtenstion << f"{upload_id}/{file_name_only}",
             Repository.files.fields.FullFileNameWithoutExtenstionLower << f"{upload_id}/{file_name_only}".lower(),
-            Repository.files.fields.Privileges << privileges
+            Repository.files.fields.Privileges << privileges,
+            Repository.files.fields.OriginalFileExt<<file_ext[1:].lower()
         ]
         if googlePath:
             insert_data += [Repository.files.fields.FullPathOnCloud << googlePath]
@@ -343,7 +357,9 @@ class FileUtilService(BaseUtilService):
             Repository.files.fields.SizeUploaded << 0,
             Repository.files.fields.NumOfChunksCompleted << 0,
             Repository.files.fields.MimeType << m_type,
-            Repository.files.fields.VersionNumber << version_number
+            Repository.files.fields.VersionNumber << version_number,
+            Repository.files.fields.OriginalFileExt << (upload_data.get(Repository.files.fields.OriginalFileExt.__name__)
+                                                        or upload_data.get(Repository.files.fields.FileExt.__name__))
 
         )
         key = f"{self.cache_type}/{app_name}/{register_data['UploadId']}"
@@ -396,6 +412,8 @@ class FileUtilService(BaseUtilService):
                 upload_item[Repository.files.fields.SizeInBytes.__name__] = file_size
                 upload_item[Repository.files.fields.FileExt.__name__] = file_ext
                 upload_item[Repository.files.fields.FileName.__name__] = file_name
+                if not upload_item.get(Repository.files.fields.OriginalFileExt.__name__):
+                    upload_item[Repository.files.fields.OriginalFileExt.__name__]=file_ext
                 mime_type,_ = mimetypes.guess_type(file_name)
                 upload_item[Repository.files.fields.MimeType.__name__] = mime_type
                 self.update_upload(
@@ -715,7 +733,7 @@ class FileUtilService(BaseUtilService):
         file_size_in_bytes = upload_item.get(Repository.files.fields.SizeInBytes.__name__)
         chunk_size_in_kb = upload_item.get(Repository.files.fields.ChunkSizeInKB.__name__)
         num_of_chunks = upload_item.get(Repository.files.fields.NumOfChunks.__name__)
-        version_number = upload_item.get(Repository.files.fields.VersionNumber.__name__) or 1
+        version_number = (upload_item.get(Repository.files.fields.VersionNumber.__name__) or 0)+1
         mode = "wb" if chunk_index == 0 else "ab"
         tem_file_path = self.generate_main_file_path(app_name=app_name, upload=upload_item, version=version_number)
         dir_path = pathlib.Path(tem_file_path).parent.__str__()
@@ -728,14 +746,19 @@ class FileUtilService(BaseUtilService):
             """
             Finished set real location of file
             """
-            upload_item[Repository.files.fields.Status.__name__] = 1
+            upload_item[Repository.files.fields.Status.__name__] =version_number
+            upload_item[Repository.files.fields.VersionNumber.__name__] = 1
             upload_item[Repository.files.fields.MainFileId.__name__] = self.generate_main_file_id(
                 app_name=app_name,
                 upload=upload_item,
                 storage_type="local",
                 version=version_number
             )
+            upload_item[Repository.files.fields.VersionNumber.__name__] = version_number
+            file_name = upload_item[Repository.files.fields.FileName.__name__]
+            m_type, _ = mimetypes.guess_type(file_name)
             upload_item["real_file_location"] = tem_file_path
+            upload_item[Repository.files.fields.MimeType.__name__] = m_type
         num_of_chunks_completed = upload_item.get(Repository.files.fields.NumOfChunksCompleted.__name__, 0)
         num_of_chunks_completed += 1
         upload_item[Repository.files.fields.NumOfChunksCompleted.__name__] = num_of_chunks_completed
@@ -768,7 +791,9 @@ class FileUtilService(BaseUtilService):
         if upload.get(Repository.files.fields.FileExt.__name__):
             file_name = f'{file_name}.{upload.get(Repository.files.fields.FileExt.__name__)}'
         ext_file = "unknown"
-        if upload.get(Repository.files.fields.FileExt.__name__):
+        if upload.get(Repository.files.fields.OriginalFileExt.__name__):
+            ext_file = upload.get(Repository.files.fields.OriginalFileExt.__name__)[0:3]
+        elif upload.get(Repository.files.fields.FileExt.__name__):
             ext_file = upload.get(Repository.files.fields.FileExt.__name__)[0:3]
         registered_on_iso: str = upload.get(Repository.files.fields.RegisterOn.__name__)
         registered_on = datetime.fromisoformat(registered_on_iso)
@@ -786,7 +811,10 @@ class FileUtilService(BaseUtilService):
             file_name = f'{file_name}.{upload.get(Repository.files.fields.FileExt.__name__)}'
         file_name = file_name.lower().replace('(', '_').replace(')', '_')
         ext_file = "unknown"
-        if upload.get(Repository.files.fields.FileExt.__name__):
+
+        if upload.get(Repository.files.fields.OriginalFileExt.__name__):
+            ext_file = upload.get(Repository.files.fields.OriginalFileExt.__name__)[0:3]
+        elif upload.get(Repository.files.fields.FileExt.__name__):
             ext_file = upload.get(Repository.files.fields.FileExt.__name__)[0:3]
         registered_on_iso: str = upload.get(Repository.files.fields.RegisterOn.__name__)
         registered_on = datetime.fromisoformat(registered_on_iso)
@@ -852,3 +880,5 @@ class FileUtilService(BaseUtilService):
         item[Repository.files.fields.MainFileId] = main_file_id
         Repository.files.app(app_name).context.insert_one(item)
         return item
+
+

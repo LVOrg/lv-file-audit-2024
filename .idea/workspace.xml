@@ -5,12 +5,50 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/yaml/ocr-99.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/local_api_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/local_api_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/extract_content_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/extract_content_service.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/local_api_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/local_api_services.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_caller.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_caller.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/file_local_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/file_local_controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/controllers/base_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/controllers/base_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_web/cy_web_x.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_xdoc/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/local_api_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/local_api_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_api_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/remote_caller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/remote_caller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/remote_server_libs/office.py" beforeDir="false" afterPath="$PROJECT_DIR$/remote_server_libs/office.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,27 +92,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.che_write_file_with_encrypt.executor": "Debug",
-    "Python.check.executor": "Debug",
-    "Python.check_id.executor": "Debug",
-    "Python.check_list.executor": "Debug",
-    "Python.checkfile.executor": "Debug",
-    "Python.clear_logs.executor": "Debug",
-    "Python.contents.executor": "Debug",
-    "Python.load_check.executor": "Debug",
-    "Python.pdf_api.executor": "Debug",
-    "Python.server (1).executor": "Debug",
-    "Python.server.executor": "Debug",
-    "Python.task_content.executor": "Debug",
-    "Python.task_google_file_sync.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.che_write_file_with_encrypt.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.check.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.check_id.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.check_list.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.checkfile.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.clear_logs.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.contents.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.load_check.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.pdf_api.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.server (1).executor&quot;: &quot;Debug&quot;,
+    &quot;Python.server.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.task_content.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.task_google_file_sync.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.task_vietlott_ocr_all.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/root/python-2024/lv-file-fix-2024/py-files-sv&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="py-files-sv" is-module-sdk="true">
@@ -163,28 +202,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="load_check" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py-files-sv" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_checking" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/load_check.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="server (1)" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -229,13 +246,35 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="task_vietlott_ocr_all" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.task_vietlott_ocr_all" />
         <item itemvalue="Python.clear_logs" />
         <item itemvalue="Python.check" />
         <item itemvalue="Python.task_content" />
         <item itemvalue="Python.contents" />
-        <item itemvalue="Python.load_check" />
       </list>
     </recent_temporary>
   </component>
@@ -285,11 +324,6 @@
           <option name="timeStamp" value="69" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/local_api_services.py</url>
-          <line>133</line>
-          <option name="timeStamp" value="106" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/a_checking/che_write_file_with_encrypt.py</url>
           <line>8</line>
           <option name="timeStamp" value="136" />
@@ -301,7 +335,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>776</line>
+          <line>801</line>
           <option name="timeStamp" value="158" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -321,22 +355,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>223</line>
+          <line>236</line>
           <option name="timeStamp" value="164" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
-          <line>145</line>
-          <option name="timeStamp" value="166" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_xdoc/services/files.py</url>
-          <line>730</line>
+          <line>662</line>
           <option name="timeStamp" value="185" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>824</line>
+          <line>852</line>
           <option name="timeStamp" value="189" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -365,39 +394,9 @@
           <option name="timeStamp" value="254" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>141</line>
-          <option name="timeStamp" value="255" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>122</line>
-          <option name="timeStamp" value="256" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>128</line>
-          <option name="timeStamp" value="257" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>130</line>
-          <option name="timeStamp" value="258" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/remote_caller.py</url>
-          <line>64</line>
-          <option name="timeStamp" value="266" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/a_checking/check_id.py</url>
           <line>3</line>
           <option name="timeStamp" value="273" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_register_controller.py</url>
-          <line>175</line>
-          <option name="timeStamp" value="274" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_xdoc/services/files.py</url>
@@ -441,11 +440,6 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
-          <line>255</line>
-          <option name="timeStamp" value="291" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/files/files_upload_controller.py</url>
           <line>305</line>
           <option name="timeStamp" value="292" />
         </line-breakpoint>
@@ -470,19 +464,104 @@
           <option name="timeStamp" value="300" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/file_local_controller.py</url>
+          <line>47</line>
+          <option name="timeStamp" value="319" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/file_local_controller.py</url>
+          <line>112</line>
+          <option name="timeStamp" value="320" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/files/file_local_controller.py</url>
+          <line>98</line>
+          <option name="timeStamp" value="321" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/search/search_controller.py</url>
+          <line>74</line>
+          <option name="timeStamp" value="322" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
+          <line>152</line>
+          <option name="timeStamp" value="327" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_xdoc/server.py</url>
+          <line>165</line>
+          <option name="timeStamp" value="337" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
+          <line>78</line>
+          <option name="timeStamp" value="346" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
+          <line>91</line>
+          <option name="timeStamp" value="347" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
+          <line>81</line>
+          <option name="timeStamp" value="348" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
+          <line>154</line>
+          <option name="timeStamp" value="350" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
+          <line>180</line>
+          <option name="timeStamp" value="351" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
+          <line>193</line>
+          <option name="timeStamp" value="352" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/thumbs_services.py</url>
+          <line>338</line>
+          <option name="timeStamp" value="366" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/remote_caller.py</url>
+          <line>17</line>
+          <option name="timeStamp" value="367" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
+          <line>601</line>
+          <option name="timeStamp" value="397" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_controllers/files/files_content_controller.py</url>
-          <line>122</line>
-          <option name="timeStamp" value="306" />
+          <line>106</line>
+          <option name="timeStamp" value="398" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_xdoc/server.py</url>
-          <line>246</line>
-          <option name="timeStamp" value="308" />
+          <url>file://$PROJECT_DIR$/cy_controllers/files/files_content_controller.py</url>
+          <line>103</line>
+          <option name="timeStamp" value="399" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_xdoc/server.py</url>
-          <line>241</line>
-          <option name="timeStamp" value="309" />
+          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
+          <line>535</line>
+          <option name="timeStamp" value="400" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
+          <line>606</line>
+          <option name="timeStamp" value="403" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
+          <line>759</line>
+          <option name="timeStamp" value="404" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lv-ocr-ingress
+  namespace: files
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /ocr/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: lv-ocr-service
+                port:
+                  number: 80

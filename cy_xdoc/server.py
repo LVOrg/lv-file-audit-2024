@@ -162,7 +162,7 @@ async def dev_mode(request: fastapi.Request, next):
 
         res = await apply_time(res)
         return res
-    except:
+    except Exception as ex:
         return Response(content=traceback.format_exc(),status_code=500)
 
 
@@ -207,7 +207,7 @@ async def release_mode(request: fastapi.Request, next):
         #     res.headers["access-control-allow-origin"] = "https://oms.qtsc.com.vn"
         res.headers['access-control-allow-credentials'] = 'true'
         return res
-    except:
+    except Exception as ex:
         error_content = traceback.format_exc()
 
         await logs_to_mongo_db_service.log_async(error_content, request.url.path)

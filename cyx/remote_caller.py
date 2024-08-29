@@ -13,15 +13,16 @@ class RemoteCallerService:
         :param url_upload_file:
         :return:
         """
-        response = requests.post(url_of_office_to_image_service + "/get-image", json=dict(
-            url_of_content=url_of_content,
-            url_upload_file=url_upload_file
-        ))
+
         try:
+            response = requests.post(url_of_office_to_image_service + "/get-image", json=dict(
+                url_of_content=url_of_content,
+                url_upload_file=url_upload_file
+            ))
+            response.raise_for_status()
             return response.json()
         except:
-            print(response.text)
-            return dict(error=dict(Code="RemoteERR500", Description=response.text))
+            raise Exception(f"remote call error {url_of_content}\n{response.text}")
 
     def get_thumb(self, url_of_thumb_service:str, url_of_image:str, url_upload_file:str, size: int):
         """
@@ -32,44 +33,41 @@ class RemoteCallerService:
         :param url_upload_file: url upload thumb file after process thumb
         :return:
         """
-        response = requests.post(url_of_thumb_service+"/get-thumb", json=dict(
-            size=size,
-            url_of_thumb_service = f'{url_of_thumb_service}/get-thumb',
-            url_of_image = url_of_image,
-            url_upload_file = url_upload_file
-        ))
+
         try:
+            response = requests.post(url_of_thumb_service + "/get-thumb", json=dict(
+                size=size,
+                url_of_thumb_service=f'{url_of_thumb_service}/get-thumb',
+                url_of_image=url_of_image,
+                url_upload_file=url_upload_file
+            ))
+            response.raise_for_status()
             return response.json()
         except:
-            print(response.text)
-            return dict(error=dict(Code="RemoteERR500",Description=response.text))
+            raise Exception(f"remote call error {url_of_thumb_service}\n{response.text}")
 
     def get_image_from_pdf(self, download_url, upload_url):
         uri:str = f'{config.remote_pdf}/get-image'
-        def running():
-            response = requests.post(uri , json=dict(
-                download_url = download_url,
-                upload_url = upload_url
-            ))
-            try:
-                return response.json()
-            except:
-                print(response.text)
-                return dict(error=dict(Code="RemoteERR500", Description=response.text))
-        threading.Thread(target=running).start()
 
-    def get_image_from_video(self, download_url, upload_url):
-        uri: str = f'{config.remote_video}/get-image'
-
-        def running():
+        try:
             response = requests.post(uri, json=dict(
                 download_url=download_url,
                 upload_url=upload_url
             ))
-            try:
-                return response.json()
-            except:
-                print(response.text)
-                return dict(error=dict(Code="RemoteERR500", Description=response.text))
+            response.raise_for_status()
+            return response.json()
+        except:
+            raise Exception(f"remote call error {uri}\n{response.text}")
 
-        threading.Thread(target=running).start()
+    def get_image_from_video(self, download_url, upload_url):
+        uri: str = f'{config.remote_video}/get-image'
+
+        try:
+            response = requests.post(uri, json=dict(
+                download_url=download_url,
+                upload_url=upload_url
+            ))
+            response.raise_for_status()
+            return response.json()
+        except:
+            raise Exception(f"remote call error {uri}\n{response.text}")

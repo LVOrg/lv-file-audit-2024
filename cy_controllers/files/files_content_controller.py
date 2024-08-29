@@ -133,7 +133,7 @@ class FilesContentController(BaseController):
             ret = await cy_web.cy_web_x.streaming_async(fs, self.request, "image/webp")
             return ret
 
-        if file_path is not None:
+        if file_path is not None and os.stat(file_path).st_size>0:
 
             ret = await cy_web.cy_web_x.streaming_async(file_path, self.request, "image/webp")
             return ret

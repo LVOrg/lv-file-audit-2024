@@ -324,21 +324,27 @@ class FilesUploadController(BaseController):
 
                 )
                 m_t, _ = mimetypes.guess_type(f"a.{ext_file}")
-                if ext_file =="pdf":
-                    self.remote_caller_service.get_image_from_pdf(
-                        download_url = download_url,
-                        upload_url = upload_url
-                    )
-                elif ext_file in config.ext_office_file:
-                    self.remote_caller_service.get_image_from_office(
-                        url_of_content=download_url,
-                        url_upload_file=upload_url,
-                        url_of_office_to_image_service= config.remote_office
-                    )
-                elif m_t.startswith("video/"):
-                    self.remote_caller_service.get_image_from_video(
-                        download_url=download_url,
-                        upload_url=upload_url
+                try:
+                    if ext_file =="pdf":
+                        self.remote_caller_service.get_image_from_pdf(
+                            download_url = download_url,
+                            upload_url = upload_url
+                        )
+                    elif ext_file in config.ext_office_file:
+                        self.remote_caller_service.get_image_from_office(
+                            url_of_content=download_url,
+                            url_upload_file=upload_url,
+                            url_of_office_to_image_service= config.remote_office
+                        )
+                    elif m_t.startswith("video/"):
+                        self.remote_caller_service.get_image_from_video(
+                            download_url=download_url,
+                            upload_url=upload_url
+                        )
+                except:
+                    await self.logs_to_mongo_db_service.log_async(
+                        error_content=traceback.format_exc(),
+                        url="Call remote service"
                     )
 
                 map = {

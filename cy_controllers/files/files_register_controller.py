@@ -174,6 +174,18 @@ class FilesRegisterController(BaseController):
             """
         self.malloc_service.reduce_memory()
         if Data.UploadId and Data.UploadId != "":
+            upload_item = self.file_util_service.get_upload(
+                app_name=app_name,
+                upload_id=Data.UploadId,
+                cache=False
+            )
+            if not upload_item:
+                return dict(
+                    Error=dict(
+                        Code="ResourceNotFound",
+                        Message="Resource was not found"
+                    )
+                )
             return await self.file_util_service.register_upload_async(
                 app_name=app_name,
                 register_data=Data.__dict__,

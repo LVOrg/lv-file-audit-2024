@@ -30,7 +30,7 @@ import mimetypes
 import fastapi
 import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
-from cy_xdoc.services.apps import AppServices, AppsCacheService
+
 from cy_xdoc.services.search_engine import SearchEngine
 
 # from cyx.media.image_extractor import ImageExtractorService
@@ -47,7 +47,7 @@ from  cyx.docs_contents_services import DocsContentsServices
 from cyx.image_services import ImageService
 from cyx.extract_content_service import ExtractContentService
 from cyx.g_drive_services import GDriveService
-from cyx.distribute_locking.distribute_lock_services import DistributeLockService
+
 from cyx.google_drive_utils.directories import GoogleDirectoryService
 from cyx.ms.ms_auth_services import MSAuthService
 from cyx.ms.ms_commom_service import MSCommonService
@@ -68,8 +68,6 @@ class BaseController:
     memcache_service = cy_kit.singleton(MemcacheServices)
     logger_service = cy_kit.singleton(LoggerService)
     file_cacher_service = cy_kit.singleton(FileCacherService)
-    service_app: AppServices = cy_kit.singleton(AppServices)
-    apps_cache: AppsCacheService = cy_kit.singleton(AppsCacheService)
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
     search_engine = cy_kit.singleton(SearchEngine)

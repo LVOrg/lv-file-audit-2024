@@ -2,6 +2,7 @@
 import os.path
 
 import typing
+from urllib.error import HTTPError
 
 from cyx.common import config
 
@@ -119,7 +120,7 @@ class ExtractContentService:
             print(f"Failed to connect to remote OCR service: {e}")
             return False
 
-    def get_content_from_pdf_ocr(self, tika_server, url_content)->typing.Tuple[str|None,typing.Union[dict,str]]:
+    def get_content_from_pdf_ocr(self, tika_server, url_content)->typing.Tuple[str|None,typing.Union[dict,str]|None]:
         data = {
             "tika_server": tika_server,
             "remote_file": url_content
@@ -129,13 +130,13 @@ class ExtractContentService:
         response = requests.post(url, json=data)
         try:
             response.raise_for_status()
-        except Exception as ex:
-            return  None, str(ex)
+        except requests.exceptions.HTTPError:
+            return  None, response.content.decode()
         ret_data = response.json()
         if ret_data.get("Error"):
             return None,ret_data.get("Error")
         else:
-            return  ret_data.get("result"), None
+            return  str( ret_data.get("result","")), None
         # Check for successful response
 
     def update_by_using_ocr_pdf(self, download_url,  data, app_name):
@@ -149,7 +150,7 @@ class ExtractContentService:
                     app_name=app_name
                 )
         else:
-            raise Exception("get_content_from_pdf_ocr is error")
+            raise Exception(error)
 
     def update_by_using_tika(self,download_url,rel_path,data,app_name):
         try:

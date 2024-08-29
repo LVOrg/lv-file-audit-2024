@@ -142,6 +142,8 @@ async def hz():
 
 
 if __name__ == "__main__":
+    import signal
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
     port = 8001
     for x in sys.argv:
         if x.startswith("port="):

@@ -142,6 +142,7 @@ class DocUploadRegister:
     ChunkSizeInBytes: int
     NumOfChunks: int
     FileExt: str
+    OriginalFileExt: str
     SizeInHumanReadable: str
     PercentageOfUploaded: float
     ServerFileName: str

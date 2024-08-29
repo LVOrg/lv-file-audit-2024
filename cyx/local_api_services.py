@@ -142,7 +142,22 @@ class LocalAPIService:
         print(f"process file {rel_file_path} ...")
         local_share_id = None
         token = None
-        server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        physical_file_path = os.path.join(config.file_storage_path, rel_file_path.replace('/',os.sep))
+        if os.path.isfile(physical_file_path):
+            server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
+        else:
+            file_ext = upload_item.get(Repository.files.fields.FileExt.__name__)
+            rel_dir_path = pathlib.Path(rel_file_path).parent.__str__()
+            version = upload_item.get(Repository.files.fields.VersionNumber.__name__,1)
+
+            if file_ext:
+                rel_file_path_with_version = f'{rel_dir_path}/data.{file_ext.lower()}-version-{version}'
+            else:
+                rel_file_path_with_version = f'{rel_dir_path}/data.{file_ext.lower()}-version-{version}'
+            physical_file_path_with_version = os.path.join(config.file_storage_path, rel_file_path_with_version.replace('/',os.sep))
+            if os.path.isfile(physical_file_path_with_version):
+                rel_file_path = rel_file_path_with_version
+            server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path
         # es_server_file = config.private_web_api + "/api/sys/admin/content-share/" + rel_file_path+".search.es"
         if not upload_item.get("local_share_id"):
             token = self.get_access_token("admin/root", "root")

@@ -31,7 +31,7 @@ class LogsToMongoDbService:
             return hostname
     async def log_async(self, error_content,url):
         await Repository.lv_files_sys_logs.app("admin").context.insert_one_async(
-            Repository.lv_files_sys_logs.fields.LogOn << datetime.datetime.utcnow(),
+            Repository.lv_files_sys_logs.fields.LogOn << datetime.datetime.now(datetime.UTC),
             Repository.lv_files_sys_logs.fields.ErrorContent << error_content,
             Repository.lv_files_sys_logs.fields.PodId << self.get_pod_name(),
             Repository.lv_files_sys_logs.fields.Url << url,
@@ -40,7 +40,7 @@ class LogsToMongoDbService:
 
     def log(self, error_content, url):
         Repository.lv_files_sys_logs.app("admin").context.insert_one(
-            Repository.lv_files_sys_logs.fields.LogOn << datetime.datetime.utcnow(),
+            Repository.lv_files_sys_logs.fields.LogOn << datetime.datetime.now(datetime.UTC),
             Repository.lv_files_sys_logs.fields.ErrorContent << error_content,
             Repository.lv_files_sys_logs.fields.PodId << self.get_pod_name(),
             Repository.lv_files_sys_logs.fields.Url << url,

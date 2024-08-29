@@ -9,7 +9,7 @@ from fastapi import (
     File
 )
 from starlette.responses import StreamingResponse
-
+from cyx.common import config
 import mimetypes
 from typing import Annotated
 router = APIRouter()
@@ -29,14 +29,21 @@ class FilesLocalController(BaseController):
     async def read_raw_content_async(self,
                                       rel_path: str
                                       ) -> None:
-        try:
-            ret = await  self.read_raw_content_caller_async(rel_path)
-            return ret
-        except:
-            return None
+        ret = await  self.read_raw_content_caller_async(rel_path)
+        return ret
     async def read_raw_content_caller_async(self,
                                rel_path:str
                                ) -> None:
+
+        check_file = os.path.join(config.file_storage_path, rel_path).replace('/', os.sep)
+        if os.path.isfile(check_file):
+            fs = open(check_file, "rb")
+            content_type, _ = mimetypes.guess_type(check_file)
+            ret = await streaming_async(
+                fs, self.request, content_type, streaming_buffering=1024 * 4 * 3 * 8
+            )
+            ret.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            return ret
 
         local_share_id= self.request.query_params.get("local-share-id")
         token = self.request.query_params.get("token")
@@ -46,7 +53,8 @@ class FilesLocalController(BaseController):
 
         upload_id = pathlib.Path(rel_path).parent.name.__str__()
         app_name = rel_path.split('/')[0]
-        server_path = os.path.join(self.config.file_storage_path, rel_path.replace('/', os.path.sep))
+        server_path = self.file_util_service.get_physical_path(app_name= app_name, upload_id=upload_id)
+
 
         if local_share_id:
             check_data = self.local_api_service.check_local_share_id(
@@ -118,3 +126,5 @@ class FilesLocalController(BaseController):
                 f.write(data_write)
                 data_write = await content.read(2048)
         return server_path
+
+
