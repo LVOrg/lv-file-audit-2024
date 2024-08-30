@@ -9,7 +9,8 @@ from cyx.extract_content_service import ExtractContentService
 from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.g_drive_services import GDriveService
 from cyx.common.file_storage_mongodb import MongoDbFileService
-
+from cyx.remote_caller import RemoteCallerService
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 class BaseUtilService:
     config = config
     """
@@ -27,3 +28,5 @@ class BaseUtilService:
     extract_content_service: ExtractContentService = cy_kit.singleton(ExtractContentService)
     cache_type= f"{DocUploadRegister.__module__}.{DocUploadRegister.__name__}"
     mongo_db_file_service = cy_kit.singleton(MongoDbFileService)
+    remote_caller_service = cy_kit.singleton(RemoteCallerService)
+    logs_to_mongodb_service = cy_kit.singleton(LogsToMongoDbService)

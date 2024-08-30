@@ -8,6 +8,7 @@ import mimetypes
 import os
 import pathlib
 import shutil
+import threading
 
 import traceback
 import typing
@@ -33,7 +34,6 @@ MAX_WORKERS = 10
 WORKERS = dict()
 from cyx.file_utils_services_base import BaseUtilService
 from cy_file_cryptor.wrappers import cy_open_file
-
 
 class RegisterUploadException(Exception):
     def __init__(self, Code: str, Message: str):
@@ -880,5 +880,41 @@ class FileUtilService(BaseUtilService):
         item[Repository.files.fields.MainFileId] = main_file_id
         Repository.files.app(app_name).context.insert_one(item)
         return item
+
+    def generate_image_in_process(self,resource_url:str,upload_resource_url:str, resource_ext_file:str):
+        """
+        This method just send a signal to lib pod for image processing without waiting or track any error
+        @param resource_url: the resource of url only run on local
+        @param upload_resource_url: the upload url only run on local (upload url is private channel for Pod in k8s or docker contact together never use at public)
+        @param resource_ext_file:
+        @return:
+        """
+        if resource_ext_file is None or resource_ext_file=="":
+            return
+        m_t,_ = mimetypes.guess_type(f"a.{resource_ext_file}")
+        def run_in_thread():
+            try:
+                if resource_ext_file == "pdf":
+                    self.remote_caller_service.get_image_from_pdf(
+                        download_url=resource_url,
+                        upload_url=upload_resource_url
+                    )
+                elif resource_ext_file in config.ext_office_file:
+                    self.remote_caller_service.get_image_from_office(
+                        url_of_content=resource_url,
+                        url_upload_file=upload_resource_url,
+                        url_of_office_to_image_service=config.remote_office
+                    )
+                elif m_t.startswith("video/"):
+                    self.remote_caller_service.get_image_from_video(
+                        download_url=resource_url,
+                        upload_url=upload_resource_url
+                    )
+            except:
+                self.logs_to_mongodb_service.log_async(
+                    error_content=traceback.format_exc(),
+                    url="Call remote service"
+                )
+        threading.Thread(target=run_in_thread).start()
 
 
