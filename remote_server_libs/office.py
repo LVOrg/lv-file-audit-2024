@@ -114,8 +114,11 @@ async def root():
 @app.post("/get-image")
 async def get_image_from_office(
         url_of_content: str = Body(embed=True),
-        url_upload_file: str = Body(embed=True)):
+        url_upload_file: str = Body(embed=True),
+        run_in_thread:bool = Body(embed=True,default=True)
+):
     def runner():
+        print(run_in_thread)
         file_download = download_content(url_of_content, temp_processing_file)
         print(url_of_content)
 
@@ -126,12 +129,29 @@ async def get_image_from_office(
             url_upload_file=url_upload_file,
             image_file_path=image_file_path
         )
-    threading.Thread(target=runner).start()
-    return dict(
-        url_of_content=url_of_content,
-        url_upload_file=url_upload_file,
-        # file_download=file_download
-    )
+    if run_in_thread:
+        threading.Thread(target=runner).start()
+        return dict(
+            url_of_content=url_of_content,
+            url_upload_file=url_upload_file,
+            # file_download=file_download
+        )
+    else:
+        try:
+            runner()
+            return dict(
+                url_of_content=url_of_content,
+                url_upload_file=url_upload_file,
+                # file_download=file_download
+            )
+        except Exception as ex:
+            return dict(
+                error=dict(
+                    code=repr(ex),
+                    message = traceback.format_exc()
+                )
+            )
+
 
 
 

@@ -82,7 +82,8 @@ clouds_support:
 
 
 # below settings are subsidiaries
-remote_office: http://172.16.7.99:32261
+remote_office_: http://172.16.7.99:32261
+remote_office: http://172.16.13.72:8001
 remote_pdf: http://172.16.7.99:32263
 remote_pdf_: http://172.16.13.72:8001
 remote_video: http://172.16.7.99:32264

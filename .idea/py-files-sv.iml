@@ -9,6 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv-web-api-py-313" />
       <excludeFolder url="file://$MODULE_DIR$/web-api-312" />
       <excludeFolder url="file://$MODULE_DIR$/web-api-313" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-remote-office" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (py-files-sv)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

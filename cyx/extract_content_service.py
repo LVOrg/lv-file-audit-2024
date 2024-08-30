@@ -143,6 +143,7 @@ class ExtractContentService:
         tika_server = config.tika_server
         content,error = self.get_content_from_pdf_ocr(tika_server=tika_server,url_content= download_url)
         if not error:
+            print(content)
             if isinstance(content, str):
                 self.do_update_content(
                     data=data,

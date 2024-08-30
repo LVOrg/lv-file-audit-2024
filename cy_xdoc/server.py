@@ -245,6 +245,8 @@ async def estimate_time(request: fastapi.Request, next):
             return await release_mode(request, next)
     except FileNotFoundError():
         return Response(status_code=404,content="Resource was not found")
+    finally:
+        malloc_service.async_reduce_memory()
 
 
 app = cy_web.get_fastapi_app()

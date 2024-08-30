@@ -112,7 +112,7 @@ MSG_FILE_EXTRACT_AUDIO_FROM_VIDEO = "files.upload.extract.audio.from.video"
 MSG_APP_RE_INDEX_ALL = "apps.re-index.all"
 MSG_LIBRE_OFFICE_CONVERT_TO_IMAGE = "libre.office.convert.process"
 MSG_LIBRE_OFFICE_CONVERT_TO_IMAGE_FINISH = "libre.office.convert.finish"
-MSG_EXTRACT_TEXT_FROM_OFFICE_FILE = ""
+MSG_EXTRACT_TEXT_FROM_OFFICE_FILE = "text.from.office.file"
 import datetime
 from typing import List
 from cyx.common import config

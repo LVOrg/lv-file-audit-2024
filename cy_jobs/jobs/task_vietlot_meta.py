@@ -67,13 +67,11 @@ def clear_console():
 
 ret = Repository.files.app(app_name).context.update(
     {},
-    Repository.files.fields.UpdateMetaDataTime << "1"
+    Repository.files.fields.UpdateMetaDataTime << "2"
 )
 
 while row_count>0:
-    lv_files = Repository.files.app(app_name).context.aggregate().match(
-        Repository.files.fields.UpdateMetaDataTime=="1"
-    ).sort(
+    lv_files = Repository.files.app(app_name).context.aggregate().sort(
         Repository.files.fields.RegisterOn.desc()
     ).project(
         cy_docs.fields.upload_id>> Repository.files.fields.id

@@ -90,7 +90,7 @@ class Broker:
         doc_context.context.insert_one(
             doc_context.fields.Data << data,
             doc_context.fields.MsgType << message_type,
-            doc_context.fields.CreatedOn << datetime.datetime.utcnow(),
+            doc_context.fields.CreatedOn << datetime.datetime.now(datetime.UTC),
             doc_context.fields.MsgId << str(uuid.uuid4()),
             doc_context.fields.IsLock << False,
             doc_context.fields.AppName << app_name,

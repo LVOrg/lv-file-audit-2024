@@ -6,7 +6,11 @@ class RemoteCallerService:
     def __init__(self):
         pass
 
-    def get_image_from_office(self, url_of_office_to_image_service:str, url_of_content:str, url_upload_file:str):
+    def get_image_from_office(self,
+                              url_of_office_to_image_service:str,
+                              url_of_content:str,
+                              url_upload_file:str,
+                              run_in_thread:bool = True):
         """
         :param url_of_office_to_image_service:
         :param url_of_content:
@@ -17,7 +21,8 @@ class RemoteCallerService:
         try:
             response = requests.post(url_of_office_to_image_service + "/get-image", json=dict(
                 url_of_content=url_of_content,
-                url_upload_file=url_upload_file
+                url_upload_file=url_upload_file,
+                run_in_thread = run_in_thread
             ))
             response.raise_for_status()
             return response.json()

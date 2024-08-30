@@ -18,7 +18,7 @@ import cy_kit
 from cy_xdoc.services.search_engine import SearchEngine
 search_engine=cy_kit.singleton(SearchEngine)
 app_name = "default"
-# app_name = "vietlotttest"
+#app_name = "developer"
 from cyx.repository import Repository
 # codx_mongodb="mongodb://admin:Erm%402021@172.16.7.33:27017"
 from pymongo.mongo_client import MongoClient
