@@ -1,0 +1,749 @@
+---
+# Source: lv-files/templates/namespace.yml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: files
+---
+# Source: lv-files/templates/repository-config.yml
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==
+kind: Secret
+metadata:
+  name: harbor-secret-registry
+  namespace: files
+
+type: kubernetes.io/dockerconfigjson
+---
+# Source: lv-files/templates/config-map.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lv-file-config
+  namespace: files
+data:
+  admin_db_name: lv-docs
+  db: mongodb%3A%2F%2F192.168.18.36%3A27017
+  
+  elastic_search.prefix_index: 'lv-codx'
+  elastic_search.server: 'http://192.168.18.36:9200'
+  
+  rabbitmq.port: '5672'
+  rabbitmq.server: 'codx-rabbitmq.rabbitmq'
+  rabbitmq.msg: 'xyzdsc-2024'
+  rabbitmq.username: 'codx'
+  rabbitmq.password: 'Lacviet#123'
+  cache_server: 'lv-file-cache-service.files:11211'
+  workers: '1'
+  worker_class.uvicorn: 'UvicornWorker' #UvicornH11Worker
+  worker_class.h11: 'UvicornH11Worker' #UvicornH11Worker
+  worker_class.uvloop: 'uvloop'
+  worker_class.trio: 'trio'
+  timeout_keep_alive: '30'
+  timeout_graceful_shutdown: '30'
+  server_type.unvicorn: 'unvicorn'
+  server_type.hypercorn: 'hypercorn'
+  server_type.default: 'auto'
+  h2_max_concurrent_streams: '100'
+  web_api_url: ./lvfile
+  private_web_api: http://lv-file.files:8012/lvfile
+  auto_ssl_redirect: 'false'
+  use_ssl: ''
+---
+# Source: lv-files/templates/cache.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-file-cache-service
+  namespace: files
+  labels:
+    app: lv-file-cache-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 11211
+      targetPort: 11211
+
+  selector:
+    app: lv-file-cache
+  type: ClusterIP
+---
+# Source: lv-files/templates/content-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+ name: content-service
+ namespace: files
+ labels:
+   app: content-service
+spec:
+
+ type: NodePort
+
+ selector:
+   app: "content"
+ ports:
+   - name: "content"
+     port: 80
+     targetPort: 80
+     protocol: TCP
+
+     nodePort: 32260
+---
+# Source: lv-files/templates/ocr.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-ocr-service
+  namespace:  files
+  labels:
+    app: lv-ocr-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      
+      nodePort: 32266
+      
+  
+  type: NodePort
+  
+  selector:
+    app: lv-ocr
+---
+# Source: lv-files/templates/office.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-office-service
+  namespace:  files
+  labels:
+    app: lv-office-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      
+      nodePort: 32261
+      
+  
+  type: NodePort
+  
+  selector:
+    app: lv-office
+---
+# Source: lv-files/templates/pdf.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-pdf-service
+  namespace:  files
+  labels:
+    app: lv-pdf-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      
+      nodePort: 32263
+      
+  
+  type: NodePort
+  
+  selector:
+    app: lv-pdf
+---
+# Source: lv-files/templates/services.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: lv-file-service
+ namespace: files
+ labels:
+   app: lv-file-service
+spec:
+
+ type: ClusterIP
+
+ selector:
+   app: lv-file
+ ports:
+   - name: lv-file
+     port: 80
+     targetPort: 80
+     protocol: TCP
+---
+# Source: lv-files/templates/thumbs.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-thumbs-service
+  namespace:  files
+  labels:
+    app: lv-thumbs-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      
+      nodePort: 32267
+      
+  
+  type: NodePort
+  
+  selector:
+    app: lv-thumbs
+---
+# Source: lv-files/templates/tika.yml
+apiVersion: v1
+kind: Service
+metadata:
+ name: tika-service
+ namespace: files
+ labels:
+   app: tika-service
+spec:
+  
+ type: NodePort
+  
+ selector:
+   app: tika
+ ports:
+   - name: "tika-node-port"
+     protocol: TCP
+     port: 80
+     targetPort: 9998
+     
+     nodePort: 32265
+---
+# Source: lv-files/templates/video.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-video-service
+  namespace:  files
+  labels:
+    app: lv-video-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      
+      nodePort: 32264
+      
+  
+  type: NodePort
+  
+  selector:
+    app: lv-video
+---
+# Source: lv-files/templates/apps.yml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-file
+  namespace: files
+  annotations:
+    description: ...
+    keel.sh/releaseNotes: kubernetes-cluster-qc
+    keel.sh/policy: "glob:build-*"
+    keel.sh/approvals: "0"
+    lv-file-meta: |-
+        {
+          "nested_key": {"ingress":{"ip":"172.16.7.99","path":"lvfile","pathType":"Prefix"},"requireService":true}
+        }
+spec:
+  selector:
+    matchLabels:
+      app:  lv-file
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: lv-file
+    spec:
+
+      
+      volumes:
+        - name: tmp-files
+          emptyDir: { }
+        - name: socat-share
+          emptyDir: { }
+        - name: storage-files
+          nfs:
+            server: 192.168.18.36
+            path: /codx-file-storage/files
+      
+
+      containers:
+
+        - image:    docker.lacviet.vn/xdoc/fs-tiny-qc:latest
+          name: lv-file
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+        
+          args:
+            - python3
+            - /app/cy_xdoc/server.py
+            - bind=0.0.0.0:80
+            - content_segment_len=9
+            - host_url=https://172.16.7.99/lvfile
+            - private_web_api=http://lv-file-service.files:80/lvfile
+            - remote_office=http://lv-office-service.files:80
+            - remote_pdf=http://lv-pdf-service.files:80
+            - remote_video=http://lv-video-service.files:80
+            - remote_ocr=http://lv-ocr-service.files:80
+            - remote_thumb=http://lv-thumbs-service.files:80
+            - tika_server=http://tika-service.files:80
+            - cache_server=lv-file-cache-service.files:11211
+            - content_service=http://content-service.files:80
+            - debug=false
+            - domains='*'
+            - generation=
+            - process_services_host=http://localhost
+            - bind=0.0.0.0:80
+            - content_segment_len=9
+            
+            - elastic_search.server=$(elastic_search.server)
+            - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            
+            - db=$(db)
+            - admin_db_name=$(admin_db_name)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.port=$(rabbitmq.port)
+            - rabbitmq.msg=$(rabbitmq.msg)
+            - rabbitmq.username=$(rabbitmq.username)
+            - rabbitmq.password=$(rabbitmq.password)
+           
+            - workers=1
+           
+            - server_type=Uvicorn
+            - worker_class=httptools
+            - timeout_keep_alive=$(timeout_keep_alive)
+            - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
+            - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
+            - vn_suggest_url=$(vn_suggest_url)
+            - file_storage_path=/mnt/files
+            - process_services_host=http://localhost
+            - distribute_lock_server=distribute-lock-service.files:2181
+            - use_ssl=$(use_ssl)
+        
+
+          volumeMounts:
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
+            - name: storage-files
+              mountPath: /mnt/files
+      imagePullSecrets:
+        - name: harbor-secret-registry
+---
+# Source: lv-files/templates/apps.yml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content
+  namespace: files
+  annotations:
+    description: ...
+    keel.sh/releaseNotes: kubernetes-cluster-qc
+    keel.sh/policy: "glob:build-*"
+    keel.sh/approvals: "0"
+    lv-file-meta: |-
+        {
+          "nested_key": null
+        }
+spec:
+  selector:
+    matchLabels:
+      app:  content
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: content
+    spec:
+
+      
+      volumes:
+        - name: tmp-files
+          emptyDir: { }
+        - name: socat-share
+          emptyDir: { }
+        - name: storage-files
+          nfs:
+            server: 192.168.18.36
+            path: /codx-file-storage/files
+      
+
+      containers:
+
+        - image:    docker.lacviet.vn/xdoc/fs-tiny-libs:latest
+          name: content
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+        
+          args:
+            - python3
+            - /app/cy_jobs/contents.py
+            - private_web_api=http://lv-file-service.files:80/lvfile
+            - remote_office=http://lv-office-service.files:80
+            - remote_pdf=http://lv-pdf-service.files:80
+            - remote_video=http://lv-video-service.files:80
+            - tika_server=http://tika-service.files:80
+            - cache_server=lv-file-cache-service.files:11211
+            - content_service=http://content-service.files:80
+            - remote_ocr=http://lv-ocr-service.files:80
+            - debug=false
+            - generation=
+            - process_services_host=http://localhost
+            - bind=0.0.0.0:80
+            - content_segment_len=9
+            
+            - elastic_search.server=$(elastic_search.server)
+            - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            
+            - db=$(db)
+            - admin_db_name=$(admin_db_name)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.port=$(rabbitmq.port)
+            - rabbitmq.msg=$(rabbitmq.msg)
+            - rabbitmq.username=$(rabbitmq.username)
+            - rabbitmq.password=$(rabbitmq.password)
+           
+            - server_type=Uvicorn
+            - worker_class=httptools
+            - timeout_keep_alive=$(timeout_keep_alive)
+            - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
+            - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
+            - vn_suggest_url=$(vn_suggest_url)
+            - file_storage_path=/mnt/files
+            - process_services_host=http://localhost
+            - distribute_lock_server=distribute-lock-service.files:2181
+            - use_ssl=$(use_ssl)
+        
+
+          volumeMounts:
+            - name: tmp-files
+              mountPath: /tmp-files
+            - name: socat-share
+              mountPath: /socat-share
+            - name: storage-files
+              mountPath: /mnt/files
+      imagePullSecrets:
+        - name: harbor-secret-registry
+---
+# Source: lv-files/templates/cache.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-file-cache
+  namespace: files
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lv-file-cache
+  template:
+    metadata:
+      labels:
+        app: lv-file-cache
+    spec:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
+      containers:
+      - name: file-cache
+        image: memcached:latest
+        ports:
+        - containerPort: 11211
+---
+# Source: lv-files/templates/ocr.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-ocr
+  namespace: files
+spec:
+  selector:
+    matchLabels:
+      app:  lv-ocr
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: lv-ocr
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 192.168.18.36
+            path: /codx-file-storage/files
+      containers:
+
+        - image: nttlong/ocr-my-pdf-api:7
+          env:
+            - name: MEMCACHED_SERVER
+              value: lv-file-cache-service.files:11211
+          name: lv-ocr
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+          args: ["80"]
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+---
+# Source: lv-files/templates/office.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-office
+  namespace: files
+spec:
+  selector:
+    matchLabels:
+      app:  lv-office
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: lv-office
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 192.168.18.36
+            path: /codx-file-storage/files
+      containers:
+
+        - image: nttlong/lv-libreoffice:1.14
+          env:
+            - name: MEMCACHED_SERVER
+              value: lv-file-cache-service.files:11211
+          name: lv-office
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+          args: ["80"]
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+---
+# Source: lv-files/templates/pdf.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-pdf
+  namespace: files
+spec:
+  selector:
+    matchLabels:
+      app:  lv-pdf
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: lv-pdf
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 192.168.18.36
+            path: /codx-file-storage/files
+      containers:
+
+        - image: nttlong/lv-pdf:5
+          env:
+            - name: MEMCACHED_SERVER
+              value: lv-file-cache-service.files:11211
+          name: lv-pdf
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+          args: ["80"]
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+---
+# Source: lv-files/templates/thumbs.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-thumbs
+  namespace: files
+spec:
+  selector:
+    matchLabels:
+      app:  lv-thumbs
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: lv-thumbs
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 192.168.18.36
+            path: /codx-file-storage/files
+      containers:
+        - image: nttlong/lv-thumbs:1
+          env:
+            - name: MEMCACHED_SERVER
+              value: lv-file-cache-service.files:11211
+          name: lv-thumbs
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+          args: ["80"]
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+---
+# Source: lv-files/templates/tika.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tika
+  namespace: files
+  #namespace: xdoc-web
+spec:
+  selector:
+    matchLabels:
+      app: tika
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: tika
+    spec:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "xdoc"
+          effect: "NoSchedule"
+      containers:
+        - image: apache/tika:latest
+          name: tika
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9998
+---
+# Source: lv-files/templates/video.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-video
+  namespace: files
+spec:
+  selector:
+    matchLabels:
+      app:  lv-video
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: lv-video
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 192.168.18.36
+            path: /codx-file-storage/files
+      containers:
+        - image: nttlong/lv-video:5.3
+          env:
+            - name: MEMCACHED_SERVER
+              value: lv-file-cache-service.files:11211
+          name: lv-video
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+          args: ["80"]
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+---
+# Source: lv-files/templates/ingress.yml
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: lv-file-ingress
+  namespace: files
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/rewrite-target: /lvfile/$1
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /lvfile/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: lv-file-service
+                port:
+                  number: 80
+
+      
+#      
+#status:
+#  loadBalancer:
+#    ingress:
+#      - ip: 172.16.7.99
+#
+---
+# Source: lv-files/templates/apps.yml
+---
+---
+# Source: lv-files/templates/ingress.yml
+---
+---
+# Source: lv-files/templates/ingress.yml
+---
+---
+# Source: lv-files/templates/ingress.yml
+---
+---
+# Source: lv-files/templates/services.yml
+---
+---
+# Source: lv-files/templates/services.yml
+---
+---
+# Source: lv-files/templates/test.yml
+###
