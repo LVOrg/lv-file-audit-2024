@@ -51,11 +51,15 @@ logs_to_mongo_db_service.log(traceback.format_exc(), "task_vietlott_meta_update"
 extract_content_service = cy_kit.singleton(ExtractContentService)
 while row_count>0:
     lv_files = Repository.files.app(app_name).context.aggregate().match(
-        Repository.files.fields.IsHasORCContent==False
+        ((Repository.files.fields.IsHasORCContent==False)|
+         (Repository.files.fields.IsHasORCContent=="false")|
+         (Repository.files.fields.IsHasORCContent==None)
+        )&(Repository.files.fields.Status==1)
     ).sort(
         Repository.files.fields.RegisterOn.desc()
     ).project(
-        cy_docs.fields.upload_id>> Repository.files.fields.id
+        cy_docs.fields.upload_id>> Repository.files.fields.id,
+        cy_docs.fields.download_url >> Repository.files.fields.FullFileNameLower
     ).limit(100)
     total =0
     items = list(lv_files)

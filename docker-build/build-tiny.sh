@@ -53,6 +53,7 @@ COPY ./../web-api-312/lib/python3.12/site-packages /usr/local/lib/python3.12/sit
 ENV PRODUCTION_BUILT_ON=\"$(date +"%Y-%m-%d %H:%M:%S")\"
 ENV BUILD_IMAGE_TAG=\"$web_api_core_tag_build\"
 RUN python3 -m pip install webp
+RUN python3 -m pip install icecream
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es

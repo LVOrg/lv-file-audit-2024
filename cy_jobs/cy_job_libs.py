@@ -28,6 +28,7 @@ import cy_utils
 import cy_utils.texts
 import mimetypes
 from cy_xdoc.services.search_engine import SearchEngine
+from icecream import ic
 
 
 
@@ -63,12 +64,12 @@ def check_memcache():
     while not ok:
         try:
             cache_server = config.cache_server
-            print(f"Connect to {cache_server}")
+            ic(f"Connect to {cache_server}")
             client = MClient(tuple(cache_server.split(":")))
             ok = client.set("test", "ok")
         except Exception as e:
-            print(f"Error connecting to Memcached: {e}")
-    print(f"Memcache server is ok run on {config.cache_server}")
+            ic(f"Error connecting to Memcached: {e}")
+    ic(f"Memcache server is ok run on {config.cache_server}")
 
 
 check_memcache()
@@ -145,12 +146,12 @@ def print_task_progress(tasks):
   """
 
     for task_name, messages in tasks.items():
-        print(task_name + ":")
+        ic(task_name + ":")
         for i, message in enumerate(messages):
             if i < 20:  # Limit to 20 lines
-                print(f"  {message}")
+                ic(f"  {message}")
             else:
-                print(f"  ... (showing only the first 20 lines)")
+                ic(f"  ... (showing only the first 20 lines)")
                 break  # Exit the inner loop after 20 lines
 
 
@@ -172,8 +173,8 @@ def execute_command_with_polling(command):
             file_path = command.split(' ')[1]
             try:
                 line = process.stdout.readline().decode()
-                print(command+":\n")
-                print("\t"+line)
+                ic(command+":\n")
+                ic("\t"+line)
                 # if line !='\n':
                 #     screen_logs(file_path, line)
 
@@ -203,14 +204,14 @@ def execute_file(excute_file: str, args, python_path: str = "python3"):
     import subprocess
     # command = [python_path, excute_file] + args
     # Define the command to run
-    print(excute_file)
+    ic(excute_file)
 
     def running(excute_file: str, args, python_path: str):
         command = [python_path, excute_file] + args
         # execute_command_with_polling(" ".join(command))
         output = subprocess.run(command, capture_output=True, text=True)
 
-        print(output.stdout)
+        ic(output.stdout)
 
     th = threading.Thread(target=running, args=(excute_file, args, python_path,))
     # th.run()
@@ -236,15 +237,15 @@ def print_screen_logs(max_lines=1):
     def run():
         while True:
             time.sleep(0.5)
-            print("\033c", end="")
+            ic("\033c", end="")
             ret = screen_logs_cache.get_dict(key)
             if not ret:
                 ret = dict()
             for k, v in ret.items():
-                print(k + ":\n")
+                ic(k + ":\n")
                 for x in v.split('\n')[-5:]:
                     if x.strip(' ').lstrip(' ').rstrip(' '):
-                        print('\t' + x)
+                        ic('\t' + x)
                 v = '\n'.join(v.split('\n')[-5:])
                 ret[k] = v
             screen_logs_cache.set_dict(key, ret)
@@ -262,7 +263,7 @@ def run_all(execute_files, side_kick_path, args):
     #     screen_logs(app_path + "/" + x,f"Start {x}")
 
     full_command = " & ".join(fx)
-    print(full_command)
+    ic(full_command)
 
     # execute_command_with_polling(full_command)
     prs = []

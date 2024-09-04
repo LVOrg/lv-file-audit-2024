@@ -21,7 +21,8 @@ execute_files = [
     "jobs/task_google_file_sync.py",
     "jobs/task_onedrive_file_sync.py",
     "jobs/task_images_from_office.py",
-    "jobs/task_images_from_office.py",
+    "jobs/task_text_from_office.py",
+    "jobs/task_images_from_pdf.py",
     "web.py"
 ]
 

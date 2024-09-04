@@ -33,6 +33,7 @@ from tqdm import tqdm
 import urllib.parse
 import requests
 import typing
+from tika import parser as tika_parse
 __tem_dir__ = "/tmp/__download_file__"
 os.makedirs(__tem_dir__,exist_ok=True)
 def download_file_with_progress(url, filename)->typing.Tuple[str|None,dict|None]:
@@ -70,10 +71,13 @@ def download_file_with_progress(url, filename)->typing.Tuple[str|None,dict|None]
   else:
     return None, dict(code=f"{response.status_code}",message=response.text)
 from cyx.common.rabitmq_message import RabitmqMsg
+from cy_xdoc.services.search_engine import SearchEngine
+search_engine = cy_kit.singleton(SearchEngine)
 broker = cy_kit.singleton(RabitmqMsg)
-broker.emit(app_name="xxxx",message_type=cyx.common.msg.MSG_EXTRACT_TEXT_FROM_OFFICE_FILE,data={})
+# broker.emit(app_name="xxxx",message_type=cyx.common.msg.MSG_EXTRACT_TEXT_FROM_OFFICE_FILE,data={})
 def run():
     consumer = Consumer(cyx.common.msg.MSG_EXTRACT_TEXT_FROM_OFFICE_FILE)
+
 
     while True:
         time.sleep(1)
@@ -92,7 +96,7 @@ def run():
                 upload_doc = Repository.files.app(app_name).context.find_one(
                     Repository.files.fields.id == upload_id
                 )
-                if not upload_doc:
+                if not upload_doc or upload_doc.Status==0:
                     consumer.channel.basic_ack(delivery_tag=msg.method.delivery_tag)
                     continue
                 ic(msg.data.get("_id"))
@@ -115,11 +119,21 @@ def run():
                 file_name = hashlib.sha256(url_resource.encode()).hexdigest()
                 download_file = os.path.join(__tem_dir__,file_name)
                 download_file_with_progress(url_resource,download_file)
+                parsed_data = tika_parse.from_file(download_file, serverEndpoint=config.tika_server)
+                content = parsed_data.get('content','')
+                content = content.lstrip('\n').rstrip('\n').replace('\n', ' ').replace('\t', ' ').replace('  ', ' ')
+                while '  ' in content:
+                    content = content.replace('  ',' ')
+                search_engine.update_content(
+                    app_name = app_name,
+                    id=upload_id,
+                    content = content
+                )
 
                 ic(url_resource)
-
-
                 ic(msg.data[Repository.files.fields.FullFileNameLower.__name__])
+                os.remove(download_file)
+                consumer.channel.basic_ack(delivery_tag=msg.method.delivery_tag)
 
 
         except:
@@ -127,6 +141,8 @@ def run():
                 error_content=traceback.format_exc(),
                 url=__file__
             )
+            consumer.channel.basic_ack(delivery_tag=msg.method.delivery_tag)
+            consumer.resume(msg)
         finally:
             gc.collect()
 if __name__ =="__main__":

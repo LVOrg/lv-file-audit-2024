@@ -65,17 +65,25 @@ class Consumer:
         ret.body = body
         return ret
 
-    def raise_message(self, app_name:str,data):
+    def raise_message(self, app_name:str,data,msg_type:str|None=None):
         #self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
-        self.channel.basic_publish(
-            exchange='',
-            routing_key=self.queue_name,
-            body=json.dumps(dict(
-                app_name= app_name,
-                data = data
-            ))
+        if msg_type is None:
+            self.channel.basic_publish(
+                exchange='',
+                routing_key=self.queue_name,
+                body=json.dumps(dict(
+                    app_name= app_name,
+                    data = data
+                ))
 
-        )
+            )
+        else:
+            msg_type_send=f'{config.rabbitmq.msg}.{msg_type}'
+            self.channel.basic_publish(exchange='', routing_key=msg_type_send,
+                body=json.dumps(dict(
+                    app_name= app_name,
+                    data = data
+                )) )
     def resume(self, msg:MesssageBlock):
         #self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
         self.channel.basic_publish(

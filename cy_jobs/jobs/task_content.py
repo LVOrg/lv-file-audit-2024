@@ -44,6 +44,7 @@ broker = cy_kit.singleton(RabitmqMsg)
 def run():
     print("run")
     consumer = Consumer(cyx.common.msg.MSG_FILE_GENERATE_CONTENT)
+
     while True:
         time.sleep(1)
         try:
@@ -90,17 +91,19 @@ def run():
                     consumer.channel.basic_ack(delivery_tag=msg.method.delivery_tag)
                     continue
                 if file_ext.lower() in config.ext_office_file:
-                    broker.emit(
-                        app_name = app_name,
-                        message_type=cyx.common.msg.MSG_FILE_EXTRACT_IMAGES_FROM_OFFICE,
-                        data=msg.data
-                    )
-                    ic(cyx.common.msg.MSG_FILE_EXTRACT_IMAGES_FROM_OFFICE)
-                    broker.emit(
+                    consumer.raise_message(
                         app_name=app_name,
-                        message_type= cyx.common.msg.MSG_EXTRACT_TEXT_FROM_OFFICE_FILE,
+                        msg_type=cyx.common.msg.MSG_FILE_EXTRACT_IMAGES_FROM_OFFICE,
                         data=msg.data
                     )
+
+                    ic(cyx.common.msg.MSG_FILE_EXTRACT_IMAGES_FROM_OFFICE)
+                    consumer.raise_message(
+                        app_name=app_name,
+                        msg_type=cyx.common.msg.MSG_EXTRACT_TEXT_FROM_OFFICE_FILE,
+                        data=msg.data
+                    )
+
                     ic(cyx.common.msg.MSG_EXTRACT_TEXT_FROM_OFFICE_FILE)
                     consumer.channel.basic_ack(delivery_tag=msg.method.delivery_tag)
                     continue
