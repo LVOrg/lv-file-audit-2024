@@ -11,6 +11,7 @@ import cy_kit
 import cyx.common.msg
 import cy_utils
 from cyx.local_api_services import LocalAPIService
+from retry import retry
 
 import cy_utils.texts
 from cy_xdoc.services.search_engine import SearchEngine
@@ -142,14 +143,17 @@ class ExtractContentService:
     def update_by_using_ocr_pdf(self, download_url,  data, app_name):
         tika_server = config.tika_server
         content,error = self.get_content_from_pdf_ocr(tika_server=tika_server,url_content= download_url)
+        @retry(tries=5,delay=10)
+        def save_es():
+            self.do_update_content(
+                data=data,
+                content=content,
+                app_name=app_name
+            )
         if not error:
             print(content)
             if isinstance(content, str):
-                self.do_update_content(
-                    data=data,
-                    content=content,
-                    app_name=app_name
-                )
+                save_es()
         else:
             raise Exception(error)
 

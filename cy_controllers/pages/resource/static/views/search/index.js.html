@@ -155,6 +155,18 @@
 
                         {{p.privileges}}
                     </a>
+                    <label>
+                        Content source
+                    </label>
+                    <a ng-click="doReadableContent({UploadId:p.FullFileName.split('/')[0]}).then()"  href="javascript:void(0);">
+                        View
+                    </a>
+                    <label>
+                        Codx meta
+                    </label>
+                    <a ng-click="doShowCodxMeta(p).then()"  href="javascript:void(0);">
+                        View
+                    </a>
 
                 </rcmpct-grid>
             </div>

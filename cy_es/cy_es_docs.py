@@ -155,6 +155,64 @@ class DocumentFields:
             raise Exception("Not support")
 
     def __contains__(self, item):
+
+        """
+        {
+          "query": {
+            "bool": {
+              "should": [
+                {
+                  "match_phrase": {
+                    "meta_info.FileName": {
+                      "query": "hợp đồng lao động"
+                    }
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "content": {
+                      "query": "hợp đồng  lao động"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+
+        @param item:
+        @return:
+        """
+
+        ret = DocumentFields()
+        field_name = self.__name__
+        boost = None
+        if "^" in field_name:
+            field_name,boost = tuple(field_name.split("^"))
+        if boost and boost.isnumeric():
+            ret.__es_expr__ = {
+                "must": {
+                    "match_phrase": {
+                        field_name: {
+                            "query": item,
+                            "boost": boost
+                        }
+                    }
+                }
+            }
+        else:
+            ret.__es_expr__ = {
+                "must":{
+                "match_phrase":{
+                        field_name: {
+                            "query":item
+                        }
+                    }
+                }
+            }
+        ret.__is_bool__ = True
+        return ret
+    def __contains__delete__(self, item):
         from cy_es.cy_es_utils import __well_form__
 
         import cy_es.cy_es_utils

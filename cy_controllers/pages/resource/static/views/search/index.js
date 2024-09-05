@@ -86,7 +86,14 @@ var searchView = await View(import.meta, class SearchView extends BaseScope {
         win.doMaximize();
         await viewer.loadWord(item);
     }
-    
+    async doShowCodxMeta(item) {
+        var r = await import("../meta-search/index.js");
+        var metaViewer = await r.default();
+        var win =await metaViewer.asWindow();
+
+        win.doMaximize();
+        await metaViewer.loadMeta(item);
+    }
     
     
    
