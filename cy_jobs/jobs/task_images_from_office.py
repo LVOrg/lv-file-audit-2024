@@ -34,7 +34,7 @@ def run():
         msg = None
         try:
             gc.collect()
-            msg = consumer.get_msg(delete_after_get=True)
+            msg = consumer.get_msg(delete_after_get=False)
             if isinstance(msg, MesssageBlock):
 
                 app_name = msg.app_name
@@ -100,5 +100,6 @@ def run():
                 consumer.resume(msg)
         finally:
             gc.collect()
+            consumer.channel.basic_ack(msg.method.delivery_tag)
 if __name__ =="__main__":
     run()

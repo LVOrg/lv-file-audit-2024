@@ -5,33 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/meta-search/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/meta-search/index.js.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js.html" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_data_parser.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_data_parser.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_json.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_json.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_manager.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_utils.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cyx_es_delete.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cyx_es_delete.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_content.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_content.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_images_from_office.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_images_from_office.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,6 +75,7 @@
     "Python.task_google_file_sync.executor": "Debug",
     "Python.task_images_from_office.executor": "Debug",
     "Python.task_images_from_pdf.executor": "Debug",
+    "Python.task_orc.executor": "Debug",
     "Python.task_text_from_office.executor": "Debug",
     "Python.task_vietlot_meta.executor": "Debug",
     "Python.task_vietlott_ocr_all.executor": "Debug",
@@ -125,7 +107,29 @@
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.server (1)">
+  <component name="RunManager" selected="Python.task_orc">
+    <configuration name="clear_logs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_checking" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/clear_logs.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="contents" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -192,7 +196,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="task_text_from_office" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="task_orc" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -205,29 +209,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_text_from_office.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="task_vietlot_meta" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py-files-sv" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_vietlot_meta.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -260,11 +242,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.task_orc" />
+        <item itemvalue="Python.clear_logs" />
         <item itemvalue="Python.task_vietlott_ocr_all" />
         <item itemvalue="Python.contents" />
         <item itemvalue="Python.task_content" />
-        <item itemvalue="Python.task_text_from_office" />
-        <item itemvalue="Python.task_vietlot_meta" />
       </list>
     </recent_temporary>
   </component>
@@ -432,11 +414,6 @@
           <url>file://$PROJECT_DIR$/cy_controllers/search/search_controller.py</url>
           <line>74</line>
           <option name="timeStamp" value="322" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/extract_content_service.py</url>
-          <line>157</line>
-          <option name="timeStamp" value="327" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_xdoc/server.py</url>

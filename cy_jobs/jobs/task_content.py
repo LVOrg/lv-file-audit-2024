@@ -88,6 +88,12 @@ def run():
                         data=msg.data
                     )
                     ic(cyx.common.msg.MSG_FILE_GENERATE_CONTENT_FROM_PDF)
+                    broker.emit(
+                        app_name=app_name,
+                        message_type=cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF,
+                        data=msg.data
+                    )
+                    ic(cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF)
                     consumer.channel.basic_ack(delivery_tag=msg.method.delivery_tag)
                     continue
                 if file_ext.lower() in config.ext_office_file:
