@@ -6,12 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js.html" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_content.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_content.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_images_from_office.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_images_from_office.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/contents.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/contents.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -107,7 +102,7 @@
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.task_orc">
+  <component name="RunManager" selected="Python.contents">
     <configuration name="clear_logs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -242,10 +237,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.contents" />
         <item itemvalue="Python.task_orc" />
         <item itemvalue="Python.clear_logs" />
         <item itemvalue="Python.task_vietlott_ocr_all" />
-        <item itemvalue="Python.contents" />
         <item itemvalue="Python.task_content" />
       </list>
     </recent_temporary>

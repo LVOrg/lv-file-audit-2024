@@ -23,6 +23,7 @@ execute_files = [
     "jobs/task_images_from_office.py",
     "jobs/task_text_from_office.py",
     "jobs/task_images_from_pdf.py",
+    "jobs/task_orc.py",
     "web.py"
 ]
 
