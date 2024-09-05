@@ -5,7 +5,7 @@ ARG TARGETARCH
 ARG OS
 COPY ./../web-api-312/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 #COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
-ENV PRODUCTION_BUILT_ON="2024-09-05 12:40:49"
+ENV PRODUCTION_BUILT_ON="2024-09-05 17:00:54"
 ENV BUILD_IMAGE_TAG="fs.tiny.core.amd.22"
 RUN python3 -m pip install webp
 RUN python3 -m pip install icecream
