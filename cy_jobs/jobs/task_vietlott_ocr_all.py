@@ -12,7 +12,7 @@ sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
 import time
 import traceback
 
-from cy_jobs.web import health_check
+
 
 from retry import retry
 
@@ -76,11 +76,11 @@ def run(sort_rev=True):
         items = list(lv_files)
         row_count = len(items)
         ic(f"fetch {row_count} items")
-        @retry(ZeroDivisionError, tries=10, delay=5)
+        @retry(tries=10, delay=5)
         def get_es_source(app:str,id:str):
             es_doc_item = search_engine.get_doc(
-                app_name=app_name,
-                id=item.upload_id
+                app_name=app,
+                id=item.id
             )
             return es_doc_item
         for item in items:

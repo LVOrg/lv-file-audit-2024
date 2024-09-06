@@ -5,8 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
+      <change afterPath="$PROJECT_DIR$/cy_jobs/vietlott_ocr_agg.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/build-vietlott-ocr-agg.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/requirements/vietlott-ocr.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/contents.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/contents.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -102,7 +107,7 @@
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.contents">
+  <component name="RunManager" selected="Python.task_vietlott_ocr_all">
     <configuration name="clear_logs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -237,10 +242,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.task_vietlott_ocr_all" />
         <item itemvalue="Python.contents" />
         <item itemvalue="Python.task_orc" />
         <item itemvalue="Python.clear_logs" />
-        <item itemvalue="Python.task_vietlott_ocr_all" />
         <item itemvalue="Python.task_content" />
       </list>
     </recent_temporary>
@@ -504,6 +509,11 @@
           <url>file://$PROJECT_DIR$/cy_es/cy_es_objective.py</url>
           <line>1119</line>
           <option name="timeStamp" value="496" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py</url>
+          <line>74</line>
+          <option name="timeStamp" value="506" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

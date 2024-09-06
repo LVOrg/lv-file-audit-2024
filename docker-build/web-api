@@ -1,11 +1,10 @@
 ARG BASE
 #FROM docker.io/nttlong/fs:fs.tiny.core.amd.22
-FROM python:3.12.5-bullseye
+FROM nttlong/ocr-my-pdf-api:12
 ARG TARGETARCH
 ARG OS
-COPY ./../web-api-312/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-#COPY ./../env_webapi/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
-ENV PRODUCTION_BUILT_ON="2024-09-05 18:34:37"
+
+ENV PRODUCTION_BUILT_ON="2024-09-06 12:23:36"
 ENV BUILD_IMAGE_TAG="fs.tiny.core.amd.22"
 RUN python3 -m pip install webp
 RUN python3 -m pip install icecream
@@ -24,8 +23,6 @@ COPY ./../cy_controllers /app/cy_controllers
 COPY ./../cy_services /app/cy_services
 COPY ./../cy_ui /app/cy_ui
 COPY ./../cy_utils /app/cy_utils
-#COPY ./../cy_vn /app/cy_vn
-#COPY ./../cy_vn_suggestion /app/cy_vn_suggestion
 RUN rm -fr /app/cy_vn_suggestion/data
 COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
@@ -34,6 +31,6 @@ COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_jobs /app/cy_jobs
-#RUN python3 -m pip install gradio==3.50.2
-#RUN python3 -m pip install gradio-client==0.15.1
+COPY ./../docker-build/requirements/vietlott-ocr.txt /app/requirements/vietlott-ocr.txt
+RUN python3 -m pip install -r /app/requirements/vietlott-ocr.txt
 RUN apt clean && apt autoclean
