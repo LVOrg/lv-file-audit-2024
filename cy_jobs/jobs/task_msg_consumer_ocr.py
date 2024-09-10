@@ -440,3 +440,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+#test
+#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files   docker.lacviet.vn/xdoc/lib-ocr-all:3
+#python3 cy_jobs/jobs/task_msg_consumer_ocr.py app_name=developer msg_ocr=developer-001

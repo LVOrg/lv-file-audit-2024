@@ -5,26 +5,27 @@ from icecream import ic
 
 sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
 from cyx.common import config
-if not hasattr(config,"msg_ocr"):
+if not hasattr(config,"msg_office"):
     raise Exception(f"msg_ocr was not found in config")
 if not hasattr(config,"app_name"):
     raise Exception(f"app_name was not found in config")
-msg_raise_ocr:str = config.msg_ocr
+msg_raise_office:str = config.msg_office
 """
 Message wil be raise 
 """
 app_name:str =config.app_name
-ic(f"app_name={app_name}, msg_ocr={msg_raise_ocr}")
+ic(f"app_name={app_name}, msg_ocr={msg_raise_office}")
 import cy_docs
 from cyx.rabbit_utils import Consumer
 from cyx.repository import Repository
-consumer = Consumer(msg_raise_ocr)
+consumer = Consumer(msg_raise_office)
+office_ext = config.ext_office_file
 agg_ocr_file = (Repository.files.app(app_name).context.aggregate().match(
   Repository.files.fields.Status==1
 ).match(
-    Repository.files.fields.FileExt=="pdf"
+    { Repository.files.fields.FileExt.__name__: { "$in": office_ext}}
 ).match(
-    ((Repository.files.fields.MsgOCRReRaise ==None)|(Repository.files.fields.MsgOCRReRaise!=msg_raise_ocr))
+    ((Repository.files.fields.MsgOfficeReRaise ==None)|(Repository.files.fields.MsgOfficeReRaise!=msg_raise_office))
 ).sort(
     Repository.files.fields.RegisterOn.desc()
 ).project(
@@ -44,11 +45,12 @@ def run_producer():
         consumer.raise_message(
             app_name=app_name,
             data =data,
-            msg_type=msg_raise_ocr
+            msg_type=msg_raise_office
         )
         Repository.files.app(app_name).context.update(
             Repository.files.fields.id == x.upload_id,
-            Repository.files.fields.MsgOCRReRaise<<msg_raise_ocr
+            Repository.files.fields.MsgOfficeReRaise<<msg_raise_office,
+            Repository.files.fields.DocType << "office"
         )
 def main():
     while True:
