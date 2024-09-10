@@ -4,7 +4,7 @@ FROM nttlong/ocr-my-pdf-api:12
 ARG TARGETARCH
 ARG OS
 
-ENV PRODUCTION_BUILT_ON="2024-09-06 12:23:36"
+ENV PRODUCTION_BUILT_ON="2024-09-06 20:16:17"
 ENV BUILD_IMAGE_TAG="fs.tiny.core.amd.22"
 RUN python3 -m pip install webp
 RUN python3 -m pip install icecream

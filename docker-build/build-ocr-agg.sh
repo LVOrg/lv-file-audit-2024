@@ -40,19 +40,42 @@ web_api_core_tag=22
 web_api_core_tag_build="fs.tiny.core."$(tag $web_api_core_tag)
 web_api_core_image="docker.io/nttlong/fs:"$web_api_core_tag_build
 buildFunc $web_api_core_file "docker.io/nttlong" $image_name $web_api_core_tag_build "python:3.10-alpine" "alpine"
-web_api_file="web-api"
+web_api_file="lib-ocr"
 rm -f $web_api_file
 du -sh $(pwd)/../env_webapi/lib/python3.10/site-packages/* | sort -h
 echo "ARG BASE
-#FROM $web_api_core_image
+
 FROM nttlong/ocr-my-pdf-api:12
 ARG TARGETARCH
 ARG OS
 
-ENV PRODUCTION_BUILT_ON=\"$(date +"%Y-%m-%d %H:%M:%S")\"
-ENV BUILD_IMAGE_TAG=\"$web_api_core_tag_build\"
+
 RUN python3 -m pip install webp
 RUN python3 -m pip install icecream
+COPY ./../docker-build/requirements/vietlott-ocr.txt /app/requirements/vietlott-ocr.txt
+RUN python3 -m pip install -r /app/requirements/vietlott-ocr.txt
+RUN apt clean && apt autoclean">>$web_api_file
+
+#current_datetime=$(date +"%Y-%-m-%d-%H-%M-%S")
+#filename="release-notes/$customer.txt"
+#echo "$current_datetime:">>"$filename"
+#if [ -z "$3" ]; then
+#  # No argument provided, use default repository
+#  web_api_tag_build=$web_api_core_tag.$current_datetime
+#else
+#  # Argument provided, use it as the repository
+#  web_api_tag_build=$web_api_tag
+#fi
+web_api_tag_build=2
+
+web_api_image="lib-ocr":$web_api_tag_build
+buildFunc $web_api_file $repository "lib-ocr" $web_api_tag_build "python:3.10-alpine" "alpine"
+echo "in order to test:"
+echo "docker run -v $(pwd)/..:/app -p 8012:8012 $repository/$image_name:$web_api_tag_build"
+ocr_all_file="ocr-all"
+rm -f $ocr_all_file
+echo "
+FROM $repository/$web_api_image
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
@@ -63,7 +86,6 @@ COPY ./../elasticsearch /app/elasticsearch
 COPY ./../pymongo /app/pymongo
 COPY ./../bson /app/bson
 COPY ./../config.yml /app/config.yml
-
 COPY ./../cy_controllers /app/cy_controllers
 COPY ./../cy_services /app/cy_services
 COPY ./../cy_ui /app/cy_ui
@@ -72,27 +94,10 @@ RUN rm -fr /app/cy_vn_suggestion/data
 COPY ./../cy_web /app/cy_web
 COPY ./../cy_xdoc /app/cy_xdoc
 COPY ./../cy_plugins /app/cy_plugins
-#COPY ./../cy_fw_microsoft_delete /app/cy_fw_microsoft_delete
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_jobs /app/cy_jobs
-COPY ./../docker-build/requirements/vietlott-ocr.txt /app/requirements/vietlott-ocr.txt
-RUN python3 -m pip install -r /app/requirements/vietlott-ocr.txt
-RUN apt clean && apt autoclean">>$web_api_file
-web_api_tag=1
-current_datetime=$(date +"%Y-%-m-%d-%H-%M-%S")
-filename="release-notes/$customer.txt"
-echo "$current_datetime:">>"$filename"
-if [ -z "$3" ]; then
-  # No argument provided, use default repository
-  web_api_tag_build=$web_api_core_tag.$current_datetime
-else
-  # Argument provided, use it as the repository
-  web_api_tag_build=$web_api_tag
-fi
-web_api_tag_build=build-$web_api_core_tag.$current_datetime
-
-web_api_image="fs-ocr":$web_api_core_tag_build
-buildFunc $web_api_file $repository "fs-ocr-$customer" $web_api_tag_build "python:3.10-alpine" "alpine"
-echo "in order to test:"
-echo "docker run -v $(pwd)/..:/app -p 8012:8012 $repository/$image_name:$web_api_tag_build"
+">>$ocr_all_file
+ocr_all_file_tag = "$web_api_tag_build.1"
+#buildFunc $ocr_all_file $repository "lib-ocr-all" $ocr_all_file_tag $ocr_all_file_tag $ocr_all_file_tag
+buildFunc $ocr_all_file $repository "lib-ocr-all" 3 "python:3.10-alpine" "alpine"

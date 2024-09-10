@@ -377,6 +377,7 @@ class DocUploadRegister:
     DocType: typing.Optional[str]
     IsRequireOCR: typing.Optional[bool]
     HasORCContent: typing.Optional[bool]
+    MsgOCRReRaise: typing.Optional[str]
     HasORCContentV2: typing.Optional[bool]
     IsHasORCContent: typing.Optional[bool]
     IsEncryptContent: typing.Optional[bool]

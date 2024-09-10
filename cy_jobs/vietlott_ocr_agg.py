@@ -3,6 +3,9 @@ docker run -it  --entrypoint=/bin/bash -v /root/python-2024/lv-file-fix-2024/py-
 """
 import pathlib
 import sys
+import threading
+import time
+
 from icecream import ic
 import hashlib
 import os
@@ -26,25 +29,32 @@ import fitz
 import  shutil
 from retry import retry
 import  subprocess
-sort_rev= False
-
+import datetime
 """
 Declare resource
 """
 app_name = "default"
-
+if hasattr(config,"app_name"):
+    app_name = config.app_name
 search_engine = cy_kit.singleton(SearchEngine)
 local_api_service = cy_kit.singleton(LocalAPIService)
 
-temp_processing_file = os.path.join("/mnt/files", "__lv-files-tmp__")
+temp_processing_file = os.path.join("/tmp/files", "__lv-files-tmp__")
 os.makedirs(temp_processing_file,exist_ok=True)
 temp_path = os.path.join(temp_processing_file, "tmp-upload")
 ic(f"tem dir for download file is {temp_path}")
 ic(app_name)
+
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
+logs_to_mongo_db_service =cy_kit.singleton(LogsToMongoDbService)
+sort_rev= False
+if hasattr(config,"recent"):
+    sort_rev = config.recent
 from cyx.common.mongo_db_services import RepositoryContext
 @cy_docs.define(name="ocr-loc")
 class OcrLock:
     url: str
+    pod_name:str
 
 ocr_lock = RepositoryContext[OcrLock](OcrLock)
 def download_file_with_progress(url, filename)->typing.Tuple[str|None,dict|None]:
@@ -85,14 +95,15 @@ def download_file_with_progress(url, filename)->typing.Tuple[str|None,dict|None]
     ic(f"File '{filename}' downloaded was fail.")
     return None
 
-def get_agg(sort_expr:bool,limit:int=10):
+def get_agg(list_ids,sort_expr:bool,limit:int=10,skip=10):
     """
     Create an aggregate get all file not OCR yet
     @param sort_expr:
     @return:
     """
-    ic(sort_expr)
-    sort_expr = Repository.files.fields.RegisterOn.desc() if sort_rev else Repository.files.fields.RegisterOn.asc()
+    # ic(sort_expr)
+
+    sort_expr = Repository.files.fields.RegisterOn.desc() # if sort_rev else Repository.files.fields.RegisterOn.asc()
 
     agg_files = Repository.files.app(app_name).context.aggregate().match(
                 Repository.files.fields.FileExt == "pdf"
@@ -103,12 +114,14 @@ def get_agg(sort_expr:bool,limit:int=10):
                  (Repository.files.fields.IsHasORCContent=="false")|
                  (Repository.files.fields.IsHasORCContent==None)
                 )
+            ).match(
+                    {"_id": { "$nin": list_ids }}
             ).sort(
                 sort_expr
             ).project(
                 cy_docs.fields.upload_id>> Repository.files.fields.id,
                 cy_docs.fields.download_url >> Repository.files.fields.FullFileNameLower
-            ).limit(limit)
+            ).skip(skip).limit(limit)
     ic(agg_files)
     return agg_files
 
@@ -131,6 +144,7 @@ def extract_files(pdf_path, output_dir) -> dict:
         writer = PdfWriter()
         writer.add_page(page)
         writer.write(open(output_filename, 'wb'))
+
         ret[output_filename] = dict()
     for split_page in list(ret.keys()):
         doc = fitz.open(split_page)
@@ -190,7 +204,8 @@ def do_ocr_file(x_file:str):
                            page_out_put]
             subprocess.run(command)
     except:
-        print(traceback.format_exc())
+        raise
+
     return page_out_put if os.path.isfile(page_out_put) else None
 def concat_content(contents):
     txt_content=" ".join([x for x in contents if x is not None])
@@ -217,21 +232,29 @@ def get_content(
         # Can not download
         return None
     output_dir = os.path.join(temp_processing_file,load_file_name)
-    all_files = extract_files(process_file, output_dir) or {}
-    contents = []
-    for file in all_files.keys():
-        parsed_data = parser.from_file(file, serverEndpoint=tika_server)
-        contents += [parsed_data.get("content", "")]
-        for x_file in all_files[file].get("pdf_from_images") or []:
-            print(x_file)
-            ocr_file= do_ocr_file(x_file)
-            if ocr_file:
-                parsed_data = parser.from_file(ocr_file, serverEndpoint=tika_server)
-                contents += [parsed_data.get("content", "")]
-    txt_content = concat_content(contents)
+    try:
+        all_files = extract_files(process_file, output_dir) or {}
+        contents = []
+        for file in all_files.keys():
+            parsed_data = parser.from_file(file, serverEndpoint=tika_server)
+            contents += [parsed_data.get("content", "")]
+            for x_file in all_files[file].get("pdf_from_images") or []:
+                print(x_file)
+                ocr_file= do_ocr_file(x_file)
+                if ocr_file:
+                    parsed_data = parser.from_file(ocr_file, serverEndpoint=tika_server)
+                    contents += [parsed_data.get("content", "")]
+        txt_content = concat_content(contents)
 
-    shutil.rmtree(output_dir,ignore_errors=True)
-    return  txt_content
+        shutil.rmtree(output_dir,ignore_errors=True)
+        return  txt_content
+    except:
+        ocr_file = do_ocr_file(process_file)
+        if ocr_file:
+            parsed_data = parser.from_file(ocr_file, serverEndpoint=tika_server)
+            contents = [parsed_data.get("content", "")]
+            txt_content = concat_content(contents)
+            return txt_content
 
 
 def do_ocr_content(app_name:str, upload_id:str)->str|None:
@@ -258,6 +281,7 @@ def do_ocr_content(app_name:str, upload_id:str)->str|None:
         remote_file=url_file
     )
     ic(content[:100])
+    return content
 @retry(tries=5,delay=10)
 def save_es(app_name,upload_id,content):
     search_engine.update_content(
@@ -267,56 +291,131 @@ def save_es(app_name,upload_id,content):
         replace_content=True
     )
 import pymongo.errors
-def is_ready(app_name, upload_id):
+
+def get_pod_name():
+    if sys.platform in ["win32","win64"]:
+        import platform
+        return platform.node()
+    else:
+        f = open('/etc/hostname')
+        pod_name = f.read()
+        f.close()
+        full_pod_name = pod_name.lstrip('\n').rstrip('\n')
+        return full_pod_name
+def is_ready(app_name, upload_id,pod_name:str):
     try:
         ocr_lock.app(app_name).context.insert_one(
-            ocr_lock.fields.id << upload_id
+            ocr_lock.fields.id << upload_id,
+            ocr_lock.fields.pod_name <<pod_name
 
         )
-        return False
+        return None
     except pymongo.errors.DuplicateKeyError:
-        return True
+        ret = ocr_lock.app(app_name).context.find_one(
+            ocr_lock.fields.id == upload_id
+
+        )
+        if ret:
+            return ret[ocr_lock.fields.pod_name]
+        else:
+            return None
+
+def update_HasORCContent():
+    lst = list(get_agg([],True,100))
+    while len(lst)>0:
+        for x in lst:
+            if check_es_source(app=app_name,id= x.id):
+                """
+                Update ready content from OCR
+                """
+                Repository.files.app(app_name).context.update(
+                    Repository.files.fields.id==x.id,
+                    Repository.files.fields.HasORCContent<<True
+                )
+        lst = list(get_agg([], True, 100))
 
 
 def main():
-
+    skip=0
     while True:
-        agg_files = get_agg(5)
+        # list_ids_doc = ocr_lock.app(app_name).context.aggregate().project(
+        #     cy_docs.fields.upload_id>>ocr_lock.fields.id
+        # )
+        # list_ids = [x.upload_id for x in list_ids_doc]
+        # if len(list_ids)>32: #32 pod
+        #     for x in list_ids:
+        #         ocr_lock.app(app_name).context.delete(
+        #             {}
+        #         )
+        #     list_ids = []
+        list_ids = []
+        agg_files = get_agg([],True)
         for item in agg_files:
             upload_id = item.upload_id
             try:
 
-                if is_ready(app_name=app_name,upload_id=upload_id):
-                    continue
+                # if pod_process:=is_ready(app_name=app_name,upload_id=upload_id,pod_name=get_pod_name()):
+                #     ic(f"{upload_id} read by {pod_process}")
+                #     continue
 
                 ic(upload_id)
-                if check_es_source(app=app_name,id= upload_id):
-                    """
-                    Update ready content from OCR
-                    """
-                    Repository.files.app(app_name).context.update(
-                        Repository.files.fields.id==upload_id,
-                        Repository.files.fields.HasORCContent<<True
-                    )
-                    continue
+                # if check_es_source(app=app_name,id= upload_id):
+                #     """
+                #     Update ready content from OCR
+                #     """
+                #     Repository.files.app(app_name).context.update(
+                #         Repository.files.fields.id==upload_id,
+                #         Repository.files.fields.HasORCContent<<True
+                #     )
+                #     continue
                 content = do_ocr_content(app_name=app_name,upload_id=upload_id)
-                save_es(
-                    app_name=app_name,
-                    upload_id = upload_id,
-                    content = content
+                upload_data_item = Repository.files.app(app_name).context.find_one(
+                    Repository.files.fields.id==upload_id
                 )
+                if search_engine.is_exist(app_name=app_name,id=upload_id):
+                    search_engine.update_content_value_only(
+                        app_name=app_name,
+                        id= upload_id,
+                        content=content,
+                        content_lower=content.lower()
+                    )
+                else:
+                    search_engine.make_index_content(
+                        app_name=app_name,
+                        upload_id=upload_id,
+                        data_item=upload_data_item.to_json_convertable(),
+                        privileges=upload_data_item[Repository.files.fields.Privileges],
+                        content=content
+
+                    )
+                if not check_es_source(app=app_name,id=upload_id):
+                    raise Exception("Cannot update ES")
                 ic(f"{upload_id} Update ES is OK")
                 Repository.files.app(app_name).context.update(
                     Repository.files.fields.id== upload_id,
                     Repository.files.fields.HasORCContent << True
                 )
+                Repository.lv_file_content_process_report.app("admin").context.insert_one(
+                    Repository.lv_file_content_process_report.fields.UploadId << upload_id,
+                    Repository.lv_file_content_process_report.fields.SubmitOn << datetime.datetime.utcnow()
+                )
+
             except:
-                ocr_lock.app(app_name).context.delete(
-                    ocr_lock.fields.id==upload_id
+
+                Repository.lv_files_sys_logs.app("admin").context.insert_one(
+                    Repository.lv_files_sys_logs.fields.LogOn << datetime.datetime.utcnow(),
+                    Repository.lv_files_sys_logs.fields.ErrorContent << traceback.format_exc(),
+                    Repository.lv_files_sys_logs.fields.PodId << get_pod_name(),
+                    Repository.lv_files_sys_logs.fields.Url << upload_id,
+                    Repository.lv_files_sys_logs.fields.WorkerIP << get_pod_name()
                 )
 
 
 
 if __name__ == "__main__":
+    # threading.Thread(target=update_HasORCContent).start()
     main()
-#docker run --entrypoint=python3  docker.lacviet.vn/xdoc/fs-ocr-vietlott:latest cy_jobs/vietlott_ocr_agg.py
+#docker run --entrypoint=python3  docker.lacviet.vn/xdoc/fs-ocr-vietlott:build-22.2024-9-06-17-31-11 cy_jobs/vietlott_ocr_agg.py recent=true app_name=developer
+#docker run -it --entrypoint=/bin/bash -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app docker.lacviet.vn/xdoc/fs-ocr-vietlott:build-22.2024-9-06-13-59-38
+#python /app/cy_jobs/vietlott_ocr_agg.py app_name=developer
+#docker run --entrypoint=/bin/bash -it -v -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app docker.lacviet.vn/xdoc/lib-ocr

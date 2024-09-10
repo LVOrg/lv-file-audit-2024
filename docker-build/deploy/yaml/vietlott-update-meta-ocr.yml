@@ -31,10 +31,10 @@ spec:
 #            path: /backup/backups/files/modules
       containers:
         - name: vietlott-ocr-all
-          image: docker.lacviet.vn/xdoc/fs-tiny-vietlott-ocr:latest
+          image: docker.lacviet.vn/xdoc/fs-ocr-vietlott:latest
+          command: ["python3"]
           args:
-            - python3
-            - /app/cy_jobs/jobs/task_vietlott_ocr_all.py
+            - cy_jobs/vietlott_ocr_agg.py
             - db=mongodb%3A%2F%2Fadmin%3AVietlot%23123%4010.96.25.76%3A27017
             - elastic_search.server=http://10.96.25.76:9200
             - elastic_search.prefix_index=lv-codx

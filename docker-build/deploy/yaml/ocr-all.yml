@@ -1,0 +1,202 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ocr
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ocr-producer
+  namespace: ocr
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ocr-producer
+  template:
+    metadata:
+      labels:
+        app: ocr-producer
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 10.96.25.76
+            path: /share-data/xdoc/files
+        - name: customer-files
+          nfs:
+            server: 10.96.23.55
+            path: /backup/backups/files/modules
+      containers:
+        - name: ocr-producer
+          image: docker.lacviet.vn/xdoc/lib-ocr-all:3
+          command: ["python3"]
+          args:
+            - cy_jobs/jobs/task_msg_producer_ocr.py
+            - app_name=default
+            - msg_ocr=vietlott-ocr
+            - db=mongodb%3A%2F%2Fadmin%3AVietlot%23123%4010.96.25.76%3A27017
+            - elastic_search.server=http://10.96.25.76:9200
+            - elastic_search.prefix_index=lv-codx
+            - rabbitmq.msg=xyzdsc-2024
+            - rabbitmq.password=Vietlot#123
+            - rabbitmq.port='5672'
+            - rabbitmq.server=codx-rabbitmq.rabbitmq.svc.cluster.local
+            - rabbitmq.username=codx
+            - admin_db_name=lv-docs
+            - file_storage_path=/mnt/files
+            - default_tenant=default
+            - file_dir_path=/mnt/customers
+            - cache_server=lv-file-cache-service.xdoc:11211
+            - remote_ocr=http://lv-ocr-service.xdoc:80
+            - tika_server=http://tika-service.xdoc:80
+            - private_web_api=http://lv-file-service.xdoc:80/lvfile
+
+          resources: {}
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+            - name: customer-files
+              mountPath: /mnt/customers
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: harbor-secret-registry
+
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ocr-producer
+  namespace: ocr
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ocr-consumer
+  template:
+    metadata:
+      labels:
+        app: ocr-consumer
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 10.96.25.76
+            path: /share-data/xdoc/files
+        - name: customer-files
+          nfs:
+            server: 10.96.23.55
+            path: /backup/backups/files/modules
+      containers:
+        - name: ocr-consumer
+          image: docker.lacviet.vn/xdoc/lib-ocr-all:3
+          command: ["python3"]
+          args:
+            - cy_jobs/jobs/task_msg_consumer_ocr.py
+            - app_name=default
+            - msg_ocr=vietlott-ocr
+            - db=mongodb%3A%2F%2Fadmin%3AVietlot%23123%4010.96.25.76%3A27017
+            - elastic_search.server=http://10.96.25.76:9200
+            - elastic_search.prefix_index=lv-codx
+            - rabbitmq.msg=xyzdsc-2024
+            - rabbitmq.password=Vietlot#123
+            - rabbitmq.port='5672'
+            - rabbitmq.server=codx-rabbitmq.rabbitmq.svc.cluster.local
+            - rabbitmq.username=codx
+            - admin_db_name=lv-docs
+            - file_storage_path=/mnt/files
+            - default_tenant=default
+            - file_dir_path=/mnt/customers
+            - cache_server=lv-file-cache-service.xdoc:11211
+            - remote_ocr=http://lv-ocr-service.xdoc:80
+            - tika_server=http://tika-service.xdoc:80
+            - private_web_api=http://lv-file-service.xdoc:80/lvfile
+
+          resources: {}
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+            - name: customer-files
+              mountPath: /mnt/customers
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: harbor-secret-registry
+
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ocr-es
+  namespace: ocr
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ocr-producer
+  template:
+    metadata:
+      labels:
+        app: ocr-es
+    spec:
+      volumes:
+        - name: storage-files
+          nfs:
+            server: 10.96.25.76
+            path: /share-data/xdoc/files
+        - name: customer-files
+          nfs:
+            server: 10.96.23.55
+            path: /backup/backups/files/modules
+      containers:
+        - name: ocr-es
+          image: docker.lacviet.vn/xdoc/lib-ocr-all:3
+          command: ["python3"]
+          args:
+            - cy_jobs/jobs/task_msg_es_update_ocr.py
+            - app_name=default
+            - msg_ocr=vietlott-ocr
+            - db=mongodb%3A%2F%2Fadmin%3AVietlot%23123%4010.96.25.76%3A27017
+            - elastic_search.server=http://10.96.25.76:9200
+            - elastic_search.prefix_index=lv-codx
+            - rabbitmq.msg=xyzdsc-2024
+            - rabbitmq.password=Vietlot#123
+            - rabbitmq.port='5672'
+            - rabbitmq.server=codx-rabbitmq.rabbitmq.svc.cluster.local
+            - rabbitmq.username=codx
+            - admin_db_name=lv-docs
+            - file_storage_path=/mnt/files
+            - default_tenant=default
+            - file_dir_path=/mnt/customers
+            - cache_server=lv-file-cache-service.xdoc:11211
+            - remote_ocr=http://lv-ocr-service.xdoc:80
+            - tika_server=http://tika-service.xdoc:80
+            - private_web_api=http://lv-file-service.xdoc:80/lvfile
+
+          resources: {}
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+            - name: customer-files
+              mountPath: /mnt/customers
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: harbor-secret-registry
+
+
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: harbor-secret-registry
+  namespace: ocr
+data:
+  .dockerconfigjson: >-
+    eyJhdXRocyI6eyJkb2NrZXIubGFjdmlldC52biI6eyJ1c2VybmFtZSI6InB1bGwiLCJwYXNzd29yZCI6IkxhY3ZpZXQjMTIzIiwiZW1haWwiOiJwdWxsQGxhY3ZpZXQudm4iLCJhdXRoIjoiY0hWc2JEcE1ZV04yYVdWMEl6RXlNdz09In19fQ==
+type: kubernetes.io/dockerconfigjson
+
+

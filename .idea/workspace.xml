@@ -5,13 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change afterPath="$PROJECT_DIR$/cy_jobs/vietlott_ocr_agg.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/build-vietlott-ocr-agg.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/requirements/vietlott-ocr.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/yaml/ocr-all.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/vietlott_ocr_agg.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/vietlott_ocr_agg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-vietlott-ocr-agg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/yaml/vietlott-update-meta-ocr.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/yaml/vietlott-update-meta-ocr.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/requirements/vietlott-ocr.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/requirements/vietlott-ocr.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -75,6 +79,7 @@
     "Python.task_google_file_sync.executor": "Debug",
     "Python.task_images_from_office.executor": "Debug",
     "Python.task_images_from_pdf.executor": "Debug",
+    "Python.task_msg_es_update_ocr.executor": "Debug",
     "Python.task_orc.executor": "Debug",
     "Python.task_text_from_office.executor": "Debug",
     "Python.task_vietlot_meta.executor": "Debug",
@@ -107,7 +112,7 @@
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.task_vietlott_ocr_all">
+  <component name="RunManager" selected="Python.task_msg_es_update_ocr">
     <configuration name="clear_logs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -174,7 +179,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="task_content" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="task_msg_es_update_ocr" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -187,8 +192,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_content.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" />
+      <option name="PARAMETERS" value="app_name=developer msg_ocr=developer-001" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -242,11 +247,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.task_msg_es_update_ocr" />
         <item itemvalue="Python.task_vietlott_ocr_all" />
         <item itemvalue="Python.contents" />
         <item itemvalue="Python.task_orc" />
         <item itemvalue="Python.clear_logs" />
-        <item itemvalue="Python.task_content" />
       </list>
     </recent_temporary>
   </component>
@@ -514,6 +519,11 @@
           <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_ocr_all.py</url>
           <line>74</line>
           <option name="timeStamp" value="506" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py</url>
+          <line>117</line>
+          <option name="timeStamp" value="523" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
