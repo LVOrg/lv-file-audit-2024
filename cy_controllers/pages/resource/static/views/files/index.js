@@ -390,5 +390,13 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
             var win = await cloudConfigGoogle.asWindow();
             win.doMaximize();
     }
+    async doReadMetaInfoAsync(upload) {
+        var r = await import("../meta-search/index.js");
+        var metaViewer = await r.default();
+        var win =await metaViewer.asWindow();
+
+        win.doMaximize();
+        await metaViewer.loadMetaFromAPIAsync(this.currentAppName,upload);
+    }
 });
 export default filesView;

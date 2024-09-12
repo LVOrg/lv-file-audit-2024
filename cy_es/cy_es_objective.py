@@ -426,11 +426,17 @@ def search(client: Elasticsearch,
         body["highlight"] = __highlight
     elif highlight:
         body["highlight"] = highlight
-    _sort_fields_ = []
+    sort_text = sort
+    _sort_fields_=[]
+    for x in sort or []:
+        if isinstance(x,str):
+            sort_text = {x.split(":")[0]:x.split(":")[1]}
+            _sort_fields_+=[sort_text]
+
     if len(script_fields) == 0:
-        _sort_fields_ += [
+        _sort_fields_ = [
             {"_score": "desc"}
-        ]
+        ]+_sort_fields_
     else:
 
         _sort_fields_ += [

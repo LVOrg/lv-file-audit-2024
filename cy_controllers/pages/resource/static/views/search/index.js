@@ -92,9 +92,15 @@ var searchView = await View(import.meta, class SearchView extends BaseScope {
         var win =await metaViewer.asWindow();
 
         win.doMaximize();
-        await metaViewer.loadMeta(item);
+        await metaViewer.loadMetaFromAPIAsync(this.currentAppName,item);
     }
-    
+    async doReadableContent(item) {
+        var r = await import("../content-info/index.js");
+        var viewer = await r.default();
+        await viewer.loadReadableContent(this.currentAppName, item.UploadId||item._id)
+        var win = await viewer.asWindow();
+        win.doMaximize()
+    }
     
    
 });

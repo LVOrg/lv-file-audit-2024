@@ -176,7 +176,7 @@ def get_content(
     """
     file_name = f"{pathlib.Path(pfd_file_path).stem}-processing"
     output_dir = os.path.join(pathlib.Path(pfd_file_path).parent.__str__(),file_name)
-    os.makedirs(output_dir)
+    os.makedirs(output_dir,exist_ok=True)
     try:
         all_files = extract_files(pfd_file_path, output_dir) or {}
         contents = []
@@ -441,5 +441,5 @@ def main():
 if __name__ == "__main__":
     main()
 #test
-#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files   docker.lacviet.vn/xdoc/lib-ocr-all:3
+#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files   docker.lacviet.vn/xdoc/lib-ocr-all:4
 #python3 cy_jobs/jobs/task_msg_consumer_ocr.py app_name=developer msg_ocr=developer-001

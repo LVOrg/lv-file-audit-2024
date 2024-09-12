@@ -2,4 +2,8 @@
     <textarea style="width:100%;height:100%;overflow-y:scroll">
         {{meta_data}}
     </textarea>
+    <div class="layout-rows">
+        <div class="dock full"></div>
+        <div><input type="button" value="Update" ng-click="doUpdateMetaAsync().then()"></div>
+    </div>
 </div>

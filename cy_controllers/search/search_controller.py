@@ -79,7 +79,7 @@ class SearchController(BaseController):
         )
         return ret
 
-    @controller.router.post("/api/{app_name}/search")
+    @controller.router.post("/api/{app_name}/search",tags=["SEARCH"])
     async def file_search(self,
                           app_name: str,
                           content: typing.Optional[str]= fastapi.Body(default=None) ,
@@ -231,3 +231,26 @@ class SearchController(BaseController):
             text_search=content,
             json_filter=json_filter
         )
+
+    @controller.router.post("/api/{app_name}/meta_info/get",tags=["SEARCH"])
+    async def read_meta_info_async(self,app_name:str,UploadId:str=Body(embed=True)):
+        es= self.search_engine.client
+        es_index = self.search_engine.get_index(app_name)
+        result = es.get(index=es_index, id=UploadId, _source=["meta_info"],doc_type="_doc")
+        if not result:
+            raise Exception(f"{UploadId} was not found in {app_name}")
+        return result.get("_source",{}).get("meta_info")
+
+    @controller.router.post("/api/{app_name}/meta_info/save", tags=["SEARCH"])
+    async def read_meta_info_async(self, app_name: str, UploadId: str = Body(embed=True),meta:dict=Body(embed=True)):
+        es = self.search_engine.client
+        es_index = self.search_engine.get_index(app_name)
+        doc_id = UploadId
+        update_data = {
+            "doc": {
+                "meta_info": meta
+            }
+        }
+        ret = es.update(index=es_index, id=doc_id, body=update_data,doc_type="_doc")
+        return ret.get('result')
+

@@ -272,6 +272,7 @@ class SearchEngine:
         highlight_expr += search_expr.get_highlight_fields()
         print(f"------------{skip}--{page_size}-------------------------")
         t = datetime.datetime.now()
+        es_high_light = highlight_expr if highlight else None
         from cy_es.cy_es_manager import FIELD_RAW_TEXT
         try:
             ret = cy_es.search(
@@ -283,7 +284,7 @@ class SearchEngine:
 
                     cy_es.buiders.vn_on_accent_content],
                 index=self.get_index(app_name),
-                highlight=None,
+                highlight=es_high_light,
                 filter=search_expr,
                 skip=skip,
                 sort=sort

@@ -15,6 +15,8 @@ from cy_es_json import (
     to_json_convertable,
 )
 import datetime, json
+
+
 class DocumentFields:
     """
     ElasticcSearch document gearing \n
@@ -154,7 +156,38 @@ class DocumentFields:
         else:
             raise Exception("Not support")
 
-    def __contains__(self, item):
+    def __contains__2(self, item):
+        ret = DocumentFields()
+        field_name = self.__name__
+        boost = None
+        if "^" in field_name:
+            field_name, boost = tuple(field_name.split("^"))
+
+        if boost and boost.isnumeric():
+            ret.__es_expr__ = {
+                "must": {
+                    "regexp": {
+                        field_name: {
+                            "value": f".*{item}.*",
+                            "flags": "ALL",
+                            "boost": boost
+                        }
+                    }}
+            }
+        else:
+            ret.__es_expr__ = {
+                "must": {
+                    "regexp": {
+                        field_name: {
+                            "value": f".*{item}.*",
+                            "flags": "ALL"
+                        }
+                    }}
+            }
+        ret.__is_bool__ = True
+        return ret
+
+    def __contains__09_2024(self, item):
 
         """
         {
@@ -187,32 +220,117 @@ class DocumentFields:
         ret = DocumentFields()
         field_name = self.__name__
         boost = None
-        if "^" in field_name:
-            field_name,boost = tuple(field_name.split("^"))
-        if boost and boost.isnumeric():
-            ret.__es_expr__ = {
-                "must": {
-                    "match_phrase": {
-                        field_name: {
-                            "query": item,
+        def wild(field,value,boost):
+            __ret__ = DocumentFields()
+            if boost:
+                __ret__.__es_expr__ = {
+                    "must": {
+                        "query_string": {
+                            "query": value,
+                            "fields": [field],
+                            "analyze_wildcard": True,
+                            "allow_leading_wildcard": True,
                             "boost": boost
                         }
                     }
                 }
-            }
-        else:
-            ret.__es_expr__ = {
-                "must":{
-                "match_phrase":{
-                        field_name: {
-                            "query":item
+                __ret__.__is_bool__ = True
+                return __ret__
+            else:
+                __ret__.__es_expr__ = {
+                    "must": {
+                        "query_string": {
+                            "query": value,
+                            "fields": [field],
+                            "analyze_wildcard": True,
+                            "allow_leading_wildcard": True
+
                         }
                     }
                 }
+                __ret__.__is_bool__ = True
+                return __ret__
+        def match_phrase(field,value,boost):
+            __ret__ = DocumentFields()
+            if boost:
+                __ret__.__es_expr__ = {
+                    "must": {
+                        "match_phrase": {
+                            field: {
+                                "query": value,
+                                "boost": boost
+                            }
+                        }
+                    }
+                }
+            else:
+                __ret__.__es_expr__ = {
+                    "must": {
+                        "match_phrase": {
+                            field: {
+                                "query": value
+                            }
+                        }
+                    }
+                }
+            __ret__.__highlight_fields__ = [field_name]
+            __ret__.__is_bool__ = True
+            return __ret__
+
+        def regex_filter(field,value:str,boost):
+            __ret__ = DocumentFields()
+            if boost:
+                __ret__.__es_expr__ = {
+                    "must": {
+                        "regexp": {
+                            field: {
+                                "query": value.replace(".","\\."),
+                                "boost": boost
+                            }
+                        }
+                    }
+                }
+            else:
+                __ret__.__es_expr__ = {
+                    "must": {
+                        "regexp": {
+                            field: value.replace(".","\\.")
+                        }
+                    }
+                }
+            __ret__.__highlight_fields__ = [field_name]
+            __ret__.__is_bool__ = True
+            return __ret__
+
+        def prefix(field,value,boost):
+            __ret__ = DocumentFields()
+            __ret__.__es_expr__ = {
+                "must": {
+                    "prefix": {field:value}
+                }
             }
+            __ret__.__is_bool__=True
+            return __ret__
+
+        if "^" in field_name:
+            field_name, boost = tuple(field_name.split("^"))
+            if not  boost.isnumeric():
+                boost=None
+
+
+
+
+        ret = (match_phrase(field_name,item.replace("."," "),boost)| wild(field_name,item,boost)|wild(field_name,f"{item}*",boost)|
+               wild(field_name,f"{item}*",boost)|
+               wild(field_name,f"*{item}*",boost))
+        ret_re = regex_filter(field_name,f".*{item}.*",boost)
+        ret_prefix=prefix(field_name,item,boost)
+        ret.__highlight_fields__=[field_name]
+        ret = ret_prefix|ret_re
         ret.__is_bool__ = True
         return ret
-    def __contains__delete__(self, item):
+
+    def __contains__(self, item):
         from cy_es.cy_es_utils import __well_form__
 
         import cy_es.cy_es_utils
@@ -237,8 +355,8 @@ class DocumentFields:
             field_name = self.__name__
             boost_score = 0.0
             query_value = ""
-            first=""
-            last=""
+            first = ""
+            last = ""
             code_field_name = f"{field_name}"
             doc_field_key_word = f"doc['{code_field_name}.keyword']"
             doc_field = f"doc['{field_name}']"
@@ -246,28 +364,28 @@ class DocumentFields:
                 field_name = self.__name__.split("^")[0]
                 boost_score = float(self.__name__.split("^")[1])
 
-            src= cy_es.cy_es_utils.__create_painless_source__(field_name=field_name,function_name="contains")
+            src = cy_es.cy_es_utils.__create_painless_source__(field_name=field_name, function_name="contains")
             if item[0] != '*' and item[-1] == '*':
                 query_value = item[:-1]
-                last="*"
+                last = "*"
                 src = f"({doc_field_key_word}.size()>0) && ({doc_field_key_word}.value.toLowerCase().indexOf(params.item)==0)"
             elif item[0] == '*' and item[-1] != '*':
                 query_value = item[1:-1]
-                first="*"
+                first = "*"
                 src = f"({doc_field_key_word}.size()>0) && {doc_field_key_word}.value.toLowerCase().endsWith(params.item)"
             elif item[0] == '*' and item[-1] == '*':
-                first="*"
-                last="*"
+                first = "*"
+                last = "*"
                 query_value = item[1:-1]
             else:
                 query_value = item
-                txt_search  = query_value.replace("  "," ").lstrip(" ").rstrip(" ")
+                txt_search = query_value.replace("  ", " ").lstrip(" ").rstrip(" ")
                 if field_name == "content" and " " in txt_search:
                     from cy_es.cy_es_objective import __build_search__
                     search_content = __build_search__(["content"], txt_search)
 
                     return search_content
-            search_value= __well_form__(query_value)
+            search_value = __well_form__(query_value)
             # for x in query_value:
             #     if x in special_characters:
             #         search_value += f"\\{x}"
@@ -325,9 +443,9 @@ class DocumentFields:
             #     ]
             # }
             # ret_filter.__is_bool__ = True
-            if first =="" and last=="":
-                first="*"
-                last="*"
+            if first == "" and last == "":
+                first = "*"
+                last = "*"
             """
             {
                   "query": {
@@ -350,7 +468,7 @@ class DocumentFields:
             """
             import urllib.parse
             query_string_boost = 1000
-            if boost_score>0:
+            if boost_score > 0:
                 query_string_boost = boost_score
             ret2 = DocumentFields()
             ret2.__es_expr__ = {
@@ -373,8 +491,8 @@ class DocumentFields:
                 "must": {
                     "wildcard": {
                         f"{field_name}.keyword": {
-                        "value": f"{first}{query_value}{last}"
-                      }
+                            "value": f"{first}{query_value}{last}"
+                        }
                     }
 
                 },
@@ -416,7 +534,7 @@ class DocumentFields:
             #     f"{first}{search_value.lower()}{last}",
             #     re.RegexFlag.IGNORECASE|re.RegexFlag.DOTALL
             # )
-            search_value=search_value.replace(" ","\\s*")
+            search_value = search_value.replace(" ", "\\s*")
             # ret.__es_expr__ = {
             #     "must": {
             #         "regexp": {
@@ -433,16 +551,15 @@ class DocumentFields:
             #     # "score_mode": "max"
             # }
 
-
             ret.__is_bool__ = True
             ret2.__is_bool__ = True
             # fx_check_field = DocumentFields(field_name) != None
             # ret = fx_check_field & ret
-            ret.__highlight_fields__ += [field_name,f"{field_name}.keyword"]
+            ret.__highlight_fields__ += [field_name, f"{field_name}.keyword"]
             ret_return = ret2 | ret
             ret_return.__highlight_fields__ += [field_name, f"{field_name}.keyword"]
-            ret_macth_pharse = cy_es.cy_es_utils.__make_like__(field_name=field_name,content=query_value,boost_score=boost_score)
-
+            ret_macth_pharse = cy_es.cy_es_utils.__make_like__(field_name=field_name, content=query_value,
+                                                               boost_score=boost_score)
 
             return ret_macth_pharse
         elif isinstance(item, list):
@@ -633,8 +750,6 @@ class DocumentFields:
         else:
             raise Exception("invalid expr")
 
-
-
     def __eq__(self, other):
 
         date_val, is_ok = try_parse_date(other)
@@ -691,10 +806,10 @@ class DocumentFields:
                 }
                 self.__is_bool__ = True
                 return self
-            elif isinstance(self.__es_expr__,dict) and isinstance(self.__es_expr__.get("must"),list) and \
-                len(self.__es_expr__["must"])>1 and \
-                isinstance(self.__es_expr__["must"][1].get("bool"),dict) and \
-                 __check_is_painless_expr__(self.__es_expr__["must"][1]["bool"]["filter"]):
+            elif isinstance(self.__es_expr__, dict) and isinstance(self.__es_expr__.get("must"), list) and \
+                    len(self.__es_expr__["must"]) > 1 and \
+                    isinstance(self.__es_expr__["must"][1].get("bool"), dict) and \
+                    __check_is_painless_expr__(self.__es_expr__["must"][1]["bool"]["filter"]):
                 key_name = self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['source']
                 self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['source'] = f"{key_name}==params.p"
                 self.__es_expr__["must"][1]["bool"]["filter"]["script"]["script"]['params'] = {

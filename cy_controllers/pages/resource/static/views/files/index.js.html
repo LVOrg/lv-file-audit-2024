@@ -325,6 +325,7 @@
                             <span style="fon-size:8pt">...</span>
                             <span class="caret"></span></button>
                             <ul class="dropdown-menu">
+
                                 <li><a href="javascript:void(0);" ng-click="doOpenUploadWindow(p.UploadId).then()"><b>{{$res('Update content')}}</b></a></li>
                                 <li><a href="javascript:void(0);" ng-click="showError(p).then()"><b style="color:red">{{$res('Show error')}}</b></a></li>
                                 <li> <a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
@@ -335,6 +336,7 @@
                                </a></li>
 
                               <li><a href="javascript:void(0);" ng-click="doShowDetail(p).then()">{{$res('Detail')}}</a></li>
+                                <li><a href="javascript:void(0);" ng-click="doReadMetaInfoAsync(p).then()">{{$res('Meta info')}}</a></li>
                                 <li><a href="javascript:void(0);" ng-click="doReadableContent(p).then()">{{$res('Content')}}</a></li>
                                 <li><a href="javascript:void(0);" ng-click="doDelete(p).then()"><b style="color:red">{{$res('Delete')}}</b></a></li>
 

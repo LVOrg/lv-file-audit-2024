@@ -5,18 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_office.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/a_checking/check_unicod.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_es/es_script.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js.html" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/meta-search/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/meta-search/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/meta-search/index.js.html" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/meta-search/index.js.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/search/search_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/search/search_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_data_parser.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_json.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_objective.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cyx_es_delete.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,6 +83,7 @@
     "Python.check_caching.executor": "Debug",
     "Python.check_id.executor": "Debug",
     "Python.check_list.executor": "Debug",
+    "Python.check_unicod.executor": "Debug",
     "Python.checkfile.executor": "Debug",
     "Python.clear_logs.executor": "Debug",
     "Python.contents.executor": "Debug",
@@ -113,8 +130,8 @@
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.task_msg_producer_office">
-    <configuration name="clear_logs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.server (1)">
+    <configuration name="check_unicod" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -127,7 +144,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/clear_logs.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/check_unicod.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -270,11 +287,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.check_unicod" />
         <item itemvalue="Python.task_msg_es_update_ocr" />
         <item itemvalue="Python.task_vietlott_ocr_all" />
         <item itemvalue="Python.contents" />
         <item itemvalue="Python.task_orc" />
-        <item itemvalue="Python.clear_logs" />
       </list>
     </recent_temporary>
   </component>
@@ -439,11 +456,6 @@
           <option name="timeStamp" value="321" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_controllers/search/search_controller.py</url>
-          <line>74</line>
-          <option name="timeStamp" value="322" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_xdoc/server.py</url>
           <line>165</line>
           <option name="timeStamp" value="337" />
@@ -520,22 +532,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_objective.py</url>
-          <line>1335</line>
+          <line>1341</line>
           <option name="timeStamp" value="492" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>225</line>
-          <option name="timeStamp" value="494" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>245</line>
+          <line>363</line>
           <option name="timeStamp" value="495" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_objective.py</url>
-          <line>1119</line>
+          <line>1125</line>
           <option name="timeStamp" value="496" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -544,14 +551,29 @@
           <option name="timeStamp" value="506" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_office.py</url>
-          <line>22</line>
-          <option name="timeStamp" value="524" />
+          <url>file://$PROJECT_DIR$/a_checking/check_unicod.py</url>
+          <line>3</line>
+          <option name="timeStamp" value="527" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_office.py</url>
-          <line>36</line>
-          <option name="timeStamp" value="526" />
+          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
+          <line>187</line>
+          <option name="timeStamp" value="536" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_controllers/search/search_controller.py</url>
+          <line>210</line>
+          <option name="timeStamp" value="541" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_xdoc/services/search_engine.py</url>
+          <line>260</line>
+          <option name="timeStamp" value="542" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
+          <line>367</line>
+          <option name="timeStamp" value="553" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
