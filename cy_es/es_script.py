@@ -1,3 +1,7 @@
+
+
+
+
 """
 {
   "query": {
@@ -21,6 +25,39 @@
   }
 }
 """
+
+
+
+
+"""
+    {
+      "query": {
+        "constant_score": {
+          "filter": {
+            "function_score": {
+              "query": {
+                "exists": {
+                  "field": "meta_info.FileName.keyword"
+                }
+              },
+              "functions": [
+                {
+                  "script_score": {
+                    "script": {
+                      "lang": "painless",
+                      "source": "doc['meta_info.FileName.keyword'].value.toLowerCase().endsWith('060923.png') ? 1 : 0"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "boost": 1000
+        }
+      }
+    }
+"""
+
 def script_end_with(field_name,value):
     ret = dict(
         function_score=dict(
@@ -42,6 +79,15 @@ def script_end_with(field_name,value):
 
             ]
 
+        )
+    )
+    return ret
+
+def constant_score(filter:dict,boost):
+    ret =dict(
+        constant_score=dict(
+            filter=filter,
+            boost=boost
         )
     )
     return ret
