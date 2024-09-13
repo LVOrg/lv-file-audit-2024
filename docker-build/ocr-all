@@ -1,0 +1,24 @@
+
+FROM docker.lacviet.vn/xdoc/lib-ocr:2
+COPY ./../cy_file_cryptor /app/cy_file_cryptor
+COPY ./../cy_docs /app/cy_docs
+COPY ./../cy_es /app/cy_es
+COPY ./../cy_kit /app/cy_kit
+COPY ./../cy_logger /app/cy_logger
+COPY ./../gridfs /app/gridfs
+COPY ./../elasticsearch /app/elasticsearch
+COPY ./../pymongo /app/pymongo
+COPY ./../bson /app/bson
+COPY ./../config.yml /app/config.yml
+COPY ./../cy_controllers /app/cy_controllers
+COPY ./../cy_services /app/cy_services
+COPY ./../cy_ui /app/cy_ui
+COPY ./../cy_utils /app/cy_utils
+RUN rm -fr /app/cy_vn_suggestion/data
+COPY ./../cy_web /app/cy_web
+COPY ./../cy_xdoc /app/cy_xdoc
+COPY ./../cy_plugins /app/cy_plugins
+COPY ./../cyx /app/cyx
+COPY ./../cy_consumers /app/cy_consumers
+COPY ./../cy_jobs /app/cy_jobs
+
