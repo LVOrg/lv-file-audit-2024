@@ -3,6 +3,7 @@ import os
 import pathlib
 import shutil
 import sys
+import time
 import traceback
 import typing
 
@@ -11,6 +12,7 @@ from icecream import ic
 
 
 sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
+import cy_docs
 sys.path.append("/app")
 from cyx.common import config
 if not hasattr(config,"msg_ocr"):
@@ -18,7 +20,7 @@ if not hasattr(config,"msg_ocr"):
 if not hasattr(config,"app_name"):
     raise Exception(f"app_name was not found in config")
 msg_raise_ocr:str = config.msg_ocr
-app_name =config.app_name
+
 temp_ocr_file_dir_name="__temp_ocr_file__"
 from cy_xdoc.services.search_engine import SearchEngine
 import cy_kit
@@ -97,36 +99,56 @@ def do_update_es(info:OCRContentInfo,client:Elasticsearch,app_name:str):
 
             )
 
+def get_apps_dir(dir):
+    items = os.walk(dir)
+    for item in items:
+        _, app_dirs, files = item
+        return [ x for x in app_dirs]
+    return []
+def get_apps():
+    ret= Repository.apps.app("admin").context.aggregate().project(
+        cy_docs.fields.app_name >> Repository.apps.fields.Name
+    )
+    return [x.app_name for x in ret]
+def process_content():
+    process_dir = os.path.join(config.file_storage_path,temp_ocr_file_dir_name)
+    app_dirs = get_apps()
+    client: Elasticsearch = search_engine.client
+    for app_name_dir in app_dirs:
+        folder_path=os.path.join(process_dir,app_name_dir)
+        if not os.path.isdir(folder_path):
+            continue
+        ic(f"scan {folder_path}")
+        info: OCRContentInfo | None = None
+        try:
+            info = next(scan_dir(folder_path))
+        except StopIteration:
+            continue
+        if info:
+            ic(info.__dict__)
+            do_update_es(info=info, client=client, app_name=app_name_dir)
+            folder_path_processed = os.path.join(config.file_storage_path, temp_ocr_file_dir_name, f"__{app_name_dir}__")
+            move_to = os.path.join(folder_path_processed, f"{info.upload_id}.txt")
+            Repository.files.app(app_name).context.update(
+                Repository.files.fields.id == info.upload_id,
+                Repository.files.fields.HasORCContent << True
+            )
+            shutil.move(info.content_file, move_to)
+            ic(f"Update {info.upload_id} by {info.upload_id}.txt is OK")
+        # os.makedirs(folder_path_processed,exist_ok=True)
+        # client: Elasticsearch = search_engine.client
 
 def main():
-    folder_path=os.path.join(config.file_storage_path,temp_ocr_file_dir_name,app_name)
-    folder_path_processed = os.path.join(config.file_storage_path, temp_ocr_file_dir_name, f"__{app_name}__")
-    os.makedirs(folder_path_processed,exist_ok=True)
-    client: Elasticsearch = search_engine.client
     while True:
-        for it in scan_dir(folder_path):
-            try:
-                info:OCRContentInfo =it
-                ic(info.__dict__)
-                do_update_es(info=info,client=client,app_name=app_name)
-                move_to = os.path.join(folder_path_processed,f"{info.upload_id}.txt")
-
-                Repository.files.app(app_name).context.update(
-                    Repository.files.fields.id==info.upload_id,
-                    Repository.files.fields.HasORCContent<<True
-                )
-                shutil.move(info.content_file, move_to)
-            except:
-                logs_to_mongo_db_service.log(
-                    error_content=traceback.format_exc(),
-                    url=__name__
-                )
-                print(traceback.format_exc())
-
-
-
-
-
+        time.sleep(1)
+        try:
+            process_content()
+        except:
+            logs_to_mongo_db_service.log(
+                error_content=traceback.format_exc(),
+                url=__name__
+            )
+            print(traceback.format_exc())
 
 if __name__ == "__main__":
     main()

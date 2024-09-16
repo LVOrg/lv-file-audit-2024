@@ -34,5 +34,15 @@ data:
   private_web_api: http://{{ .Values.appConfig.name }}.{{.Values.namespace}}:8012/lvfile
   auto_ssl_redirect: '{{ .Values.auto_ssl_redirect }}'
   use_ssl: '{{ .Values.use_ssl }}'
+  nfs_server: {{ .Values.storage.server}}
+  nfs_location: {{ .Values.storage.directory}}
+  nfs_name: {{ .Values.storage.name}}
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lv-file-volume-config
+data:
+  nfs_server: 192.168.18.36
+  nfs_path: /codx-file-storage/files

@@ -23,8 +23,8 @@ msg_raise_ocr: str = config.msg_ocr
 """
 Message wil be raise 
 """
-app_name: str = config.app_name
-ic(f"app_name={app_name}, msg_ocr={msg_raise_ocr}")
+
+
 from cyx.rabbit_utils import Consumer, MesssageBlock
 from cyx.local_api_services import LocalAPIService
 local_api_service = cy_kit.single(LocalAPIService)
@@ -247,6 +247,7 @@ def do_hash_content_256_file(file_path:str):
         str: The SHA-256 hash of the file's content in hexadecimal format.
     """
 
+
     if not os.path.exists(file_path):
         return None
 
@@ -280,13 +281,14 @@ def do_write_content_to_txt_file(content, file_path):
         content (str): The content to be written.
         file_path (str): The path to the output file.
     """
-
+    dir_path= pathlib.Path(file_path).parent.__str__()
+    os.makedirs(dir_path,exist_ok=True)
     try:
         with open(file_path, 'w') as f:
             f.write(content)
-        print(f"Content written successfully to {file_path}")
+        ic(f"Content written successfully to {file_path}")
     except Exception as e:
-        print(f"Error writing to file: {e}")
+        raise e
 
 
 def do_ocr_and_save_to_file(consumer:Consumer, msg:MesssageBlock, save_to_file:str)->str|None:
@@ -369,6 +371,7 @@ def consume_msg(consumer: Consumer):
         return
     # xac nhan lai xem upload na da bi xoa hay chua
     upload_id = msg.data.get("_id")
+    app_name = msg.app_name
     upload_item = Repository.files.app(
         app_name=msg.app_name
     ).context.find_one(
@@ -422,7 +425,7 @@ def consume_msg(consumer: Consumer):
                 ocr_logs.fields.pod_name << get_pod_name(),
                 ocr_logs.fields.app_name << app_name
             )
-        raise
+
 
 def main():
     consumer = Consumer(msg_type=msg_raise_ocr)
@@ -441,5 +444,7 @@ def main():
 if __name__ == "__main__":
     main()
 #test
-#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files   docker.lacviet.vn/xdoc/lib-ocr-all:4
+#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files   docker.lacviet.vn/xdoc/lib-ocr-all:5
 #python3 cy_jobs/jobs/task_msg_consumer_ocr.py app_name=developer msg_ocr=developer-001
+#python3 cy_jobs/jobs/task_msg_es_update_ocr.py app_name=developer msg_ocr=developer-001
+#python3 cy_jobs/jobs/task_msg_producer_ocr.py app_name=developer msg_ocr=developer-001

@@ -15,7 +15,7 @@ from cy_es_json import (
     to_json_convertable,
 )
 import datetime, json
-
+from cy_es import es_script
 
 class DocumentFields:
     """
@@ -187,31 +187,9 @@ class DocumentFields:
         ret.__is_bool__ = True
         return ret
 
-    def __contains__09_2024(self, item):
+    def __contains__(self, item):
 
         """
-        {
-          "query": {
-            "bool": {
-              "should": [
-                {
-                  "match_phrase": {
-                    "meta_info.FileName": {
-                      "query": "hợp đồng lao động"
-                    }
-                  }
-                },
-                {
-                  "match_phrase": {
-                    "content": {
-                      "query": "hợp đồng  lao động"
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
 
         @param item:
         @return:
@@ -220,117 +198,33 @@ class DocumentFields:
         ret = DocumentFields()
         field_name = self.__name__
         boost = None
-        def wild(field,value,boost):
-            __ret__ = DocumentFields()
-            if boost:
-                __ret__.__es_expr__ = {
-                    "must": {
-                        "query_string": {
-                            "query": value,
-                            "fields": [field],
-                            "analyze_wildcard": True,
-                            "allow_leading_wildcard": True,
-                            "boost": boost
-                        }
-                    }
-                }
-                __ret__.__is_bool__ = True
-                return __ret__
-            else:
-                __ret__.__es_expr__ = {
-                    "must": {
-                        "query_string": {
-                            "query": value,
-                            "fields": [field],
-                            "analyze_wildcard": True,
-                            "allow_leading_wildcard": True
 
-                        }
-                    }
-                }
-                __ret__.__is_bool__ = True
-                return __ret__
-        def match_phrase(field,value,boost):
-            __ret__ = DocumentFields()
-            if boost:
-                __ret__.__es_expr__ = {
-                    "must": {
-                        "match_phrase": {
-                            field: {
-                                "query": value,
-                                "boost": boost
-                            }
-                        }
-                    }
-                }
-            else:
-                __ret__.__es_expr__ = {
-                    "must": {
-                        "match_phrase": {
-                            field: {
-                                "query": value
-                            }
-                        }
-                    }
-                }
-            __ret__.__highlight_fields__ = [field_name]
-            __ret__.__is_bool__ = True
-            return __ret__
 
-        def regex_filter(field,value:str,boost):
-            __ret__ = DocumentFields()
-            if boost:
-                __ret__.__es_expr__ = {
-                    "must": {
-                        "regexp": {
-                            field: {
-                                "query": value.replace(".","\\."),
-                                "boost": boost
-                            }
-                        }
-                    }
-                }
-            else:
-                __ret__.__es_expr__ = {
-                    "must": {
-                        "regexp": {
-                            field: value.replace(".","\\.")
-                        }
-                    }
-                }
-            __ret__.__highlight_fields__ = [field_name]
-            __ret__.__is_bool__ = True
-            return __ret__
 
-        def prefix(field,value,boost):
-            __ret__ = DocumentFields()
-            __ret__.__es_expr__ = {
-                "must": {
-                    "prefix": {field:value}
-                }
-            }
-            __ret__.__is_bool__=True
-            return __ret__
+
+
+
 
         if "^" in field_name:
             field_name, boost = tuple(field_name.split("^"))
             if not  boost.isnumeric():
                 boost=None
-
-
-
-
-        ret = (match_phrase(field_name,item.replace("."," "),boost)| wild(field_name,item,boost)|wild(field_name,f"{item}*",boost)|
-               wild(field_name,f"{item}*",boost)|
-               wild(field_name,f"*{item}*",boost))
-        ret_re = regex_filter(field_name,f".*{item}.*",boost)
-        ret_prefix=prefix(field_name,item,boost)
-        ret.__highlight_fields__=[field_name]
-        ret = ret_prefix|ret_re
-        ret.__is_bool__ = True
+        ret.__d
+        ret_match_phase=DocumentFields()
+        ret_query = DocumentFields()
+        dict_filter = es_script.script_index_of(field_name,item)
+        if item[-1]=="*":
+            dict_filter = es_script.script_start_with(field_name, item[:-1])
+        elif item[0]=="*":
+            dict_filter = es_script.script_end_with(field_name, item[1:])
+        ret = es_script.build(ret,es_script.must_wrapper(es_script.constant_score(dict_filter,boost)))
+        ret_match_phase = es_script.build(ret_match_phase,es_script.match_phrase(field_name,item,boost))
+        ret_query = es_script.build(ret_query, es_script.simple_query_string(field_name, item, boost))
+        ret=ret |ret_match_phase|ret_query
+        ret.__highlight_fields__ = [field_name]
         return ret
 
-    def __contains__(self, item):
+    def __contains__delete(self, item):
         from cy_es.cy_es_utils import __well_form__
 
         import cy_es.cy_es_utils

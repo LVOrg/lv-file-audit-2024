@@ -26,6 +26,7 @@ var searchView = await View(import.meta, class SearchView extends BaseScope {
         })
         this.currentApp = this.listOfApp[0];
         this.currentAppName = this.currentApp.Name;
+        this.highlight = false;
         
         this.$apply();
         await this.doFullTextSearch();

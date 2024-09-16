@@ -85,7 +85,7 @@ class SearchController(BaseController):
                           content: typing.Optional[str]= fastapi.Body(default=None) ,
                           page_size:  typing.Optional[int] = fastapi.Body(default=20),
                           page_index:  typing.Optional[int] = fastapi.Body(default=0),
-                          highlight:  typing.Optional[bool] = fastapi.Body(default=True),
+                          highlight:  typing.Optional[bool] = fastapi.Body(default=False),
                           privileges:  typing.Optional[dict] = fastapi.Body(default=None),
                           logic_filter:  typing.Optional[dict] = fastapi.Body(default=None),
                           filter:  typing.Optional[str] = fastapi.Body(default=None)):

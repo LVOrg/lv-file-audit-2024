@@ -42,8 +42,8 @@ spec:
           emptyDir: { }
         - name: {{ $value.storage.name}}
           nfs:
-            server: {{$value.storage.server}}
-            path: {{$value.storage.directory}}
+            server: {{ $value.storage.server}}
+            path: {{ $value.storage.directory}}
       {{end}}
 
       containers:

@@ -1,1 +1,3 @@
 helm  template lv-files -f ../values/99-qc.yml -o test.yaml
+helm cm-push ./lv-ocr lv-files
+helm template lv-ocr . --set namespace=<namespace-of-lv-file> --set nfs_server=<nfs server file>,nfs_path=<path tp nfs share>
