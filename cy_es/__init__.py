@@ -57,13 +57,11 @@ import sys
 
 import cy_es
 
-sys.path.append(
-    pathlib.Path(__file__).parent.__str__()
-)
+
 from elasticsearch import Elasticsearch
 import typing
 
-import cy_es_json, cy_es_docs, cy_es_utils, cy_es_objective
+from cy_es import cy_es_json, cy_es_docs, cy_es_utils, cy_es_objective
 
 DocumentFields = cy_es_docs.DocumentFields
 buiders = cy_es_objective.docs
@@ -155,6 +153,35 @@ __check_mapping__ = {}
 
 
 def __create_mapping_from_dict__(body):
+    """
+    This method create mapping from dict \n
+    That mapping can be used to create index in ElasticSearch \n
+    Example:
+        __create_mapping_from_dict__({
+            "code": int,
+            "name": str,
+            "created_at": datetime.datetime,
+            "is_active": bool,
+            "data_item": {
+                "type": "nested",
+                "dynamic": True,
+                "properties": {
+                    "code": int,
+                    "name": str,
+                    "created_at": datetime.datetime,
+                    "is_active": bool,
+                    "data_item": {
+                        "type": "nested",
+                        "dynamic": True,
+                        "properties": {
+                            "code": int,
+                            "name": str,
+                            "created_at": datetime.datetime,
+                            "is_active": bool,
+                        }
+                    }
+                }
+    """
     ret = {}
     for k, v in body.items():
         if v:
@@ -205,6 +232,9 @@ create_filter_from_dict = cy_es_objective.create_filter_from_dict
 
 
 def is_exist(client: Elasticsearch, index: str, id: str, doc_type: str = "_doc") -> bool:
+    """
+    Check if document exist in ElasticSearch \n
+    """
     if index == "True" or index == True:
         raise Exception("error index type")
     return cy_es_objective.is_exist(
@@ -221,6 +251,13 @@ set_norms = cy_es_objective.set_norms
 
 
 def create_mapping_meta(client: Elasticsearch, index: str, body):
+    """
+    Create mapping in ElasticSearch \n
+    Example:
+        create_mapping_meta(client,index,body={ "code":int, "name":str, "created_at":datetime.datetime, "is_active":bool, "data_item": { "type": "nested", "dynamic": True, "properties": { "code": int, "name": str, "created_at": datetime.datetime, "is_active": bool, "data_item": { "type": "nested", "dynamic": True, "properties": { "code": int, "name": str, "created_at": datetime.datetime, "is_active": bool, } } } } })
+    Heed: USe this method carefully, because it can change the mapping of index in ElasticSearch \n the body will be used to create mapping in ElasticSearch \n
+    by call __create_mapping_from_dict__
+    """
     ret = cy_es_objective.put_mapping(
         client=client,
         index=index,
@@ -251,6 +288,15 @@ natural_logic_parse = cy_es_objective.natural_logic_parse
 
 
 async def natural_logic_parse_async(expr):
+    """
+    This method parse natural language expression to Elasticsearch filter \n
+    Example:
+        natural_logic_parse_async("data_item.code=1")    # return { "term": { "data_item.code": 1 } } \n
+        natural_logic_parse_async("data_item.code=1 and data_item.name='abc'")    # return { "bool": { "must": [ { "term": { "data_item.code": 1 } }, { "term": { "data_item.name": "abc" } } ] } } \n
+        natural_logic_parse_async("data_item.code=1 or data_item.name='abc'")    # return { "bool": { "should": [ { "term": { "data_item.code": 1 } }, { "term": { "data_item.name": "abc" } } ] } } \n
+        natural_logic_parse_async("data_item.code=1 and (data_item.name='abc' or data_item.name='xyz')")    # return { "bool": { "must": [ { "term": { "data_item.code": 1 } }, { "bool": { "should": [ { "term": { "data_item.name": "abc" } }, { "term": { "data_item.name": "xyz" } } ] } } ] } } \n
+        natural_logic_parse_async("data_item.code=1 and (data_item.name='abc' or data_item.name='xyz') and data_item.created_at>='2021-01-01'")    # return { "bool": { "must": [ { "term": { "data_item.code": 1 } }, { "bool": { "should": [ { "term": { "data_item.name": "abc" } }, { "term": { "data_item.name": "xyz" } } ] } } ], "filter": [ { "range": { "data_item.created_at": { "gte": "2021-01-01" } } } ] } } \n
+    """
     ret = await cy_es_objective.natural_logic_parse_async(expr)
     if not isinstance(ret, dict):
         raise Exception(f"'{expr}' is incorrect syntax")
@@ -278,6 +324,14 @@ def __to_dict__(key,value):
         return {k:v}
 
 def replace_content(client:Elasticsearch, index:str, id:str, field_path, field_value,timeout="60s"):
+    """
+    This method replace content in ElasticSearch \n
+    Example:
+        replace_content(client,index,id,"data_item.code",1)    # replace data_item.code with 1 in document with id \n
+        replace_content(client,index,id,"data_item.name","abc")    # replace data_item.name with "abc" in document with id \n
+        replace_content(client,index,id,"data_item.data_item.code",1)    # replace data_item.code with 1 in document with id \n 
+        replace_content(client,index,id,"data_item.name","abc")    # replace data_item.name with "abc" in document with id \n
+        """
     from cy_es.cy_es_manager import FIELD_RAW_TEXT,update_mapping
     data_raw_mapping_update = __to_dict__(f"{FIELD_RAW_TEXT}.{field_path}", field_value)
     data_mapping_update = __to_dict__(f"{field_path}", field_value)

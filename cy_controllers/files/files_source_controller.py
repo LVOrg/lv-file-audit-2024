@@ -159,7 +159,7 @@ class FilesSourceController(BaseController):
     def raise_re_do_message(self, file_path, app_name, data):
         self.broker.emit(
             app_name=app_name,
-            message_type=cyx.common.msg.MSG_FILE_UPLOAD,
+            message_type=cyx.common.msg.MSG_FILE_GENERATE_CONTENT,
             data=data
         )
         root, _, files = list(os.walk(pathlib.Path(file_path).parent.__str__()))[0]

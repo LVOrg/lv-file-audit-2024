@@ -39,14 +39,17 @@ class LogsToMongoDbService:
         )
 
     def log(self, error_content, url):
-        if hasattr(datetime,"UTC"):
-            log_on = datetime.datetime.now(datetime.UTC)
-        else:
-            log_on = datetime.datetime.utcnow()
-        Repository.lv_files_sys_logs.app("admin").context.insert_one(
-            Repository.lv_files_sys_logs.fields.LogOn << log_on,
-            Repository.lv_files_sys_logs.fields.ErrorContent << error_content,
-            Repository.lv_files_sys_logs.fields.PodId << self.get_pod_name(),
-            Repository.lv_files_sys_logs.fields.Url << url,
-            Repository.lv_files_sys_logs.fields.WorkerIP << self.get_host_ip()
-        )
+        def run_in_thead():
+            if hasattr(datetime,"UTC"):
+                log_on = datetime.datetime.now(datetime.UTC)
+            else:
+                log_on = datetime.datetime.utcnow()
+            Repository.lv_files_sys_logs.app("admin").context.insert_one(
+                Repository.lv_files_sys_logs.fields.LogOn << log_on,
+                Repository.lv_files_sys_logs.fields.ErrorContent << error_content,
+                Repository.lv_files_sys_logs.fields.PodId << self.get_pod_name(),
+                Repository.lv_files_sys_logs.fields.Url << url,
+                Repository.lv_files_sys_logs.fields.WorkerIP << self.get_host_ip()
+            )
+        import threading
+        threading.Thread(target=run_in_thead).start()

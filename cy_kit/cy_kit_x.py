@@ -109,6 +109,9 @@ __cache_yam_dict_lock__ = threading.Lock()
 
 
 def __change_init__(cls: type):
+    """
+    Re-modify the __init__ method of Class to call the base class __init__ method
+    """
     if cls == object:
         return
     __old_init__ = cls.__init__
@@ -123,6 +126,11 @@ def __change_init__(cls: type):
 
 
 def resolve_singleton(cls, *args, **kwargs):
+    """
+    Create a instance of Class and hold it in memory for the next time and  make it singleton \n
+    Tạo một thể hiện của Class và lưu nó trong bộ nhớ cho lần tiếp theo và đóng gói nó là singleton \n
+    Example: \n
+    """
     key = f"{cls.__module__}/{cls.__name__}"
     ret = None
     if __cache_depen__.get(key) is None:
@@ -155,6 +163,9 @@ def resolve_singleton(cls, *args, **kwargs):
 
 
 def resolve_scope(cls, *args, **kwargs):
+    """
+    Create scope of Class and hold it in memory for the next time and  make it singleton \n
+    """
     if cls.__init__.__defaults__ is not None:
         args = {}
         for k, v in cls.__init__.__annotations__.items():
@@ -168,6 +179,25 @@ def resolve_scope(cls, *args, **kwargs):
 
 
 class VALUE_DICT(dict):
+    """
+    ValueDict is a class which hold a dictionary and provide a way to access to value by dot notation \n
+    ValueDict là một lớp được tạo ra để lưu trữ một Từ điển và cung cấp cách truy cập giá trị bằng cách sử dụng dấu chấm \n
+    Example: \n
+    data = {a:1,b:{c:2,d:3}} \n
+    data = ValueDict(data) \n
+    print(data.a) // will print 1 \n
+    print(data.b.c) // will print 2 \n
+    print(data.b.d) // will print 3 \n
+    print(data.b.e) // will raise AttributeError \n
+    print(data.b.e.f) // will raise AttributeError \n
+    print(data.b.e.f.g) // will raise AttributeError \n
+    print(data.b.e.f.g.h) // will raise AttributeError \n
+    print(data.b.e.f.g.h.i) // will raise AttributeError \n
+    print(data.b.e.f.g.h.i.j) // will raise AttributeError \n
+    """
+
+
+
     def __init__(self, data: dict):
         dict.__init__(self, **data)
         self.__data__ = data

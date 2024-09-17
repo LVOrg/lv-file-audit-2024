@@ -18,7 +18,7 @@ from cyx.cache_service.memcache_service import MemcacheServices
 from cyx.loggers import LoggerService
 
 
-from cyx.common.file_cacher import FileCacherService
+# from cyx.common.file_cacher import FileCacherService
 import cy_kit
 from cyx.common.rabitmq_message import RabitmqMsg
 # from cy_xdoc.services.apps import AppServices, AppsCacheService
@@ -28,8 +28,8 @@ from cy_xdoc.services.search_engine import SearchEngine
 from cyx.content_manager_services import ContentManagerService
 from cyx.thumbs_services import ThumbService
 from cyx.common.global_settings_services import GlobalSettingsService
-from cyx.gemini_service import GeminiService
-from cyx.media.contents import ContentsServices
+# from cyx.gemini_service import GeminiService
+
 from cyx.local_api_services import LocalAPIService
 
 from cyx.common.jwt_utils import TokenVerifier
@@ -60,7 +60,7 @@ class BaseController:
     temp_files = cy_kit.singleton(TempFiles)
     memcache_service = cy_kit.singleton(MemcacheServices)
     logger_service = cy_kit.singleton(LoggerService)
-    file_cacher_service = cy_kit.singleton(FileCacherService)
+    # file_cacher_service = cy_kit.singleton(FileCacherService)
 
     auth_service = cy_kit.singleton(cyx.common.basic_auth.BasicAuth)
     config = cyx.common.config
@@ -74,9 +74,9 @@ class BaseController:
     thumb_service: ThumbService = cy_kit.singleton(ThumbService)
     content_manager_service: ContentManagerService = cy_kit.singleton(ContentManagerService)
     global_settings_service: GlobalSettingsService = cy_kit.singleton(GlobalSettingsService)
-    gemini_service: GeminiService = cy_kit.singleton(GeminiService)
+    # gemini_service: GeminiService = cy_kit.singleton(GeminiService)
 
-    tika_contents_service = cy_kit.singleton(ContentsServices)
+    # tika_contents_service = cy_kit.singleton(ContentsServices)
     local_api_service:LocalAPIService = cy_kit.singleton(LocalAPIService)
     token_verifier: TokenVerifier = cy_kit.singleton(TokenVerifier)
     share_key = cyx.common.config.jwt.secret_key

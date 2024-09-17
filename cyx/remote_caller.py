@@ -17,17 +17,18 @@ class RemoteCallerService:
         :param url_upload_file:
         :return:
         """
-
-        try:
-            response = requests.post(url_of_office_to_image_service + "/get-image", json=dict(
-                url_of_content=url_of_content,
-                url_upload_file=url_upload_file,
-                run_in_thread = run_in_thread
-            ))
-            response.raise_for_status()
-            return response.json()
-        except:
-            raise Exception(f"remote call error {url_of_content}\n{response.text}")
+        def runing():
+            try:
+                response = requests.post(url_of_office_to_image_service + "/get-image", json=dict(
+                    url_of_content=url_of_content,
+                    url_upload_file=url_upload_file,
+                    run_in_thread = run_in_thread
+                ))
+                response.raise_for_status()
+                return response.json()
+            except:
+                raise Exception(f"remote call error {url_of_content}\n{response.text}")
+        threading.Thread(target=runing).start()
 
     def get_thumb(self, url_of_thumb_service:str, url_of_image:str, url_upload_file:str, size: int):
         """

@@ -1,3 +1,14 @@
+
+"""
+This is the main module of cy_docs package.
+cy_docs is a package for define and manage MongoDB documents.
+The package provide a way to define a document with indexes, unique keys, and search fields.
+The package also provide a way to create, update, delete, and query documents.
+The package also provide a way to upload and download files to/from MongoDB.
+The package also provide a way to create, update, delete, and query files.
+The package also provide a way to make up a MomnoDB query expression.
+The package also provide a way to make up a MomnoDB aggregate expression.
+"""
 import os.path
 import pathlib
 import typing
@@ -63,40 +74,72 @@ FUNCS = cy_docs_x.FUNCS
 
 
 def context(client, cls):
+    """
+    Create a query context for a specific document
+    :param client: PyMongo client
+    :param cls: class of document
+    """
     return cy_docs_x.context(client, cls)
 
 
 def concat(*args): return cy_docs_x.Funcs.concat(*args)
+"""
+Mongodb concat function use in case {$concat:["hello", " ", "world"]}
+"""
 
 
 def exists(field): return cy_docs_x.Funcs.exists(field)
+"""
+Mongodb exists function use in case {$exists:true}
+"""
 
 
 def is_null(field): return cy_docs_x.Funcs.is_null(field)
+"""
+Mongodb is_null function use in case {$exists:false}
+"""
 
 
 def is_not_null(field): return cy_docs_x.Funcs.is_not_null(field)
+"""
+Mongodb is_not_null function use in case {$exists:true}
+"""
 
 
 def not_exists(field): return cy_docs_x.Funcs.not_exists(field)
+"""
+Mongodb not_exists function use in case {$exists:false}
+"""
 
 
 DocumentObject = cy_docs_x.DocumentObject
 
 
 def file_get(client: pymongo.MongoClient, db_name: str, file_id):
+    """
+    Get file from MongoDB by file_id
+    """
     return cy_docs_x.file_get(client, db_name, file_id)
 
 
 async def file_get_async(client: pymongo.MongoClient, db_name: str, file_id):
+    """
+    Get file from MongoDB by file_id async
+    """
     return await cy_docs_x.file_get_async(client, db_name, file_id)
 
 
 async def get_file_async(client, db_name, file_id):
+    """
+        Get file from MongoDB by file_id async
+    """
     return await cy_docs_x.get_file_async(client, db_name, file_id)
 
 
 def create_file(client: pymongo.MongoClient, db_name, file_name, content_type: str, chunk_size, file_size):
+    """
+    Create a new file in MongoDB
+    """
     return cy_docs_x.create_file(
         client=client,
         file_size=file_size,

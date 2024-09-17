@@ -40,7 +40,8 @@ from cy_controllers.cloud.drivers import CloudDriveController
 from cy_controllers.files.files_register_controller_new import FilesRegisterControllerNew
 from cy_controllers.files.files_upload_controller_new import FilesUploadControllerNew
 import cy_kit
-logger_service = cy_kit.singleton(LoggerService)
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
+logger_service = cy_kit.singleton(LogsToMongoDbService)
 controllers_list=[
         GlobalSettingsController,
         HealthCheckController,
@@ -80,9 +81,12 @@ def load_controller(app,host_dir):
                 router=fx.router()
             )
         except Exception as e:
-            logger_service.error(e,more_info=dict(
-                controller = fx.__name__
-            ))
-            print(f"error load controller {fx}")
+            logger_service.log(
+                traceback.format_exc(),
+                __file__
+
+            )
+            
+            
 
 

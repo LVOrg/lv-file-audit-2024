@@ -9,9 +9,9 @@ from cy_es.cy_es_utils import (
     __make_up_es_syntax_depriciate__,
     __well_form__
 )
-from cy_es_data_parser import try_parse_date
+from cy_es.cy_es_data_parser import try_parse_date
 
-from cy_es_json import (
+from cy_es.cy_es_json import (
     to_json_convertable,
 )
 import datetime, json
@@ -21,6 +21,10 @@ class DocumentFields:
     """
     ElasticcSearch document gearing \n
     Help Developer build ElasticSearch filter with real Python code
+    This class is used to generate ElasticSearch filter with Python code.
+    It can be used to generate complex filter with multiple conditions and nested conditions.
+    It can also be used to generate filter for ElasticSearch query.
+    By modified dunder function and operator, it can generate filter for ElasticSearch query.
     Example:
         filter = (DocumentFields("my_doc")!=None) & (DocumentFields("my_doc").Code=="XYZ")
         will generate
@@ -78,11 +82,11 @@ class DocumentFields:
         """
         """
         "properties": {
-    "title": {
-      "type": "text",
-      "norms": false
-    }
-  }
+            "title": {
+            "type": "text",
+            "norms": false
+            }
+        }
         """
         self.__norm__ = enable
         return self

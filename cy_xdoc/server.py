@@ -11,7 +11,8 @@ import traceback
 import psutil
 
 WORKING_DIR = pathlib.Path(__file__).parent.parent.__str__()
-sys.path.append(pathlib.Path(__file__).parent.parent)
+print(f"Working directory: {WORKING_DIR}")
+sys.path.append(WORKING_DIR)
 """
 For IIS host or dev mode running add current directory into sys. That will help Python load all libraries in the same applications
 """
@@ -246,7 +247,7 @@ async def estimate_time(request: fastapi.Request, next):
     except FileNotFoundError():
         return Response(status_code=404,content="Resource was not found")
     finally:
-        malloc_service.async_reduce_memory()
+        await malloc_service.async_reduce_memory()
 
 
 app = cy_web.get_fastapi_app()

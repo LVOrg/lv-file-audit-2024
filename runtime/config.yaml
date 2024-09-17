@@ -1,2 +1,1 @@
-server_type: Uvicorn
-worker_class: uvicorn.workers.UvicornWorker
+{}
