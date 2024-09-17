@@ -561,16 +561,6 @@
           <line>644</line>
           <option name="timeStamp" value="581" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_libs/text_files_servcices.py</url>
-          <line>281</line>
-          <option name="timeStamp" value="601" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_libs/text_files_servcices.py</url>
-          <line>279</line>
-          <option name="timeStamp" value="602" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

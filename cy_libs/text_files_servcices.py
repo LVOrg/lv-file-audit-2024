@@ -235,7 +235,7 @@ class ExtractTextFileService:
         content = None
         with open(content_file,"rb") as fs:
             content = fs.read().decode()
-            ic(content)
+            ic(content[0:20])
             self.do_update_es(
                 client=self.client,
                 app_name = app_name,
@@ -255,7 +255,7 @@ class ExtractTextFileService:
         def running():
             while True:
                 time.sleep(0.3)
-                self.producer_office_content_loop_task(app_name=app_name, msg=msg)
+                self.producer_office_content(app_name=app_name, msg=msg)
         return threading.Thread(target=running)
 
     def consumer_office_content_loop_task(self, msg)->threading.Thread:
@@ -276,15 +276,17 @@ class ExtractTextFileService:
 
 
 if __name__ == "__main__":
+    app_name = "developer"
+    msg= "office-content"
     svc = cy_kit.singleton(ExtractTextFileService)
-    th1 = svc.producer_office_content_loop_task(app_name="developer",msg="office-content")
-    th2 = svc.consumer_office_content_loop_task(msg="office-content")
-    th3 = svc.consumer_save_es_loop_task(msg="office-content")
+    th1 = svc.producer_office_content_loop_task(app_name=app_name,msg=msg)
+    th2 = svc.consumer_office_content_loop_task(msg=msg)
+    th3 = svc.consumer_save_es_loop_task(msg=msg)
     th1.start()
     th2.start()
     th3.start()
-    th1.join()
-    th2.join()
+    # th1.join()
+    # th2.join()
     th3.join()
     print("OK")
     # agg = Repository.files.app("developer").context.aggregate().match(
