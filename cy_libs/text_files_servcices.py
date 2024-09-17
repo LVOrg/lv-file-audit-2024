@@ -251,12 +251,41 @@ class ExtractTextFileService:
             )
 
 
+    def producer_office_content_loop_task(self, app_name, msg)->threading.Thread:
+        def running():
+            while True:
+                time.sleep(0.3)
+                self.producer_office_content_loop_task(app_name=app_name, msg=msg)
+        return threading.Thread(target=running)
+
+    def consumer_office_content_loop_task(self, msg)->threading.Thread:
+        def running():
+            while True:
+                time.sleep(0.3)
+                self.consumer_office_content(msg=msg)
+
+        return threading.Thread(target=running)
+
+
+    def consumer_save_es_loop_task(self, msg)->threading.Thread:
+        def running():
+            while True:
+                time.sleep(0.3)
+                self.consumer_save_es(msg=msg)
+        return threading.Thread(target=running)
+
+
 if __name__ == "__main__":
     svc = cy_kit.singleton(ExtractTextFileService)
-    svc.producer_office_content(app_name="developer",msg="office-content")
-    svc.consumer_office_content(msg="office-content")
-    svc.consumer_save_es(msg="office-content")
-
+    th1 = svc.producer_office_content_loop_task(app_name="developer",msg="office-content")
+    th2 = svc.consumer_office_content_loop_task(msg="office-content")
+    th3 = svc.consumer_save_es_loop_task(msg="office-content")
+    th1.start()
+    th2.start()
+    th3.start()
+    th1.join()
+    th2.join()
+    th3.join()
     print("OK")
     # agg = Repository.files.app("developer").context.aggregate().match(
     #     Repository.files.fields.FileExt=="pdf"
