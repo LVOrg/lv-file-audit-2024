@@ -66,7 +66,7 @@ def script_end_with(field_name, value: str):
                     script_score=dict(
                         script=dict(
                             lang="painless",
-                            source=f"doc['{field_name}.keyword'].value.toLowerCase().endsWith(params.item) ? 1 : 0",
+                            source=f"doc['{field_name}.keyword'].value.toLowerCase().endsWith(params.item) ? 100000 : 0",
                             params=dict(
                                 item=value.lower()
                             )
@@ -97,7 +97,7 @@ def script_start_with(field_name, value: str):
                     script_score=dict(
                         script=dict(
                             lang="painless",
-                            source=f"doc['{field_name}.keyword'].value.toLowerCase().startsWith(params.item) ? 1 : 0",
+                            source=f"doc['{field_name}.keyword'].value.toLowerCase().startsWith(params.item) ? 100000 : 0",
                             params=dict(
                                 item=value.lower()
                             )
@@ -128,7 +128,7 @@ def script_index_of(field_name, value: str):
                     script_score=dict(
                         script=dict(
                             lang="painless",
-                            source=f"doc['{field_name}.keyword'].value.toLowerCase().indexOf(params.item)>=0 ? 1 : 0",
+                            source=f"doc['{field_name}.keyword'].value.toLowerCase().indexOf(params.item)>=0 ? 100000 : 0",
                             params=dict(
                                 item=value.lower()
                             )
@@ -293,6 +293,44 @@ def match(field_name, value, boost):
                         field_name: value,
                         "boost": boost
                     }
+                }
+            }
+        }
+    return ret
+
+def multi_match_slop_3(field_name, value, boost):
+    """
+    {
+        "query": {
+                "multi_match" : {
+                    "query": "Thanh toán hợp đồng số 02.11/2023/HĐÐKT/HH-DTH",
+                    "fields": ["content"],
+                    "type": "phrase",
+                    "slop": 3
+                }
+            }
+        }
+    @return:
+    """
+    ret = {
+        "must": {
+            "multi_match": {
+                "query": value,
+                "fields":[field_name],
+                "type":"phrase",
+                "slop": 3
+            }
+        }
+    }
+    if boost:
+        ret = {
+            "must": {
+                "multi_match": {
+                    "query": value,
+                    "fields": [field_name],
+                    "type": "phrase",
+                    "slop": 3,
+                    "boost": boost
                 }
             }
         }

@@ -100,4 +100,4 @@ COPY ./../cy_jobs /app/cy_jobs
 ">>$ocr_all_file
 ocr_all_file_tag = "$web_api_tag_build.1"
 #buildFunc $ocr_all_file $repository "lib-ocr-all" $ocr_all_file_tag $ocr_all_file_tag $ocr_all_file_tag
-buildFunc $ocr_all_file $repository "lib-ocr-all" 21 "python:3.10-alpine" "alpine"
+buildFunc $ocr_all_file $repository "lib-ocr-all" 25 "python:3.10-alpine" "alpine"

@@ -198,13 +198,6 @@ class DocumentFields:
         ret = DocumentFields()
         field_name = self.__name__
         boost = None
-
-
-
-
-
-
-
         if "^" in field_name:
             field_name, boost = tuple(field_name.split("^"))
             if not  boost.isnumeric():
@@ -218,9 +211,9 @@ class DocumentFields:
         elif item[0]=="*":
             dict_filter = es_script.script_end_with(field_name, item[1:])
         ret = es_script.build(ret,es_script.must_wrapper(es_script.constant_score(dict_filter,boost)))
-        ret_match_phase = es_script.build(ret_match_phase,es_script.match_phrase(field_name,item,boost))
-        ret_query = es_script.build(ret_query, es_script.simple_query_string(field_name, item, boost))
-        ret=ret |ret_match_phase|ret_query
+        ret_match_phase = es_script.build(ret_match_phase,es_script.multi_match_slop_3(field_name,item,boost))
+        # ret_query = es_script.build(ret_query, es_script.simple_query_string(field_name, item, boost))
+        ret=ret |ret_match_phase
         ret.__highlight_fields__ = [field_name]
         return ret
 

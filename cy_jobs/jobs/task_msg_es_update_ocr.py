@@ -126,15 +126,19 @@ def process_content():
             continue
         if info:
             ic(info.__dict__)
-            do_update_es(info=info, client=client, app_name=app_name_dir)
-            folder_path_processed = os.path.join(config.file_storage_path, temp_ocr_file_dir_name, f"__{app_name_dir}__")
-            move_to = os.path.join(folder_path_processed, f"{info.upload_id}.txt")
-            Repository.files.app(app_name).context.update(
-                Repository.files.fields.id == info.upload_id,
-                Repository.files.fields.HasORCContent << True
-            )
-            shutil.move(info.content_file, move_to)
-            ic(f"Update {info.upload_id} by {info.upload_id}.txt is OK")
+            if os.path.isfile(info.content_file):
+                do_update_es(info=info, client=client, app_name=app_name_dir)
+                folder_path_processed = os.path.join(config.file_storage_path, temp_ocr_file_dir_name, f"__{app_name_dir}__")
+                os.makedirs(folder_path_processed,exist_ok=True)
+                move_to = os.path.join(folder_path_processed, f"{info.upload_id}.txt")
+                Repository.files.app(app_name_dir).context.update(
+                    Repository.files.fields.id == info.upload_id,
+                    Repository.files.fields.HasORCContent << True
+                )
+                shutil.move(info.content_file, move_to)
+                ic(f"Update {info.upload_id} by {info.upload_id}.txt is OK")
+            else:
+                ic(f"Update {info.upload_id} by {info.upload_id}.txt was fail, file {info.content_file} was not found")
         # os.makedirs(folder_path_processed,exist_ok=True)
         # client: Elasticsearch = search_engine.client
 

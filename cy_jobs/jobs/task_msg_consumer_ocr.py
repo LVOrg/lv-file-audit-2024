@@ -366,6 +366,8 @@ def consume_msg(consumer: Consumer):
     @return:
     """
     msg = consumer.get_msg(delete_after_get=False)
+    if not msg:
+        return
     consumer.channel.basic_ack(msg.method.delivery_tag)
     if msg.data is None:
         return
