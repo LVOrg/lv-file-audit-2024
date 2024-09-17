@@ -5,120 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="remove all big files">
-      <change afterPath="$PROJECT_DIR$/cy_libs/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_libs/tmp_files_servcices.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/malloc_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/malloc_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_caller.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_caller.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c-setup-tem/cyx_setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/c-setup-tem/cyx_setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/common/base_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/common/base_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_source_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_source_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_docs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_docs/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_kit/cy_kit_x.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_kit/cy_kit_x.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/load_controllers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/load_controllers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/audio/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/audio/audio_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/audio/audio_service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/file_cacher.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/file_cacher.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/file_information.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/file_information.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/test.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/vn_text_normalizer.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/vn_text_normalizer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/console/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/console/console_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/console/console_services.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cv2_utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/dd2/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/dd2/check.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/dd2/check.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/dd2/utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/dd2/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/conf_dd_one.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/doctr_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/doctr_service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/system.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/system.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/table_ocr_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/table_ocr_service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/test_on_web.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/test_on_web.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/test_table_ocr_console.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/document_layout_analysis/test_table_ocr_console.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/gemini_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/gemini_service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/graphic_utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/graphic_utils/opencv_enhance.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/graphic_utils/opencv_enhance.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/malloc_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/malloc_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/contents.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/contents.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/core/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/core/graphics.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/core/graphics.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/exe.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/exe.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/image_extractor.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/image_extractor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/libre_office.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/libre_office.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/pdf.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/pdf.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/video.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/media/video.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_easy_utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/check.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/check.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/config/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/config/base.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/config/resnet-transformer.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/config/resnet_fpn_transformer.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/config/vgg-convseq2seq.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/config/vgg-seq2seq.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/config/vgg-transformer.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/ocr_content.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ocr_vietocr_utils/ocr_content.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/rdr_segmenter_delete/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/rdr_segmenter_delete/segmenter_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/rdr_segmenter_delete/segmenter_services.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/remote_caller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/remote_caller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/services/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/tools/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/tools/progress_bar.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/tools/progress_bar.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/video/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/video/extract_text_from_video_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/video/extract_text_from_video_service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/video/video_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/video/video_services.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/vn_predictor_delete/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/vn_predictor_delete/predictor.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/vn_predictor_delete/predictor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_libs/tmp_files_servcices.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/producer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/producer.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/yaml/ocr-all.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/yaml/ocr-all.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,38 +57,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.che_write_file_with_encrypt.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_caching.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_id.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_list.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_unicod.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.checkfile.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.clear_logs.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.contents.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.load_check.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.pdf_api.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.server (1).executor&quot;: &quot;Debug&quot;,
-    &quot;Python.server.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_content.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_google_file_sync.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_images_from_office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_images_from_pdf.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_msg_es_update_ocr.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_msg_producer_office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_orc.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_text_from_office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_vietlot_meta.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_vietlott_ocr_all.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/root/python-2024/lv-file-fix-2024/py-files-sv/cy_jobs/jobs&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.che_write_file_with_encrypt.executor": "Debug",
+    "Python.check.executor": "Debug",
+    "Python.check_caching.executor": "Debug",
+    "Python.check_id.executor": "Debug",
+    "Python.check_list.executor": "Debug",
+    "Python.check_unicod.executor": "Debug",
+    "Python.checkfile.executor": "Debug",
+    "Python.clear_logs.executor": "Debug",
+    "Python.contents.executor": "Debug",
+    "Python.load_check.executor": "Debug",
+    "Python.office.executor": "Debug",
+    "Python.pdf_api.executor": "Debug",
+    "Python.server (1).executor": "Debug",
+    "Python.server.executor": "Debug",
+    "Python.task_content.executor": "Debug",
+    "Python.task_google_file_sync.executor": "Debug",
+    "Python.task_images_from_office.executor": "Debug",
+    "Python.task_images_from_pdf.executor": "Debug",
+    "Python.task_msg_es_update_ocr.executor": "Debug",
+    "Python.task_msg_producer_office.executor": "Debug",
+    "Python.task_orc.executor": "Debug",
+    "Python.task_text_from_office.executor": "Debug",
+    "Python.task_vietlot_meta.executor": "Debug",
+    "Python.task_vietlott_ocr_all.executor": "Debug",
+    "Python.text_files_servcices.executor": "Debug",
+    "Python.tmp_files_servcices.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/cy_jobs/jobs",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="py-files-sv" is-module-sdk="true">
@@ -216,7 +113,7 @@
       <recent name="$PROJECT_DIR$/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.server (1)">
+  <component name="RunManager" selected="Python.text_files_servcices">
     <configuration name="check_unicod" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -327,28 +224,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="task_orc" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py-files-sv" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="task_vietlott_ocr_all" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -371,13 +246,35 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="text_files_servcices" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_libs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_libs/text_files_servcices.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.text_files_servcices" />
         <item itemvalue="Python.check_unicod" />
         <item itemvalue="Python.task_msg_es_update_ocr" />
         <item itemvalue="Python.task_vietlott_ocr_all" />
         <item itemvalue="Python.contents" />
-        <item itemvalue="Python.task_orc" />
       </list>
     </recent_temporary>
   </component>
@@ -665,6 +562,26 @@
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
           <line>216</line>
           <option name="timeStamp" value="571" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
+          <line>644</line>
+          <option name="timeStamp" value="581" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_libs/text_files_servcices.py</url>
+          <line>257</line>
+          <option name="timeStamp" value="601" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_libs/text_files_servcices.py</url>
+          <line>255</line>
+          <option name="timeStamp" value="602" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_libs/text_files_servcices.py</url>
+          <line>238</line>
+          <option name="timeStamp" value="603" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

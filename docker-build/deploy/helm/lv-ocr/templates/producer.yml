@@ -1,18 +1,18 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: lv-ocr-producer
+  name: lv-ocr-__producer__
   namespace: {{ .Values.ns }}
 
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: lv-ocr-producer
+      app: lv-ocr-__producer__
   template:
     metadata:
       labels:
-        app: lv-ocr-producer
+        app: lv-ocr-__producer__
     spec:
       volumes:
         - name: tmp-files
@@ -24,7 +24,7 @@ spec:
             server: {{ .Values.nfs_server}}
             path: {{ .Values.nfs_path }}
       containers:
-        - name: lv-ocr-producer
+        - name: lv-ocr-__producer__
           image: {{ .Values.image }}
           command: ["python3"]
           args:

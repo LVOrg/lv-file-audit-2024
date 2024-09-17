@@ -6,18 +6,18 @@ metadata:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: ocr-producer
+  name: ocr-__producer__
   namespace: ocr
 
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ocr-producer
+      app: ocr-__producer__
   template:
     metadata:
       labels:
-        app: ocr-producer
+        app: ocr-__producer__
     spec:
       volumes:
         - name: storage-files
@@ -29,7 +29,7 @@ spec:
             server: 10.96.23.55
             path: /backup/backups/files/modules
       containers:
-        - name: ocr-producer
+        - name: ocr-__producer__
           image: docker.lacviet.vn/xdoc/lib-ocr-all:3
           command: ["python3"]
           args:
@@ -68,7 +68,7 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: ocr-producer
+  name: ocr-__producer__
   namespace: ocr
 
 spec:
@@ -137,7 +137,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ocr-producer
+      app: ocr-__producer__
   template:
     metadata:
       labels:
