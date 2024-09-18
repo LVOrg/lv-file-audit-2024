@@ -266,6 +266,7 @@ class ExtractTextFileService:
 
         return threading.Thread(target=running)
 
+#sudo yum remove kubelet
 
     def consumer_save_es_loop_task(self, msg)->threading.Thread:
         def running():

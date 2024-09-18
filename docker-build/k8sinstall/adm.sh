@@ -90,3 +90,4 @@ scp root@172.16.7.94:/etc/containerd/config.toml 172.16.7.91:/etc/containerd
 #/usr/bin/containerd
 # And then to disable swap on startup in /etc/fstab
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+#scp -r /usr/local/bin/ 172.16.7.94:/usr/local/bin/

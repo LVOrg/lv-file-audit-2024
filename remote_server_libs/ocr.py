@@ -105,7 +105,16 @@ async def log_request(request: Request, call_next):
     except Exception as ex:
         print(traceback.format_exc())
         return Response(content=traceback.format_exc(),status_code=500)
+#/usr/lib/systemd/system/containerd.service
+#/usr/local/bin/kubeadm
 
+#kubectl exec -i -n kube-system calico-node-grtp6 -c calico-node -- birdcl configure
+# scp -r /etc/systemd/system/containerd.service 172.16.7.94:/etc/systemd/system
+# scp -r /etc/systemd/system/kubelet.service.d  172.16.7.94:/etc/systemd/system
+# scp -r /var/lib/kubelet 172.16.7.94:/var/lib
+# scp -r /var/run/containerd 172.16.7.94:/var/run
+#rm /etc/containerd/config.toml /usr/bin/containerd-shim-runc-v1
+# kubeadm join 172.16.7.99:6443 --token fl0vzo.oy3c1l36kl8te38q --discovery-token-ca-cert-hash sha256:326c4689c8e281d91637aceb68db3eb26c773afde5a4a9a515ce6793d043326c -v=5
 
 @app.get("/hz")
 async def hz():
