@@ -446,7 +446,7 @@ def main():
 if __name__ == "__main__":
     main()
 #test
-#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files   docker.lacviet.vn/xdoc/lib-ocr-all:5
+#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app   docker.lacviet.vn/xdoc/lib-ocr-all:31
 #python3 cy_jobs/jobs/task_msg_consumer_ocr.py app_name=developer msg_ocr=developer-001
 #python3 cy_jobs/jobs/task_msg_es_update_ocr.py app_name=developer msg_ocr=developer-001
 #python3 cy_jobs/jobs/task_msg_producer_ocr.py app_name=developer msg_ocr=developer-001

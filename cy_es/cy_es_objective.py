@@ -1214,7 +1214,10 @@ def __apply_function__(function_name, field_name, owner_caller=None, args=None, 
         if isinstance(field_name, dict):
             if field_name.get("$field") and field_name.get("$value"):
                 ret = DocumentFields(field_name.get("$field"))
-                return ret.__contains__(field_name.get("$value"))
+                if isinstance(field_name.get("$value"),str):
+                    return ret.__contains__(field_name.get("$value"))
+                else:
+                    return ret.contains_list(field_name.get("$value"))
             else:
                 ret = DocumentFields(field_name)
                 return ret.__contains__

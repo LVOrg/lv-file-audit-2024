@@ -13,7 +13,7 @@ import threading
 import traceback
 import typing
 import uuid
-from datetime import datetime,UTC
+from datetime import datetime
 
 from humanize import naturalsize
 
@@ -118,7 +118,7 @@ class FileUtilService(BaseUtilService):
         if not isinstance(WORKERS.get(upload_id), dict):
             WORKERS[upload_id] = dict(executor=ThreadPoolExecutor(max_workers=MAX_WORKERS), tasks=[])
 
-        start = datetime.now(UTC)
+        start = datetime.utcnow()
 
         data = await content.read()
         file_size = len(data)
@@ -193,7 +193,7 @@ class FileUtilService(BaseUtilService):
                 SizeInHumanReadable=size_in_human_readable,
                 SizeUploadedInHumanReadable=size_uploaded_in_human_readable,
                 Percent=percent,
-                ProcessingTime=(datetime.now(UTC) - start).total_seconds() * 1000,
+                ProcessingTime=(datetime.utcnow() - start).total_seconds() * 1000,
                 NumOfChunksCompleted=upload["NumOfChunksCompleted"],
                 RunInTask=run_in_task
             )
@@ -214,7 +214,7 @@ class FileUtilService(BaseUtilService):
         is_public = register_data["IsPublic"]
         privileges = register_data["Privileges"]
         meta_data = register_data["meta_data"]
-        register_on = datetime.now(UTC)
+        register_on = datetime.utcnow()
         formatted_date = register_on.strftime("%Y/%m/%d")
 
         file_name_only = pathlib.Path(file_name).stem
@@ -258,7 +258,7 @@ class FileUtilService(BaseUtilService):
             insert_data += [Repository.files.fields.FullPathOnCloud << googlePath]
         ret = await context.insert_one_async(*insert_data)
 
-        t = datetime.now(UTC)
+        t = datetime.utcnow()
         upload = await context.find_one_async(
             Repository.files.fields.id == upload_id
         )
@@ -270,7 +270,7 @@ class FileUtilService(BaseUtilService):
             privileges=privileges,
             meta_info=meta_data
         )
-        print((datetime.now(UTC) - t).total_seconds())
+        print((datetime.utcnow() - t).total_seconds())
         ret_data = dict(
             NumOfChunks=num_of_chunks,
             ChunkSizeInBytes=chunk_size_in_bytes,
@@ -281,7 +281,7 @@ class FileUtilService(BaseUtilService):
             UrlOfServerPath=f"{from_host}/api/{app_name}/{upload_id}/{file_name.lower()}",
             OriginalFileName=file_name,
             FileSize=file_size,
-            UpdateESTime=(datetime.now(UTC) - t).total_seconds()
+            UpdateESTime=(datetime.utcnow() - t).total_seconds()
         )
         return dict(
             Data=ret_data
@@ -865,7 +865,7 @@ class FileUtilService(BaseUtilService):
         item[document_context.fields.PercentageOfUploaded] = 100
         item[document_context.fields.MarkDelete] = False
         item.ServerFileName = f"{item.id}.{item[document_context.fields.FileExt]}"
-        item.RegisterOn = datetime.now(UTC)
+        item.RegisterOn = datetime.utcnow()
         item[document_context.fields.RegisteredBy] = "root"
 
         del item[document_context.fields.MainFileId]

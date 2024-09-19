@@ -1,0 +1,80 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: lv-office-producer
+  namespace: {{ .Values.ns }}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lv-office-producer
+  template:
+    metadata:
+      labels:
+        app: lv-office-producer
+    spec:
+      volumes:
+        - name: tmp-files
+          emptyDir: { }
+        - name: socat-share
+          emptyDir: { }
+        - name: storage-files
+          nfs:
+            server: {{ .Values.nfs_server}}
+            path: {{ .Values.nfs_path }}
+      containers:
+        - name: lv-office-producer
+          image: {{ .Values.image }}
+          command: ["python3"]
+          args:
+            - /app/cy_jobs/jobs/task_msg_producer_office.py
+            - app_name=all
+            - msg_ocr={{ .Values.msg_ocr }}
+            - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile
+            - remote_office=http://lv-office-service.{{ .Values.ns }}:80
+            - remote_pdf=http://lv-pdf-service.{{ .Values.namespace }}:80
+            - remote_video=http://lv-video-service.{{ .Values.ns }}:80
+            - tika_server=http://tika-service.{{ .Values.ns }}:80
+            - cache_server=lv-file-cache-service.{{ .Values.ns }}:11211
+            - content_service=http://content-service.{{ .Values.ns }}:80
+            - remote_ocr=http://lv-office-service.{{ .Values.ns }}:80
+            - debug=false
+            - generation=
+            - process_services_host=http://localhost
+            - bind=0.0.0.0:80
+            - content_segment_len=9
+            - elastic_search.server=$(elastic_search.server)
+            - elastic_search.prefix_index=$(elastic_search.prefix_index)
+            - db=$(db)
+            - admin_db_name=$(admin_db_name)
+            - rabbitmq.server=$(rabbitmq.server)
+            - rabbitmq.port=$(rabbitmq.port)
+            - rabbitmq.msg=$(rabbitmq.msg)
+            - rabbitmq.username=$(rabbitmq.username)
+            - rabbitmq.password=$(rabbitmq.password)
+            - server_type=Uvicorn
+            - worker_class=httptools
+            - timeout_keep_alive=$(timeout_keep_alive)
+            - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
+            - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
+            - vn_suggest_url=$(vn_suggest_url)
+            - file_storage_path=/mnt/files
+            - process_services_host=http://localhost
+            - distribute_lock_server=distribute-lock-service.{{ .Values.namespace }}:2181
+            - use_ssl=$(use_ssl)
+          envFrom:
+            - configMapRef:
+                name: lv-file-config
+          resources: {}
+          volumeMounts:
+            - name: storage-files
+              mountPath: /mnt/files
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: harbor-secret-registry
+
+
+---
+
+

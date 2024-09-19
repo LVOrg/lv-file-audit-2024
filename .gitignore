@@ -49,3 +49,4 @@ secret*
 /docker-cy/
 /gradio_test/
 /docker-build/deploy/values/
+/a_checking/

@@ -97,7 +97,9 @@ COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_jobs /app/cy_jobs
+COPY ./../cy_libs /app/cy_libs
+COPY ./../venv-web-api/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
 ">>$ocr_all_file
 ocr_all_file_tag = "$web_api_tag_build.1"
 #buildFunc $ocr_all_file $repository "lib-ocr-all" $ocr_all_file_tag $ocr_all_file_tag $ocr_all_file_tag
-buildFunc $ocr_all_file $repository "lib-ocr-all" 25 "python:3.10-alpine" "alpine"
+buildFunc $ocr_all_file $repository "lib-ocr-all" 31 "python:3.10-alpine" "alpine"

@@ -21,4 +21,6 @@ COPY ./../cy_plugins /app/cy_plugins
 COPY ./../cyx /app/cyx
 COPY ./../cy_consumers /app/cy_consumers
 COPY ./../cy_jobs /app/cy_jobs
+COPY ./../cy_libs /app/cy_libs
+COPY ./../venv-web-api/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
 

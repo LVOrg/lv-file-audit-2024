@@ -60,7 +60,9 @@ class FilesController(BaseController):
         """
         try:
             doc_context = Repository.files.app(app_name).context
-            delete_item = doc_context.context @ UploadId
+            delete_item = await doc_context.find_one_async(
+                Repository.files.fields.id==UploadId
+            )
             if delete_item is None:
                 return {}
             doc_context.context.update(

@@ -10,7 +10,7 @@ import time
 from icecream import ic
 import hashlib
 
-
+import cy_docs
 from cyx.common import config
 import pathlib
 __working_dir__ =pathlib.Path(__file__).parent.parent.__str__()
@@ -28,12 +28,16 @@ from cyx.rabbit_utils import Consumer
 from elasticsearch import Elasticsearch
 from cy_xdoc.services.search_engine import SearchEngine
 import elasticsearch.exceptions
+from cyx.malloc_services import MallocService
+from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 class ExtractTextFileService:
     """
     This class is used to manage temp directories and file for background processing
     """
     file_util_service = cy_kit.singleton(FileUtilService)
     search_engine = cy_kit.singleton(SearchEngine)
+    malloc_service = cy_kit.singleton(MallocService)
+    logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
     def __init__(self):
         self.__file_storage_path__ = config.file_storage_path
         self.__temp_dir_name__ = "__tmp_dir__"
@@ -44,7 +48,6 @@ class ExtractTextFileService:
         self.__consumer_es: Consumer = None
         os.makedirs(self.__temp_dir__,exist_ok=True)
         os.makedirs(self.__decrypt_dir__, exist_ok=True)
-
         self.client: Elasticsearch = self.search_engine.client
 
     @property
@@ -81,7 +84,10 @@ class ExtractTextFileService:
             with open(decrypted_file_path,"wb") as df:
                 data = fs.read(256*1024)
                 while data:
-                    df.write(data)
+                    if isinstance(data,str):
+                        df.write(data.encode())
+                    else:
+                        df.write(data)
                     data = fs.read(256 * 1024)
         return decrypted_file_path
     def get_and_decrypted_file(self,app_name,upload_id:str)->str|None:
@@ -133,6 +139,15 @@ class ExtractTextFileService:
             self.update_upload_office_content(app_name=app_name, upload_id=item.id, msg=msg)
 
     def consumer_office_content(self,msg):
+        """
+        Consume msg office content and generate new msg with tail fix is _es_update
+        The message data also have new key is 'content-file' with value is value of text file (real and purely content of oofice file)
+        Example:
+        rabbitmq msg is 'v-002'
+        new rabbit msg is 'v-002_es_update'
+        @param msg:
+        @return:
+        """
         if not self.__producer__:
             self.__producer__= Consumer(msg)
         rb_msg = self.__producer__.get_msg(delete_after_get=False)
@@ -143,13 +158,13 @@ class ExtractTextFileService:
         app_name = rb_msg.app_name
         file_path:str = data.get(Repository.files.fields.MainFileId.__name__) or ""
         if not file_path.startswith("local://"):
-            self.__producer__.channel.basic_ack(msg.method.delivery_tag)
+            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
             self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
             return
 
         file_path = os.path.join(self.__file_storage_path__,file_path.split("://")[1])
         if not  os.path.isfile(file_path):
-            self.__producer__.channel.basic_ack(msg.method.delivery_tag)
+            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
             self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
             return
         process_file = self.decrypt_file(encrypted_file_path=file_path)
@@ -236,19 +251,23 @@ class ExtractTextFileService:
         with open(content_file,"rb") as fs:
             content = fs.read().decode()
             ic(content[0:20])
-            self.do_update_es(
-                client=self.client,
-                app_name = app_name,
-                upload_id = upload_id,
-                data_item = upload,
-                content = content
-            )
-            self.__consumer_es.channel.basic_ack(rb_msg.method.delivery_tag)
-            self.update_upload_office_content(
-                app_name=app_name,
-                upload_id=upload_id,
-                msg=msg
-            )
+            try:
+                self.do_update_es(
+                    client=self.client,
+                    app_name = app_name,
+                    upload_id = upload_id,
+                    data_item = upload,
+                    content = content
+                )
+                self.__consumer_es.channel.basic_ack(rb_msg.method.delivery_tag)
+                self.update_upload_office_content(
+                    app_name=app_name,
+                    upload_id=upload_id,
+                    msg=msg
+                )
+            except elasticsearch.exceptions.RequestError:
+                self.__consumer_es.channel.basic_ack(rb_msg.method.delivery_tag)
+
 
 
     def producer_office_content_loop_task(self, app_name, msg)->threading.Thread:
@@ -276,9 +295,27 @@ class ExtractTextFileService:
         return threading.Thread(target=running)
 
 
+    def get_app_names(self)->list[str]:
+        agg = Repository.apps.app("admin").context.aggregate().match(
+            Repository.apps.fields.Name!=config.admin_db_name
+        ).match(
+            Repository.apps.fields.AccessCount>0
+        ).sort(
+            Repository.apps.fields.AccessCount.desc()
+        ).sort(
+            Repository.apps.fields.RegisteredOn.desc()
+        ).project(
+            cy_docs.fields.app_name >> Repository.apps.fields.Name
+        )
+        ret = [x.app_name.lower() for x in agg]
+        return ret
+
+
+
+
 if __name__ == "__main__":
     app_name = "developer"
-    msg= "office-content"
+    msg= config.get("msg_re_run") or "office-content"
     svc = cy_kit.singleton(ExtractTextFileService)
     th1 = svc.producer_office_content_loop_task(app_name=app_name,msg=msg)
     th2 = svc.consumer_office_content_loop_task(msg=msg)

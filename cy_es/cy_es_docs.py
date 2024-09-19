@@ -221,7 +221,7 @@ class DocumentFields:
         ret.__highlight_fields__ = [field_name]
         return ret
 
-    def __contains__delete(self, item):
+    def contains_list(self, item):
         from cy_es.cy_es_utils import __well_form__
 
         import cy_es.cy_es_utils

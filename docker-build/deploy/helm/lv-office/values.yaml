@@ -1,0 +1,6 @@
+# Default values for lv-ocr.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image: docker.lacviet.vn/xdoc/lib-ocr-all:31
+msg_ocr: v-001
