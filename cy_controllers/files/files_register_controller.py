@@ -330,9 +330,6 @@ class FilesRegisterController(BaseController):
 
                         # ok = True
                         # return ret_file_name
-        try:
-            ret = await insert_and_change_file_name_if_dup_async(app_name,full_path_on_cloud,upload_id,client_file_name)
-            return ret
-        except:
-            print(traceback.format_exc())
-            print("error")
+
+        ret = await insert_and_change_file_name_if_dup_async(app_name, full_path_on_cloud, upload_id, client_file_name)
+        return ret
