@@ -4,29 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="fix search Khác biệt giữa Unicode tổ hợp và Unicode dựng sẵn (&quot;đ&quot;,chr(240)),(&quot;Đ&quot;,chr(208))">
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/rabbit_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/rabbit_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/rabbit_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/rabbit_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c-setup-tem/cyx_setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/c-setup-tem/cyx_setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/search/search_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/search/search_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/rabbit_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/rabbit_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/rabbit_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/repository.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/repository.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
@@ -311,7 +299,8 @@
     <MESSAGE value="remove all big files" />
     <MESSAGE value="fix search and mark delete" />
     <MESSAGE value="fix search Khác biệt giữa Unicode tổ hợp và Unicode dựng sẵn (&quot;đ&quot;,chr(240)),(&quot;Đ&quot;,chr(208))" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix search Khác biệt giữa Unicode tổ hợp và Unicode dựng sẵn (&quot;đ&quot;,chr(240)),(&quot;Đ&quot;,chr(208))" />
+    <MESSAGE value="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

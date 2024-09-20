@@ -494,3 +494,6 @@ class LVFileContentProcessReport:
     Error: typing.Optional[str]
     IsError: typing.Optional[bool]
     SubmitOn: typing.Optional[datetime.datetime]
+@cy_docs.define("lv-file-duplicate-file-history", uniques=[], indexes=["FullFilePath"])
+class DuplicateFileHistory:
+    FullFilePath:str

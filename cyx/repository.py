@@ -12,7 +12,8 @@ from cyx.db_models.files import (DocUploadRegister,
                                   lv_file_sync_logs,
                                   LVFileContentProcessReport,
                                   GoogleFolderMappings,
-                                 CloudFileSync
+                                 CloudFileSync,
+                                DuplicateFileHistory
 
                                   )
 from cy_controllers.models.settings import GlobalSettings
@@ -52,3 +53,4 @@ class Repository:
     lv_file_sync_logs = RepositoryContext[lv_file_sync_logs](lv_file_sync_logs)
     lv_files_sys_logs = RepositoryContext[LVFileSysLogs](LVFileSysLogs)
     lv_file_content_process_report = RepositoryContext[LVFileContentProcessReport](LVFileContentProcessReport)
+    duplicate_file_history = RepositoryContext[DuplicateFileHistory](DuplicateFileHistory)

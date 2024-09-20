@@ -1,5 +1,7 @@
 import datetime
 import os.path
+import pathlib
+import traceback
 import uuid
 import pymongo.errors
 from cyx.repository import Repository
@@ -244,21 +246,19 @@ class FilesRegisterController(BaseController):
                     return ret_quit
                 Data.googlePath = Data.googlePath.lstrip('/').rstrip('/').replace('//', '/')
                 checkpath = os.path.join(Data.googlePath, Data.FileName)
-                try:
-                    await  Repository.files.app(app_name).context.insert_one_async(
-                        Repository.files.fields.id << str(uuid.uuid4()),
-                        Repository.files.fields.FullPathOnCloud << checkpath
-                    )
-                except pymongo.errors.DuplicateKeyError as ex:
-                    if (hasattr(ex, "details") and
-                            isinstance(ex.details, dict) and
-                            ex.details.get('keyPattern', {}).get(Repository.files.fields.FullPathOnCloud.__name__) == 1
-                    ):
-                        ret_quit = RegisterUploadInfoResult()
-                        ret_quit.Error = Error()
-                        ret_quit.Error.Message = f"{checkpath} is existing"
-                        ret_quit.Error.Code = "FileIsExisting"
-                        return ret_quit
+                new_id = str(uuid.uuid4())
+                Data.FileName = await self.inc_version_of_file_name_if_duplicate_async(
+                    app_name=app_name,
+                    upload_id = new_id,
+                    full_path_on_cloud = checkpath,
+                    client_file_name = Data.FileName
+                )
+
+                        # ret_quit = RegisterUploadInfoResult()
+                        # ret_quit.Error = Error()
+                        # ret_quit.Error.Message = f"{checkpath} is existing"
+                        # ret_quit.Error.Code = "FileIsExisting"
+                        # return ret_quit
 
         privileges = Data.Privileges
         skip_option = {}
@@ -289,3 +289,50 @@ class FilesRegisterController(BaseController):
         )
         ret_data = RegisterUploadInfoResult(Data=ret.to_pydantic())
         return ret_data
+
+    async def inc_version_of_file_name_if_duplicate_async(self, app_name, upload_id, full_path_on_cloud,
+                                                          client_file_name):
+
+        async def insert_async(_app,__path,__id,__client_file_name):
+            await  Repository.files.app(_app).context.insert_one_async(
+                Repository.files.fields.id << __id,
+                Repository.files.fields.FullPathOnCloud << __path
+            )
+            return __client_file_name
+        async def insert_and_change_file_name_if_dup_async(_app,_path,_id,_client_file_name):
+            ok =False
+            original_path = _path.encode().decode()
+            ret_file_name = _client_file_name.encode().decode()
+            while not ok:
+                try:
+                    await insert_async(_app, _path, _id, ret_file_name)
+                    return ret_file_name
+                except pymongo.errors.DuplicateKeyError as ex:
+
+                    if (hasattr(ex, "details") and
+                            isinstance(ex.details, dict) and
+                            ex.details.get('keyPattern', {}).get(Repository.files.fields.FullPathOnCloud.__name__) == 1
+                    ):
+                        await Repository.duplicate_file_history.app(_app).context.insert_one_async(
+                            Repository.duplicate_file_history.fields.FullFilePath << original_path
+                        )
+                        num_of_doc = Repository.duplicate_file_history.app(_app).context.count(
+                            Repository.duplicate_file_history.fields.FullFilePath == original_path
+                        )
+                        client_file_name_only = pathlib.Path(_client_file_name).stem
+                        ext_file = pathlib.Path(_client_file_name).suffix
+                        if ext_file:
+                            ret_file_name = f"{client_file_name_only}({num_of_doc}){ext_file}"
+                        else:
+                            ret_file_name = f"{client_file_name_only}({num_of_doc})"
+                        _path = f"{pathlib.Path(_path).parent.__str__()}/{ret_file_name}"
+                        # ret = await insert_async(_app, _path, _id, ret_file_name)
+
+                        # ok = True
+                        # return ret_file_name
+        try:
+            ret = await insert_and_change_file_name_if_dup_async(app_name,full_path_on_cloud,upload_id,client_file_name)
+            return ret
+        except:
+            print(traceback.format_exc())
+            print("error")
