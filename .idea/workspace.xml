@@ -6,15 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/repository.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_objective.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/tika.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/tika.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/consumer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/consumer.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/update-es.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/update-es.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
@@ -122,7 +127,7 @@
       <recent name="$PROJECT_DIR$/cy_controllers/models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.server (1)">
+  <component name="RunManager" selected="Python.task_msg_es_update_ocr">
     <configuration name="check_es" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -211,6 +216,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="task_msg_es_update_ocr" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="task_msg_producer_ocr" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -255,35 +282,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="text_files_servcices" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py-files-sv" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_libs" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_libs/text_files_servcices.py" />
-      <option name="PARAMETERS" value="msg_re_run=v-004" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.task_msg_es_update_ocr" />
         <item itemvalue="Python.check_es" />
         <item itemvalue="Python.task_msg_consumer_ocr" />
         <item itemvalue="Python.task_msg_producer_ocr" />
         <item itemvalue="Python.ocr_files_services" />
-        <item itemvalue="Python.text_files_servcices" />
       </list>
     </recent_temporary>
   </component>
@@ -527,7 +532,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_objective.py</url>
-          <line>1344</line>
+          <line>1318</line>
           <option name="timeStamp" value="492" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -537,7 +542,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_objective.py</url>
-          <line>1125</line>
+          <line>1099</line>
           <option name="timeStamp" value="496" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

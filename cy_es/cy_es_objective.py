@@ -675,40 +675,14 @@ def __es_create_index_if_not_exists__(es, index):
 
 def __create_doc__(client: Elasticsearch, index: str, body: typing.Optional[typing.Union[dict, ESDocumentObjectInfo]],
                    id: str = None, doc_type: str = "_doc", es_type: str = None, try_count=30):
-    try:
-        index = index.lower()
-        id = id or str(uuid.uuid4())
-        if isinstance(body, ESDocumentObjectInfo):
-            id = body.id or str(uuid.uuid4())
-            body = body.source.to_dict()
-        res = client.create(index=index, doc_type=doc_type, id=id, body=body)
-        res["_source"] = body
-        return ESDocumentObjectInfo(res), None
-    except elasticsearch.RequestError as er:
-        if er.status_code == 400:
-            client.indices.close(index=index)
-            time.sleep(1)
-            client.indices.open(index=index)
-            if try_count > 0:
-                print(f"Create doc in {index} with id {id} fails, resume count ={try_count}")
-                time.sleep(1)
-                ret, error = __create_doc__(
-                    client,
-                    index,
-                    body,
-                    id,
-                    doc_type,
-                    es_type,
-                    try_count - 1
-                )
-                return ret, error
-            else:
-                return None, er
-
-        else:
-            return None, er
-    except Exception as e:
-        return None, e
+    index = index.lower()
+    id = id or str(uuid.uuid4())
+    if isinstance(body, ESDocumentObjectInfo):
+        id = body.id or str(uuid.uuid4())
+        body = body.source.to_dict()
+    res = client.create(index=index, doc_type=doc_type, id=id, body=body)
+    res["_source"] = body
+    return ESDocumentObjectInfo(res), None
 
 
 def create_doc(client: Elasticsearch, index: str, body: typing.Optional[typing.Union[dict, ESDocumentObjectInfo]],

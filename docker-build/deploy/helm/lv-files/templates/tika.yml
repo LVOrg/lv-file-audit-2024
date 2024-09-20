@@ -23,6 +23,11 @@ spec:
           effect: "NoSchedule"
       containers:
         - image: apache/tika:latest
+          resources:
+            requests:
+              memory: "1Gi"
+            limits:
+              memory: "2Gi"
           name: tika
           imagePullPolicy: IfNotPresent
           ports:

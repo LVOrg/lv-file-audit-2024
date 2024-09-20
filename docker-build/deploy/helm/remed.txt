@@ -4,3 +4,7 @@ helm template lv-ocr . --set namespace=<namespace-of-lv-file> --set nfs_server=<
 helm template lv-ocr .  --set nfs_server=<nfs server file>,nfs_path=<path tp nfs share>,ns=xdoc
 helm upgrade --install lv-ocr xdoc/lv-ocr --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files
 helm upgrade --install lv-office xdoc/lv-office --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files
+path: /share-data/xdoc/files
+          server: 10.96.25.76
+viet lott
+helm upgrade --install lv-office xdoc/lv-office --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc

@@ -24,7 +24,7 @@ spec:
             server: {{ .Values.nfs_server}}
             path: {{ .Values.nfs_path }}
       containers:
-        - name: lv-ocr-consumer
+        - name: lv-ocr-es
           image: {{ .Values.image }}
           command: ["python3"]
           args:

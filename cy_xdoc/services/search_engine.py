@@ -452,7 +452,7 @@ class SearchEngine:
             file_name = None
         index_name = self.get_index(app_name)
 
-        vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
+        # vn_non_accent_content = self.text_process_service.vn_clear_accent_mark(content)
         body_dict = dict(
             app_name=app_name,
             upload_id=upload_id,
@@ -475,7 +475,7 @@ class SearchEngine:
 
         del content
         del meta_info
-        del vn_non_accent_content
+
 
     def create_or_update_privileges(
             self,

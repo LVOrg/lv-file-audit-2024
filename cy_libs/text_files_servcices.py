@@ -106,7 +106,7 @@ class ExtractTextFileService:
             return None
         return self.decrypt_file(encrypted_file_path=file_path)
     def extract_text_by_using_tika_server(self, file_path:str):
-        @retry(exceptions=requests.exceptions.ReadTimeout,delay=5,tries=10)
+        @retry(exceptions=(requests.exceptions.ReadTimeout,requests.exceptions.ConnectionError),delay=15,tries=10)
         def runing():
 
             parsed_data = tika_parse.from_file(file_path,
@@ -255,11 +255,15 @@ class ExtractTextFileService:
             Repository.files.fields.id== upload_id
         )
         if not upload:
-            self.__consumer_es.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__consumer_es.delete_msg(rb_msg)
             return
         content = None
         with open(content_file,"rb") as fs:
             content = fs.read().decode()
+            content = content.replace('\n',' ').replace('\r',' ').replace('\t',' ')
+            content = content.rstrip(' ').lstrip(' ')
+            while '  ' in content:
+                content = content.replace('  ',' ')
             ic(content[0:20])
             try:
                 self.do_update_es(
@@ -269,14 +273,14 @@ class ExtractTextFileService:
                     data_item = upload,
                     content = content
                 )
-                self.__consumer_es.channel.basic_ack(rb_msg.method.delivery_tag)
+                self.__consumer_es.delete_msg(rb_msg)
                 self.update_upload_office_content(
                     app_name=app_name,
                     upload_id=upload_id,
                     msg=msg
                 )
             except elasticsearch.exceptions.RequestError:
-                self.__consumer_es.channel.basic_ack(rb_msg.method.delivery_tag)
+                self.__consumer_es.delete_msg(rb_msg)
 
 
 

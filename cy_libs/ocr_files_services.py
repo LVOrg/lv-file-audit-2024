@@ -296,7 +296,7 @@ class OCRFilesService(ExtractTextFileService):
             self.__producer__ = Consumer(msg)
         rb_msg = self.__producer__.get_msg(delete_after_get=False)
         if not rb_msg:
-            time.sleep(0.2)
+            time.sleep(1)
             return
         data = rb_msg.data
         main_file_id:str = data.get(Repository.files.fields.MainFileId.__name__) or ""

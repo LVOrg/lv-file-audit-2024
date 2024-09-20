@@ -26,3 +26,5 @@ def main():
             time.sleep(0.3)
 if __name__ == "__main__":
     main()
+#docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files -v $(pwd):/app  docker.lacviet.vn/xdoc/lib-ocr-all:37
+#python3 cy_jobs/jobs/task_msg_consumer_ocr.py
