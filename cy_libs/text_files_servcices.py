@@ -30,6 +30,8 @@ from cy_xdoc.services.search_engine import SearchEngine
 import elasticsearch.exceptions
 from cyx.malloc_services import MallocService
 from cyx.logs_to_mongo_db_services import LogsToMongoDbService
+from retry import retry
+import requests.exceptions
 class ExtractTextFileService:
     """
     This class is used to manage temp directories and file for background processing
@@ -104,14 +106,22 @@ class ExtractTextFileService:
             return None
         return self.decrypt_file(encrypted_file_path=file_path)
     def extract_text_by_using_tika_server(self, file_path:str):
-        parsed_data = tika_parse.from_file(file_path, serverEndpoint=config.tika_server)
+        @retry(exceptions=requests.exceptions.ReadTimeout,delay=5,tries=10)
+        def runing():
 
-        content = parsed_data.get("content","") or ""
-        content = content.lstrip('\n').rstrip('\n').replace('\n',' ').replace('\r',' ').replace('\t',' ')
-        while "  " in content:
-            content = content.replace("  "," ")
-        content = content.rstrip(' ').lstrip(' ')
-        return content
+            parsed_data = tika_parse.from_file(file_path,
+                                               serverEndpoint=config.tika_server,
+                                               xmlContent = False,
+                                               requestOptions = {'timeout': 5000})
+
+            content = parsed_data.get("content","") or ""
+            content = content.lstrip('\n').rstrip('\n').replace('\n',' ').replace('\r',' ').replace('\t',' ')
+            while "  " in content:
+                content = content.replace("  "," ")
+            content = content.rstrip(' ').lstrip(' ')
+            return content
+        return runing()
+
 
     def producer_office_content(self, app_name:str, msg:str):
         if not self.__producer__:
@@ -158,13 +168,13 @@ class ExtractTextFileService:
         app_name = rb_msg.app_name
         file_path:str = data.get(Repository.files.fields.MainFileId.__name__) or ""
         if not file_path.startswith("local://"):
-            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__producer__.delete_msg(rb_msg)
             self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
             return
 
         file_path = os.path.join(self.__file_storage_path__,file_path.split("://")[1])
         if not  os.path.isfile(file_path):
-            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__producer__.delete_msg(rb_msg)
             self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
             return
         process_file = self.decrypt_file(encrypted_file_path=file_path)
@@ -309,6 +319,7 @@ class ExtractTextFileService:
         )
         ret = [x.app_name.lower() for x in agg]
         return ret
+
 
 
 

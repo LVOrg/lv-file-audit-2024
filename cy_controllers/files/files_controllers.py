@@ -65,7 +65,7 @@ class FilesController(BaseController):
             )
             if delete_item is None:
                 return {}
-            doc_context.context.update(
+            doc_context.update(
                 doc_context.fields.id == UploadId,
                 doc_context.fields.MarkDelete << IsDelete
             )

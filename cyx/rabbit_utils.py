@@ -26,7 +26,15 @@ class Consumer:
             if delete_after_get:
                 self.channel.basic_ack(delivery_tag=method.delivery_tag, multiple=True)
         return method,properties,body
-
+    def delete_msg(self,msg:MesssageBlock|None):
+        import pika.exceptions
+        if msg is None:
+            return
+        try:
+            self.channel.basic_ack(msg.method.delivery_tag)
+        except pika.exceptions.ChannelClosed:
+            self.do_init()
+            self.channel.basic_ack(msg.method.delivery_tag)
     def do_init(self):
         print(f"{config.rabbitmq.username}")
         auth = pika.PlainCredentials(
@@ -53,17 +61,23 @@ class Consumer:
         self.channel.queue_declare(queue=self.queue_name, auto_delete=False)
 
     def get_msg(self,delete_after_get=True)->MesssageBlock|None:
-        ret = MesssageBlock()
-        method, properties, body = self.basic_get(delete_after_get)
-        if not method:
-            return None
-        dic_body = json.loads(body)
-        ret.app_name= dic_body.get("app_name")
-        ret.data = dic_body.get("data")
-        ret.properties=properties
-        ret.method = method
-        ret.body = body
-        return ret
+        def run_get_msg():
+            ret = MesssageBlock()
+            method, properties, body = self.basic_get(delete_after_get)
+            if not method:
+                return None
+            dic_body = json.loads(body)
+            ret.app_name= dic_body.get("app_name")
+            ret.data = dic_body.get("data")
+            ret.properties=properties
+            ret.method = method
+            ret.body = body
+            return ret
+        try:
+            return run_get_msg()
+        except:
+            self.do_init()
+            return run_get_msg()
 
     def raise_message(self, app_name:str,data,msg_type:str|None=None):
         #self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )

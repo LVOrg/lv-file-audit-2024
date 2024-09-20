@@ -12,7 +12,8 @@ from PIL import Image
 
 from reportlab.pdfgen import canvas
 
-
+from cyx.common import config
+from cyx.repository import Repository
 
 working_dir = pathlib.Path(__file__).parent.parent.__str__()
 ic(working_dir)
@@ -20,7 +21,11 @@ ic(working_dir)
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 sys.path.append("/app")
 import cy_kit
+import time
 import subprocess
+from cyx.rabbit_utils import Consumer
+import PIL
+import PyPDF2.errors
 def ___extract_pdf_text__(input_pdf_path):
     """Extracts text from a PDF file and returns it as a string.
 
@@ -185,18 +190,27 @@ class OCRFilesService(ExtractTextFileService):
                 pdf_reader = PyPDF2.PdfReader(input_pdf)
 
                 for page_number, page in enumerate(pdf_reader.pages):
-
+                    if not page.get('/Resources') or not isinstance(page.get('/Resources'),dict):
+                        continue
+                    if not page.get('/Resources').get('/XObject'):
+                        continue
                     for obj in page['/Resources']['/XObject']:
                         if page['/Resources']['/XObject'][obj]['/Subtype'] == '/Image':
-                            image_data = io.BytesIO(page['/Resources']['/XObject'][obj].get_data())
-                            image = Image.open(image_data)
+                            try:
+                                image_data = page['/Resources']['/XObject'][obj].get_data()
+                                image_data_io = io.BytesIO(image_data)
+                                image = Image.open(image_data_io)
 
-                            # Save the image to the output folder with a suitable filename
-                            image_filename = f"{page_number + 1}_{image_id}.jpg"  # Adjust filename format as needed
-                            image_file_path = os.path.join(output_dir_of_images,image_filename)
-                            image.save(image_file_path)
-                            child_page.image_file_list+=[image_file_path]
-                            image_id+=1
+                                # Save the image to the output folder with a suitable filename
+                                image_filename = f"{page_number + 1}_{image_id}.jpg"  # Adjust filename format as needed
+                                image_file_path = os.path.join(output_dir_of_images,image_filename)
+                                image.save(image_file_path)
+                                child_page.image_file_list+=[image_file_path]
+                                image_id+=1
+                            except NotImplementedError as ex:
+                                continue
+                            except PIL.UnidentifiedImageError as ex:
+                                continue
         return  pdf_analyzer_info
 
 
@@ -244,6 +258,112 @@ class OCRFilesService(ExtractTextFileService):
                     page_info.pdf_file_list+=[output_pdf_path]
         return pdf_analyzer_info
 
+
+        pass
+    def producer_ocr_content(self, app_name:str, msg:str):
+        if not self.__producer__:
+            self.__producer__= Consumer(msg)
+        agg = Repository.files.app(app_name).context.aggregate().match(
+            Repository.files.fields.Status==1
+        ).match(
+            Repository.files.fields.FileExt=="pdf"
+        ).match(
+            (Repository.files.fields.HasORCContent==None)|(Repository.files.fields.HasORCContent==False)
+        ).match(
+            Repository.files.fields.MsgOCRReRaise!=msg
+
+        ).sort(
+            Repository.files.fields.RegisterOn.desc()
+        ).limit(1)
+        for item in agg:
+            self.__producer__.raise_message(
+                app_name=app_name,
+                data=item.to_json_convertable(),
+                msg_type=msg
+            )
+            ic(f"raise msg={msg} in app={app_name}")
+            ic(item.to_json_convertable())
+            self.update_upload_ocr_content(app_name=app_name, upload_id=item.id, msg=msg)
+
+    def update_upload_ocr_content(self, app_name, upload_id,msg):
+        Repository.files.app(app_name).context.update(
+            Repository.files.fields.id==upload_id,
+            Repository.files.fields.MsgOCRReRaise<<msg
+        )
+
+    def consumer_ocr_content(self, msg):
+        if not self.__producer__:
+            self.__producer__ = Consumer(msg)
+        rb_msg = self.__producer__.get_msg(delete_after_get=False)
+        if not rb_msg:
+            time.sleep(0.2)
+            return
+        data = rb_msg.data
+        main_file_id:str = data.get(Repository.files.fields.MainFileId.__name__) or ""
+        if main_file_id=="" or "://" not in main_file_id:
+            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.update_upload_ocr_content(
+                app_name = rb_msg.app_name,
+                upload_id = data.get("_id"),
+                msg=msg
+            )
+            return
+        rel_encrypted_file_path = main_file_id.split("://")[1]
+        encrypted_file_path = os.path.join(config.file_storage_path.replace('/',os.sep),rel_encrypted_file_path)
+        if not os.path.isfile(encrypted_file_path):
+            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.update_upload_ocr_content(
+                app_name=rb_msg.app_name,
+                upload_id=data.get("_id"),
+                msg=msg
+            )
+            return
+        decrypted_file_path = self.decrypt_file(encrypted_file_path)
+        try:
+            pdf_analyzer_info: PdfAnalyzerInfo = self.extract_pages(
+                file_path=decrypted_file_path
+            )
+            pdf_analyzer_info = self.extract_images(pdf_analyzer_info=pdf_analyzer_info)
+            pdf_analyzer_info = self.convert_images_to_pdf(pdf_analyzer_info=pdf_analyzer_info)
+            pdf_analyzer_info = self.extract_text_of_pdf_page_by_tika(pdf_analyzer_info)
+            pdf_analyzer_info = self.create_pdf_a(pdf_analyzer_info)
+            pdf_analyzer_info = self.extract_text_of_pdf_page_by_pdf_a(pdf_analyzer_info)
+            text_from_ocr: str = pdf_analyzer_info.get_text_from_ocr()
+            text_from_pdf: str = pdf_analyzer_info.get_text_from_pdf()
+            full_text: str = pdf_analyzer_info.get_full_text()
+            dir_of_server_file = pathlib.Path(decrypted_file_path).parent.__str__()
+            content_of_server_file_es = os.path.join(dir_of_server_file, pathlib.Path(decrypted_file_path).stem + ".content.txt")
+            with open(content_of_server_file_es, "wb") as fs:
+                fs.write(full_text.encode())
+            data["content-file"] = content_of_server_file_es
+            self.__producer__.raise_message(
+                app_name=rb_msg.app_name,
+                data=data,
+                msg_type=f"{msg}_es_update"
+            )
+            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.update_upload_office_content(app_name=rb_msg.app_name, upload_id=data.get("_id"), msg=msg)
+        except :
+            pdf_a_file_path = __do_make_pdf_a_file___(decrypted_file_path)
+            if not pdf_a_file_path or not os.path.isfile(pdf_a_file_path):
+                ic(f"Uss Tika server extract content {decrypted_file_path}")
+                text_contents = self.extract_text_by_using_tika_server(decrypted_file_path)
+            else:
+                text_contents = ___extract_pdf_text__(pdf_a_file_path)
+            ic(text_contents[:20])
+            dir_of_server_file = pathlib.Path(decrypted_file_path).parent.__str__()
+            content_of_server_file_es = os.path.join(dir_of_server_file,
+                                                     pathlib.Path(decrypted_file_path).stem + ".content.txt")
+            with open(content_of_server_file_es, "wb") as fs:
+                fs.write(text_contents.encode())
+            data["content-file"] = content_of_server_file_es
+            self.__producer__.raise_message(
+                app_name=rb_msg.app_name,
+                data=data,
+                msg_type=f"{msg}_es_update"
+            )
+            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.update_upload_office_content(app_name=rb_msg.app_name, upload_id=data.get("_id"), msg=msg)
 
 
 def main():

@@ -179,6 +179,8 @@ class SearchController(BaseController):
 
 
 
+
+
         if highlight is None:
             highlight = False
         # search_services: cy_xdoc.services.search_engine.SearchEngine = cy_kit.singleton(

@@ -191,35 +191,48 @@ class DocumentFields:
         ret.__is_bool__ = True
         return ret
 
-    def __contains__(self, item):
+    def __contains__(self, item_search):
 
         """
 
         @param item:
         @return:
         """
+        fix_mask = [("đ",chr(240)),("Đ",chr(208))]
+        def create_es_filter(item):
+            ret = DocumentFields()
+            field_name = self.__name__
+            boost = None
+            if "^" in field_name:
+                field_name, boost = tuple(field_name.split("^"))
+                if not  boost.isnumeric():
+                    boost=None
+            ret.__d
+            ret_match_phase=DocumentFields()
+            ret_query = DocumentFields()
+            dict_filter = es_script.script_index_of(field_name,item)
+            if item[-1]=="*":
+                dict_filter = es_script.script_start_with(field_name, item[:-1])
+            elif item[0]=="*":
+                dict_filter = es_script.script_end_with(field_name, item[1:])
+            ret = es_script.build(ret,es_script.must_wrapper(es_script.constant_score(dict_filter,boost)))
+            ret_match_phase = es_script.build(ret_match_phase,es_script.multi_match_slop_3(field_name,item,boost))
+            # ret_query = es_script.build(ret_query, es_script.simple_query_string(field_name, item, boost))
+            ret=ret |ret_match_phase
+            ret.__highlight_fields__ = [field_name]
+            return ret
+        regular_ret = create_es_filter(item_search)
+        if any(set(item_search).intersection(set("đĐ"))):
+            error_text_search=item_search.encode().decode()
+            for (x,y) in fix_mask:
+                error_text_search = error_text_search.replace(x,y)
+            regular_ret = regular_ret|create_es_filter(error_text_search)
+        return regular_ret
 
-        ret = DocumentFields()
-        field_name = self.__name__
-        boost = None
-        if "^" in field_name:
-            field_name, boost = tuple(field_name.split("^"))
-            if not  boost.isnumeric():
-                boost=None
-        ret.__d
-        ret_match_phase=DocumentFields()
-        ret_query = DocumentFields()
-        dict_filter = es_script.script_index_of(field_name,item)
-        if item[-1]=="*":
-            dict_filter = es_script.script_start_with(field_name, item[:-1])
-        elif item[0]=="*":
-            dict_filter = es_script.script_end_with(field_name, item[1:])
-        ret = es_script.build(ret,es_script.must_wrapper(es_script.constant_score(dict_filter,boost)))
-        ret_match_phase = es_script.build(ret_match_phase,es_script.multi_match_slop_3(field_name,item,boost))
-        # ret_query = es_script.build(ret_query, es_script.simple_query_string(field_name, item, boost))
-        ret=ret |ret_match_phase
-        ret.__highlight_fields__ = [field_name]
-        return ret
+
+
+
+
 
     def contains_list(self, item):
         from cy_es.cy_es_utils import __well_form__

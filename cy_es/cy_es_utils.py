@@ -610,4 +610,47 @@ def __make_like__(field_name, content, boost_score):
     ret_query.__highlight_fields__= [field_name,f"{cy_es_manager.FIELD_RAW_TEXT}.{field_name}"]
     return ret_query
 
+import elasticsearch
+from elasticsearch.exceptions import NotFoundError, RequestError
 
+def is_index_closed(client:Elasticsearch, index_name)->bool:
+    """
+    Checks if an Elasticsearch index is closed.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index_name: The name of the index to check.
+
+    Returns:
+        True if the index is closed, False otherwise.
+    """
+
+    try:
+        index_settings = client.get_index(index_name)
+        index_status = index_settings['settings']['index']['state']
+        return index_status == 'close'
+    except NotFoundError:
+        return False
+
+
+def open_index(client, index_name):
+    """
+    Opens an Elasticsearch index.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index_name: The name of the index to open.
+
+    Returns:
+        True if the index was opened successfully, False otherwise.
+    """
+
+    try:
+        client.open_index(index_name)
+        return True
+    except NotFoundError:
+        print(f"Index '{index_name}' does not exist.")
+        return False
+    except RequestError as e:
+        print(f"Error opening index '{index_name}': {e}")
+        return False
