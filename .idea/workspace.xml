@@ -4,48 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;">
-      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/ocr-advance.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/requirements/ocr-advance.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/requirements/paddle-ocr.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/py-files-sv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/py-files-sv.iml" afterDir="false" />
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Create power lib OCR by using Paddle and VietOCR">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a-working/check_avif.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/a-working/reference.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/a-working/vipgome_check.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_objective.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_objective.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_file_cryptor/context.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_file_cryptor/context.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_file_cryptor/wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_file_cryptor/wrappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/search_engine.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_service_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_service_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/drive_service_google.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/drive_service_google.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/drive_service_ms.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/drive_service_ms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/drive_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/drive_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/google_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/google_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/mail_service_google.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/mail_service_google.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud_cache_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud_cache_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/g_drive_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/g_drive_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyx/google_drive_utils/directories.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/google_drive_utils/directories.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cyx/local_api_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_api_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/processing_file_manager_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/processing_file_manager_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/rabbit_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/rabbit_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/web-api-core" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -330,7 +298,8 @@
     <MESSAGE value="fix search and mark delete" />
     <MESSAGE value="fix search Khác biệt giữa Unicode tổ hợp và Unicode dựng sẵn (&quot;đ&quot;,chr(240)),(&quot;Đ&quot;,chr(208))" />
     <MESSAGE value="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;" />
+    <MESSAGE value="Create power lib OCR by using Paddle and VietOCR" />
+    <option name="LAST_COMMIT_MESSAGE" value="Create power lib OCR by using Paddle and VietOCR" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -602,17 +571,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_libs/ocr_files_services.py</url>
-          <line>386</line>
+          <line>399</line>
           <option name="timeStamp" value="627" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_libs/ocr_files_services.py</url>
-          <line>209</line>
+          <line>210</line>
           <option name="timeStamp" value="642" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_libs/ocr_files_services.py</url>
-          <line>214</line>
+          <line>215</line>
           <option name="timeStamp" value="643" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

@@ -145,6 +145,7 @@ class OCRFilesService(ExtractTextFileService):
         super().__init__()
         self.__ocr_dir__ = os.path.join(self.__temp_dir__,"__orc_dir__")
         os.makedirs(self.__ocr_dir__,exist_ok=True)
+        self.__pre_post__ = None
     @property
     def ocr_dir(self):
         """
@@ -291,7 +292,8 @@ class OCRFilesService(ExtractTextFileService):
             Repository.files.fields.id==upload_id,
             Repository.files.fields.MsgOCRReRaise<<msg
         )
-
+    def set_pre_post(self,fn):
+        self.__pre_post__ = fn
     def consumer_ocr_content(self, msg):
         if not self.__producer__:
             self.__producer__ = Consumer(msg)
@@ -320,6 +322,17 @@ class OCRFilesService(ExtractTextFileService):
             )
             return
         decrypted_file_path = self.decrypt_file(encrypted_file_path)
+        if self.__pre_post__ and callable(self.__pre_post__):
+            content_file_path = self.__pre_post__(decrypted_file_path)
+            data["content-file"] = content_file_path
+            self.__producer__.raise_message(
+                app_name=rb_msg.app_name,
+                data=data,
+                msg_type=f"{msg}_es_update"
+            )
+            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.update_upload_office_content(app_name=rb_msg.app_name, upload_id=data.get("_id"), msg=msg)
+            return
         try:
             pdf_analyzer_info: PdfAnalyzerInfo = self.extract_pages(
                 file_path=decrypted_file_path

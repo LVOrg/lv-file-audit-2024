@@ -24,39 +24,29 @@ class PDF_Service:
         """
         return hashlib.sha256(pdf_file_path.encode()).hexdigest()
     def raw_extract_images(self,infile_name):
-        with open(infile_name, 'rb') as in_f:
-            in_pdf = PdfReader(in_f)
+        not_found_any_image = True
+        try:
+            with open(infile_name, 'rb') as in_f:
+                in_pdf = PdfReader(in_f)
+                ic(f"{len(in_pdf.pages)} page found in {infile_name}")
 
-            for page_no in range(len(in_pdf.pages)):
-                page = in_pdf.pages[page_no]
-                for image in page.images:
-                    img = PIL.Image.open(io.BytesIO(image.data))
-                    yield img
-                #     with open(image.name, "wb") as fp:
-                #         fp.write(image.data)
-                # # Images are part of a page's `/Resources/XObject`
-                # r = page['/Resources']
-                # if '/XObject' not in r:
-                #     continue
-                # for k, v in r['/XObject'].items():
-                #     vobj = v.get_object()
-                #     # We are only interested in images...
-                #     if vobj['/Subtype'] != '/Image' or '/Filter' not in vobj:
-                #         continue
-                #     if vobj['/Filter'] == '/FlateDecode':
-                #         # A raw bitmap
-                #         buf = vobj.getData()
-                #         # Notice that we need metadata from the object
-                #         # so we can make sense of the image data
-                #         size = tuple(map(int, (vobj['/Width'], vobj['/Height'])))
-                #         img = PIL.Image.frombytes('RGB', size, buf,
-                #                                   decoder_name='raw')
-                #         # Obviously we can't really yield here, do something with `img`...
-                #         yield img
-                #     elif vobj['/Filter'] == '/DCTDecode':
-                #         # A compressed image
-                #         img = PIL.Image.open(io.BytesIO(vobj._data))
-                #         yield img
+                for page_no in range(len(in_pdf.pages)):
+                    page = in_pdf.pages[page_no]
+                    if len(page.images)==0:
+                        break
+                    not_found_any_image= False
+                    for image in page.images:
+                        img = PIL.Image.open(io.BytesIO(image.data))
+                        yield img
+            if not_found_any_image:
+                pixmaps = self.get_pixmaps_in_pdf(infile_name)
+                for pixmap in pixmaps:
+                    yield pixmap
+        except NotImplementedError:
+            for x in self.get_pixmaps_in_pdf(infile_name):
+                yield x
+
+
     def get_pixmaps_in_pdf(self,pdf_filename):
         doc = fitz.open(pdf_filename)
         xrefs = set()
@@ -76,7 +66,10 @@ class PDF_Service:
         for img in raw_images:
             image_file_name = f"{i}.png"
             image_file_path = os.path.join(child_output_dir, image_file_name)
-            img.save(image_file_path, 'png')
+            if hasattr(img,"writePNG") and callable(img.writePNG):
+                img.writePNG(image_file_path)
+            else:
+                img.save(image_file_path, 'png')
             i+=1
             # pixmap.writePNG(image_file_path)
             yield image_file_path # Might want to come up

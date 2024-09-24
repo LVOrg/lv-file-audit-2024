@@ -14,7 +14,7 @@ import functools
 if hasattr(functools,"lru_cache"):
     from functools import lru_cache
     def cache(*args, **kwargs):
-        return lru_cache()
+        return functools.lru_cache(maxsize = 128)(*args,**kwargs)
 else:
     from functools import cache
 import cy_docs

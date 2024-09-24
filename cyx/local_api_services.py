@@ -15,7 +15,7 @@ import functools
 if hasattr(functools,"lru_cache"):
     from functools import lru_cache
     def ft_cache(*args,**kwargs):
-        return lru_cache()
+        return functools.lru_cache(maxsize = 128)(*args,**kwargs)
 else:
     from functools import cache as ft_cache
 from cyx.repository import Repository

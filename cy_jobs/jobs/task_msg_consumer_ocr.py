@@ -14,9 +14,14 @@ if not config.get("msg_process"):
     ic("warning: msg_process was not found on startup")
 from cy_libs.ocr_files_services import OCRFilesService
 
+def get_content_from_viet_ocr(pdf_file):
+    from cy_lib_ocr.ocr_services import OCRService
+    svc = cy_kit.singleton(OCRService)
+    return svc.get_content_from_pdf(pdf_file)
 
 def main():
     svc = cy_kit.single(OCRFilesService)
+    svc.set_pre_post(get_content_from_viet_ocr)
     while True:
         try:
             svc.consumer_ocr_content(msg)

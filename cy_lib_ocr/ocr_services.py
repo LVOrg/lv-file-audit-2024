@@ -127,7 +127,7 @@ class OCRService:
 
     def get_content_from_pdf(self, pdf_file):
         """
-        Do OCR and write content to file return that content
+        Do OCR and write content to file return that file
         @param pdf_file:
         @return:
         """
@@ -136,8 +136,7 @@ class OCRService:
         content_file_path = os.path.join(self.tmp_result_dir,f"{content_file_name}.txt")
         # check if content_file_path is ready that mean pdf_file has been OCR-Content, no more do OCR
         if os.path.isfile(content_file_path):
-            with open(content_file_path,"rb") as fs:
-                return fs.read().decode()
+            return content_file_path
         #do OCR content
         content = self.get_text_from_pdf(pdf_file)
         content = content.replace("\n"," ").replace("\r"," ").replace("\t"," ")
@@ -146,7 +145,7 @@ class OCRService:
         content = content.lstrip(" ").rstrip(" ")
         with open(content_file_path,"wb") as fs:
             fs.write(content.encode())
-        return content
+        return content_file_path
 
 
 
@@ -157,7 +156,7 @@ def main():
     pdf_file = r'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/511-cp.signe.pdf'
     pdf_file = r'/app/a_checking/resource-test/511-cp.signe.pdf'
     pdf_file = r'/app/a_checking/resource-test/qð 542.pdf'
-    pdf_file = r'/app/a_checking/resource-test/đccn đồng thuận hà - best.pdf'
+    pdf_file = r'/app/a_checking/resource-test/2024-3dn-puq00044_cong van.pdf'
     output_dir = f'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/results'
     output_dir = f'/app/a_checking/resource-test/results-docker'
     # file_iter: typing.Iterable[str] = svc.pdf_service.image_extract(pdf_file_path=pdf_file, output_dir=output_dir)

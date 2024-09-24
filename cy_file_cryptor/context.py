@@ -8,7 +8,7 @@ import hashlib
 import functools
 if hasattr(functools,"lru_cache"):
     def ft_cache(*args,**kwargs):
-        return functools.lru_cache()
+        return functools.lru_cache(maxsize = 128)(*args,**kwargs)
 else:
     from functools import  cache as fr_cache
 import typing
