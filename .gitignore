@@ -50,3 +50,5 @@ secret*
 /gradio_test/
 /docker-build/deploy/values/
 /a_checking/
+/a-working/
+/py-torch/

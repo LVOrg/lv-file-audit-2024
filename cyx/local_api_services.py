@@ -11,7 +11,13 @@ import cy_kit
 from cyx.common import config
 
 import requests
-
+import functools
+if hasattr(functools,"lru_cache"):
+    from functools import lru_cache
+    def ft_cache(*args,**kwargs):
+        return lru_cache()
+else:
+    from functools import cache as ft_cache
 from cyx.repository import Repository
 from cyx.cache_service.memcache_service import MemcacheServices
 
@@ -65,9 +71,10 @@ class LocalAPIService:
         return ret
 
     def send_file(self,
-                  file_path: str, token: str | None,
-                  local_share_id: str | None,
-                  app_name: str | None,
+                  file_path: str,
+                  token: typing.Optional[str],
+                  local_share_id: typing.Optional[str],
+                  app_name: typing.Optional[str],
                   rel_server_path: str):
         """Submits an image to the specified URL using a POST request.
 
@@ -118,8 +125,13 @@ class LocalAPIService:
 
 
 
-    def get_download_path(self, upload_item:typing.Dict[str,typing.Any], app_name:str,to_file_ext:str|None = None) -> typing.Tuple[
-        str | None, str | None, str | None, str | None, str | None]:
+    def get_download_path(self, upload_item:typing.Dict[str,typing.Any], app_name:str,
+                          to_file_ext:typing.Optional[str]= None) -> typing.Tuple[
+        typing.Optional[str],
+        typing.Optional[str],
+        typing.Optional[str],
+        typing.Optional[str],
+    typing.Optional[str]]:
         """
         Get all info of server_file, rel_file_path, download_file_path, token, local_share_id
         :param upload_item:
@@ -169,12 +181,16 @@ class LocalAPIService:
         download_file_path = os.path.join("/tmp-files", str(uuid.uuid4()) + file_ext)
         return server_file, rel_file_path, download_file_path, token, local_share_id
 
-    @functools.cache
+    @ft_cache
     def get_cache_key(self, local_key:str):
         ret = hashlib.sha256(f"v-02/{local_key}".encode()).hexdigest()
         return ret
 
-    def get_upload_path_by_upload_id(self, upload_id, app_name, file_name:str|None = None, file_ext: str|None = None) -> str|None:
+    def get_upload_path_by_upload_id(self,
+                                     upload_id,
+                                     app_name,
+                                     file_name: typing.Optional[str] = None,
+                                     file_ext: typing.Optional[str] = None,) -> typing.Optional[str]:
         key = self.get_cache_key(f'{upload_id}/{app_name}/{(file_name or "default")+"."+(file_ext or "unknown")}')
         ret_url = self.memcache_services.get_str(key)
         if ret_url is None:
@@ -187,7 +203,10 @@ class LocalAPIService:
             self.memcache_services.set_str(key,ret_url)
         return ret_url
 
-    def get_upload_path(self, upload_item:typing.Dict[str,typing.Any], app_name:str, file_name:str|None = None, file_ext: str|None = None) -> str:
+    def get_upload_path(self,
+                        upload_item:typing.Dict[str,typing.Any],
+                        app_name:str, file_name:typing.Optional[str]=None,
+                        file_ext: typing.Optional[str]=None) -> str:
         """
         Get get_upload_path
         :param file_ext:

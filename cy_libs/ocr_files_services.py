@@ -26,6 +26,7 @@ import subprocess
 from cyx.rabbit_utils import Consumer
 import PIL
 import PyPDF2.errors
+import typing
 def ___extract_pdf_text__(input_pdf_path):
     """Extracts text from a PDF file and returns it as a string.
 
@@ -74,12 +75,12 @@ class PdfPageInfo:
     """
     Child page
     """
-    image_file_list: list[str]=[]
+    image_file_list: typing.List[str]=[]
     """
     List of images in Child page
     """
-    pdf_file_list: list[str] = []
-    pdf_a_file_list: list[str] = []
+    pdf_file_list: typing.List[str] = []
+    pdf_a_file_list: typing.List[str] = []
     text_content: str
     text_content_from_tika: str
     text_content_from_ocr: str
@@ -94,12 +95,12 @@ class PdfAnalyzerInfo:
     """
     Physical path of original pdf file
     """
-    pages: list[PdfPageInfo]=[]
+    pages: typing.List[PdfPageInfo]=[]
     """
     Children pages info
     """
-    __dir_name__: str|None
-    __temp_dir_path__: str|None
+    __dir_name__: typing.Union[str]
+    __temp_dir_path__: typing.Union[str]
     def __init__(self,temp_dir_path:str):
         self.__temp_dir_path__ = temp_dir_path
     @property

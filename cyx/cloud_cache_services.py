@@ -1,6 +1,7 @@
 import os.path
 import threading
 import traceback
+import typing
 
 import requests
 
@@ -140,7 +141,7 @@ class CloudCacheService:
 
         self.memcache_services.set_object(key,data_cache)
 
-    def get_request_from_cache(self, app_name, directory)->CloudCacheInfo|None:
+    def get_request_from_cache(self, app_name, directory)->typing.Optional[CloudCacheInfo]:
         key = f"{self.prefix_cache_key}/{app_name}/{directory}"
         ret = self.memcache_services.get_object(key,CloudCacheInfo)
         if ret:

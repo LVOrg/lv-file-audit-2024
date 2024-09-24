@@ -10,7 +10,13 @@ from cyx.loggers import LoggerService
 from typing import TypeVar
 
 T = TypeVar('T')
-from functools import cache as ft_cache
+import functools
+if hasattr(functools,"lru_cache"):
+    from functools import lru_cache
+    def ft_cache(*args,**kwargs):
+        return lru_cache()
+else:
+    from functools import cache as ft_cache
 
 class MemcacheServices:
 

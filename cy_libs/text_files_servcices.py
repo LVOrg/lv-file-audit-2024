@@ -32,6 +32,7 @@ from cyx.malloc_services import MallocService
 from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 from retry import retry
 import requests.exceptions
+import typing
 class ExtractTextFileService:
     """
     This class is used to manage temp directories and file for background processing
@@ -72,7 +73,7 @@ class ExtractTextFileService:
         return self.__decrypt_dir__
 
 
-    def decrypt_file(self, encrypted_file_path:str)->str|None:
+    def decrypt_file(self, encrypted_file_path:str)->typing.Union[str,None]:
         """
         decrypted file in to decrypt_dir, filename is hash256 of filepath
         @param encrypted_file_path:
@@ -92,7 +93,7 @@ class ExtractTextFileService:
                         df.write(data)
                     data = fs.read(256 * 1024)
         return decrypted_file_path
-    def get_and_decrypted_file(self,app_name,upload_id:str)->str|None:
+    def get_and_decrypted_file(self,app_name,upload_id:str)->typing.Union[str,None]:
         """
         This method get physical file path and decrypt to new file
         return decrypted file
@@ -309,7 +310,7 @@ class ExtractTextFileService:
         return threading.Thread(target=running)
 
 
-    def get_app_names(self)->list[str]:
+    def get_app_names(self)->typing.List[str]:
         agg = Repository.apps.app("admin").context.aggregate().match(
             Repository.apps.fields.Name!=config.admin_db_name
         ).match(

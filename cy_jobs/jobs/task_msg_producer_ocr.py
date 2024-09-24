@@ -17,6 +17,7 @@ def main():
     while True:
         try:
             apps = svc.get_app_names() if __app_name == "all" else [__app_name]
+
             for app_name in apps:
                 svc.producer_ocr_content(
                     app_name=app_name,

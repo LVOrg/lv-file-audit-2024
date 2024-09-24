@@ -19,7 +19,7 @@ class DriveService:
         self.drive_service_google = drive_service_google
         self.drive_service_ms = drive_service_ms
 
-    def get_available_space(self, app_name, cloud_name: str) -> typing.Tuple[int | None, dict | None]:
+    def get_available_space(self, app_name, cloud_name: str) -> typing.Tuple[typing.Union[int,None], typing.Union[dict ,None]]:
         """
         get available space of Google Drive
         :param app_name:
@@ -32,7 +32,7 @@ class DriveService:
         else:
             return None, dict(Code="NotSupport", Message=f"{cloud_name} did not bestow {app_name}")
 
-    def remove_upload(self, app_name: str, cloud_name: str, upload_id: str) -> typing.Tuple[bool, dict | None]:
+    def remove_upload(self, app_name: str, cloud_name: str, upload_id: str) -> typing.Tuple[bool, typing.Union[dict ,None]]:
         """
         Delete Resource on cloud by upload_id
         The method will find in mongodb UploadItem with upload_id

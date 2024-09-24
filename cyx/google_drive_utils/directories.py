@@ -10,7 +10,13 @@ import typing
 
 import requests
 from googleapiclient.discovery import build, Resource
-from functools import cache
+import functools
+if hasattr(functools,"lru_cache"):
+    from functools import lru_cache
+    def cache(*args, **kwargs):
+        return lru_cache()
+else:
+    from functools import cache
 import cy_docs
 import cy_kit
 import pymongo.errors
@@ -50,7 +56,7 @@ class GoogleDirectoryService:
         self.local_cache = {}
 
     def check_folder_structure(self, app_name: str, directory_path: typing.List[str]) -> typing.Tuple[
-        typing.Any, dict | None]:
+        typing.Any, typing.Union[dict ,None]]:
         """
         Checks if folders exist recursively based on path segments.
         """
@@ -180,7 +186,7 @@ class GoogleDirectoryService:
 
         return parent_id
 
-    def create_folders(self, app_name: str, directory_path: str) -> typing.Tuple[str | None, dict | None]:
+    def create_folders(self, app_name: str, directory_path: str) -> typing.Tuple[typing.Union[str ,None], typing.Union[dict ,None]]:
         """
 
         :param app_name:
@@ -275,7 +281,7 @@ class GoogleDirectoryService:
                     ext_list += lst
         return trashed_folders + ext_list
 
-    def get_all_folders(self, app_name,include_file=True) -> typing.Tuple[dict | None, dict | None, dict | None]:
+    def get_all_folders(self, app_name,include_file=True) -> typing.Tuple[typing.Union[dict ,None], typing.Union[dict ,None], typing.Union[dict ,None]]:
         """
         This method get all directories in Google Driver of tenant was embody by app_name
         return folder_tree,folder_hash, error
@@ -314,7 +320,7 @@ class GoogleDirectoryService:
         return ret
 
     def get_all_folder_info(self, app_name: str, from_cache: bool = True) -> typing.Tuple[
-        GoogleDriveInfo | None, dict | None]:
+        typing.Union[GoogleDriveInfo ,None], typing.Union[dict ,None]]:
         """
         Get all directories in Google Drive of app
         :param app_name:
@@ -381,7 +387,12 @@ class GoogleDirectoryService:
             except:
                 pass
 
-    def get_remote_folder_id(self, service, app_name, directory, parent_id=None,force_create_and_update_local=False)->typing.Tuple[str|None,dict|None]:
+    def get_remote_folder_id(self, 
+                             service, 
+                             app_name, 
+                             directory, 
+                             parent_id=None,
+                             force_create_and_update_local:bool=False)->typing.Tuple[typing.Union[str ,None],typing.Union[dict ,None]]:
         """
 
         :param service:
@@ -501,7 +512,7 @@ class GoogleDirectoryService:
         #     return new_folder_id, None
 
     def check_before_upload(self, app_name, directory: str, file_name) -> typing.Tuple[
-        bool | None, str | None, dict | None]:
+        typing.Union[bool ,None], typing.Union[str ,None], typing.Union[dict ,None]]:
         """
         Check folder in google if it is existing return True, google Folder Id, error is None
         :param app_name:
@@ -534,7 +545,7 @@ class GoogleDirectoryService:
             return data.get("result").get("is_exist"), data.get("result").get("folder_id"), None
 
     def register_upload_file(self, app_name, directory_id, file_name: str, file_size) -> typing.Tuple[
-        str | None, str | None, dict | None]:
+        typing.Union[str ,None], typing.Union[str ,None], typing.Union[dict ,None]]:
         """
         Register upload file and return file_id,upload_location,error
         :param app_name:
@@ -641,14 +652,14 @@ class GoogleDirectoryService:
         ret, _, tabular_list = get_tree(all_folders, root)
         return ret, tabular_list, None
 
-    def get_thumbnail_url_by_file_id(self, app_name, file_id) -> typing.Tuple[str | None, dict | None]:
+    def get_thumbnail_url_by_file_id(self, app_name, file_id) -> typing.Tuple[typing.Union[str ,None], typing.Union[dict ,None]]:
         service, error = self.g_drive_service.get_service_by_app_name(app_name)
         if error:
             return None, error
         ret, error = self.get_thumbnail_url_by_file_id_with_service(service, file_id)
 
     def get_thumbnail_url_by_file_id_with_service(self, service: Resource, file_id) -> typing.Tuple[
-        str | None, dict | None]:
+        typing.Union[str ,None], typing.Union[dict ,None]]:
         file_metadata = service.files().get(fileId=file_id, fields="thumbnailLink").execute()
         if file_metadata.get('thumbnailLink'):
             # Construct potential thumbnail URL pattern (replace with actual domain if different)

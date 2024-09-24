@@ -14,9 +14,9 @@ class MailServiceGoogle:
              recipient_emails: typing.List[str],
              subject: str,
              body: str,
-             files:typing.List[UploadFile]=None,
-             calender: UploadFile|None=None,
-             cc: typing.Optional[typing.List[str]] = None) -> typing.Tuple[dict|None, dict | None]:
+             files:typing.Union[typing.List[UploadFile],None]=None,
+             calender: typing.Union[UploadFile,None]=None,
+             cc: typing.Union[typing.List[str], None] = None) -> typing.Tuple[typing.Union[dict, None], typing.Union[dict, None]]:
 
         service, error = self.google_auth_service.get_service_by_app_name(
             app_name=app_name,

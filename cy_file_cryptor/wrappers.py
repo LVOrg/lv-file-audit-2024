@@ -242,15 +242,15 @@ def cy_open_file(*args, **kwargs):
 # # import os
 # # os.setxattr("/home/vmadmin/python/cy-py/ai-require.txt", 'user.obfuscator', b'baz')
 setattr(builtins, "open", cy_open_file)
-
+import typing
 import _asyncio
 from anyio import AsyncFile
 async def new_anyio_open_file(file,
     mode: str = "r",
     buffering: int = -1,
-    encoding: str | None = None,
-    errors: str | None = None,
-    newline: str | None = None,
+    encoding: typing.Optional[str] = None,
+    errors: typing.Optional[str] = None,
+    newline: typing.Optional[str] = None,
     closefd: bool = True,
     opener = None,):
     # fp = await to_thread(

@@ -14,7 +14,7 @@ class DriveServiceMS:
     def get_available_space(self, app_name):
         raise NotImplemented()
 
-    def remove_upload(self, app_name, file_id)-> typing.Tuple[bool,dict|None]:
+    def remove_upload(self, app_name, file_id)-> typing.Tuple[bool,typing.Union[dict,None]]:
         """
         Delete resource form MS Azure (particularly, Resource is File_Id on onedrive)
         :param app_name: 

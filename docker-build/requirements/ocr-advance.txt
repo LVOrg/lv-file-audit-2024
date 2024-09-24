@@ -1,0 +1,14 @@
+icecream
+PyPDF2
+reportlab
+python-jose
+slackclient
+pika
+humanize
+python-memcached==1.59
+google-api-python-client
+ics
+azure-identity
+retry
+tika
+PyPDF2== 3.0.0

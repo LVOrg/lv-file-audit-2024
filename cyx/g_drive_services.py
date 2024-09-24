@@ -68,7 +68,7 @@ class GDriveService:
         self.gauth.LocalWebserverAuth()
 
     def get_login_url(self, request: fastapi.Request, app_name, scopes: typing.List[str]) -> typing.Tuple[
-        str | None, dict | None]:
+        typing.Optional[str], typing.Optional[dict]]:
 
         """
 
@@ -154,7 +154,7 @@ class GDriveService:
         self.memcache_service.delete_key(f"{self.cache_key_of_id_and_secret}/{app_name}")
 
     def get_id_and_secret(self, app_name, from_cache: bool = True) -> typing.Tuple[
-        str | None, str | None, str | None, dict | None]:
+        typing.Optional[str], typing.Optional[str], typing.Optional[str],typing.Optional[dict]]:
         """
         Get ClientId, ClientSecret, Email and error
         :param app_name:
@@ -202,7 +202,7 @@ class GDriveService:
             value=refresh_token
         )
 
-    def get_refresh_access_token(self, app_name, from_cache: bool = True) -> typing.Tuple[str | None, dict | None]:
+    def get_refresh_access_token(self, app_name, from_cache: bool = True) -> typing.Tuple[typing.Optional[str], typing.Optional[dict]]:
         ret = None
         if from_cache:
             ret = self.memcache_service.get_str(f"{self.cache_key_of_refresh_token}_{app_name}_refresh_token")
@@ -227,7 +227,7 @@ class GDriveService:
         else:
             return ret, None
 
-    def create_folder(self, app_name, folder_name: str) -> dict | None:
+    def create_folder(self, app_name, folder_name: str) -> typing.Optional[dict]:
         service = build('drive', 'v3', http=self.get_refresh_access_token(app_name))
         file_metadata = {
             'name': folder_name,
@@ -258,7 +258,7 @@ class GDriveService:
                 Message=repr(ex)
             )
 
-    def get_root_folder(self, app_name) -> typing.Tuple[str | None, dict | None]:
+    def get_root_folder(self, app_name) -> typing.Tuple[typing.Optional[str], typing.Optional[dict]]:
         ret = self.memcache_service.get_str(f"{self.cache_key_of_refresh_token}_{app_name}_root_folder")
         if not ret:
             qr = Repository.apps.app('admin').context.aggregate().match(
@@ -283,7 +283,7 @@ class GDriveService:
             return None, error
         return ret, None
 
-    # def sync_to_drive(self, app_name, upload_item) -> dict | None:
+    # def sync_to_drive(self, app_name, upload_item) -> typing.Optional[dict]:
     #     download_url, rel_path, download_file, token, share_id = self.local_api_service.get_download_path(upload_item,
     #                                                                                                       app_name)
     #
@@ -344,7 +344,7 @@ class GDriveService:
     #
     #     threading.Thread(target=running).start()
 
-    def get_access_token_from_access_token(self, app_name, nocache=False) -> typing.Tuple[str | None, dict | None]:
+    def get_access_token_from_access_token(self, app_name, nocache=False) -> typing.Tuple[typing.Optional[str], typing.Optional[dict]]:
         """
         get access token by using refresh token
         :param app_name:
@@ -370,7 +370,7 @@ class GDriveService:
         return access_token, None
 
     def get_access_token_from_refresh_token(self, app_name, from_cache: bool = True) -> typing.Tuple[
-        str | None, dict | None]:
+        typing.Optional[str], typing.Optional[dict]]:
         """
         get access token by using refresh token
         :param app_name:
@@ -444,7 +444,7 @@ class GDriveService:
         service = build(service_name, version, credentials=credentials)
         return service
 
-    def get_service_by_token(self, app_name, token) -> typing.Tuple[Resource | None, dict | None]:
+    def get_service_by_token(self, app_name, token) -> typing.Tuple[typing.Optional[Resource], typing.Optional[dict]]:
         client_id, client_secret, _, error = self.get_id_and_secret(app_name)
         if isinstance(error, dict):
             return None, error
@@ -457,7 +457,7 @@ class GDriveService:
         return ret, None
 
     def get_service_by_app_name(self, app_name, g_service_name="v3/drive", from_cache: bool = True) -> typing.Tuple[
-        Resource | None, dict | None]:
+        typing.Optional[Resource], typing.Optional[dict]]:
         """
 
         :param app_name:
@@ -535,7 +535,7 @@ class GDriveService:
                                 content_type:str,
                                 request: fastapi.requests.Request,
                                 nocache=False,
-                                download_only=False) -> typing.Union[dict, StreamingResponse] | None:
+                                download_only=False) ->typing.Optional[typing.Union[dict, StreamingResponse]]:
 
         # url = f"https://drive.google.com/file/d/{cloud_id}/view?usp=drivesdk"
         if not nocache and not download_only:
@@ -586,7 +586,7 @@ class GDriveService:
             status_code=response.status_code
         )
 
-    def get_settings(self, app_name,nocache=False) -> typing.Tuple[GoogleSettingsInfo | None, dict | None]:
+    def get_settings(self, app_name,nocache=False) -> typing.Tuple[typing.Optional[GoogleSettingsInfo], typing.Optional[dict]]:
         key = f"{type(self).__module__}/{type(self).__name__}/get_settings/{app_name}"
         if not nocache:
             ret = self.memcache_service.get_object(key, GoogleSettingsInfo)

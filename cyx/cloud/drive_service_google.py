@@ -44,7 +44,7 @@ class DriveServiceGoogle:
                     error=error.get("error")
                 return None,dict(Code=error.get("code"),Message=error.get("message"))
 
-    def remove_upload(self, app_name, file_id)->typing.Tuple[bool,dict|None]:
+    def remove_upload(self, app_name, file_id)->typing.Tuple[bool,typing.Union[dict,None]]:
         """
         Delete file in Google by file_id
         :param app_name:

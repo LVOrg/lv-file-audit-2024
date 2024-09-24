@@ -13,7 +13,7 @@ from ics import Calendar, Event
 import starlette.datastructures
 import email.encoders as encoders
 from datetime import datetime
-def create_message(sender, to, cc, subject, body, files:typing.List[UploadFile],calender:UploadFile|None):
+def create_message(sender, to, cc, subject, body, files:typing.List[UploadFile],calender:typing.Optional[UploadFile]):
     """
 
     :param sender:
@@ -85,7 +85,7 @@ def create_message(sender, to, cc, subject, body, files:typing.List[UploadFile],
     # return message, events
 
 
-def send_message(service, message,user_id="me")->typing.Tuple[dict|None,dict|None]:
+def send_message(service, message,user_id="me")->typing.Tuple[typing.Optional[dict],typing.Optional[dict]]:
     """
     Sends the email message using the Gmail API service. return dict if error
 

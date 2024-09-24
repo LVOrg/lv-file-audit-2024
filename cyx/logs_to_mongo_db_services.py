@@ -3,10 +3,14 @@ import sys
 
 from cyx.repository import Repository
 import functools
-
+if hasattr(functools,"lru_cache"):
+    def ft_cache(*args,**kwargs):
+        return functools.lru_cache()
+else:
+    from functools import cache as ft_cache
 import socket
 class LogsToMongoDbService:
-    @functools.cache
+    @ft_cache
     def get_pod_name(self):
         if sys.platform in ["win32","win64"]:
             import platform
@@ -18,7 +22,7 @@ class LogsToMongoDbService:
             full_pod_name = pod_name.lstrip('\n').rstrip('\n')
             return full_pod_name
 
-    @functools.cache
+    @ft_cache
     def get_host_ip(self):
         if sys.platform in ["win32","win64"]:
             import platform

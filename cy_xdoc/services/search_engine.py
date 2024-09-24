@@ -201,7 +201,7 @@ class SearchEngine:
                          page_index: typing.Optional[int],
                          highlight: typing.Optional[bool],
                          privileges: typing.Optional[dict],
-                         sort: typing.List[str]|None = None,
+                         sort: typing.Optional[typing.List[str]] = None,
                          logic_filter=None):
         """
         There are many ways to search in Elasticsearch \n
@@ -409,9 +409,9 @@ class SearchEngine:
 
     def make_index_content(self, app_name: str,
                            upload_id: str,
-                           data_item: dict|None,
+                           data_item: typing.Optional[dict],
                            privileges: dict,
-                           path_to_file_content: str = None,
+                           path_to_file_content: typing.Optional[str] = None,
                            content: str = None,
                            meta_info=None,
                            mark_delete=False,

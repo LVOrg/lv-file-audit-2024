@@ -44,7 +44,7 @@ class AzureUtilsServices:
         self.mem_cache_services = mem_cache_services
         self.cloud_cache_service = cloud_cache_service
 
-    def get_credential(self, app_name: str) -> typing.Tuple[ClientSecretCredential | None, dict | None]:
+    def get_credential(self, app_name: str) -> typing.Tuple[typing.Union[ClientSecretCredential, None], typing.Union[dict,None]]:
         azure_info, error = self.get_azure_info(app_name)
         if error:
             return None, error
@@ -84,7 +84,7 @@ class AzureUtilsServices:
             ret.expires_on = datetime.datetime.utcnow() + datetime.timedelta(seconds=int(ret.expires_in))
             return ret, None
 
-    def acquire_token(self, app_name, reset=False) -> typing.Tuple[AccquireTokenInfo | None, dict | None]:
+    def acquire_token(self, app_name, reset=False) -> typing.Tuple[typing.Union[AccquireTokenInfo,None], typing.Union[dict,None]]:
         """
         This method get access token of a certain app. For Azure before call any GraphAPI. please. call this method \n
         first for access token. Yeah! this method priority get from cache first if the return token from cache was on \n
@@ -114,7 +114,7 @@ class AzureUtilsServices:
             self.mem_cache_services.set_object(key, token_info)
             return token_info, None
 
-    def get_azure_info(self, app_name) -> typing.Tuple[AzureInfo | None, dict | None]:
+    def get_azure_info(self, app_name) -> typing.Tuple[typing.Union[AzureInfo,None], typing.Union[dict,None]]:
         """
         Get all info has been set up for app
         :param app_name:
@@ -147,7 +147,7 @@ class AzureUtilsServices:
             return ret, None
 
     def get_all_folders(self, app_name, parent_id: str = "root", parent_path: str = None) -> typing.Tuple[
-        AccquireTokenInfo | None, dict | None, dict | None]:
+        typing.Union[AccquireTokenInfo,None], typing.Union[dict,None], typing.Union[dict,None]]:
 
         token, error = self.acquire_token(app_name)
 
@@ -185,7 +185,7 @@ class AzureUtilsServices:
 
             return res["value"], tree_hash, None
 
-    def get_driver_id(self, app_name) -> typing.Tuple[str | None, dict | None]:
+    def get_driver_id(self, app_name) -> typing.Tuple[typing.Union[str,None], typing.Union[dict,None]]:
         key = f"{self.cache_key}/{app_name}/driver_id"
         ret = self.mem_cache_services.get_str(key)
         if isinstance(ret, str):

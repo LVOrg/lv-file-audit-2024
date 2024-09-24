@@ -442,7 +442,7 @@ class FileUtilService(BaseUtilService):
             )
 
 
-    def get_upload(self, app_name, upload_id, cache: bool = True) -> typing.Dict[str, typing.Any] | None:
+    def get_upload(self, app_name, upload_id, cache: bool = True) -> typing.Union[typing.Dict[str, typing.Any],None]:
         """
         Get upload with cache if cache do not contains data with app and upload_id. The method will get from Mongodb if found item cache will be update to cache
         The first get data from cache if cache is True, get directly from db instead
@@ -693,7 +693,7 @@ class FileUtilService(BaseUtilService):
         self.memcache_service.remove(f"get_upload/{app_name}/{upload_id}")
 
 
-    async def get_upload_async(self, app_name, upload_id, from_cache=True) -> typing.Dict[str, typing.Any]|None:
+    async def get_upload_async(self, app_name, upload_id, from_cache=True) -> typing.Union[typing.Dict[str, typing.Any],None]:
         if from_cache:
             ret = self.memcache_service.get_dict(f"get_upload/{app_name}/{upload_id}")
             if isinstance(ret, dict):
@@ -725,7 +725,7 @@ class FileUtilService(BaseUtilService):
                                             app_name: str,
                                             upload_id: str,
                                             chunk_index: int,
-                                            content_part) -> typing.Dict[str, typing.Any] | None:
+                                            content_part) -> typing.Union[typing.Dict[str, typing.Any],None]:
         upload_item = self.get_upload(
             app_name=app_name,
             upload_id=upload_id
@@ -774,7 +774,7 @@ class FileUtilService(BaseUtilService):
 
 
     def generate_main_file_id(self, app_name: str, upload: typing.Dict[str, typing.Any], storage_type: str,
-                              version: int | None) -> str:
+                              version: typing.Union[int,None]) -> str:
         """
         This method generate a info of file location
         1- For local: the path start with local://
@@ -804,7 +804,7 @@ class FileUtilService(BaseUtilService):
             return f'{storage_type}://{app_name}/{registered_on_str}/{ext_file}/{upload.get("_id")}/{file_name}-version-{version}'
 
 
-    def generate_main_file_path(self, app_name: str, upload: typing.Dict[str, typing.Any], version: int | None) -> str:
+    def generate_main_file_path(self, app_name: str, upload: typing.Dict[str, typing.Any], version: typing.Union[int,None]) -> str:
         # file_name:str = upload.get(Repository.files.fields.FileName.__name__)
         file_name = "data"
         if upload.get(Repository.files.fields.FileExt.__name__):

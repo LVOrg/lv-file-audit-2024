@@ -10,8 +10,17 @@
       <excludeFolder url="file://$MODULE_DIR$/web-api-312" />
       <excludeFolder url="file://$MODULE_DIR$/web-api-313" />
       <excludeFolder url="file://$MODULE_DIR$/venv-remote-office" />
+      <excludeFolder url="file://$MODULE_DIR$/a-working" />
+      <excludeFolder url="file://$MODULE_DIR$/py-torch" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-ocr" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-ocr-310" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-ocr-311" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-ocr-37" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-ocr-38" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-ocr-39" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-ocr-py-37" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 (py-files-sv)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.7 (py-files-sv)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

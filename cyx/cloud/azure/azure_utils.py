@@ -7,7 +7,7 @@ def call_ms_func(method: str,
                  api_url: str,
                  token: str,
                  body,
-                 request_content_type: typing.Optional[str]=None)->typing.Tuple[dict|None,dict|None]:
+                 request_content_type: typing.Optional[str]=None)->typing.Tuple[typing.Union[dict,None],typing.Union[dict,None]]:
     """
     The bullshit function use for Whore-Microsoft-online calling.
     Official Exception is cy_azure.fwcking_ms.caller.ApiCallException

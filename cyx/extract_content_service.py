@@ -25,7 +25,7 @@ class ExtractContentService:
     process_manager_service = cy_kit.singleton(ProcessManagerService)
     malloc_service = cy_kit.singleton(MallocService)
     process_services_host = config.process_services_host or "http://localhost"
-    def save_search_engine(self, data,app_name)->str|None:
+    def save_search_engine(self, data,app_name)->typing.Union[str ,None]:
         if config.elastic_search == False:
             return
         try:
@@ -121,7 +121,7 @@ class ExtractContentService:
             print(f"Failed to connect to remote OCR service: {e}")
             return False
 
-    def get_content_from_pdf_ocr(self, tika_server, url_content)->typing.Tuple[str|None,typing.Union[dict,str]|None]:
+    def get_content_from_pdf_ocr(self, tika_server, url_content)->typing.Tuple[typing.Union[str ,None],typing.Union[typing.Union[dict,str] ,None]]:
         data = {
             "tika_server": tika_server,
             "remote_file": url_content

@@ -51,7 +51,10 @@ class CloudServiceUtils:
 
         )
 
-    def get_cloud_name_of_upload(self, upload_item=None, app_name: str=None, upload_id=None) -> typing.Tuple[str | None, dict | None]:
+    def get_cloud_name_of_upload(self,
+                                 upload_item=None,
+                                 app_name: typing.Optional[str]=None,
+                                 upload_id=None) -> typing.Tuple[typing.Union[str ,None], typing.Union[dict ,None]]:
         """
         Detect location of  resource is 'Google' ,"Azure' or 'AWS'
         :param app_name:

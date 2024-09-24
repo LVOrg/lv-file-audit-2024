@@ -1,10 +1,12 @@
+import typing
+
 import pika
 import pika.adapters.blocking_connection
 from cyx.common import config
 import json
 class MesssageBlock:
-    data: dict|None
-    app_name:str|None
+    data: typing.Optional[dict]
+    app_name:typing.Optional[str]
     method: None
     properties:None
     body: None
@@ -26,7 +28,7 @@ class Consumer:
             if delete_after_get:
                 self.channel.basic_ack(delivery_tag=method.delivery_tag, multiple=True)
         return method,properties,body
-    def delete_msg(self,msg:MesssageBlock|None):
+    def delete_msg(self,msg:typing.Optional[MesssageBlock]):
         import pika.exceptions
         if msg is None:
             return
@@ -60,7 +62,7 @@ class Consumer:
         # channel.queue_declare(queue=queue_name, auto_delete=auto_ack)
         self.channel.queue_declare(queue=self.queue_name, auto_delete=False)
 
-    def get_msg(self,delete_after_get=True)->MesssageBlock|None:
+    def get_msg(self,delete_after_get=True)->typing.Optional[MesssageBlock]:
         def run_get_msg():
             ret = MesssageBlock()
             method, properties, body = self.basic_get(delete_after_get)
@@ -79,7 +81,7 @@ class Consumer:
             self.do_init()
             return run_get_msg()
 
-    def raise_message(self, app_name:str,data,msg_type:str|None=None):
+    def raise_message(self, app_name:str,data,msg_type:typing.Optional[str]=None):
         #self.__channel__.basic_publish(exchange='', routing_key=self.get_real_msg(message_type), body=msg, )
         try:
             if msg_type is None:

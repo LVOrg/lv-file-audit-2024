@@ -5,8 +5,14 @@ import os
 
 from memcache import Client
 import hashlib
-
-__client__: Client | None = None
+import functools
+if hasattr(functools,"lru_cache"):
+    def ft_cache(*args,**kwargs):
+        return functools.lru_cache()
+else:
+    from functools import  cache as fr_cache
+import typing
+__client__:  typing.Union[Client,None] = None
 __url__ = None
 
 __cache_data__ = {}
@@ -59,7 +65,7 @@ def write_to_cache(key: str, data: dict):
         # raise Exception(f"Can not cache data to {__url__}")
 
 
-@functools.cache
+@ft_cache
 def get_key(key: str):
     return hash_key_sha256(key)
 

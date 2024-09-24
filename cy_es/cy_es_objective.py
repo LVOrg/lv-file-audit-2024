@@ -600,7 +600,7 @@ class ESDocumentObjectInfo:
 import requests
 
 
-def is_closed(client: Elasticsearch, index: str) -> bool | None:
+def is_closed(client: Elasticsearch, index: str) -> typing.Optional[bool]:
     url_check = f"{client.transport.get_connection().host}/_cluster/state/metadata"
     response = requests.get(url_check)
     response.raise_for_status()

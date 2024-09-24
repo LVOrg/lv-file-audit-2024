@@ -1,0 +1,6 @@
+git+https://github.com/PaddlePaddle/PaddleOCR.git
+pika
+python-memcached==1.59
+tika
+PyMuPDF
+vietocr

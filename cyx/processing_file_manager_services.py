@@ -1,6 +1,7 @@
 import datetime
 
 import traceback
+import typing
 
 from cyx.repository import Repository
 
@@ -9,7 +10,7 @@ class ProcessManagerService:
     def __init__(self):
         pass
 
-    def submit(self, data:dict[str,any], app_name:str, action_type:str):
+    def submit(self, data:typing.Dict[str,any], app_name:str, action_type:str):
         if data.get(Repository.files.fields.ProcessInfo.__name__) is None:
             Repository.files.app(app_name).context.update(
                 Repository.files.fields.id == data.get("_id"),
