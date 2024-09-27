@@ -25,12 +25,12 @@ spec:
             path: {{ .Values.nfs_path }}
       containers:
         - name: lv-ocr-es
-          image: {{ .Values.image }}
+          image: {{ .Values.consumer_image }}
           command: ["python3"]
           args:
             - /app/cy_jobs/jobs/task_msg_es_update_ocr.py
-            - app_name=all
-            - msg_ocr={{ .Values.msg_ocr }}
+            - app_name={{ .Values.app_name }}
+            - msg_process={{ .Values.msg_ocr }}
             - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile
             - remote_office=http://lv-office-service.{{ .Values.ns }}:80
             - remote_pdf=http://lv-pdf-service.{{ .Values.ns }}:80

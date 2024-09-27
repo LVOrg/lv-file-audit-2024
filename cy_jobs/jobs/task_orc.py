@@ -24,7 +24,7 @@ def run():
     ic("run")
     consumer = Consumer(cyx.common.msg.MSG_FILE_OCR_CONTENT_FROM_PDF)
     while True:
-        msg = consumer.get_msg(delete_after_get=False)
+        msg = consumer.get_msg(delete_after_get=True)
         if msg is None:
             continue
         try:

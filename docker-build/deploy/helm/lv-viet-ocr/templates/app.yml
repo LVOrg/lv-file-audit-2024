@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lv-viet-ocr
+  namespace: {{ .Values.ns }}
+spec:
+
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lv-viet-ocr
+  template:
+    metadata:
+      labels:
+        app: lv-viet-ocr
+    spec:
+#      initContainers:
+#        - name: wait-for-code-container
+#          image: busybox:latest  # Lightweight image for waiting
+#          command: [ "sh", "-c", "until [[ -f /app/cy_jobs/jobs/task_msg_producer_ocr.py || -d /app/cy_jobs/jobs ]]; do echo 'Waiting for code-container...'; sleep 5; done" ]
+#          volumeMounts:
+#            - name: shared-volume
+#              mountPath: /app
+      containers:
+#      - name: code-container
+#        image: {{ .Values.image }}   # Replace with your code container image
+#        volumeMounts:
+#          - name: shared-volume
+#            mountPath: /app
+      - name: lv-viet-ocr-core
+        image: {{ .Values.image_ocr }}  # Replace with your desired Python image
+        command: ["python3"]  # Adjust if your Python interpreter is different
+        args:
+          - /app/cy_jobs/jobs/task_viet_ocr.py
+          - app_name={{ .Values.app_name }}
+          - msg_ocr={{ .Values.msg_ocr }}
+          - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile
+          - remote_office=http://lv-office-service.{{ .Values.ns }}:80
+          - remote_pdf=http://lv-pdf-service.{{ .Values.namespace }}:80
+          - remote_video=http://lv-video-service.{{ .Values.ns }}:80
+          - tika_server=http://tika-service.{{ .Values.ns }}:80
+          - cache_server=lv-file-cache-service.{{ .Values.ns }}:11211
+          - content_service=http://content-service.{{ .Values.ns }}:80
+          - remote_ocr=http://lv-ocr-service.{{ .Values.ns }}:80
+          - debug=false
+          - generation=
+          - process_services_host=http://localhost
+          - bind=0.0.0.0:80
+          - content_segment_len=9
+          - elastic_search.server=$(elastic_search.server)
+          - elastic_search.prefix_index=$(elastic_search.prefix_index)
+          - db=$(db)
+          - admin_db_name=$(admin_db_name)
+          - rabbitmq.server=$(rabbitmq.server)
+          - rabbitmq.port=$(rabbitmq.port)
+          - rabbitmq.msg=$(rabbitmq.msg)
+          - rabbitmq.username=$(rabbitmq.username)
+          - rabbitmq.password=$(rabbitmq.password)
+          - server_type=Uvicorn
+          - worker_class=httptools
+          - timeout_keep_alive=$(timeout_keep_alive)
+          - timeout_graceful_shutdown=$(timeout_graceful_shutdown)
+          - h2_max_concurrent_streams=$(h2_max_concurrent_streams)
+          - vn_suggest_url=$(vn_suggest_url)
+          - file_storage_path=/mnt/files
+          - process_services_host=http://localhost
+          - distribute_lock_server=distribute-lock-service.{{ .Values.namespace }}:2181
+          - use_ssl=$(use_ssl)
+        envFrom:
+          - configMapRef:
+              name: lv-file-config
+        volumeMounts:
+#        - name: shared-volume
+#          mountPath: /app
+        - name: storage-files
+          mountPath: /mnt/files
+
+      volumes:
+#      - name: shared-volume
+#        emptyDir: {}
+      - name: tmp-files
+        emptyDir: { }
+      - name: socat-share
+        emptyDir: { }
+      - name: storage-files
+        nfs:
+          server: {{ .Values.nfs_server  }}
+          path:  {{ .Values.nfs_path  }}
+      imagePullSecrets:
+        - name: harbor-secret-registry

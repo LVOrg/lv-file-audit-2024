@@ -4,6 +4,8 @@ This will call nttlong/ocr-my-pdf-api:12
 import os.path
 import pathlib
 import sys
+from distutils.command.upload import upload
+
 from icecream import ic
 import PyPDF2
 import hashlib
@@ -27,6 +29,7 @@ from cyx.rabbit_utils import Consumer
 import PIL
 import PyPDF2.errors
 import typing
+import unicodedata
 def ___extract_pdf_text__(input_pdf_path):
     """Extracts text from a PDF file and returns it as a string.
 
@@ -272,7 +275,7 @@ class OCRFilesService(ExtractTextFileService):
         ).match(
             (Repository.files.fields.HasORCContent==None)|(Repository.files.fields.HasORCContent==False)
         ).match(
-            Repository.files.fields.MsgOCRReRaise!=msg
+            (Repository.files.fields.MsgOCRReRaise==None)|(Repository.files.fields.MsgOCRReRaise!=msg)
 
         ).sort(
             Repository.files.fields.RegisterOn.desc()
@@ -292,19 +295,53 @@ class OCRFilesService(ExtractTextFileService):
             Repository.files.fields.id==upload_id,
             Repository.files.fields.MsgOCRReRaise<<msg
         )
+
+    def clear__accents(self, content):
+        """Removes accents from Vietnamese text.
+
+            Args:
+                content (str): The Vietnamese text to process.
+
+            Returns:
+                str: The text without accents.
+            """
+
+        normalized_form = unicodedata.normalize('NFKC', content)
+        decomposed_form = unicodedata.normalize('NFKD', normalized_form)
+        return ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
+    def save_content_elastic_search(self, app_name: str,upload_id:str,data_item,content:str):
+        es =self.client
+        document_id = upload_id
+        app_index = self.search_engine.get_index(app_name)
+        if isinstance(content, str) and len(content) > 0:
+
+            try:
+                existing_document = es.get(index=app_index, id=document_id)
+                existing_document["_source"]["content"] = content
+                existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
+                es.update(index=app_index, id=document_id, body={"doc": existing_document["_source"]},doc_type="_doc")
+                ic("Document updated successfully.")
+            except Exception as e:
+                if e.args[0] == 404:  # Document not found
+                    new_document = {
+                        "content": content
+                    }
+                    es.index(index=app_index, body=new_document,id=upload_id,doc_type="_doc")
+                    ic("New document created successfully.")
     def set_pre_post(self,fn):
         self.__pre_post__ = fn
     def consumer_ocr_content(self, msg):
         if not self.__producer__:
+            ic(f"new {msg}")
             self.__producer__ = Consumer(msg)
-        rb_msg = self.__producer__.get_msg(delete_after_get=False)
+        rb_msg = self.__producer__.get_msg(delete_after_get=True)
         if not rb_msg:
             time.sleep(1)
             return
         data = rb_msg.data
         main_file_id:str = data.get(Repository.files.fields.MainFileId.__name__) or ""
         if main_file_id=="" or "://" not in main_file_id:
-            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__producer__.delete_msg(rb_msg)
             self.update_upload_ocr_content(
                 app_name = rb_msg.app_name,
                 upload_id = data.get("_id"),
@@ -314,7 +351,7 @@ class OCRFilesService(ExtractTextFileService):
         rel_encrypted_file_path = main_file_id.split("://")[1]
         encrypted_file_path = os.path.join(config.file_storage_path.replace('/',os.sep),rel_encrypted_file_path)
         if not os.path.isfile(encrypted_file_path):
-            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__producer__.delete_msg(rb_msg)
             self.update_upload_ocr_content(
                 app_name=rb_msg.app_name,
                 upload_id=data.get("_id"),
@@ -324,13 +361,37 @@ class OCRFilesService(ExtractTextFileService):
         decrypted_file_path = self.decrypt_file(encrypted_file_path)
         if self.__pre_post__ and callable(self.__pre_post__):
             content_file_path = self.__pre_post__(decrypted_file_path)
-            data["content-file"] = content_file_path
-            self.__producer__.raise_message(
-                app_name=rb_msg.app_name,
-                data=data,
-                msg_type=f"{msg}_es_update"
+            # data["content-file"] = content_file_path
+            upload = Repository.files.app(rb_msg.app_name).context.find_one(
+                Repository.files.fields.id== data.get("_id")
             )
-            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            if upload is None:
+                self.__producer__.delete_msg(rb_msg)
+                self.update_upload_office_content(app_name=rb_msg.app_name, upload_id=data.get("_id"), msg=msg)
+                return
+            content = self.get_text_content_from_file(content_file_path)
+            self.save_content_elastic_search(
+                app_name = rb_msg.app_name,
+                upload_id = data.get("_id"),
+                data_item = None,
+                content=content
+
+            )
+            # self.do_update_es(
+            #     client=self.client,
+            #     app_name=rb_msg.app_name,
+            #     upload_id=data.get("_id"),
+            #     data_item=upload,
+            #     content=content
+            # )
+            # self.__producer__.raise_message(
+            #     app_name=rb_msg.app_name,
+            #     data=data,
+            #     msg_type=f"{msg}_es_update"
+            # )
+            ic(f"{content_file_path} has update to {rb_msg.app_name} and id={data.get('_id')}")
+            self.__producer__.delete_msg(rb_msg)
+
             self.update_upload_office_content(app_name=rb_msg.app_name, upload_id=data.get("_id"), msg=msg)
             return
         try:
@@ -355,7 +416,7 @@ class OCRFilesService(ExtractTextFileService):
                 data=data,
                 msg_type=f"{msg}_es_update"
             )
-            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__producer__.delete_msg(rb_msg)
             self.update_upload_office_content(app_name=rb_msg.app_name, upload_id=data.get("_id"), msg=msg)
         except :
             pdf_a_file_path = __do_make_pdf_a_file___(decrypted_file_path)
@@ -376,8 +437,13 @@ class OCRFilesService(ExtractTextFileService):
                 data=data,
                 msg_type=f"{msg}_es_update"
             )
-            self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__producer__.delete_msg(rb_msg)
             self.update_upload_office_content(app_name=rb_msg.app_name, upload_id=data.get("_id"), msg=msg)
+
+    def get_text_content_from_file(self, content_file_path):
+
+        with open(content_file_path,"rb") as fs:
+            return fs.read().decode()
 
 
 def main():

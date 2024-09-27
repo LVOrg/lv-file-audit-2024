@@ -3,4 +3,5 @@
 # Declare variables to be passed into your templates.
 
 image: docker.lacviet.vn/xdoc/lib-ocr-all:40
-msg_ocr: v-001
+consumer_image: docker.lacviet.vn/xdoc/composite-ocr:2.1.16
+msg_ocr: lv0oct-001

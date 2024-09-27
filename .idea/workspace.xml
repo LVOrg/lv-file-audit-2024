@@ -4,16 +4,39 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Create power lib OCR by using Paddle and VietOCR">
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="fxi OCR pdf some type errors">
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_viet_ocr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/config/base.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/config/resnet-transformer.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/config/resnet_fpn_transformer.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/config/vgg-convseq2seq.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/config/vgg-seq2seq.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/config/vgg-transformer.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/py-files-sv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/py-files-sv.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_file_cryptor/context.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_file_cryptor/context.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_consumer_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_orc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_text_from_office.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_text_from_office.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/google_drive_utils/directories.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/google_drive_utils/directories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/local_api_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_api_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/fix_miss_thumbs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/rabbit_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/rabbit_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/consumer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/consumer.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/producer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/producer.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/update-es.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/templates/update-es.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/ocr-advance.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/ocr-advance.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/requirements/paddle-ocr.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/requirements/paddle-ocr.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,46 +80,46 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.che_write_file_with_encrypt.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_caching.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_es.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_id.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_list.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.check_unicod.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.checkfile.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.clear_logs.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.contents.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.load_check.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.ocr_files_services.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.ocr_services.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.pdf_api.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.pdf_services.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.server (1).executor&quot;: &quot;Debug&quot;,
-    &quot;Python.server.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_content.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_google_file_sync.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_images_from_office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_images_from_pdf.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_msg_consumer_ocr.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_msg_es_update_ocr.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_msg_producer_ocr.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_msg_producer_office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_orc.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_text_from_office.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_vietlot_meta.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.task_vietlott_ocr_all.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.text_files_servcices.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.tmp_files_servcices.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/root/python-2024/lv-file-fix-2024/py-files-sv/docker-build/deploy/helm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.che_write_file_with_encrypt.executor": "Debug",
+    "Python.check.executor": "Debug",
+    "Python.check_caching.executor": "Debug",
+    "Python.check_es.executor": "Debug",
+    "Python.check_id.executor": "Debug",
+    "Python.check_list.executor": "Debug",
+    "Python.check_unicod.executor": "Debug",
+    "Python.checkfile.executor": "Debug",
+    "Python.clear_logs.executor": "Debug",
+    "Python.contents.executor": "Debug",
+    "Python.load_check.executor": "Debug",
+    "Python.ocr_files_services.executor": "Debug",
+    "Python.ocr_services.executor": "Debug",
+    "Python.office.executor": "Debug",
+    "Python.pdf_api.executor": "Debug",
+    "Python.pdf_services.executor": "Debug",
+    "Python.server (1).executor": "Debug",
+    "Python.server.executor": "Debug",
+    "Python.task_content.executor": "Debug",
+    "Python.task_google_file_sync.executor": "Debug",
+    "Python.task_images_from_office.executor": "Debug",
+    "Python.task_images_from_pdf.executor": "Debug",
+    "Python.task_msg_consumer_ocr.executor": "Debug",
+    "Python.task_msg_es_update_ocr.executor": "Debug",
+    "Python.task_msg_producer_ocr.executor": "Debug",
+    "Python.task_msg_producer_office.executor": "Debug",
+    "Python.task_orc.executor": "Debug",
+    "Python.task_text_from_office.executor": "Debug",
+    "Python.task_vietlot_meta.executor": "Debug",
+    "Python.task_vietlott_ocr_all.executor": "Debug",
+    "Python.text_files_servcices.executor": "Debug",
+    "Python.tmp_files_servcices.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/cy_lib_ocr",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="py-files-sv" is-module-sdk="true">
@@ -107,6 +130,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cy_lib_ocr" />
       <recent name="$PROJECT_DIR$/docker-build/deploy/helm" />
       <recent name="$PROJECT_DIR$/cy_jobs/jobs" />
       <recent name="$PROJECT_DIR$" />
@@ -120,7 +144,7 @@
       <recent name="$PROJECT_DIR$/cyx" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.ocr_services">
+  <component name="RunManager" selected="Python.server (1)">
     <configuration name="check_es" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -299,7 +323,8 @@
     <MESSAGE value="fix search Khác biệt giữa Unicode tổ hợp và Unicode dựng sẵn (&quot;đ&quot;,chr(240)),(&quot;Đ&quot;,chr(208))" />
     <MESSAGE value="Bổ sung tính năng tự động thay đổi tên file khi trùng&#10;Khi trùng tên file tự động thay đổi tên file theo định dạng &lt;ten file gốc&gt;(&lt;số tăng tự động&gt;).&lt;Phần mở rộng file&gt;" />
     <MESSAGE value="Create power lib OCR by using Paddle and VietOCR" />
-    <option name="LAST_COMMIT_MESSAGE" value="Create power lib OCR by using Paddle and VietOCR" />
+    <MESSAGE value="fxi OCR pdf some type errors" />
+    <option name="LAST_COMMIT_MESSAGE" value="fxi OCR pdf some type errors" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -496,7 +521,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>896</line>
+          <line>898</line>
           <option name="timeStamp" value="410" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -571,17 +596,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_libs/ocr_files_services.py</url>
-          <line>399</line>
+          <line>465</line>
           <option name="timeStamp" value="627" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_libs/ocr_files_services.py</url>
-          <line>210</line>
+          <line>213</line>
           <option name="timeStamp" value="642" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_libs/ocr_files_services.py</url>
-          <line>215</line>
+          <line>218</line>
           <option name="timeStamp" value="643" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -593,6 +618,16 @@
           <url>file://$PROJECT_DIR$/venv-ocr-311/lib/python3.11/site-packages/torch/hub.py</url>
           <line>593</line>
           <option name="timeStamp" value="667" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_lib_ocr/ocr_services.py</url>
+          <line>187</line>
+          <option name="timeStamp" value="676" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
+          <line>837</line>
+          <option name="timeStamp" value="677" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

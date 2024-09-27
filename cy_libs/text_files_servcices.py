@@ -33,6 +33,7 @@ from cyx.logs_to_mongo_db_services import LogsToMongoDbService
 from retry import retry
 import requests.exceptions
 import typing
+import unicodedata
 class ExtractTextFileService:
     """
     This class is used to manage temp directories and file for background processing
@@ -233,6 +234,38 @@ class ExtractTextFileService:
                     content=content
 
                 )
+    def clear__accents(self, content):
+        """Removes accents from Vietnamese text.
+
+            Args:
+                content (str): The Vietnamese text to process.
+
+            Returns:
+                str: The text without accents.
+            """
+
+        normalized_form = unicodedata.normalize('NFKC', content)
+        decomposed_form = unicodedata.normalize('NFKD', normalized_form)
+        return ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
+    def save_content_elastic_search(self, app_name: str,upload_id:str,data_item,content:str):
+        es =self.client
+        document_id = upload_id
+        app_index = self.search_engine.get_index(app_name)
+        if isinstance(content, str) and len(content) > 0:
+
+            try:
+                existing_document = es.get(index=app_index, id=document_id)
+                existing_document["_source"]["content"] = content
+                existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
+                es.update(index=app_index, id=document_id, body={"doc": existing_document["_source"]},doc_type="_doc")
+                ic("Document updated successfully.")
+            except Exception as e:
+                if e.args[0] == 404:  # Document not found
+                    new_document = {
+                        "content": content
+                    }
+                    es.index(index=app_index, body=new_document,id=upload_id,doc_type="_doc")
+                    ic("New document created successfully.")
     def consumer_save_es(self, msg):
         if self.__consumer_es  is None:
             self.__consumer_es =  Consumer(f"{msg}_es_update")
@@ -243,7 +276,7 @@ class ExtractTextFileService:
         app_name = rb_msg.app_name
         upload_id = rb_msg.data.get("_id")
         if not os.path.isfile(content_file):
-            self.__consumer_es.channel.basic_ack(rb_msg.method.delivery_tag)
+            self.__consumer_es.delete_msg(rb_msg)
             self.update_upload_office_content(
                 app_name= app_name,
                 upload_id = upload_id,
@@ -267,19 +300,25 @@ class ExtractTextFileService:
                 content = content.replace('  ',' ')
             ic(content[0:20])
             try:
-                self.do_update_es(
-                    client=self.client,
-                    app_name = app_name,
-                    upload_id = upload_id,
-                    data_item = upload,
-                    content = content
-                )
-                self.__consumer_es.delete_msg(rb_msg)
-                self.update_upload_office_content(
+                self.save_content_elastic_search(
                     app_name=app_name,
-                    upload_id=upload_id,
-                    msg=msg
+                    upload_id = upload_id,
+                    data_item=None,
+                    content=content
                 )
+                # self.do_update_es(
+                #     client=self.client,
+                #     app_name = app_name,
+                #     upload_id = upload_id,
+                #     data_item = upload,
+                #     content = content
+                # )
+                # self.__consumer_es.delete_msg(rb_msg)
+                # self.update_upload_office_content(
+                #     app_name=app_name,
+                #     upload_id=upload_id,
+                #     msg=msg
+                # )
             except elasticsearch.exceptions.RequestError:
                 self.__consumer_es.delete_msg(rb_msg)
 

@@ -12,7 +12,7 @@ import hashlib
 from icecream import ic
 import io
 from PyPDF2 import PdfReader
-
+import PyPDF2.errors
 import PIL.Image
 class PDF_Service:
 
@@ -27,7 +27,7 @@ class PDF_Service:
         not_found_any_image = True
         try:
             with open(infile_name, 'rb') as in_f:
-                in_pdf = PdfReader(in_f)
+                in_pdf = PdfReader(in_f,strict=True)
                 ic(f"{len(in_pdf.pages)} page found in {infile_name}")
 
                 for page_no in range(len(in_pdf.pages)):
@@ -45,6 +45,19 @@ class PDF_Service:
         except NotImplementedError:
             for x in self.get_pixmaps_in_pdf(infile_name):
                 yield x
+        except PyPDF2.errors.PdfReadError:
+            for x in self.get_pixmaps_in_pdf(infile_name):
+                yield x
+        except OSError:
+            for x in self.get_pixmaps_in_pdf(infile_name):
+                yield x
+        except ValueError:
+            for x in self.get_pixmaps_in_pdf(infile_name):
+                yield x
+        except UnboundLocalError:
+            for x in self.get_pixmaps_in_pdf(infile_name):
+                yield x
+
 
 
     def get_pixmaps_in_pdf(self,pdf_filename):

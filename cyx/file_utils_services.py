@@ -854,6 +854,8 @@ class FileUtilService(BaseUtilService):
         os.makedirs(dest_dir, exist_ok=True)
         for file_name in os.listdir(source_dir):
             source_file_path = os.path.join(source_dir, file_name)
+            if not os.path.isfile(source_file_path):
+                continue
             dest_file_path = os.path.join(dest_dir, file_name)
 
             # Copy the file, preserving metadata

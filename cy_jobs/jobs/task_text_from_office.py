@@ -83,7 +83,7 @@ def run():
         time.sleep(1)
         try:
             gc.collect()
-            msg = consumer.get_msg(delete_after_get=False)
+            msg = consumer.get_msg(delete_after_get=True)
             if isinstance(msg, MesssageBlock):
                 if msg.data == {}:
                     consumer.channel.basic_ack(

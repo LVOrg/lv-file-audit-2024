@@ -8,7 +8,7 @@ sys.path.append(pathlib.Path(__file__).parent.parent.parent.__str__())
 sys.path.append("/app")
 from cyx.common import config
 __app_name = config.get("app_name") or "all"
-msg = config.get("msg_process") or "ocr-v001"
+msg = config.get("msg_process") or "ocr-v002"
 import cy_kit
 from cy_libs.ocr_files_services import OCRFilesService
 

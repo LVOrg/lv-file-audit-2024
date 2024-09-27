@@ -18,9 +18,11 @@ class Consumer:
 
     def __init__(self, msg_type):
         self.queue_name = f'{config.rabbitmq.msg}.{msg_type}'
+        self.delete_after_get = True
         self.do_init()
 
     def basic_get(self,delete_after_get=True):
+        self.delete_after_get = delete_after_get
         if self.connection.is_closed:
             self.do_init()
         method, properties, body = self.channel.basic_get(queue=self.queue_name , auto_ack=False)
@@ -29,12 +31,17 @@ class Consumer:
                 self.channel.basic_ack(delivery_tag=method.delivery_tag, multiple=True)
         return method,properties,body
     def delete_msg(self,msg:typing.Optional[MesssageBlock]):
+        if self.delete_after_get:
+            return
         import pika.exceptions
         if msg is None:
             return
         try:
             self.channel.basic_ack(msg.method.delivery_tag)
         except pika.exceptions.ChannelClosed:
+            self.do_init()
+            self.channel.basic_ack(msg.method.delivery_tag)
+        except pika.exceptions.StreamLostError:
             self.do_init()
             self.channel.basic_ack(msg.method.delivery_tag)
     def do_init(self):

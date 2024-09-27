@@ -9,7 +9,7 @@ sys.path.append(working_dir)
 sys.path.append("/app")
 import cy_kit
 from cyx.common import config
-msg =config.get("msg_process") or "ocr-v001"
+msg =config.get("msg_process") or "ocr-v002"
 if not config.get("msg_process"):
     ic("warning: msg_process was not found on startup")
 from cy_libs.ocr_files_services import OCRFilesService
@@ -33,3 +33,4 @@ if __name__ == "__main__":
     main()
 #docker run -it --entrypoint=/bin/bash -v /mnt/files:/mnt/files -v $(pwd):/app  docker.lacviet.vn/xdoc/lib-ocr-all:37
 #python3 cy_jobs/jobs/task_msg_consumer_ocr.py
+#docker run -it -v /mnt/files:/mnt/file -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app docker.lacviet.vn/xdoc/composite-ocr:2.1.12 /bin/bash

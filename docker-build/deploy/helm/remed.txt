@@ -8,3 +8,8 @@ path: /share-data/xdoc/files
           server: 10.96.25.76
 viet lott
 helm upgrade --install lv-office xdoc/lv-office --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc
+helm upgrade --install lv-viet-ocr xdoc/lv-viet-ocr --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files
+helm upgrade --install lv-office xdoc/lv-office --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc
+helm upgrade --install lv-viet-ocr xdoc/lv-viet-ocr --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,msg_ocr=ocr-27-09-2024
+
+helm upgrade --install lv-ocr xdoc/lv-ocr --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,msg_ocr=ocr-27-09-2024

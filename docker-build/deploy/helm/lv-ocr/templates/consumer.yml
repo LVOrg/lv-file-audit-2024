@@ -25,12 +25,12 @@ spec:
             path: {{ .Values.nfs_path }}
       containers:
         - name: lv-ocr-consumer
-          image: {{ .Values.image }}
+          image: {{ .Values.consumer_image }}
           command: ["python3"]
           args:
             - /app/cy_jobs/jobs/task_msg_consumer_ocr.py
-            - app_name=all
-            - msg_ocr={{ .Values.msg_ocr }}
+            - app_name={{.Values.app_name}}
+            - msg_process={{ .Values.msg_ocr }}
             - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile
             - remote_office=http://lv-office-service.{{ .Values.ns }}:80
             - remote_pdf=http://lv-pdf-service.{{ .Values.ns }}:80
@@ -66,10 +66,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: lv-file-config
-          resources:
-            limits:
-              cpu: "1"  # Limit CPU to 1 core
-              memory: "500Mi"  # Limit RAM to 500 Megabytes
+#          resources:
+#            limits:
+#              cpu: "1"  # Limit CPU to 1 core
+#              memory: "500Mi"  # Limit RAM to 500 Megabytes
           volumeMounts:
             - name: storage-files
               mountPath: /mnt/files

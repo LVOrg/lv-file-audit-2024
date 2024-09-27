@@ -37,7 +37,6 @@ setup(
 		r'cyx/content_services.py',
 		r'cyx/lv_ocr_services.py',
 		r'cyx/images.py',
-		r'cyx/fix_miss_thumbs.py',
 		r'cyx/utils.py',
 		r'cyx/fix_es.py',
 		r'cyx/thumbs_services.py',
