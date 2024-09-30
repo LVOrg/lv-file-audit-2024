@@ -26,7 +26,7 @@ def main():
         except:
             raise
         finally:
-            time.sleep(0.7)
+            time.sleep(5)
 
 
 

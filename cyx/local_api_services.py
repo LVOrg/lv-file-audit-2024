@@ -12,12 +12,15 @@ from cyx.common import config
 
 import requests
 import functools
-if hasattr(functools,"lru_cache"):
-    from functools import lru_cache
-    def ft_cache(*args,**kwargs):
-        return functools.lru_cache(maxsize = 128)(*args,**kwargs)
-else:
+if hasattr(functools,"cache"):
     from functools import cache as ft_cache
+
+else:
+    from functools import lru_cache
+
+
+    def ft_cache(*args, **kwargs):
+        return functools.lru_cache(maxsize=128)(*args, **kwargs)
 from cyx.repository import Repository
 from cyx.cache_service.memcache_service import MemcacheServices
 

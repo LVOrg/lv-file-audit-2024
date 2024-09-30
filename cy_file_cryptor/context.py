@@ -6,11 +6,12 @@ import os
 from memcache import Client
 import hashlib
 import functools
-if hasattr(functools,"lru_cache"):
+if hasattr(functools,"cache"):
+    from functools import cache as fr_cache
+
+else:
     def ft_cache(*args,**kwargs):
         return functools.lru_cache(maxsize = 128)(*args,**kwargs)
-else:
-    from functools import  cache as fr_cache
 import typing
 __client__:  typing.Union[Client,None] = None
 __url__ = None

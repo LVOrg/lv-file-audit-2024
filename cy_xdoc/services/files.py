@@ -63,7 +63,11 @@ class FileServices:
     def get_list(self, app_name, root_url, page_index: int, page_size: int,
                  field_search: typing.Optional[str] = "FileName",
                  value_search: typing.Optional[str] = None,
-                 doc_type: typing.Optional[str] = None):
+                 doc_type: typing.Optional[str] = None,
+                 sort_by: typing.Optional[int]=-1,
+                 from_date: typing.Optional[datetime.datetime]=None,
+                 to_date: typing.Optional[datetime.datetime] = None
+                 ):
 
         doc = self.db_connect.db(app_name).doc(DocUploadRegister)
         filter = None
@@ -81,12 +85,27 @@ class FileServices:
                 filter = filter & (cy_docs.not_exists(doc.fields.DocType))
             else:
                 filter = (cy_docs.not_exists(doc.fields.DocType))
+        if from_date:
+            # raw_from_date = datetime.datetime(from_date.year,from_date.month,from_date.day)
+            filter = (doc.fields.RegisterOn>=from_date) & filter
+
+        if to_date:
+            raw_to_date = to_date+ datetime.timedelta(days=1)
+            filter = (doc.fields.RegisterOn<raw_to_date) & filter
         if filter:
             arrg = arrg.match(filter)
         items = None
+
+
+
         try:
+            if sort_by ==-1:
+                sort_expr = doc.fields.RegisterOn.desc()
+            else:
+                sort_expr = doc.fields.RegisterOn.asc()
+
             items = arrg.sort(
-                doc.fields.RegisterOn.desc(),
+                sort_expr,
                 doc.fields.Status.desc()
             ).skip(page_size * page_index).limit(page_size).project(
                 cy_docs.fields.UploadId >> doc.fields.id,

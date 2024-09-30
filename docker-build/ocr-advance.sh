@@ -55,11 +55,13 @@ rm -f $ocr_advance_file_core
 echo "
 FROM docker.lacviet.vn/xdoc/paddle-viet-ocr:$ocr_advance_tag
 COPY ./../docker-build/requirements/paddle-ocr.txt /app/docker-build/requirements/paddle-ocr.txt
+RUN apt update
+RUN apt install tesseract-ocr -y
 RUN pip install -r /app/docker-build/requirements/paddle-ocr.txt
 RUN apt clean && apt autoclean
 ">>$ocr_advance_file_core
-ocr_advance_file_core_tag=$ocr_advance_tag.1
-buildFunc $ocr_advance_file_core "docker.io/nttlong" "paddle-viet-ocr-core" $ocr_advance_file_core_tag "python:3.11.10-slim-bullseye" "alpine"
+ocr_advance_file_core_tag=$ocr_advance_tag.2
+buildFunc $ocr_advance_file_core "docker.lacviet.vn/xdoc" "paddle-viet-ocr-core" $ocr_advance_file_core_tag "python:3.11.10-slim-bullseye" "alpine"
 
 #docker pull nttlong/paddle-viet-ocr-core:$ocr_advance_file_core_tag
 #docker tag nttlong/paddle-viet-ocr-core:$ocr_advance_file_core_tag docker.lacviet.vn/xdoc/paddle-viet-ocr-core:$ocr_advance_file_core_tag
@@ -70,8 +72,8 @@ rm -f $action_ocr
 echo "
 #FROM debian:unstable-slim
 FROM docker.lacviet.vn/xdoc/paddle-viet-ocr-core:$ocr_advance_file_core_tag
-COPY ./../docker-build/requirements/paddle-ocr.txt /app/docker-build/requirements/paddle-ocr.txt
-RUN pip install -r /app/docker-build/requirements/paddle-ocr.txt
+#COPY ./../docker-build/requirements/paddle-ocr.txt /app/docker-build/requirements/paddle-ocr.txt
+#RUN pip install -r /app/docker-build/requirements/paddle-ocr.txt
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
@@ -98,7 +100,7 @@ COPY ./../cy_lib_ocr /app/cy_lib_ocr
 RUN apt clean && apt autoclean
 #RUN pip install reportlab
 ">>$action_ocr
-buildFunc $action_ocr "docker.lacviet.vn/xdoc" "composite-ocr" $ocr_advance_file_core_tag.18 "python:3.11.10-slim-bullseye" "alpine"
+buildFunc $action_ocr "docker.lacviet.vn/xdoc" "composite-ocr" $ocr_advance_file_core_tag.11 "python:3.11.10-slim-bullseye" "alpine"
 #docker run -it -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app docker.lacviet.vn/xdoc/composite-ocr:2.1.3 /bin/bash
 #docker pull docker.lacviet.vn/xdoc/composite-ocr:$ocr_advance_file_core_tag.15
 #docker tag docker.lacviet.vn/xdoc/composite-ocr:$ocr_advance_file_core_tag.14 nttlong/composite-ocr:$ocr_advance_file_core_tag.15

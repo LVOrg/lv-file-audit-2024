@@ -2,7 +2,9 @@
 PDF service serve for ocr
 This package extract all image from PDF file
 """
-
+import pathlib
+import sys
+sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 import os
 import typing
 
@@ -14,8 +16,11 @@ import io
 from PyPDF2 import PdfReader
 import PyPDF2.errors
 import PIL.Image
-class PDF_Service:
 
+import cy_kit
+from cy_lib_ocr.detect_orientation_mage_service import OrientDetector
+class PDF_Service:
+    orient_detector = cy_kit.single(OrientDetector)
     def get_dir_by_hash_name(self, pdf_file_path)->str:
         """
         THis method create new name by hash256 of pdf_file_path
@@ -85,6 +90,7 @@ class PDF_Service:
                 img.save(image_file_path, 'png')
             i+=1
             # pixmap.writePNG(image_file_path)
+            # pre_image_file_path =self.orient_detector.pre_process_image(image_file_path)
             yield image_file_path # Might want to come up
     def image_extract_delete(self,pdf_file_path:str,output_dir:str)->typing.Iterable[str]:
         """
@@ -125,16 +131,26 @@ class PDF_Service:
                     yield image_file_path
                 pix = None
 
+    def read_text_from_file(self,pdf_file)->str:
+        contents = []
+        reader = PdfReader(pdf_file)
+        for page in reader.pages:
+            contents.append(page.extract_text())
+        del reader
+        return " ".join(contents)
 
 
 
 def main():
     svc = PDF_Service()
     pdf_file = r'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/511-cp.signe.pdf'
+    pdf_file = r'/app/a_checking/resource-test/Bản tin tháng 9.pdf'
     output_dir = f'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/results'
+    output_dir = r'/app/a_checking/resource-test/results'
     file_iter: typing.Iterable[str] = svc.image_extract(pdf_file_path=pdf_file,output_dir=output_dir)
     for x in file_iter:
         print(x)
 if __name__ == "__main__":
     # run on venv-ocr-311 (python 3.11)
     main()
+## docker run   -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app -v /mnt/files:/mnt/files docker.lacviet.vn/xdoc/composite-ocr:2.1.19 python /app/cy_lib_ocr/pdf_services.py

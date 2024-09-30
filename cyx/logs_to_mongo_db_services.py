@@ -3,11 +3,12 @@ import sys
 
 from cyx.repository import Repository
 import functools
-if hasattr(functools,"lru_cache"):
+if hasattr(functools,"cache"):
+    from functools import cache as ft_cache
+else:
+
     def ft_cache(*args,**kwargs):
         return functools.lru_cache(maxsize = 128)(*args,**kwargs)
-else:
-    from functools import cache as ft_cache
 import socket
 class LogsToMongoDbService:
     @ft_cache

@@ -2,14 +2,20 @@ import threading
 
 import cy_kit
 from cyx.cache_service.memcache_service import MemcacheServices
-import functools
 
+import functools
+if hasattr(functools,"cache"):
+    from functools import cache as fr_cache
+
+else:
+    def ft_cache(*args,**kwargs):
+        return functools.lru_cache(maxsize = 128)(*args,**kwargs)
 
 class LogWatcherServices:
     def __init__(self, memcache_services=cy_kit.singleton(MemcacheServices)):
         self.memcache_services = memcache_services
 
-    @functools.cache
+    @ft_cache
     def get_pod_name(self):
         f = open('/etc/hostname')
         pod_name = f.read()

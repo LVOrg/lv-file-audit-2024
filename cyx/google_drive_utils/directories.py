@@ -11,12 +11,15 @@ import typing
 import requests
 from googleapiclient.discovery import build, Resource
 import functools
-if hasattr(functools,"lru_cache"):
-    from functools import lru_cache
-    def cache(*args, **kwargs):
-        return functools.lru_cache(maxsize = 128)(*args,**kwargs)
-else:
+if hasattr(functools,"cache"):
     from functools import cache
+
+else:
+    from functools import lru_cache
+
+
+    def cache(*args, **kwargs):
+        return functools.lru_cache(maxsize=128)(*args, **kwargs)
 import cy_docs
 import cy_kit
 import pymongo.errors

@@ -2,10 +2,27 @@ import typing
 
 import elasticsearch
 import elasticsearch.exceptions
+import unicodedata
+from elasticsearch.client import Elasticsearch
 
 FIELD_RAW_TEXT = "FIELDS_WILD_CARD_V2"
 
 
+def clear__accents(content):
+    """Removes accents from Vietnamese text.
+
+        Args:
+            content (str): The Vietnamese text to process.
+
+        Returns:
+            str: The text without accents.
+        """
+
+    normalized_form = unicodedata.normalize('NFKC', content)
+    decomposed_form = unicodedata.normalize('NFKD', normalized_form)
+    ret = ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
+    ret = ret.replace("đ","d").replace("Đ","D")
+    return ret
 def get_mapping(client: elasticsearch.Elasticsearch, index: str) -> typing.Optional[dict]:
     ret = client.indices.get_mapping(
         index=index
@@ -462,3 +479,28 @@ def get_max_analyzed_offset(e):
     ret=ret[1]
 
     return int(ret)
+
+def update_or_insert_content(client:Elasticsearch,index:str,id:str,content:str):
+    if isinstance(content, str) and len(content) > 0:
+
+        try:
+            # existing_document = es.get(index=app_index, id=document_id)
+            # existing_document["_source"]["content"] = content
+            # existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
+            update_doc = {
+                "doc": {
+                    "content": content,
+                    "content_non_accent": clear__accents(content)
+                }
+            }
+            ret = client.update(index=index, id=id, body=update_doc, doc_type="_doc")
+            return ret
+        except elasticsearch.exceptions.NotFoundError as e:
+            if e.args[0] == 404:  # Document not found
+                new_document = {
+                    "content": content,
+                    "content_non_accent": clear__accents(content)
+                }
+                ret = client.index(index=index, body=new_document, id=id, doc_type="_doc")
+                return ret
+

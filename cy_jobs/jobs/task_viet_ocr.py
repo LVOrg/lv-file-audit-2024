@@ -50,18 +50,27 @@ class OCRNoRabbitMQ:
         if isinstance(content, str) and len(content) > 0:
 
             try:
-                existing_document = es.get(index=app_index, id=document_id)
-                existing_document["_source"]["content"] = content
-                existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
-                es.update(index=app_index, id=document_id, body={"doc": existing_document["_source"]},doc_type="_doc")
-                ic("Document updated successfully.")
-            except Exception as e:
-                if e.args[0] == 404:  # Document not found
-                    new_document = {
-                        "content": content
+                # existing_document = es.get(index=app_index, id=document_id)
+                # existing_document["_source"]["content"] = content
+                # existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
+                update_doc = {
+                    "doc": {
+                        "content": content,
+                        "content_non_accent": self.clear__accents(content)
                     }
-                    es.index(index=app_index, body=new_document,id=upload_id,doc_type="_doc")
-                    ic("New document created successfully.")
+                }
+                es.update(index=app_index, id=document_id, body=update_doc, doc_type="_doc")
+                ic(f"Document updated successfully. {app_index},{document_id}")
+            except elasticsearch.exceptions.NotFoundError as e:
+                new_document = {
+                    "content": content,
+                    "content_non_accent": self.clear__accents(content)
+                }
+                es.index(index=app_index, body=new_document, id=upload_id, doc_type="_doc")
+                ic(f"New document created successfully.{app_index},{document_id}")
+
+        else:
+            ic(f"No content for. {app_index},{document_id}")
 
     def do_ocr(self):
         app_names = self.ge_app_names()
@@ -222,7 +231,9 @@ class OCRNoRabbitMQ:
 
         normalized_form = unicodedata.normalize('NFKC', content)
         decomposed_form = unicodedata.normalize('NFKD', normalized_form)
-        return ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
+        ret = ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
+        ret = ret.replace("đ","d").replace("Đ","D")
+        return ret
 
 
 def main():

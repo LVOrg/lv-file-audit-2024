@@ -4,7 +4,7 @@ This will call nttlong/ocr-my-pdf-api:12
 import os.path
 import pathlib
 import sys
-from distutils.command.upload import upload
+
 
 from icecream import ic
 import PyPDF2
@@ -14,6 +14,7 @@ from PIL import Image
 
 from reportlab.pdfgen import canvas
 
+import elasticsearch.exceptions
 from cyx.common import config
 from cyx.repository import Repository
 
@@ -22,6 +23,7 @@ ic(working_dir)
 
 sys.path.append(pathlib.Path(__file__).parent.parent.__str__())
 sys.path.append("/app")
+
 import cy_kit
 import time
 import subprocess
@@ -268,18 +270,16 @@ class OCRFilesService(ExtractTextFileService):
     def producer_ocr_content(self, app_name:str, msg:str):
         if not self.__producer__:
             self.__producer__= Consumer(msg)
-        agg = Repository.files.app(app_name).context.aggregate().match(
+        agg = (Repository.files.app(app_name).context.aggregate().match(
             Repository.files.fields.Status==1
         ).match(
             Repository.files.fields.FileExt=="pdf"
-        ).match(
-            (Repository.files.fields.HasORCContent==None)|(Repository.files.fields.HasORCContent==False)
         ).match(
             (Repository.files.fields.MsgOCRReRaise==None)|(Repository.files.fields.MsgOCRReRaise!=msg)
 
         ).sort(
             Repository.files.fields.RegisterOn.desc()
-        ).limit(1)
+        ).limit(1))
         for item in agg:
             self.__producer__.raise_message(
                 app_name=app_name,
@@ -316,18 +316,28 @@ class OCRFilesService(ExtractTextFileService):
         if isinstance(content, str) and len(content) > 0:
 
             try:
-                existing_document = es.get(index=app_index, id=document_id)
-                existing_document["_source"]["content"] = content
-                existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
-                es.update(index=app_index, id=document_id, body={"doc": existing_document["_source"]},doc_type="_doc")
-                ic("Document updated successfully.")
-            except Exception as e:
+                # existing_document = es.get(index=app_index, id=document_id)
+                # existing_document["_source"]["content"] = content
+                # existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
+                update_doc = {
+                    "doc": {
+                        "content": content,
+                        "content_non_accent": self.clear__accents(content)
+                    }
+                }
+                es.update(index=app_index, id=document_id, body=update_doc, doc_type="_doc")
+                ic(f"Document updated successfully. {app_index},{document_id}")
+            except elasticsearch.exceptions.NotFoundError as e:
                 if e.args[0] == 404:  # Document not found
                     new_document = {
-                        "content": content
+                        "content": content,
+                        "content_non_accent": self.clear__accents(content)
                     }
-                    es.index(index=app_index, body=new_document,id=upload_id,doc_type="_doc")
-                    ic("New document created successfully.")
+                    es.index(index=app_index, body=new_document, id=upload_id, doc_type="_doc")
+                    ic(f"New document created successfully.{app_index},{document_id}")
+        else:
+            ic(f"No content for. {app_index},{document_id}")
+
     def set_pre_post(self,fn):
         self.__pre_post__ = fn
     def consumer_ocr_content(self, msg):

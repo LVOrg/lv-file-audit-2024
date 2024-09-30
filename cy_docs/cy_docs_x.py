@@ -58,21 +58,23 @@ $: Matches the end of the string.
 {}: Repetition quantifier.
 \: Escape character.
 """
-def get_mongodb_text(data):
+def get_mongodb_text(data,for_reper=False):
     if isinstance(data, dict):
 
         ret = {}
         for k, v in data.items():
-            ret[k] = get_mongodb_text(v)
+            ret[k] = get_mongodb_text(v,for_reper)
         return ret
     elif isinstance(data, List):
         ret = []
         for x in data:
-            ret += [get_mongodb_text(x)]
+            ret += [get_mongodb_text(x,for_reper)]
         return ret
     elif isinstance(data, str):
         return data
     elif isinstance(data, datetime.datetime):
+        if for_reper:
+            return data.strftime('%Y-%m-%dT%H:%M:%S')
         return data
     elif isinstance(data, uuid.UUID):
         return data.__str__()
@@ -80,6 +82,7 @@ def get_mongodb_text(data):
         return data
     elif isinstance(data, float):
         return data
+
     elif isinstance(data, complex):
         return dict(
             imag=data.imag,
@@ -387,7 +390,7 @@ class Field(__BaseField__):
 
     def __repr__(self):
         if self.__data__ is not None:
-            ret = get_mongodb_text(self.__data__)
+            ret = get_mongodb_text(self.__data__,for_reper=True)
             return json.dumps(ret)
         else:
             return self.__name__

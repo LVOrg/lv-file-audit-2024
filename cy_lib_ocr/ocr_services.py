@@ -7,6 +7,7 @@ import sys
 
 import pathlib
 
+
 sys.path.append("/app")
 torch_path = os.path.join(pathlib.Path(__file__).parent.parent.__str__(), "py-torch")
 torch_path_cache = os.path.join(pathlib.Path(__file__).parent.parent.__str__(), "py-torch", "cache")
@@ -44,10 +45,11 @@ from cyx.common import config
 import requests
 from retry import retry
 from tika import parser as tika_parse
-
+import gc
 import yaml
 class OCRService:
     pdf_service = cy_kit.singleton(PDF_Service)
+
 
     def __init__(self):
         self.module_dir = pathlib.Path(__file__).parent.__str__()
@@ -78,29 +80,29 @@ class OCRService:
         self.config['device'] = 'cpu'
         ic(self.config)
         self.detector = Predictor(self.config)
-        self.tmp_output_dir = os.path.join(config.file_storage_path, "__tmp_viet_ocr__")
-        self.tmp_result_dir = os.path.join(config.file_storage_path, "__tmp_viet_ocr_result__")
+        self.tmp_output_dir =os.path.join(config.file_storage_path,"__tmp_viet_ocr__")
+        self.tmp_result_dir = os.path.join(config.file_storage_path, f"__tmp_viet_ocr_result__{(config.get('msg_process') or '').replace('-','_')}")
         os.makedirs(self.tmp_output_dir, exist_ok=True)
         os.makedirs(self.tmp_result_dir, exist_ok=True)
 
     def check(self):
         ic(self.config)
-    def extract_text_by_using_tika_server(self, file_path: str):
-        @retry(exceptions=(requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError), delay=15, tries=10)
-        def runing():
-            parsed_data = tika_parse.from_file(file_path,
-                                               serverEndpoint=config.tika_server,
-                                               xmlContent=False,
-                                               requestOptions={'timeout': 5000})
-
-            content = parsed_data.get("content", "") or ""
-            content = content.lstrip('\n').rstrip('\n').replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
-            while "  " in content:
-                content = content.replace("  ", " ")
-            content = content.rstrip(' ').lstrip(' ')
-            return content
-
-        return runing()
+    # def extract_text_by_using_tika_server(self, file_path: str):
+    #     @retry(exceptions=(requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError), delay=15, tries=10)
+    #     def runing():
+    #         parsed_data = tika_parse.from_file(file_path,
+    #                                            serverEndpoint=config.tika_server,
+    #                                            xmlContent=False,
+    #                                            requestOptions={'timeout': 5000})
+    #
+    #         content = parsed_data.get("content", "") or ""
+    #         content = content.lstrip('\n').rstrip('\n').replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+    #         while "  " in content:
+    #             content = content.replace("  ", " ")
+    #         content = content.rstrip(' ').lstrip(' ')
+    #         return content
+    #
+    #     return runing()
 
     def do_detector(self, image_path: str):
 
@@ -134,13 +136,25 @@ class OCRService:
         typing.Tuple[float, float, float, float]]:
         ocr = PaddleOCR(use_angle_cls=True, lang=lang)  # need to run only once to download and load model into memory
         img = Image.open(image_path)
-        result = ocr.ocr(image_path, cls=True)
-        for line in result:
-            for x in line:
-                x1, y1, x2, y2 = self.find_coordinates(x[0])
-                sub_img = self.extract_subimage(img, x1, y1, x2, y2)
-                txt = self.detector.predict(sub_img)
-                yield txt
+        try:
+            result = ocr.ocr(image_path, cls=True)
+            for line in result:
+                for x in line:
+                    x1, y1, x2, y2 = self.find_coordinates(x[0])
+                    try:
+                        sub_img = self.extract_subimage(img, x1, y1, x2, y2)
+                        txt = self.detector.predict(sub_img)
+                        yield txt
+                    except:
+                        raise
+                    finally:
+                        del sub_img
+                        gc.collect()
+        except:
+            raise
+        finally:
+            del img
+            gc.collect()
 
     def find_coordinates(self, points):
         """
@@ -163,7 +177,7 @@ class OCRService:
         return (min_x, min_y, max_x, max_y)
 
     def get_text_from_pdf(self, pdf_file) -> typing.Union[str, None]:
-        tika_content = self.extract_text_by_using_tika_server(pdf_file) or ""
+        tika_content = self.pdf_service.read_text_from_file(pdf_file) or ""
         try:
             file_iter: typing.Iterable[str] = self.pdf_service.image_extract(pdf_file_path=pdf_file,
                                                                              output_dir=self.tmp_output_dir)
@@ -208,7 +222,8 @@ def main():
     pdf_file = r'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/511-cp.signe.pdf'
     pdf_file = r'/app/a_checking/resource-test/511-cp.signe.pdf'
     pdf_file = r'/app/a_checking/resource-test/qð 542.pdf'
-    pdf_file = r'/app/a_checking/resource-test/2024-3dn-puq00044_cong van.pdf'
+    # pdf_file = r'/app/a_checking/resource-test/Bản tin tháng 9.pdf'
+    pdf_file = r'/app/a_checking/resource-test/Bản tin tháng 9.pdf'
     output_dir = f'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/results'
     output_dir = f'/app/a_checking/resource-test/results-docker'
     # file_iter: typing.Iterable[str] = svc.pdf_service.image_extract(pdf_file_path=pdf_file, output_dir=output_dir)
@@ -222,3 +237,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+#docker run -t  -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app -v /mnt/files:/mnt/files docker.lacviet.vn/xdoc/composite-ocr:2.1.19 python /app/cy_lib_ocr/ocr_services.py

@@ -14,3 +14,4 @@ humanize
 google-api-python-client
 ics
 azure-identity
+pytesseract

@@ -142,27 +142,62 @@
             z-index: 1000000 !important;
         }
     </style>
-    <div>
+    <div  style="padding:4px">
+        <rcmpct-grid cols="(,700,100%)(700,,33% 33% 34%)">
+            <rcmpct-template>
+                <div class="layout-rows header-panel">
+
+                        <div>
+                            <label>{{$res("Sort by")}}</label>
+                        </div>
+                        <div class="dock full">
+                            <select class="form-control form-control-sm" ng-model="sortBy"
+                                    ng-change="doSearchByFileName().then()" style="min-width:120px">
+                                <option value="recently">Recently</option>
+                                <option value="early">Early</option>
+                            </select>
+
+                        </div>
+                        <div>
+                            <label>{{$res("From")}}: &nbsp;</label>
+                        </div>
+                        <div>
+                            <input type="date" class="form-control form-control-sm" ng-model="FromDate"/>
+                        </div>
+                        <div>
+                            <label>&nbsp;{{$res("To")}}: &nbsp;</label>
+                        </div>
+                        <div>
+                            <input type="date" class="form-control form-control-sm" ng-model="ToDate"/>
+                        </div>
+                    </div>
+            </rcmpct-template>
+        </rcmpct-grid>
+    </div>
+    <div style="padding:4px">
         <rcmpct-grid cols="(,700,100%)(700,,33% 33% 34%)">
             <rcmpct-template>
                 <div class="layout-rows header-panel">
                     <div>
                         <div class="dropdown">
-                          <button class="btn btn-secondary dropdown-toggle" type="button" id="cloudDropdown" data-toggle="dropdown" aria-expanded="false">
-                            Cloud Providers
-                          </button>
-                          <ul class="dropdown-menu" aria-labelledby="cloudDropdown">
-                            <li><a class="dropdown-item" href="javascript:void(0);" ng-click="doLoadCloudGoogleConfigAsync().then()">Google Cloud</a></li>
-                            <li><a class="dropdown-item" href="#">Microsoft Azure</a></li>
-                            <li><a class="dropdown-item" href="#">Amazon Web Services</a></li>
-                          </ul>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="cloudDropdown"
+                                    data-toggle="dropdown" aria-expanded="false">
+                                Cloud Providers
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="cloudDropdown">
+                                <li><a class="dropdown-item" href="javascript:void(0);"
+                                       ng-click="doLoadCloudGoogleConfigAsync().then()">Google Cloud</a></li>
+                                <li><a class="dropdown-item" href="#">Microsoft Azure</a></li>
+                                <li><a class="dropdown-item" href="#">Amazon Web Services</a></li>
+                            </ul>
                         </div>
                     </div>
                     <div>
                         <label>{{$res("Select tenant")}}</label>
                     </div>
                     <div class="dock full">
-                        <input list="app-list" id="ice-cream-choice" ng-change="doLoadAllFiles().then()" name="ice-cream-choice" ng-model="currentAppName" class="form-control form-control-sm">
+                        <input list="app-list" id="ice-cream-choice" ng-change="doLoadAllFiles().then()"
+                               name="ice-cream-choice" ng-model="currentAppName" class="form-control form-control-sm">
                         <datalist id="app-list">
                             <option ng-repeat="p in listOfApp" value="{{p.Name}}">
                                 {{p.Name}}
@@ -171,14 +206,18 @@
                     </div>
                 </div>
                 <div class="layout-rows header-panel">
+
                     <div>
                         <label>{{$res("Search")}}</label>
                     </div>
                     <div class="dock full">
                         <div class="input-group mb-3" style="width:100%;padding-right:0px;margin-bottom: 0 !important">
-                            <input type="text" class="form-control form-control-sm" ng-model="fileNameSearchValue" placeholder="{{$res('Search by Filename')}}">
+                            <input type="text" class="form-control form-control-sm" ng-model="fileNameSearchValue"
+                                   placeholder="{{$res('Search by Filename')}}">
                             <div class="input-group-append" style=";padding-right:0px">
-                                <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()" type="button">{{$res("Tìm")}}</button>
+                                <button class="btn btn-outline-secondary btn-sm" ng-click="doSearchByFileName().then()"
+                                        type="button">{{$res("Tìm")}}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -189,7 +228,8 @@
                             <label>{{$res("Filter by")}}:</label>
                         </div>
                         <div class="dock full">
-                            <select class="form-control form-control-sm" ng-model="filterByDocType" ng-change="doSearchByFileName().then()">
+                            <select class="form-control form-control-sm" ng-model="filterByDocType"
+                                    ng-change="doSearchByFileName().then()">
                                 <option value="AllTypes">All types</option>
                                 <option value="Office">Office</option>
                                 <option value="Pdf">Pdf</option>
@@ -202,10 +242,12 @@
                         </div>
                         <!--doOpenUploadMultiFilesWindow-->
                         <div>
-                            <input type="button" class="btn btn-primary btn-sm" value="{{$res('New')}}" ng-click="doOpenUploadWindow().then()" style="margin-right:0px" />
+                            <input type="button" class="btn btn-primary btn-sm" value="{{$res('New')}}"
+                                   ng-click="doOpenUploadWindow().then()" style="margin-right:0px"/>
                         </div>
                         <div>
-                            <button class="btn btn-primary btn-sm"   id="upload_more" data-toggle="dropdown" aria-expanded="false" ng-click="doOpenUploadMultiFilesWindow().then()">
+                            <button class="btn btn-primary btn-sm" id="upload_more" data-toggle="dropdown"
+                                    aria-expanded="false" ng-click="doOpenUploadMultiFilesWindow().then()">
                                 Upload files
                             </button>
                         </div>
@@ -216,37 +258,35 @@
             </rcmpct-template>
 
         </rcmpct-grid>
-        <!--<div class="layout rows">
-            <div class="dock full">
-                <div>
 
-                </div>
-            </div>
-            <div style="padding:4px">
-                <input type="button" class="btn btn-primary btn-sm" value="{{$res('New')}}" ng-click="doOpenUploadWindow().then()" style="margin-right:10px" />
-            </div>
-        </div>-->
     </div>
 
+
+
     <div class="dock full">
-        <div rcmpct-lazy-scroll source="listOfFiles" item-var="p" class="row" on-request-data="doLoadMore" page-size="20">
+        <div rcmpct-lazy-scroll source="listOfFiles" item-var="p" class="row" on-request-data="doLoadMore"
+             page-size="20">
             <rcmpct-template>
-                <rcmpct-grid cols="(,700,100%)(700,1280,100%)(1280,,33% 33% 33%)" class="shadow-box" file-id="{{p.UploadId}}">
+                <rcmpct-grid cols="(,700,100%)(700,1280,100%)(1280,,33% 33% 33%)" class="shadow-box"
+                             file-id="{{p.UploadId}}">
                     <rcmpct-grid cols="180px minmax(0,1fr)" class="card-container">
                         <div class="img-container">
                             <div class="image-card perspective-right">
-                                <img class="mirror" style="" ng-src="{{p.ThumbUrl}}"  />
+                                <img class="mirror" style="" ng-src="{{p.ThumbUrl}}"/>
                             </div>
                         </div>
                         <rcmpct-grid cols="30% 70%">
 
                             <div class="bkg" style="overflow:hidden;text-overflow:ellipsis;grid-column:1/-1">
-                                <a style="" ng-if="p.MimeType.indexOf('video/')==0" href="javascript:void(0);" ng-click="doOpenInWindows(p).then()">
+                                <a style="" ng-if="p.MimeType.indexOf('video/')==0" href="javascript:void(0);"
+                                   ng-click="doOpenInWindows(p).then()">
                                     [{{p.VersionNumber || 1 }}]-{{p.FileName}}
                                 </a>
 
-                                <a style="text-overflow:ellipsis;white-space:nowrap" ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}" target="_blank">
-                                   [{{p.VersionNumber || 1 }}]-{{p.FileName}}
+                                <a style="text-overflow:ellipsis;white-space:nowrap"
+                                   ng-if="p.MimeType.indexOf('video/')!=0" ng-href="{{p.UrlOfServerPath}}"
+                                   target="_blank">
+                                    [{{p.VersionNumber || 1 }}]-{{p.FileName}}
 
                                 </a>
 
@@ -311,61 +351,70 @@
                             </label>
 
 
-
-
                             <div style="grid-column: 1/-1">
                                 <div class="layout-rows">
                                     <div>
-                                        <input type="checkbox" ng-model="p.isSelected" ng-change="showAddTagsButton().then()">
+                                        <input type="checkbox" ng-model="p.isSelected"
+                                               ng-change="showAddTagsButton().then()">
                                     </div>
                                     <div class="dock full"></div>
                                     <div>
-                            <div class="dropdown">
-                            <button style="text-wrap:nowrap;border:none !important" class="form-control form-control-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <span style="fon-size:8pt">...</span>
-                            <span class="caret"></span></button>
-                            <ul class="dropdown-menu">
+                                        <div class="dropdown">
+                                            <button style="text-wrap:nowrap;border:none !important"
+                                                    class="form-control form-control-sm dropdown-toggle" type="button"
+                                                    data-toggle="dropdown">
+                                                <span style="fon-size:8pt">...</span>
+                                                <span class="caret"></span></button>
+                                            <ul class="dropdown-menu">
 
-                                <li><a href="javascript:void(0);" ng-click="doOpenUploadWindow(p.UploadId).then()"><b>{{$res('Update content')}}</b></a></li>
-                                <li><a href="javascript:void(0);" ng-click="showError(p).then()"><b style="color:red">{{$res('Show error')}}</b></a></li>
-                                <li> <a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
-                                   {{$res("Edit in Desktop application")}}
-                               </a> </li>
-                                <li> <a href="javascript:void(0);" ng-click="doLoadGeminiAssistantWindow(p).then()">
-                                   {{$res("Gemini  assistant")}}
-                               </a></li>
+                                                <li><a href="javascript:void(0);"
+                                                       ng-click="doOpenUploadWindow(p.UploadId).then()"><b>{{$res('Update
+                                                    content')}}</b></a></li>
+                                                <li><a href="javascript:void(0);" ng-click="showError(p).then()"><b
+                                                        style="color:red">{{$res('Show error')}}</b></a></li>
+                                                <li><a href="javascript:void(0);" ng-click="doEditInDesktop(p).then()">
+                                                    {{$res("Edit in Desktop application")}}
+                                                </a></li>
+                                                <li><a href="javascript:void(0);"
+                                                       ng-click="doLoadGeminiAssistantWindow(p).then()">
+                                                    {{$res("Gemini assistant")}}
+                                                </a></li>
 
-                              <li><a href="javascript:void(0);" ng-click="doShowDetail(p).then()">{{$res('Detail')}}</a></li>
-                                <li><a href="javascript:void(0);" ng-click="doReadMetaInfoAsync(p).then()">{{$res('Meta info')}}</a></li>
-                                <li><a href="javascript:void(0);" ng-click="doReadableContent(p).then()">{{$res('Content')}}</a></li>
-                                <li><a href="javascript:void(0);" ng-click="doDelete(p).then()"><b style="color:red">{{$res('Delete')}}</b></a></li>
+                                                <li><a href="javascript:void(0);" ng-click="doShowDetail(p).then()">{{$res('Detail')}}</a>
+                                                </li>
+                                                <li><a href="javascript:void(0);"
+                                                       ng-click="doReadMetaInfoAsync(p).then()">{{$res('Meta
+                                                    info')}}</a></li>
+                                                <li><a href="javascript:void(0);"
+                                                       ng-click="doReadableContent(p).then()">{{$res('Content')}}</a>
+                                                </li>
+                                                <li><a href="javascript:void(0);" ng-click="doDelete(p).then()"><b
+                                                        style="color:red">{{$res('Delete')}}</b></a></li>
 
-                            </ul>
-                          </div>
-                        </div>
-<!--                                    <div>-->
-<!--                                        <button class="btn btn-link btn-sm" ng-click="doLoadLayoutOCR(p).then()">{{$res('Layout OCR')}} </button>-->
-<!--                                    </div>-->
-<!--                                    <div>-->
-<!--                                        <button class="btn btn-link btn-sm" ng-click="doReadableContent(p).then()">{{$res('Content')}} </button>-->
-<!--                                    </div>-->
-<!--                                    <div>-->
-<!--                                        <button class="btn btn-link btn-sm" ng-click="doShowDetail(p).then()">{{$res('Detail')}} </button>-->
-<!--                                    </div>-->
-<!--                                    <div style="position:relative;right:4px;bottom:4px">-->
-<!--                                        <button class="btn btn-danger btn-sm" ng-click="doDelete(p).then()">{{$res('Delete')}}</button>-->
-<!--                                    </div>-->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!--                                    <div>-->
+                                    <!--                                        <button class="btn btn-link btn-sm" ng-click="doLoadLayoutOCR(p).then()">{{$res('Layout OCR')}} </button>-->
+                                    <!--                                    </div>-->
+                                    <!--                                    <div>-->
+                                    <!--                                        <button class="btn btn-link btn-sm" ng-click="doReadableContent(p).then()">{{$res('Content')}} </button>-->
+                                    <!--                                    </div>-->
+                                    <!--                                    <div>-->
+                                    <!--                                        <button class="btn btn-link btn-sm" ng-click="doShowDetail(p).then()">{{$res('Detail')}} </button>-->
+                                    <!--                                    </div>-->
+                                    <!--                                    <div style="position:relative;right:4px;bottom:4px">-->
+                                    <!--                                        <button class="btn btn-danger btn-sm" ng-click="doDelete(p).then()">{{$res('Delete')}}</button>-->
+                                    <!--                                    </div>-->
                                 </div>
 
                             </div>
-<!--                            <a ng-href="ms-action/{{currentAppName}}/{{p.UploadID}}" target="_blank">Test</a>-->
+                            <!--                            <a ng-href="ms-action/{{currentAppName}}/{{p.UploadID}}" target="_blank">Test</a>-->
                         </rcmpct-grid>
                     </rcmpct-grid>
 
 
-
                 </rcmpct-grid>
-
 
 
             </rcmpct-template>

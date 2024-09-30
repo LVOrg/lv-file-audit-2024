@@ -12,6 +12,7 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
     listOfFiles = []
     currentAppName = undefined
     hasSelected = false
+
     is_processing_error(item) {
         if (item.ProcessInfo) {
             if (item.ProcessInfo.content && item.ProcessInfo.content.IsError==true) {
@@ -51,6 +52,7 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         this.currentApp = this.listOfApp[0];
         this.currentAppName = this.currentApp.Name;
         this.filterByDocType = "AllTypes"
+        this.sortBy = "recently"
         await this.doLoadAllFiles();
         this.$applyAsync();
         debugger;
@@ -102,25 +104,23 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         debugger;
         ///lvfile/api/{app_name}/azure/get_login_url
 
+
         var me = this;
         if (this.appsMap[this.currentAppName.toLowerCase()]) {
             this.currentApp = this.appsMap[this.currentAppName.toLowerCase()];
             var azureLogin = await api.post(`${this.currentAppName}/azure/get_login_url`, {
 
             });
-//            if (azureLogin.error) {
-//                this.currentApp.AzureLoginUrl = undefined;
-//            }
-//            else {
-//                this.currentApp.AzureLoginUrl = azureLogin.loginUrl;
-//            }
-//            console.log(this.currentApp)
+
             this.listOfFiles = await api.post(`${this.currentAppName}/files`, {
                 DocType: me.filterByDocType,
                 PageIndex: 0,
                 PageSize: 20,
                 FieldSearch: "FileName",
-                ValueSearch: me.fileNameSearchValue
+                ValueSearch: me.fileNameSearchValue,
+                SortBy: (me.sortBy=="recently")?"-1":"1",
+                FromDate: this.FromDate,
+                ToDate: this.ToDate
             });
             this.$applyAsync();
         }
@@ -189,7 +189,6 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
         }
     }
     doLoadMore(sender) {
-
         api.post(`${sender.scope.currentAppName}/files`, {
             Token: window.token,
             PageIndex: sender.pageIndex,
@@ -197,6 +196,9 @@ var filesView = await View(import.meta, class FilesView extends BaseScope {
             FieldSearch: "FileName",
             ValueSearch: sender.scope.fileNameSearchValue,
             DocType: sender.scope.filterByDocType,
+            SortBy: (sender.scope.sortBy=="recently")?"-1":"1",
+            FromDate: sender.scope.FromDate,
+            ToDate: sender.scope.ToDate
         }).then(r => {
             sender.done(r);
         });

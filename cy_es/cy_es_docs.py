@@ -198,16 +198,18 @@ class DocumentFields:
         @param item:
         @return:
         """
-        fix_mask = [("đ",chr(240)),("Đ",chr(208))]
-        def create_es_filter(item):
+        from cy_es.cy_es_manager import clear__accents
+        fix_mask = [("đ",chr(240),"d"),("Đ",chr(208),"D")]
+        item_search_no_accent = clear__accents(item_search)
+        def create_es_filter(item,no_accent=False):
             ret = DocumentFields()
-            field_name = self.__name__
+            field_name = f"{self.__name__}_non_accent" if no_accent else self.__name__
             boost = None
             if "^" in field_name:
                 field_name, boost = tuple(field_name.split("^"))
                 if not  boost.isnumeric():
                     boost=None
-            ret.__d
+
             ret_match_phase=DocumentFields()
             ret_query = DocumentFields()
             dict_filter = es_script.script_index_of(field_name,item)
@@ -222,12 +224,14 @@ class DocumentFields:
             ret.__highlight_fields__ = [field_name]
             return ret
         regular_ret = create_es_filter(item_search)
+        regular_no_accent_ret = create_es_filter(item_search_no_accent, True)
         if any(set(item_search).intersection(set("đĐ"))):
             error_text_search=item_search.encode().decode()
-            for (x,y) in fix_mask:
+            for (x,y,z) in fix_mask:
                 error_text_search = error_text_search.replace(x,y)
+
             regular_ret = regular_ret|create_es_filter(error_text_search)
-        return regular_ret
+        return regular_ret|regular_no_accent_ret
 
 
 

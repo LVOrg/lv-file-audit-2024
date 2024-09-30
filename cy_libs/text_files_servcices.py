@@ -34,6 +34,8 @@ from retry import retry
 import requests.exceptions
 import typing
 import unicodedata
+from PyPDF2 import PdfReader
+import cy_es.cy_es_manager
 class ExtractTextFileService:
     """
     This class is used to manage temp directories and file for background processing
@@ -133,8 +135,6 @@ class ExtractTextFileService:
         ).match(
             { Repository.files.fields.FileExt.__name__ :{"$in":config.ext_office_file}}
         ).match(
-            (Repository.files.fields.HasORCContent==None)|(Repository.files.fields.HasORCContent==False)
-        ).match(
             Repository.files.fields.MsgOfficeContentReRaise!=msg
 
         ).sort(
@@ -149,7 +149,13 @@ class ExtractTextFileService:
             ic(f"raise msg={msg} in app={app_name}")
             ic(item.to_json_convertable())
             self.update_upload_office_content(app_name=app_name, upload_id=item.id, msg=msg)
-
+    def read_text_from_file(self,pdf_file)->str:
+        contents = []
+        reader = PdfReader(pdf_file)
+        for page in reader.pages:
+            contents.append(page.extract_text())
+        del reader
+        return " ".join(contents)
     def consumer_office_content(self,msg):
         """
         Consume msg office content and generate new msg with tail fix is _es_update
@@ -180,7 +186,10 @@ class ExtractTextFileService:
             self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
             return
         process_file = self.decrypt_file(encrypted_file_path=file_path)
-        content = self.extract_text_by_using_tika_server(file_path=process_file)
+        if data[Repository.files.fields.FileExt].lower()=="pdf":
+            content = self.read_text_from_file(pdf_file=process_file)
+        else:
+            content = self.extract_text_by_using_tika_server(file_path=process_file)
         dir_of_server_file = pathlib.Path(process_file).parent.__str__()
         content_of_server_file_es = os.path.join(dir_of_server_file,pathlib.Path(process_file).stem+".content.txt")
         with open(content_of_server_file_es,"wb") as fs:
@@ -193,7 +202,7 @@ class ExtractTextFileService:
         )
         ic(content[0:20])
         ic(data)
-        self.__producer__.channel.basic_ack(rb_msg.method.delivery_tag)
+        self.__producer__.delete_msg(rb_msg.method)
         self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
     def update_upload_office_content(self, app_name, upload_id,msg):
         Repository.files.app(app_name).context.update(
@@ -246,26 +255,22 @@ class ExtractTextFileService:
 
         normalized_form = unicodedata.normalize('NFKC', content)
         decomposed_form = unicodedata.normalize('NFKD', normalized_form)
-        return ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
+        ret = ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
+        ret=ret.replace("Đ","D").replace("đ","d")
+        return ret
     def save_content_elastic_search(self, app_name: str,upload_id:str,data_item,content:str):
         es =self.client
         document_id = upload_id
         app_index = self.search_engine.get_index(app_name)
-        if isinstance(content, str) and len(content) > 0:
 
-            try:
-                existing_document = es.get(index=app_index, id=document_id)
-                existing_document["_source"]["content"] = content
-                existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
-                es.update(index=app_index, id=document_id, body={"doc": existing_document["_source"]},doc_type="_doc")
-                ic("Document updated successfully.")
-            except Exception as e:
-                if e.args[0] == 404:  # Document not found
-                    new_document = {
-                        "content": content
-                    }
-                    es.index(index=app_index, body=new_document,id=upload_id,doc_type="_doc")
-                    ic("New document created successfully.")
+        if isinstance(content, str) and len(content) > 0:
+            cy_es.cy_es_manager.update_or_insert_content(
+                client=self.client,
+                index= app_index,
+                id = document_id,
+                content = content
+            )
+
     def consumer_save_es(self, msg):
         if self.__consumer_es  is None:
             self.__consumer_es =  Consumer(f"{msg}_es_update")

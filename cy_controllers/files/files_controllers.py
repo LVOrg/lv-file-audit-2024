@@ -91,7 +91,10 @@ class FilesController(BaseController):
             PageIndex: int = Body(...),
             FieldSearch: typing.Optional[str] = Body(default=None),
             ValueSearch: typing.Optional[str] = Body(default=None),
-            DocType: typing.Optional[str] = Body(default="AllTypes")
+            DocType: typing.Optional[str] = Body(default="AllTypes"),
+            SortBy: typing.Optional[int]= Body(default=-1),
+            FromDate: typing.Optional[datetime.datetime]= Body(default=None),
+            ToDate: typing.Optional[datetime.datetime] = Body(default=None),
     ):
         """
         Get list of file by tenant
@@ -112,7 +115,10 @@ class FilesController(BaseController):
                 page_index=PageIndex,
                 field_search=FieldSearch,
                 value_search=ValueSearch,
-                doc_type=DocType
+                doc_type=DocType,
+                sort_by= SortBy,
+                from_date= FromDate,
+                to_date=ToDate
 
             )
             return [x.to_json_convertable() for x in items]
