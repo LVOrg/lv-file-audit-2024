@@ -1,2 +1,3 @@
+restrict_file: html,js
 server_type: Uvicorn
 worker_class: uvicorn.workers.UvicornWorker

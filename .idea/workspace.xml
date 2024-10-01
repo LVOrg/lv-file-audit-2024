@@ -4,356 +4,64 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Fix copy file">
-      <change afterPath="$PROJECT_DIR$/cy_lib_ocr/detect_orientation_mage_service.py" afterDir="false" />
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Fix ocr file skip hide text on pdf file">
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/analyzers.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/analyzers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/client.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_sugestion_server.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_sugestion_server.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_suggestion_client.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_suggestion_client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_accents.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_grams1.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_grams2.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_stat.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_1/vn_predictor_grams1.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_1/vn_predictor_grams2.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_1/vn_predictor_stat.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_accents.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_grams1.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_grams2.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_stat.npy.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/generators.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/generators.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/gram_calculators.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/gram_calculators.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/loader.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/loader.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/requirement.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/settings.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/settings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/suggestions.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/suggestions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/utils.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app--recent.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_docs/cy_docs_x.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_docs/cy_docs_x.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_docs/cy_engine.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_docs/cy_engine.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_docs/cy_xdoc_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_docs/cy_xdoc_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_data_parser.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_data_parser.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_json.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_json.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_objective.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cyx_es_delete.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cyx_es_delete.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/es_script.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/es_script.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/base.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/base.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cache_service/memcache_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cache_service/memcache_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/check.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/check.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/models.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/models.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_discovery.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_discovery.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_headers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_headers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_process.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_process.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_response_headers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_response_headers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_url_placeholders.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_url_placeholders.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/office365_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/azure/office365_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_azure.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_azure.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_google.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_google.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_service_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_service_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_azure_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_azure_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_google_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_google_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/drive_service_google.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/drive_service_google.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/drive_service_ms.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/drive_service_ms.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/drive_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/drive_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/google_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/google_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/mail_service_google.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/mail_service_google.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/mail_service_ms.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/mail_service_ms.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/mail_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud/mail_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud_cache_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/cloud_cache_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/audio_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/audio_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/base.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/base.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/basic_auth.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/basic_auth.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/brokers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/brokers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/cacher.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/cacher.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/content_marterial_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/content_marterial_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/db_repository_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/db_repository_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/es_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/es_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/file_storage.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/file_storage.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/file_storage_disk.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/file_storage_disk.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/file_storage_mongodb.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/file_storage_mongodb.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/global_settings_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/global_settings_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/jwt_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/jwt_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/msg.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/msg.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/msg_mongodb.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/msg_mongodb.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/rabitmq_message.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/rabitmq_message.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/share_storage.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/share_storage.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/temp_file.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/common/temp_file.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/content_manager_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/content_manager_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/content_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/content_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/apps.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/apps.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/errors.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/errors.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/sso.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/sso.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/users.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/users.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_services/error_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_services/error_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/docs_contents_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/docs_contents_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/easy_ocr.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/easy_ocr.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/elastic_search_utils_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/elastic_search_utils_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_content_process.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_content_process.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_process_mapping.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_process_mapping.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_sync.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_sync.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services_base.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services_base.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/files_converter.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/files_converter.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/files_paths.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/files_paths.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/files_reader.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/files_reader.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/fix_es.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/fix_es.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/g_drive_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/g_drive_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/google_drive_utils/directories.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/google_drive_utils/directories.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/image_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/image_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/images.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/images.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/linguistics.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/linguistics.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/local_api_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/local_api_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/loggers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/loggers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/lv_ocr_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/lv_ocr_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/ms/ms_auth_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/ms/ms_auth_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/ms/ms_commom_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/ms/ms_commom_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/os_command_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/os_command_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/pdf_content_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/pdf_content_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/pdf_vietocr.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/pdf_vietocr.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/processing_file_manager_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/processing_file_manager_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/rabbit_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/rabbit_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_libs/check.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_libs/check.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_libs/office_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/remote_libs/office_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/runtime_config_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/runtime_config_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/socat_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/socat_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/test.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/test.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/test_spacy.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/test_spacy.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/token_manager/request_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/token_manager/request_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/token_manager/token_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/token_manager/token_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_docs/cy_docs_x.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_docs/cy_docs_x.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_docs/cy_engine.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_docs/cy_engine.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_docs/cy_xdoc_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_docs/cy_xdoc_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_data_parser.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_data_parser.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_json.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_json.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_manager.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_manager.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_objective.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cyx_es_delete.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cyx_es_delete.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/es_script.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/es_script.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/base.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/base.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cache_service/memcache_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cache_service/memcache_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/azure_utils_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/check.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/check.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/models.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/models.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_discovery.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_discovery.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_headers.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_headers.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_process.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_request_process.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_response_headers.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_response_headers.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_url_placeholders.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_url_placeholders.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/cy_wopi/wopi_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/office365_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/azure/office365_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_azure.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_azure.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_google.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_file_sync_service_google.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_service_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_service_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_azure_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_azure_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_google_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/cloud_upload_google_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/drive_service_google.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/drive_service_google.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/drive_service_ms.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/drive_service_ms.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/drive_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/drive_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/google_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/google_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/mail_service_google.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/mail_service_google.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/mail_service_ms.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/mail_service_ms.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/mail_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud/mail_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud_cache_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/cloud_cache_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/audio_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/audio_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/base.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/base.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/basic_auth.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/basic_auth.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/brokers.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/brokers.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/cacher.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/cacher.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/content_marterial_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/content_marterial_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/db_repository_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/db_repository_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/es_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/es_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/file_storage.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/file_storage.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/file_storage_disk.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/file_storage_disk.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/file_storage_mongodb.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/file_storage_mongodb.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/global_settings_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/global_settings_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/jwt_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/jwt_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/mongo_db_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/mongo_db_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/msg.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/msg.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/msg_mongodb.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/msg_mongodb.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/rabitmq_message.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/rabitmq_message.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/share_storage.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/share_storage.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/temp_file.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/common/temp_file.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/content_manager_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/content_manager_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/content_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/content_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/apps.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/apps.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/errors.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/errors.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/sso.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/sso.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/users.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/users.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_services/error_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_services/error_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/docs_contents_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/docs_contents_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/easy_ocr.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/easy_ocr.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/elastic_search_utils_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/elastic_search_utils_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_content_process.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_content_process.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_process_mapping.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_process_mapping.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_sync.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_sync.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services_base.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services_base.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/files_converter.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/files_converter.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/files_paths.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/files_paths.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/files_reader.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/files_reader.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/fix_es.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/fix_es.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/g_drive_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/g_drive_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/google_drive_utils/directories.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/google_drive_utils/directories.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/image_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/image_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/images.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/images.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/linguistics.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/linguistics.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/local_api_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/local_api_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/log_watcher_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/log_watcher_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/loggers.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/loggers.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/logs_to_mongo_db_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/lv_ocr_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/lv_ocr_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/malloc_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/malloc_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/ms/ms_auth_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/ms/ms_auth_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/ms/ms_commom_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/ms/ms_commom_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/os_command_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/os_command_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/pdf_content_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/pdf_content_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/pdf_vietocr.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/pdf_vietocr.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/processing_file_manager_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/processing_file_manager_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/rabbit_utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/rabbit_utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_caller.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_caller.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_libs/check.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_libs/check.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_libs/office_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/remote_libs/office_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/runtime_config_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/runtime_config_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/socat_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/socat_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/test.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/test.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/test_spacy.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/test_spacy.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/thumbs_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/token_manager/request_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/token_manager/request_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/token_manager/token_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/token_manager/token_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/utils.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js.html" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/files/index.js.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_docs/cy_docs_x.cpython-310-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_docs/cy_docs_x.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_docs/cy_docs_x.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_docs/cy_docs_x.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_docs/cy_engine.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cy_docs/cy_engine.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_docs/cy_xdoc_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cy_docs/cy_xdoc_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_file_cryptor/context.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_file_cryptor/context.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_viet_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_viet_ocr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_xdoc/services/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_xdoc/services/files.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/app_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/app_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/base.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/base.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cache_service/memcache_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cache_service/memcache_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/azure_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/check.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/check.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/models.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/models.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_discovery.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_discovery.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_request.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_request.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_request_headers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_request_headers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_request_process.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_request_process.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_response_headers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_response_headers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_url_placeholders.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_url_placeholders.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/cy_wopi/wopi_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/azure/office365_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/azure/office365_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service_azure.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service_azure.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service_google.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_file_sync_service_google.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_service_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_service_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_upload_azure_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_upload_azure_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/cloud_upload_google_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/cloud_upload_google_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/drive_service_google.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/drive_service_google.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/drive_service_ms.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/drive_service_ms.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/drive_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/drive_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/google_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/google_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/mail_service_google.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/mail_service_google.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/mail_service_ms.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/mail_service_ms.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud/mail_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud/mail_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud_cache_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud_cache_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/cloud_storage_sync_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/cloud_storage_sync_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/audio_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/audio_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/base.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/base.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/basic_auth.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/basic_auth.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/brokers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/brokers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/cacher.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/cacher.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/content_marterial_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/content_marterial_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/db_repository_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/db_repository_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/es_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/es_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/file_storage.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/file_storage.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/file_storage_disk.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/file_storage_disk.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/file_storage_mongodb.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/file_storage_mongodb.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/global_settings_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/global_settings_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/jwt_utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/jwt_utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/msg.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/msg.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/msg_mongodb.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/msg_mongodb.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/rabitmq_message.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/rabitmq_message.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/share_storage.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/share_storage.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/common/temp_file.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/common/temp_file.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/content_manager_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/content_manager_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/content_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/content_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/apps.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/apps.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/errors.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/errors.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/sso.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/sso.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_models/users.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/users.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/db_services/error_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_services/error_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/docs_contents_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/docs_contents_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/easy_ocr.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/easy_ocr.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/elastic_search_utils_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/elastic_search_utils_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/extract_content_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_content_process.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_content_process.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_process_mapping.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_process_mapping.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_sync.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_sync.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services_base.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services_base.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/files_converter.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/files_converter.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/files_paths.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/files_paths.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/files_reader.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/files_reader.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/fix_es.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/fix_es.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/g_drive_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/google_drive_utils/directories.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/google_drive_utils/directories.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/google_drive_utils/directories.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/google_drive_utils/directories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/image_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/image_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/images.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/images.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/linguistics.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/linguistics.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/local_api_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_api_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/local_api_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_api_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/local_file_caching_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/local_file_caching_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/log_watcher_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/log_watcher_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/loggers.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/loggers.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/logs_to_mongo_db_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/lv_ocr_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/lv_ocr_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/lv_upload_file.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/lv_upload_file.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/malloc_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ms/ms_auth_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/ms/ms_auth_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/ms/ms_commom_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/ms/ms_commom_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/os_command_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/os_command_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/pdf_content_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/pdf_content_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/pdf_vietocr.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/pdf_vietocr.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/processing_file_manager_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/processing_file_manager_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/remote_caller.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/remote_libs/check.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/remote_libs/check.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/remote_libs/office_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/remote_libs/office_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/runtime_config_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/runtime_config_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/socat_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/socat_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/test.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/test.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/test_spacy.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/test_spacy.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/thumbs_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/token_manager/request_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/token_manager/request_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/token_manager/token_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/token_manager/token_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/utils.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/utils.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-office-processor.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/config-map.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/config-map.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/consumer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/consumer.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/producer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/producer.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/update-es.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/update-es.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/ocr-advance.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/ocr-advance.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/requirements/paddle-ocr.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/requirements/paddle-ocr.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/ocr-all" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/ocr-all" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -410,6 +118,7 @@
     "Python.checkfile.executor": "Debug",
     "Python.clear_logs.executor": "Debug",
     "Python.contents.executor": "Debug",
+    "Python.cy_vn_suggestion_check.executor": "Debug",
     "Python.load_check.executor": "Debug",
     "Python.ocr_files_services.executor": "Debug",
     "Python.ocr_services.executor": "Debug",
@@ -434,7 +143,7 @@
     "Python.tmp_files_servcices.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/test-001",
+    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -448,11 +157,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/dot-net/so-files" />
       <recent name="$PROJECT_DIR$/a_checking/resource-test/test-001" />
       <recent name="$PROJECT_DIR$/a_checking/resource-test" />
       <recent name="$PROJECT_DIR$/cy_lib_ocr" />
-      <recent name="$PROJECT_DIR$/docker-build/deploy/helm" />
-      <recent name="$PROJECT_DIR$/cy_jobs/jobs" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/a_checking/resource-test/test-001" />
@@ -462,29 +171,7 @@
       <recent name="$PROJECT_DIR$/cyx/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.server (1)">
-    <configuration name="check_es" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py-files-sv" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_checking" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/check_es.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.cy_vn_suggestion_check">
     <configuration name="check_tika" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -499,6 +186,28 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/check_tika.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="cy_vn_suggestion_check" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_vn_suggestion_check.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -565,7 +274,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_xdoc/server.py" />
-      <option name="PARAMETERS" value="server_type=Uvicorn worker_class=uvicorn.workers.UvicornWorker" />
+      <option name="PARAMETERS" value="server_type=Uvicorn worker_class=uvicorn.workers.UvicornWorker restrict_file=html,js" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -619,11 +328,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.cy_vn_suggestion_check" />
         <item itemvalue="Python.check_tika" />
         <item itemvalue="Python.ocr_services" />
         <item itemvalue="Python.pdf_services" />
         <item itemvalue="Python.task_msg_es_update_ocr" />
-        <item itemvalue="Python.check_es" />
       </list>
     </recent_temporary>
   </component>
@@ -643,7 +352,8 @@
     <MESSAGE value="Create power lib OCR by using Paddle and VietOCR" />
     <MESSAGE value="fxi OCR pdf some type errors" />
     <MESSAGE value="Fix copy file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix copy file" />
+    <MESSAGE value="Fix ocr file skip hide text on pdf file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix ocr file skip hide text on pdf file" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

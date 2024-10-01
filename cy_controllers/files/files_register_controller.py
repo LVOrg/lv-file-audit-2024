@@ -175,6 +175,25 @@ class FilesRegisterController(BaseController):
             :return:
             """
         self.malloc_service.reduce_memory()
+        if "../" in Data.FileName:
+            return dict(
+                Error=dict(
+                    Code="InvalidFileName",
+                    Message="Invalid file name"
+                )
+            )
+        restrict_file = config.get("restrict_file") or ""
+        restrict_ext=restrict_file.split(",")
+        file_ext = pathlib.Path(Data.FileName).suffix[1:]
+        if file_ext.lower() in restrict_ext:
+            return dict(
+                Error= dict(
+                    Code="InvalidFileExtension",
+                    Message="Invalid file extension"
+                )
+            )
+
+
         if Data.UploadId and Data.UploadId != "":
             upload_item = self.file_util_service.get_upload(
                 app_name=app_name,

@@ -100,7 +100,7 @@ COPY ./../cy_lib_ocr /app/cy_lib_ocr
 RUN apt clean && apt autoclean
 #RUN pip install reportlab
 ">>$action_ocr
-buildFunc $action_ocr "docker.lacviet.vn/xdoc" "composite-ocr" $ocr_advance_file_core_tag.11 "python:3.11.10-slim-bullseye" "alpine"
+buildFunc $action_ocr "docker.lacviet.vn/xdoc" "composite-ocr" $ocr_advance_file_core_tag.15 "python:3.11.10-slim-bullseye" "alpine"
 #docker run -it -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app docker.lacviet.vn/xdoc/composite-ocr:2.1.3 /bin/bash
 #docker pull docker.lacviet.vn/xdoc/composite-ocr:$ocr_advance_file_core_tag.15
 #docker tag docker.lacviet.vn/xdoc/composite-ocr:$ocr_advance_file_core_tag.14 nttlong/composite-ocr:$ocr_advance_file_core_tag.15

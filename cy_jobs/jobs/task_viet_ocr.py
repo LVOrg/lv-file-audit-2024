@@ -107,6 +107,7 @@ class OCRNoRabbitMQ:
         ret = [x.app_name.lower() for x in agg]
         return ret
     def get_latest_upload_of_app(self, app_name):
+        sort_expr = Repository.files.fields.RegisterOn.asc() if config.get("early") else Repository.files.fields.RegisterOn.desc()
         pdf_mime_type, _ = mimetypes.guess_type("x.pdf")
 
         agg = Repository.files.app(app_name).context.aggregate().match(
@@ -117,7 +118,7 @@ class OCRNoRabbitMQ:
             (Repository.files.fields.MsgOCRReRaise==None)|(Repository.files.fields.MsgOCRReRaise!=self.msg)
 
         ).sort(
-            Repository.files.fields.RegisterOn.desc()
+            sort_expr
         ).limit(1)
         ic(app_name,agg)
         upload_items = list(agg)

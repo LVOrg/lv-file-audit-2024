@@ -32,6 +32,7 @@ apps:
         - content_service=http://content-service.{{$valuesObject.namespace}}:80
         - debug=false
         - domains='*'
+        - restrict_file=$(restrict_file)
         {{ if hasKey $valuesObject "generation" }}
         - generation={{ $valuesObject.generation }}
         {{ end }}

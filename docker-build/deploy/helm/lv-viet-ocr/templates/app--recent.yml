@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lv-viet-ocr
+  name: lv-viet-ocr-recent
   namespace: {{ .Values.ns }}
 spec:
 
   replicas: 1
   selector:
     matchLabels:
-      app: lv-viet-ocr
+      app: lv-viet-ocr-recent
   template:
     metadata:
       labels:
-        app: lv-viet-ocr
+        app: lv-viet-ocr-recent
     spec:
 #      initContainers:
 #        - name: wait-for-code-container
@@ -27,12 +27,11 @@ spec:
 #        volumeMounts:
 #          - name: shared-volume
 #            mountPath: /app
-      - name: lv-viet-ocr-core
+      - name: lv-viet-ocr-core-recent
         image: {{ .Values.image_ocr }}  # Replace with your desired Python image
         command: ["python3"]  # Adjust if your Python interpreter is different
         args:
           - /app/cy_jobs/jobs/task_viet_ocr.py
-          - early=1
           - app_name={{ .Values.app_name }}
           - msg_process={{ .Values.msg_ocr }}
           - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile

@@ -37,6 +37,7 @@ data:
   nfs_server: {{ .Values.storage.server}}
   nfs_location: {{ .Values.storage.directory}}
   nfs_name: {{ .Values.storage.name}}
+  restrict_file: {{ .Values.restrict_file}}
 
 ---
 apiVersion: v1

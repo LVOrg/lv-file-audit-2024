@@ -6,6 +6,7 @@ import os.path
 import sys
 import threading
 import time
+import traceback
 
 from icecream import ic
 import hashlib
@@ -35,6 +36,7 @@ import requests.exceptions
 import typing
 import unicodedata
 from PyPDF2 import PdfReader
+import PyPDF2.errors
 import cy_es.cy_es_manager
 class ExtractTextFileService:
     """
@@ -46,14 +48,19 @@ class ExtractTextFileService:
     logs_to_mongo_db_service = cy_kit.singleton(LogsToMongoDbService)
     def __init__(self):
         self.__file_storage_path__ = config.file_storage_path
-        self.__temp_dir_name__ = "__tmp_dir__"
+        msg = config.get("msg_process") or "v-002"
+        self.__temp_dir_name__ = f"__tmp_dir_office__{msg}"
+        self.__temp_dir_result_name__ = f"__tmp_dir_office_result__{msg}"
+        self.__temp_dir_result__ = os.path.join(config.file_storage_path,self.__temp_dir_result_name__)
         self.__decrypt_dir_name__= "__decrypt_dir__"
         self.__temp_dir__ = os.path.join(self.__file_storage_path__,self.__temp_dir_name__).replace('/',os.sep)
         self.__decrypt_dir__ = os.path.join(self.__temp_dir__,self.__decrypt_dir_name__).replace('/',os.sep)
+
         self.__producer__: Consumer = None
         self.__consumer_es: Consumer = None
         os.makedirs(self.__temp_dir__,exist_ok=True)
         os.makedirs(self.__decrypt_dir__, exist_ok=True)
+        os.makedirs(self.__temp_dir_result__, exist_ok=True)
         self.client: Elasticsearch = self.search_engine.client
 
     @property
@@ -156,7 +163,17 @@ class ExtractTextFileService:
             contents.append(page.extract_text())
         del reader
         return " ".join(contents)
-    def consumer_office_content(self,msg):
+
+    def consumer_office_content(self, msg):
+        try:
+            return self.consumer_office_content_no_exception(msg)
+        except:
+            self.logs_to_mongo_db_service.log(
+                error_content=traceback.format_exc(),
+                url=msg.data.get(Repository.files.fields.MainFileId.__name__) or ""
+            )
+
+    def consumer_office_content_no_exception(self,msg):
         """
         Consume msg office content and generate new msg with tail fix is _es_update
         The message data also have new key is 'content-file' with value is value of text file (real and purely content of oofice file)
@@ -168,7 +185,7 @@ class ExtractTextFileService:
         """
         if not self.__producer__:
             self.__producer__= Consumer(msg)
-        rb_msg = self.__producer__.get_msg(delete_after_get=False)
+        rb_msg = self.__producer__.get_msg()
         if not  rb_msg:
             time.sleep(0.2)
             return
@@ -186,12 +203,16 @@ class ExtractTextFileService:
             self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
             return
         process_file = self.decrypt_file(encrypted_file_path=file_path)
-        if data[Repository.files.fields.FileExt].lower()=="pdf":
-            content = self.read_text_from_file(pdf_file=process_file)
+        if data[Repository.files.fields.FileExt.__name__].lower()=="pdf":
+            try:
+                content = self.read_text_from_file(pdf_file=process_file)
+            except:
+                content = self.extract_text_by_using_tika_server(file_path=process_file)
         else:
             content = self.extract_text_by_using_tika_server(file_path=process_file)
-        dir_of_server_file = pathlib.Path(process_file).parent.__str__()
-        content_of_server_file_es = os.path.join(dir_of_server_file,pathlib.Path(process_file).stem+".content.txt")
+
+        content_file_name = f"{hashlib.sha256(file_path.encode()).hexdigest()}.txt"
+        content_of_server_file_es = os.path.join(self.__temp_dir_result__,content_file_name)
         with open(content_of_server_file_es,"wb") as fs:
             fs.write(content.encode())
         data["content-file"] = content_of_server_file_es
@@ -259,7 +280,7 @@ class ExtractTextFileService:
         ret=ret.replace("Đ","D").replace("đ","d")
         return ret
     def save_content_elastic_search(self, app_name: str,upload_id:str,data_item,content:str):
-        es =self.client
+
         document_id = upload_id
         app_index = self.search_engine.get_index(app_name)
 
@@ -274,7 +295,7 @@ class ExtractTextFileService:
     def consumer_save_es(self, msg):
         if self.__consumer_es  is None:
             self.__consumer_es =  Consumer(f"{msg}_es_update")
-        rb_msg = self.__consumer_es.get_msg(delete_after_get=False)
+        rb_msg = self.__consumer_es.get_msg()
         if not rb_msg:
             return
         content_file = rb_msg.data.get("content-file") or ""
@@ -311,21 +332,16 @@ class ExtractTextFileService:
                     data_item=None,
                     content=content
                 )
-                # self.do_update_es(
-                #     client=self.client,
-                #     app_name = app_name,
-                #     upload_id = upload_id,
-                #     data_item = upload,
-                #     content = content
-                # )
-                # self.__consumer_es.delete_msg(rb_msg)
-                # self.update_upload_office_content(
-                #     app_name=app_name,
-                #     upload_id=upload_id,
-                #     msg=msg
-                # )
-            except elasticsearch.exceptions.RequestError:
+                ic(f"update content to {upload_id} at {app_name} is ok")
+                ic(rb_msg.data.get(Repository.files.fields.MainFileId.__name__))
+
+            except elasticsearch.exceptions.RequestError as ex:
                 self.__consumer_es.delete_msg(rb_msg)
+                self.logs_to_mongo_db_service.log(
+                    error_content=traceback.format_exc(),
+                    url= "ElasticSearch"
+                )
+                raise ex
 
 
 

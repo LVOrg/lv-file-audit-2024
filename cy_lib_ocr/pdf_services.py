@@ -16,9 +16,12 @@ import io
 from PyPDF2 import PdfReader
 import PyPDF2.errors
 import PIL.Image
-
+import  retry
+import requests
 import cy_kit
 from cy_lib_ocr.detect_orientation_mage_service import OrientDetector
+from  tika import parser as tika_parse
+from cyx.common import config
 class PDF_Service:
     orient_detector = cy_kit.single(OrientDetector)
     def get_dir_by_hash_name(self, pdf_file_path)->str:
@@ -130,6 +133,22 @@ class PDF_Service:
                     ic(image_file_path)
                     yield image_file_path
                 pix = None
+    def extract_text_by_using_tika_server(self, file_path:str):
+        @retry(exceptions=(requests.exceptions.ReadTimeout,requests.exceptions.ConnectionError),delay=15,tries=10)
+        def runing():
+
+            parsed_data = tika_parse.from_file(file_path,
+                                               serverEndpoint=config.tika_server,
+                                               xmlContent = False,
+                                               requestOptions = {'timeout': 5000})
+
+            content = parsed_data.get("content","") or ""
+            content = content.lstrip('\n').rstrip('\n').replace('\n',' ').replace('\r',' ').replace('\t',' ')
+            while "  " in content:
+                content = content.replace("  "," ")
+            content = content.rstrip(' ').lstrip(' ')
+            return content
+        return runing()
 
     def read_text_from_file(self,pdf_file)->str:
         contents = []

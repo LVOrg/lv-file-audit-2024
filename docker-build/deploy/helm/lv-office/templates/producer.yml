@@ -30,7 +30,7 @@ spec:
           args:
             - /app/cy_jobs/jobs/task_msg_producer_office.py
             - app_name=all
-            - msg_ocr={{ .Values.msg_ocr }}
+            - msg_process={{ .Values.msg }}
             - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile
             - remote_office=http://lv-office-service.{{ .Values.ns }}:80
             - remote_pdf=http://lv-pdf-service.{{ .Values.namespace }}:80

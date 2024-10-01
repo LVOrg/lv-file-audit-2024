@@ -1,5 +1,5 @@
 
-FROM docker.lacviet.vn/xdoc/lib-ocr:2
+FROM docker.io/nttlong/lib-ocr:2
 COPY ./../cy_file_cryptor /app/cy_file_cryptor
 COPY ./../cy_docs /app/cy_docs
 COPY ./../cy_es /app/cy_es
