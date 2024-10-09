@@ -168,7 +168,7 @@ class FilesContentController(BaseController):
                 )
             )
         return dict(
-            content=doc.source.content
+            content=doc.source.content_vn
         )
 
     def raise_message(self, file_ext, data_info,app_name):

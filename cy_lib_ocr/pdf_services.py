@@ -16,7 +16,7 @@ import io
 from PyPDF2 import PdfReader
 import PyPDF2.errors
 import PIL.Image
-import  retry
+from  retry import retry
 import requests
 import cy_kit
 from cy_lib_ocr.detect_orientation_mage_service import OrientDetector
@@ -149,14 +149,31 @@ class PDF_Service:
             content = content.rstrip(' ').lstrip(' ')
             return content
         return runing()
+    def remove_all_annotations(self,input_pdf):
+        output_pdf_file_name =  f"{pathlib.Path(input_pdf).stem}.no-sinature{pathlib.Path(input_pdf).suffix}"
+        output_pdf = os.path.join(pathlib.Path(input_pdf).parent.__str__(),output_pdf_file_name)
 
+        with open(input_pdf, 'rb') as input_file, open(output_pdf, 'wb') as output_file:
+            reader = PyPDF2.PdfReader(input_file)
+            writer = PyPDF2.PdfWriter()
+
+            for page_num in range(len(reader.pages)):
+                page = reader.pages[page_num]
+                # Remove annotations (which might include signatures)
+
+                if page.annotations:
+                    page.annotations.clear()
+                writer.add_page(page)
+            writer.write(output_pdf )
+            return output_pdf
     def read_text_from_file(self,pdf_file)->str:
-        contents = []
-        reader = PdfReader(pdf_file)
-        for page in reader.pages:
-            contents.append(page.extract_text())
-        del reader
-        return " ".join(contents)
+        """
+        Get text from pdf file by using PdfReader if error use tika
+        @param pdf_file:
+        @return:
+        """
+        no_annotations_file = self.remove_all_annotations(pdf_file)
+        return self.extract_text_by_using_tika_server(no_annotations_file)
 
 
 

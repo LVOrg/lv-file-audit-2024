@@ -51,6 +51,7 @@ from cyx.file_utils_services import FileUtilService
 from cyx.db_services.error_services import DbErrorServices
 from cyx.remote_caller import RemoteCallerService
 from cyx.logs_to_mongo_db_services import LogsToMongoDbService
+
 class BaseController:
 
     msg_service = cy_kit.singleton(RabitmqMsg)

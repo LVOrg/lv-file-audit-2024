@@ -33,7 +33,7 @@ spec:
         args:
           - /app/cy_jobs/jobs/task_viet_ocr.py
           - app_name={{ .Values.app_name }}
-          - msg_process={{ .Values.msg_ocr }}
+          - msg_process={{ .Values.msg }}
           - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile
           - remote_office=http://lv-office-service.{{ .Values.ns }}:80
           - remote_pdf=http://lv-pdf-service.{{ .Values.namespace }}:80
@@ -66,6 +66,7 @@ spec:
           - process_services_host=http://localhost
           - distribute_lock_server=distribute-lock-service.{{ .Values.namespace }}:2181
           - use_ssl=$(use_ssl)
+          - recent=1
         envFrom:
           - configMapRef:
               name: lv-file-config

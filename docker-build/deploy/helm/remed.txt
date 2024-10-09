@@ -1,19 +1,29 @@
 helm  template lv-files -f ../values/99-qc.yml -o test.yaml
 helm cm-push ./lv-ocr lv-files
+helm cm-push ./fix-meta-data lv-files
 helm template lv-ocr . --set namespace=<namespace-of-lv-file> --set nfs_server=<nfs server file>,nfs_path=<path tp nfs share>
 helm template lv-ocr .  --set nfs_server=<nfs server file>,nfs_path=<path tp nfs share>,ns=xdoc
 helm upgrade --install lv-ocr xdoc/lv-ocr --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files
-helm upgrade --install lv-office xdoc/lv-office --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files,msg=office_30_09_2024
+helm upgrade --install lv-office xdoc/lv-office --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files,msg=M20240710
 path: /share-data/xdoc/files
           server: 10.96.25.76
 viet lott
 helm upgrade --install lv-office xdoc/lv-office --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc
-helm upgrade --install lv-viet-ocr xdoc/lv-viet-ocr --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files,msg_ocr=ocr-27-09-2024-11
+helm upgrade --install lv-viet-ocr xdoc/lv-viet-ocr --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files,msg=M2024011001
 helm upgrade --install lv-ocr xdoc/lv-ocr --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files,msg_ocr=ocr-27-09-2024-11
 
-helm upgrade --install lv-office xdoc/lv-office --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,msg=20241001
-helm upgrade --install lv-viet-ocr xdoc/lv-viet-ocr --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,msg=2024011001
+helm upgrade --install lv-office xdoc/lv-office --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,msg=M20241008,app_name=default
+helm upgrade --install lv-viet-ocr xdoc/lv-viet-ocr --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,msg=M20241008
 
 helm upgrade --install lv-ocr xdoc/lv-ocr --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,msg=20241001
 
 helm repo add --username robot\$pull --password eUIy04o5bwW9Y7gLJyDJ38PXDYQIIRnj xdoc https://docker.lacviet.vn/chartrepo/xdoc
+
+helm upgrade --install lv-fix-es xdoc/lv-fix-es --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files,msg_ocr=ocr-27-09-2024-11
+helm upgrade --install lv-fix-es xdoc/lv-fix-es --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,msg=20241001
+helm upgrade --install fix-meta-data xdoc/fix-meta-data --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,codx_db=vietlott_Data,meta_version=v-01,time_interval=1
+helm upgrade --install lv-ws-comments-es xdoc/lv-ws-comments-es --set nfs_server=10.96.25.76,nfs_path=/share-data/xdoc/files,ns=xdoc,app_name=default,codx_db=vietlott_Data,meta_version=v-01,time_interval=1
+helm upgrade --install lv-net-ocr xdoc/lv-net-ocr --set ns=files
+helm upgrade --install fix-meta-data xdoc/fix-meta-data --set nfs_server=192.168.18.36,nfs_path=/codx-file-storage/files,ns=files,app_name=all,db_codx=mongodb://admin:Erm%402021@172.16.7.33:27017,version=M20241008
+
+db_codx=mongodb://admin:Erm%402021@172.16.7.33:27017

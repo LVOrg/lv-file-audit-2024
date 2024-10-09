@@ -102,4 +102,4 @@ COPY ./../venv-web-api/lib/python3.10/site-packages /usr/local/lib/python3.10/di
 ">>$ocr_all_file
 ocr_all_file_tag = "$web_api_tag_build.1"
 #buildFunc $ocr_all_file $repository "lib-ocr-all" $ocr_all_file_tag $ocr_all_file_tag $ocr_all_file_tag
-buildFunc $ocr_all_file docker.lacviet.vn/xdoc "lib-ocr-all" 48 $ocr_all_file_tag "alpine"
+buildFunc $ocr_all_file docker.lacviet.vn/xdoc "lib-ocr-all" 55 $ocr_all_file_tag "alpine"

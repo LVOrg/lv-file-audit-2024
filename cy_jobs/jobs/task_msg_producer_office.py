@@ -21,6 +21,7 @@ if __name__ == "__main__":
         try:
             apps = svc.get_app_names() if __app_name=="all" else [__app_name]
             for app_name in apps:
+
                 svc.producer_office_content(
                     app_name=app_name,
                     msg = msg

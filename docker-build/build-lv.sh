@@ -15,13 +15,13 @@ else
 fi
 if [ -z "$3" ]; then
   # No argument provided, use default repository
-  version="latest"
+  version="$3"
 else
   # Argument provided, use it as the repository
   version="$3"
 fi
 ./build-tiny.sh $repository $customer $version
-./build-office.sh "docker.io/nttlong" "libs"  "1"
-#./build-thumbs.sh "docker.io/nttlong" "libs" "1"
-./build-video.sh "docker.io/nttlong" "libs" "1"
-./build-pdf.sh  "docker.io/nttlong" "libs" "1"
+#./build-office.sh "docker.io/nttlong" "libs"  "1"
+##./build-thumbs.sh "docker.io/nttlong" "libs" "1"
+#./build-video.sh "docker.io/nttlong" "libs" "1"
+#./build-pdf.sh  "docker.io/nttlong" "libs" "1"

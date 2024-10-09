@@ -1,0 +1,24 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: lv-net-ocr
+  namespace: {{ .Values.ns }}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lv-net-ocr
+  template:
+    metadata:
+      labels:
+        app: lv-net-ocr
+    spec:
+      containers:
+        - name: lv-ocr-producer
+          image: {{ .Values.image }}
+      imagePullSecrets:
+        - name: harbor-secret-registry
+---
+
+

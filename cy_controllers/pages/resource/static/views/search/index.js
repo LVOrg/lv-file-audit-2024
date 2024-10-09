@@ -27,6 +27,7 @@ var searchView = await View(import.meta, class SearchView extends BaseScope {
         this.currentApp = this.listOfApp[0];
         this.currentAppName = this.currentApp.Name;
         this.highlight = false;
+        this.searchContent="((((meta_info.FolderPath like 'Quản lý công văn\\Công văn đến')) and (privileges['1']  like ['u-lv110'])) and (meta_info.FileName like 'Hợp đồng.pdf')) and (content like 'cong hoa xa hoi chu nghia')"
         
         this.$apply();
         await this.doFullTextSearch();

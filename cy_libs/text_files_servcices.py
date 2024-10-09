@@ -137,6 +137,11 @@ class ExtractTextFileService:
     def producer_office_content(self, app_name:str, msg:str):
         if not self.__producer__:
             self.__producer__= Consumer(msg)
+        Repository.files.app(app_name).context.update(
+            Repository.files.fields.Status>1,
+            Repository.files.fields.Status << 1,
+            Repository.files.fields.MsgOfficeContentReRaise << "-",
+        )
         agg = Repository.files.app(app_name).context.aggregate().match(
             Repository.files.fields.Status==1
         ).match(
@@ -147,6 +152,7 @@ class ExtractTextFileService:
         ).sort(
             Repository.files.fields.RegisterOn.desc()
         ).limit(1)
+        ic(agg)
         for item in agg:
             self.__producer__.raise_message(
                 app_name=app_name,
@@ -156,7 +162,24 @@ class ExtractTextFileService:
             ic(f"raise msg={msg} in app={app_name}")
             ic(item.to_json_convertable())
             self.update_upload_office_content(app_name=app_name, upload_id=item.id, msg=msg)
-    def read_text_from_file(self,pdf_file)->str:
+    def remove_all_annotations(self,input_pdf):
+        output_pdf_file_name =  f"{pathlib.Path(input_pdf).stem}.no-sinature{pathlib.Path(input_pdf).suffix}"
+        output_pdf = os.path.join(pathlib.Path(input_pdf).parent.__str__(),output_pdf_file_name)
+
+        with open(input_pdf, 'rb') as input_file, open(output_pdf, 'wb') as output_file:
+            reader = PyPDF2.PdfReader(input_file)
+            writer = PyPDF2.PdfWriter()
+
+            for page_num in range(len(reader.pages)):
+                page = reader.pages[page_num]
+                # Remove annotations (which might include signatures)
+
+                if page.annotations:
+                    page.annotations.clear()
+                writer.add_page(page)
+            writer.write(output_pdf )
+            return output_pdf
+    def delete_read_text_from_file(self,pdf_file)->str:
         contents = []
         reader = PdfReader(pdf_file)
         for page in reader.pages:
@@ -165,12 +188,14 @@ class ExtractTextFileService:
         return " ".join(contents)
 
     def consumer_office_content(self, msg):
+        data = {}
         try:
-            return self.consumer_office_content_no_exception(msg)
+            data = self.consumer_office_content_no_exception(msg)
+            return data
         except:
             self.logs_to_mongo_db_service.log(
                 error_content=traceback.format_exc(),
-                url=msg.data.get(Repository.files.fields.MainFileId.__name__) or ""
+                url=data.get(Repository.files.fields.MainFileId.__name__) or ""
             )
 
     def consumer_office_content_no_exception(self,msg):
@@ -204,10 +229,9 @@ class ExtractTextFileService:
             return
         process_file = self.decrypt_file(encrypted_file_path=file_path)
         if data[Repository.files.fields.FileExt.__name__].lower()=="pdf":
-            try:
-                content = self.read_text_from_file(pdf_file=process_file)
-            except:
-                content = self.extract_text_by_using_tika_server(file_path=process_file)
+                pdf_file_no_annotations = self.remove_all_annotations(input_pdf=process_file)
+                content = self.extract_text_by_using_tika_server(file_path=pdf_file_no_annotations)
+
         else:
             content = self.extract_text_by_using_tika_server(file_path=process_file)
 
@@ -225,6 +249,7 @@ class ExtractTextFileService:
         ic(data)
         self.__producer__.delete_msg(rb_msg.method)
         self.update_upload_office_content(app_name=app_name, upload_id=data.get("_id"),msg=msg)
+        return data
     def update_upload_office_content(self, app_name, upload_id,msg):
         Repository.files.app(app_name).context.update(
             Repository.files.fields.id==upload_id,
@@ -324,6 +349,10 @@ class ExtractTextFileService:
             content = content.rstrip(' ').lstrip(' ')
             while '  ' in content:
                 content = content.replace('  ',' ')
+            if not content or len(content)==0:
+                ic(f'no content detect in {rb_msg.data.get("MainFileId")}')
+                self.__consumer_es.delete_msg(rb_msg)
+                return
             ic(content[0:20])
             try:
                 self.save_content_elastic_search(
@@ -390,19 +419,23 @@ class ExtractTextFileService:
 
 
 if __name__ == "__main__":
-    app_name = "developer"
-    msg= config.get("msg_re_run") or "office-content"
-    svc = cy_kit.singleton(ExtractTextFileService)
-    th1 = svc.producer_office_content_loop_task(app_name=app_name,msg=msg)
-    th2 = svc.consumer_office_content_loop_task(msg=msg)
-    th3 = svc.consumer_save_es_loop_task(msg=msg)
-    th1.start()
-    th2.start()
-    th3.start()
-    # th1.join()
-    # th2.join()
-    th3.join()
-    print("OK")
+    svc= ExtractTextFileService()
+    file=r"/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/Hồ sơ DNTT CNHP Tháng 09 lần 1.pdf"
+    txt=svc.read_text_from_file(file)
+    print(txt)
+    # app_name = "developer"
+    # msg= config.get("msg_re_run") or "office-content"
+    # svc = cy_kit.singleton(ExtractTextFileService)
+    # th1 = svc.producer_office_content_loop_task(app_name=app_name,msg=msg)
+    # th2 = svc.consumer_office_content_loop_task(msg=msg)
+    # th3 = svc.consumer_save_es_loop_task(msg=msg)
+    # th1.start()
+    # th2.start()
+    # th3.start()
+    # # th1.join()
+    # # th2.join()
+    # th3.join()
+    # print("OK")
     # agg = Repository.files.app("developer").context.aggregate().match(
     #     Repository.files.fields.FileExt=="pdf"
     # ).sort(

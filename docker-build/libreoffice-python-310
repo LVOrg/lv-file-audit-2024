@@ -870,3 +870,163 @@ COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
 
 ENTRYPOINT ["/remote_server_libs/office.sh"]
 
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+
+ARG BASE
+FROM nttlong/libreoffice-python310:1.1
+COPY ./../venv-remote-office/lib/python3.10/site-packages /usr/local/lib/python3.10/dist-packages
+COPY ./../remote_server_libs /remote_server_libs
+COPY ./../cy_file_cryptor /remote_server_libs/cy_file_cryptor
+
+ENTRYPOINT ["/remote_server_libs/office.sh"]
+

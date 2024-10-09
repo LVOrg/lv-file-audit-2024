@@ -16,14 +16,14 @@ sys.path.append("/app")
 app_path= pathlib.Path(__file__).parent.__str__()
 execute_files = [
     "fix_data/fix_google_drive.py",
-    "jobs/task_content.py",
+    # "jobs/task_content.py",
     # "jobs/task_google_driver_folders.py",
     "jobs/task_google_file_sync.py",
     "jobs/task_onedrive_file_sync.py",
     "jobs/task_images_from_office.py",
     "jobs/task_text_from_office.py",
     "jobs/task_images_from_pdf.py",
-    "jobs/task_orc.py",
+    # "jobs/task_orc.py",
     "web.py"
 ]
 

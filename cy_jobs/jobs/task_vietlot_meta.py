@@ -114,7 +114,8 @@ def do_sync_meta(revrse:bool=False):
                 codx_files.fields.CreatedBy,
                 codx_files.fields.CreatedOn,
                 codx_files.fields.FolderPath,
-                codx_files.fields.ObjectType
+                codx_files.fields.ObjectType,
+                codx_files.fields.ObjectID
 
             ).first_item()
             if not x:

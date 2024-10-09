@@ -11,9 +11,9 @@ import PyPDF2
 import hashlib
 import io
 from PIL import Image
-
+import traceback
 from reportlab.pdfgen import canvas
-
+import retry
 import elasticsearch.exceptions
 from cyx.common import config
 from cyx.repository import Repository
@@ -313,28 +313,29 @@ class OCRFilesService(ExtractTextFileService):
         es =self.client
         document_id = upload_id
         app_index = self.search_engine.get_index(app_name)
-        if isinstance(content, str) and len(content) > 0:
 
+        @retry.retry(delay=5, tries=10)
+        def save_content(_index, _id, txt_content):
+            import cy_es.cy_es_manager
+            cy_es.cy_es_manager.update_or_insert_content(
+                index=_index,
+                id=_id,
+                content=txt_content
+
+            )
+
+        if isinstance(content, str) and len(content) > 0:
             try:
-                # existing_document = es.get(index=app_index, id=document_id)
-                # existing_document["_source"]["content"] = content
-                # existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
-                update_doc = {
-                    "doc": {
-                        "content": content,
-                        "content_non_accent": self.clear__accents(content)
-                    }
-                }
-                es.update(index=app_index, id=document_id, body=update_doc, doc_type="_doc")
-                ic(f"Document updated successfully. {app_index},{document_id}")
-            except elasticsearch.exceptions.NotFoundError as e:
-                if e.args[0] == 404:  # Document not found
-                    new_document = {
-                        "content": content,
-                        "content_non_accent": self.clear__accents(content)
-                    }
-                    es.index(index=app_index, body=new_document, id=upload_id, doc_type="_doc")
-                    ic(f"New document created successfully.{app_index},{document_id}")
+                save_content(
+                    _index=app_index,
+                    _id=document_id,
+                    txt_content=content
+                )
+            except:
+                self.logs.log(
+                    error_content=traceback.format_exc(),
+                    url="ElasticSearch"
+                )
         else:
             ic(f"No content for. {app_index},{document_id}")
 

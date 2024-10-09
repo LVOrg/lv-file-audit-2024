@@ -4,16 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Fix ocr file skip hide text on pdf file">
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/analyzers.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/analyzers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/client.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/client.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_sugestion_server.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_sugestion_server.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_suggestion_client.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_suggestion_client.py" afterDir="false" />
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Add new component to framework allow link to Codx Database, make mata data for ES">
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/codx_dm_file_info_list.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/codx_ws_comment_list.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/lv_files_apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/repositories.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/lib_list_all_files.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_fix_search_comment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_net_ocr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_remake_search.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_remake_search_meta.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_update_dm_info_meta_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_update_ws_comments_meta.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlott_fix_meta_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/remake_search/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_jobs/remake_search/remake_search_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_kit/design_pattern.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_accents.npy.zip" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_grams1.npy.zip" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_grams2.npy.zip" afterDir="false" />
@@ -25,43 +33,66 @@
       <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_grams1.npy.zip" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_grams2.npy.zip" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_stat.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/generators.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/generators.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/gram_calculators.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/gram_calculators.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/loader.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/loader.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/requirement.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/settings.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/suggestions.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/suggestions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/utils.cpython-310-aarch64-linux-gnu.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app--recent.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cyx/text_utils/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cyx/text_utils/html_services.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/fix-meta-data/templates/app.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-fix-es/templates/app.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-net-ocr/templates/app.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-net-ocr/templates/svc.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ws-comments-es/templates/app.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_register_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_manager.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_manager.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/db_models/files.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/log_watcher_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/log_watcher_service.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/repository.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c-setup-tem/cyx_setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/c-setup-tem/cyx_setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/common/base_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/common/base_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_content_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/pages/resource/static/views/search/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/contents.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/contents.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_office.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_msg_producer_office.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_viet_ocr.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_viet_ocr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlot_meta.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_vietlot_meta.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_lib_ocr/pdf_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/ocr_files_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_libs/text_files_servcices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-agg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-office-processor.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/_apps-data.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/config-map.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-files/templates/config-map.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/analyzers.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/client.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_sugestion_server.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_suggestion_client.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/generators.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/gram_calculators.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/loader.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/settings.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/suggestions.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/utils.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/db_models/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/db_models/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/fix_miss_thumbs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cyx/repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-lv.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-lv.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-office-processor.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-office-processor.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-tiny.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-tiny.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr/values.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/consumer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/consumer.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/producer.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/producer.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/update-es.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/templates/update-es.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-office/values.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app--recent.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app--recent.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-viet-ocr/templates/app.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/remed.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/libreoffice-python-310" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/libreoffice-python-310" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/ocr-advance.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/ocr-advance.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/ocr-all" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/ocr-all" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/video" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/video" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/runtime/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/runtime/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,21 +141,32 @@
     "Python.che_write_file_with_encrypt.executor": "Debug",
     "Python.check.executor": "Debug",
     "Python.check_caching.executor": "Debug",
+    "Python.check_clear_html.executor": "Debug",
     "Python.check_es.executor": "Debug",
     "Python.check_id.executor": "Debug",
     "Python.check_list.executor": "Debug",
+    "Python.check_lv_net_ocr.executor": "Debug",
     "Python.check_tika.executor": "Debug",
     "Python.check_unicod.executor": "Debug",
     "Python.checkfile.executor": "Debug",
     "Python.clear_logs.executor": "Debug",
+    "Python.codx_dm_file_info_list.executor": "Debug",
+    "Python.codx_ws_comment_list.executor": "Debug",
     "Python.contents.executor": "Debug",
     "Python.cy_vn_suggestion_check.executor": "Debug",
+    "Python.html_services.executor": "Debug",
+    "Python.lib_list_all_files.executor": "Debug",
     "Python.load_check.executor": "Debug",
+    "Python.lv_files_apps.executor": "Debug",
+    "Python.main.executor": "Debug",
     "Python.ocr_files_services.executor": "Debug",
     "Python.ocr_services.executor": "Debug",
     "Python.office.executor": "Debug",
     "Python.pdf_api.executor": "Debug",
     "Python.pdf_services.executor": "Debug",
+    "Python.remake_search_service (1).executor": "Debug",
+    "Python.remake_search_service.executor": "Debug",
+    "Python.repositories.executor": "Debug",
     "Python.server (1).executor": "Debug",
     "Python.server.executor": "Debug",
     "Python.task_content.executor": "Debug",
@@ -135,15 +177,19 @@
     "Python.task_msg_es_update_ocr.executor": "Debug",
     "Python.task_msg_producer_ocr.executor": "Debug",
     "Python.task_msg_producer_office.executor": "Debug",
+    "Python.task_net_ocr.executor": "Debug",
     "Python.task_orc.executor": "Debug",
+    "Python.task_remake_search.executor": "Debug",
+    "Python.task_saas_update_dm_info_meta_data.executor": "Debug",
     "Python.task_text_from_office.executor": "Debug",
+    "Python.task_viet_ocr.executor": "Debug",
     "Python.task_vietlot_meta.executor": "Debug",
     "Python.task_vietlott_ocr_all.executor": "Debug",
     "Python.text_files_servcices.executor": "Debug",
     "Python.tmp_files_servcices.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv",
+    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/dot-net/LV.OCR.API_linux-x64",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -157,22 +203,22 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/dot-net/LV.OCR.API_linux-x64" />
+      <recent name="$PROJECT_DIR$/docker-build/deploy/helm/lv-fix-es/templates" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/dot-net/so-files" />
       <recent name="$PROJECT_DIR$/a_checking/resource-test/test-001" />
-      <recent name="$PROJECT_DIR$/a_checking/resource-test" />
-      <recent name="$PROJECT_DIR$/cy_lib_ocr" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cy_jobs/jobs" />
+      <recent name="$PROJECT_DIR$/cy_jobs" />
       <recent name="$PROJECT_DIR$/a_checking/resource-test/test-001" />
       <recent name="$PROJECT_DIR$/py-torch/cache" />
       <recent name="$PROJECT_DIR$/cyx-delete" />
-      <recent name="$PROJECT_DIR$/delete-package" />
-      <recent name="$PROJECT_DIR$/cyx/db_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.cy_vn_suggestion_check">
-    <configuration name="check_tika" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.server (1)">
+    <configuration name="codx_dm_file_info_list" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -181,12 +227,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_checking" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs/codx" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_checking/check_tika.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/codx/codx_dm_file_info_list.py" />
+      <option name="PARAMETERS" value="db_codx=mongodb://admin:Erm%402021@172.16.7.33:27017" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -194,7 +240,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="cy_vn_suggestion_check" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="codx_ws_comment_list" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -203,12 +249,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs/codx" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_vn_suggestion_check.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/codx/codx_ws_comment_list.py" />
+      <option name="PARAMETERS" value="db_codx=mongodb://admin:Erm%402021@172.16.7.33:27017" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -216,7 +262,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="ocr_services" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="lv_files_apps" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -225,12 +271,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_lib_ocr" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs/codx" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_lib_ocr/ocr_services.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/codx/lv_files_apps.py" />
+      <option name="PARAMETERS" value="db_codx=mongodb://admin:Erm%402021@172.16.7.33:27017" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -238,7 +284,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pdf_services" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="repositories" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -247,12 +293,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/lib_ocr" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs/codx" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/lib_ocr/pdf_services.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/codx/repositories.py" />
+      <option name="PARAMETERS" value="db_codx=mongodb://admin:Erm%402021@172.16.7.33:27017" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -282,28 +328,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="task_msg_es_update_ocr" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py-files-sv" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_msg_es_update_ocr.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="task_msg_producer_office" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -326,13 +350,79 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="task_net_ocr" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_net_ocr.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="task_saas_update_dm_info_meta_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_saas_update_dm_info_meta_data.py" />
+      <option name="PARAMETERS" value="version=v-05 db_codx=mongodb://admin:Erm%402021@172.16.7.33:27017 app_name=all" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="task_viet_ocr" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_viet_ocr.py" />
+      <option name="PARAMETERS" value="recent=1" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.cy_vn_suggestion_check" />
-        <item itemvalue="Python.check_tika" />
-        <item itemvalue="Python.ocr_services" />
-        <item itemvalue="Python.pdf_services" />
-        <item itemvalue="Python.task_msg_es_update_ocr" />
+        <item itemvalue="Python.task_saas_update_dm_info_meta_data" />
+        <item itemvalue="Python.lv_files_apps" />
+        <item itemvalue="Python.codx_dm_file_info_list" />
+        <item itemvalue="Python.task_viet_ocr" />
+        <item itemvalue="Python.task_net_ocr" />
       </list>
     </recent_temporary>
   </component>
@@ -353,7 +443,8 @@
     <MESSAGE value="fxi OCR pdf some type errors" />
     <MESSAGE value="Fix copy file" />
     <MESSAGE value="Fix ocr file skip hide text on pdf file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix ocr file skip hide text on pdf file" />
+    <MESSAGE value="Add new component to framework allow link to Codx Database, make mata data for ES" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add new component to framework allow link to Codx Database, make mata data for ES" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -585,7 +676,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>271</line>
+          <line>282</line>
           <option name="timeStamp" value="495" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -610,22 +701,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>275</line>
+          <line>286</line>
           <option name="timeStamp" value="553" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>1016</line>
+          <line>1027</line>
           <option name="timeStamp" value="559" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/file_utils_services.py</url>
-          <line>644</line>
-          <option name="timeStamp" value="581" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_libs/ocr_files_services.py</url>
-          <line>475</line>
+          <line>476</line>
           <option name="timeStamp" value="627" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -674,14 +760,54 @@
           <option name="timeStamp" value="700" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/cache_service/memcache_service.py</url>
-          <line>17</line>
-          <option name="timeStamp" value="702" />
+          <url>file://$PROJECT_DIR$/cy_libs/text_files_servcices.py</url>
+          <line>424</line>
+          <option name="timeStamp" value="705" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cyx/cache_service/memcache_service.py</url>
-          <line>14</line>
-          <option name="timeStamp" value="703" />
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_viet_ocr.py</url>
+          <line>111</line>
+          <option name="timeStamp" value="706" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_lib_ocr/ocr_services.py</url>
+          <line>212</line>
+          <option name="timeStamp" value="707" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_jobs/remake_search/remake_search_service.py</url>
+          <line>36</line>
+          <option name="timeStamp" value="709" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/a_checking/check_lv_net_ocr.py</url>
+          <line>31</line>
+          <option name="timeStamp" value="742" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/a_checking/check_lv_net_ocr.py</url>
+          <line>35</line>
+          <option name="timeStamp" value="743" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_net_ocr.py</url>
+          <line>136</line>
+          <option name="timeStamp" value="762" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_net_ocr.py</url>
+          <line>45</line>
+          <option name="timeStamp" value="764" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_net_ocr.py</url>
+          <line>18</line>
+          <option name="timeStamp" value="765" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cyx/common/mongo_db_services.py</url>
+          <line>18</line>
+          <option name="timeStamp" value="771" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

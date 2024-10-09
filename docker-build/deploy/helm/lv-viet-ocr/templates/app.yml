@@ -34,7 +34,7 @@ spec:
           - /app/cy_jobs/jobs/task_viet_ocr.py
           - early=1
           - app_name={{ .Values.app_name }}
-          - msg_process={{ .Values.msg_ocr }}
+          - msg_process={{ .Values.msg }}
           - private_web_api=http://lv-file-service.{{ .Values.ns }}:80/lvfile
           - remote_office=http://lv-office-service.{{ .Values.ns }}:80
           - remote_pdf=http://lv-pdf-service.{{ .Values.namespace }}:80

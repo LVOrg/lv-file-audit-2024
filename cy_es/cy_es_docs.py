@@ -200,10 +200,13 @@ class DocumentFields:
         """
         from cy_es.cy_es_manager import clear__accents
         fix_mask = [("đ",chr(240),"d"),("Đ",chr(208),"D")]
-        item_search_no_accent = clear__accents(item_search)
+        # item_search_no_accent = clear__accents(item_search)
         def create_es_filter(item,no_accent=False):
             ret = DocumentFields()
-            field_name = f"{self.__name__}_non_accent" if no_accent else self.__name__
+            if self.__name__.lower()=="meta_info.content":
+                field_name = "content_vn"
+            else:
+                field_name = f"{self.__name__}_vn" if self.__name__=="content" else self.__name__
             boost = None
             if "^" in field_name:
                 field_name, boost = tuple(field_name.split("^"))
@@ -211,27 +214,35 @@ class DocumentFields:
                     boost=None
 
             ret_match_phase=DocumentFields()
-            ret_query = DocumentFields()
-            dict_filter = es_script.script_index_of(field_name,item)
-            if item[-1]=="*":
-                dict_filter = es_script.script_start_with(field_name, item[:-1])
-            elif item[0]=="*":
-                dict_filter = es_script.script_end_with(field_name, item[1:])
-            ret = es_script.build(ret,es_script.must_wrapper(es_script.constant_score(dict_filter,boost)))
-            ret_match_phase = es_script.build(ret_match_phase,es_script.multi_match_slop_3(field_name,item,boost))
-            # ret_query = es_script.build(ret_query, es_script.simple_query_string(field_name, item, boost))
-            ret=ret |ret_match_phase
+            ret_index_of = DocumentFields()
+            multi_match_slop_3 = DocumentFields()
+            ret_simple_query_string = DocumentFields()
+            if boost is None:
+                boost=1000
+
+
+            multi_match_slop_3 = es_script.build(multi_match_slop_3,es_script.multi_match_slop_3(field_name,item,boost))
+            ret_match_phase = es_script.build(ret_match_phase, es_script.match_phrase(field_name, item, boost))
+            ret_simple_query_string = es_script.build(ret_simple_query_string,es_script.simple_query_string(field_name,item,boost))
+            match_term = DocumentFields()
+            dict_index_of = es_script.constant_score(es_script.script_index_of(field_name, item), boost*22)
+            ret_index_of = es_script.build(ret_index_of,dict_index_of)
+            # ret_index_of.__is_bool__ = True
+
+            ret = ret_index_of|ret_match_phase
+
+            ret =ret_match_phase
             ret.__highlight_fields__ = [field_name]
-            return ret
+            return ret_match_phase
         regular_ret = create_es_filter(item_search)
-        regular_no_accent_ret = create_es_filter(item_search_no_accent, True)
+        # regular_no_accent_ret = create_es_filter(item_search_no_accent, True)
         if any(set(item_search).intersection(set("đĐ"))):
             error_text_search=item_search.encode().decode()
             for (x,y,z) in fix_mask:
                 error_text_search = error_text_search.replace(x,y)
 
             regular_ret = regular_ret|create_es_filter(error_text_search)
-        return regular_ret|regular_no_accent_ret
+        return regular_ret
 
 
 

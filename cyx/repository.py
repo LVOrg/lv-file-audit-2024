@@ -13,7 +13,8 @@ from cyx.db_models.files import (DocUploadRegister,
                                   LVFileContentProcessReport,
                                   GoogleFolderMappings,
                                  CloudFileSync,
-                                DuplicateFileHistory
+                                DuplicateFileHistory,
+                                Codx_WP_Comments
 
                                   )
 from cy_controllers.models.settings import GlobalSettings
@@ -49,6 +50,8 @@ class Repository:
     cloud_path_track = RepositoryContext[CloudPathTrack](CloudPathTrack)
     sys_app_logs_coll = RepositoryContext[sys_app_logs](sys_app_logs)
     codx_dm_file_info = RepositoryContext[Codx_DM_FileInfo](Codx_DM_FileInfo)
+    codx_wp_comments = RepositoryContext[Codx_WP_Comments](Codx_WP_Comments)
+
     lv_file_sync_report = RepositoryContext[lv_file_sync_report](lv_file_sync_report)
     lv_file_sync_logs = RepositoryContext[lv_file_sync_logs](lv_file_sync_logs)
     lv_files_sys_logs = RepositoryContext[LVFileSysLogs](LVFileSysLogs)

@@ -28,7 +28,7 @@ import typing
 import cy_kit
 import matplotlib.pyplot as plt
 from PIL import Image
-
+from PyPDF2 import PdfReader
 from icecream import ic
 
 # import torch.hub
@@ -81,7 +81,7 @@ class OCRService:
         ic(self.config)
         self.detector = Predictor(self.config)
         self.tmp_output_dir =os.path.join(config.file_storage_path,"__tmp_viet_ocr__")
-        self.tmp_result_dir = os.path.join(config.file_storage_path, f"__tmp_viet_ocr_result__{(config.get('msg_process') or '').replace('-','_')}")
+        self.tmp_result_dir = os.path.join(config.file_storage_path, f"__tmp_viet_ocr_result_1__{(config.get('msg_process') or '').replace('-','_')}")
         os.makedirs(self.tmp_output_dir, exist_ok=True)
         os.makedirs(self.tmp_result_dir, exist_ok=True)
 
@@ -175,8 +175,41 @@ class OCRService:
         max_y = max(point[1] for point in points)
 
         return (min_x, min_y, max_x, max_y)
+    def extract_text_by_using_tika_server(self, file_path:str):
+        @retry(exceptions=(requests.exceptions.ReadTimeout,requests.exceptions.ConnectionError),delay=15,tries=10)
+        def runing():
 
+            parsed_data = tika_parse.from_file(file_path,
+                                               serverEndpoint=config.tika_server,
+                                               xmlContent = False,
+                                               requestOptions = {'timeout': 5000})
+
+            content = parsed_data.get("content","") or ""
+            content = content.lstrip('\n').rstrip('\n').replace('\n',' ').replace('\r',' ').replace('\t',' ')
+            while "  " in content:
+                content = content.replace("  "," ")
+            content = content.rstrip(' ').lstrip(' ')
+            return content
+        return runing()
+
+    def read_text_from_file(self,pdf_file)->str:
+        try:
+            contents = []
+            reader = PdfReader(pdf_file)
+            for page in reader.pages:
+                contents.append(page.extract_text())
+            del reader
+            return " ".join(contents)
+        except:
+            return self.extract_text_by_using_tika_server(pdf_file)
     def get_text_from_pdf(self, pdf_file) -> typing.Union[str, None]:
+        """
+        Do 2 phase get text from pdf file:
+            1 -Get text from pdf file by using PdfReader if error use tika
+            2- do OCR all images
+        @param pdf_file:
+        @return:
+        """
         tika_content = self.pdf_service.read_text_from_file(pdf_file) or ""
         try:
             file_iter: typing.Iterable[str] = self.pdf_service.image_extract(pdf_file_path=pdf_file,
@@ -191,19 +224,35 @@ class OCRService:
         except RuntimeError:
             return tika_content
 
-
+    def get_content_from_ocr(self,pdf_file):
+        # do OCR content
+        content = self.get_text_from_pdf(pdf_file)
+        content = content.replace("\n", " ").replace("\r", " ").replace("\t", " ")
+        while "  " in content:
+            content = content.replace("  ", " ")
+        content = content.lstrip(" ").rstrip(" ")
+        return content
     def get_content_from_pdf(self, pdf_file):
         """
         Do OCR and write content to file return that file
+        Do 2 phase get text from pdf file:
+            1 -Get text from pdf file by using PdfReader if error use tika
+            2- do OCR all images
         @param pdf_file:
         @return:
         """
         # first has256 location of pdf file as content file name
-        content_file_name = hashlib.sha256(pdf_file.encode()).hexdigest()
-        content_file_path = os.path.join(self.tmp_result_dir, f"{content_file_name}.txt")
+        content_file_name = pathlib.Path(pdf_file).name
+        content_file_ext = pathlib.Path(pdf_file).suffix[1:]
+        content_file_dir = pathlib.Path(pdf_file).parent.__str__()
+        full_file_name = f"{content_file_name}.{content_file_ext}.txt" if content_file_ext else f"{content_file_name}.txt"
+        content_file_path = os.path.join(content_file_dir, full_file_name)
         # check if content_file_path is ready that mean pdf_file has been OCR-Content, no more do OCR
         if os.path.isfile(content_file_path):
-            return content_file_path
+            if os.stat(content_file_path).st_size<5:
+                os.remove(content_file_path)
+            else:
+                return content_file_path
         # do OCR content
         content = self.get_text_from_pdf(pdf_file)
         content = content.replace("\n", " ").replace("\r", " ").replace("\t", " ")
@@ -221,9 +270,9 @@ def main():
     svc = OCRService()
     pdf_file = r'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/511-cp.signe.pdf'
     pdf_file = r'/app/a_checking/resource-test/511-cp.signe.pdf'
-    pdf_file = r'/app/a_checking/resource-test/qð 542.pdf'
+    pdf_file = r'/app/a_checking/resource-test/CNHP_QLTT_BC__Báo cáo App Web_30.09.2024.pdf'
     # pdf_file = r'/app/a_checking/resource-test/Bản tin tháng 9.pdf'
-    pdf_file = r'/app/a_checking/resource-test/Bản tin tháng 9.pdf'
+    # pdf_file = r'/app/a_checking/resource-test/Bản tin tháng 9.pdf'
     output_dir = f'/root/python-2024/lv-file-fix-2024/py-files-sv/a_checking/resource-test/results'
     output_dir = f'/app/a_checking/resource-test/results-docker'
     # file_iter: typing.Iterable[str] = svc.pdf_service.image_extract(pdf_file_path=pdf_file, output_dir=output_dir)
@@ -237,4 +286,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-#docker run -t  -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app -v /mnt/files:/mnt/files docker.lacviet.vn/xdoc/composite-ocr:2.1.19 python /app/cy_lib_ocr/ocr_services.py
+#docker run -it  -v /root/python-2024/lv-file-fix-2024/py-files-sv:/app -v /mnt/files:/mnt/files docker.lacviet.vn/xdoc/composite-ocr:2.2.15 python /bin/bash

@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: lv-net-ocr-service
+  namespace: {{ .Values.ns }}
+  labels:
+    app: lv-net-ocr-service
+spec:
+  ports:
+    - name: lv-net-ocr-node-port
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+      nodePort: 32270
+  selector:
+    app: lv-net-ocr
+  type: NodePort
+

@@ -45,6 +45,7 @@ setup(
 		r'cyx/image_services.py',
 		r'cyx/g_drive_services.py',
 		r'cyx/processing_file_manager_services.py',
+		r'cyx/text_utils/html_services.py',
 		r'cyx/token_manager/request_service.py',
 		r'cyx/token_manager/token_service.py',
 		r'cyx/google_drive_utils/directories.py',

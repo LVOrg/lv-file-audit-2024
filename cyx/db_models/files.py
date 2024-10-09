@@ -475,7 +475,14 @@ class Codx_DM_FileInfo:
     lv_file_services_is_update_meta_v1: typing.Optional[bool]
     CreatedOn: typing.Optional[datetime.datetime]
     FolderPath: typing.Optional[str]
-
+@cy_docs.define("WP_Comments", uniques=[], indexes=[
+    "RecID","CreatedOn","PublishOn"
+])
+class Codx_WP_Comments:
+    RecID: typing.Optional[str]
+    Content: typing.Optional[str]
+    CreatedOn: datetime.datetime
+    PublishOn: datetime.datetime
 
 @cy_docs.define("LV_File_Sync_Report", uniques=[], indexes=[])
 class lv_file_sync_report:

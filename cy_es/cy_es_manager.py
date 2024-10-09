@@ -21,8 +21,10 @@ def clear__accents(content):
     normalized_form = unicodedata.normalize('NFKC', content)
     decomposed_form = unicodedata.normalize('NFKD', normalized_form)
     ret = ''.join(c for c in decomposed_form if unicodedata.category(c) != 'Mn')
-    ret = ret.replace("đ","d").replace("Đ","D")
+    ret = ret.replace("đ", "d").replace("Đ", "D")
     return ret
+
+
 def get_mapping(client: elasticsearch.Elasticsearch, index: str) -> typing.Optional[dict]:
     ret = client.indices.get_mapping(
         index=index
@@ -86,23 +88,21 @@ def get_meta_info_keyword_fields(
             x.startswith(f"{FIELD_RAW_TEXT}.") and not x.startswith("meta_info.")]
 
 
-def __well_form_text__(content:typing.Optional[str])->typing.Optional[str]:
+def __well_form_text__(content: typing.Optional[str]) -> typing.Optional[str]:
     if content is None:
         return None
-    special_chracter=[
+    special_chracter = [
         "\n",
         "\r",
         "\t"
     ]
     for ch in special_chracter:
         if ch in content:
-            content=content.replace(ch," ")
+            content = content.replace(ch, " ")
     while "  " in content:
-        content = content.replace("  "," ")
+        content = content.replace("  ", " ")
     content = content.rstrip(" ").lstrip(" ")
     return content
-
-
 
 
 def get_fields_text(
@@ -446,7 +446,7 @@ def clean_up(data: typing.Optional[typing.Dict],
         if is_clean:
             ret[k] = None
         else:
-            if isinstance(v,dict):
+            if isinstance(v, dict):
                 ret[k] = clean_up(v)
             else:
                 ret[k] = v
@@ -455,32 +455,33 @@ def clean_up(data: typing.Optional[typing.Dict],
 
 
 def get_max_analyzed_offset(e):
-    if not hasattr(e,"info") or not isinstance(e.info,dict):
-        return  -1
-    if  not isinstance(e.info.get("error"),dict):
+    if not hasattr(e, "info") or not isinstance(e.info, dict):
         return -1
-    if  not isinstance(e.info.get("error").get("root_cause"),list):
+    if not isinstance(e.info.get("error"), dict):
         return -1
-    if  len(e.info.get("error").get("root_cause"))<1:
+    if not isinstance(e.info.get("error").get("root_cause"), list):
         return -1
-    if not isinstance(e.info['error']['root_cause'][0],dict):
+    if len(e.info.get("error").get("root_cause")) < 1:
+        return -1
+    if not isinstance(e.info['error']['root_cause'][0], dict):
         return -1
 
     txt = e.info['error']['root_cause'][0].get('reason')
-    if not isinstance(txt,str):
+    if not isinstance(txt, str):
         return -1
     if "exceeds the [index.highlight.max_analyzed_offset]" in txt:
         return -1
     if not txt.startswith("The length ["):
         return -1
-    ret= txt.split("The length [")[1].split(']')
-    if len(ret)<1:
+    ret = txt.split("The length [")[1].split(']')
+    if len(ret) < 1:
         return -1
-    ret=ret[1]
+    ret = ret[1]
 
     return int(ret)
 
-def update_or_insert_content(client:Elasticsearch,index:str,id:str,content:str):
+
+def update_or_insert_content(client: Elasticsearch, index: str, id: str, content: str):
     if isinstance(content, str) and len(content) > 0:
 
         try:
@@ -489,8 +490,7 @@ def update_or_insert_content(client:Elasticsearch,index:str,id:str,content:str):
             # existing_document["_source"]["content_non_accent"] = self.clear__accents(content)
             update_doc = {
                 "doc": {
-                    "content": content,
-                    "content_non_accent": clear__accents(content)
+                    "content_vn": content
                 }
             }
             ret = client.update(index=index, id=id, body=update_doc, doc_type="_doc")
@@ -498,9 +498,262 @@ def update_or_insert_content(client:Elasticsearch,index:str,id:str,content:str):
         except elasticsearch.exceptions.NotFoundError as e:
             if e.args[0] == 404:  # Document not found
                 new_document = {
-                    "content": content,
-                    "content_non_accent": clear__accents(content)
+                    "content_vn": content
                 }
                 ret = client.index(index=index, body=new_document, id=id, doc_type="_doc")
                 return ret
 
+def update_or_insert_content_bulk(client: Elasticsearch, index: str, id: str, content: str):
+    if isinstance(content, str) and len(content) > 0:
+        bulk_actions = [
+            {
+                "update": {
+                    "_index": index,
+                    "_id": id,
+                }
+            },
+            {
+                "doc": {
+                    "content_vn": content,
+                }
+            }
+        ]
+
+        try:
+            ret = client.bulk(body=bulk_actions)
+            return ret
+        except elasticsearch.exceptions.NotFoundError as e:
+            if e.args[0] == 404:  # Document not found
+                bulk_actions = [
+                    {
+                        "index": {
+                            "_index": index,
+                            "_id": id,
+                        }
+                    },
+                    {
+                        "content_vn": content,
+                    }
+                ]
+                ret = client.bulk(body=bulk_actions)
+                return ret
+def add_stop_words(client: Elasticsearch, index: str, stop_words: typing.List[str]):
+    analysis = {
+        "analyzer": {
+            "stop_analyzer": {
+                "type": "stop",
+                "stopwords": stop_words
+            }
+        }
+    }
+    client.indices.put_settings(index=index, body=analysis)
+
+def add_bm25_similarity(client: Elasticsearch, index: str):
+    """
+    Adds a BM25 similarity to the specified Elasticsearch index.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index: The name of the index to modify.
+    """
+    #settings[index_name]['settings']['index']['similarity']['bm25_similarity']['type']=='BM25'
+    check =False
+    try:
+        settings = client.indices.get_settings(index=index)
+        check = settings[index]['settings']['index']['similarity']['bm25_similarity']['type']=='BM25'
+    except:
+        check = False
+    if check:
+        return
+    body = {
+        "settings": {
+            "similarity": {
+                "bm25_similarity": {
+                    "type": "BM25",
+                    "b": 0,
+                    "k1": 0.9
+                }
+            }
+        }
+    }
+
+    client.indices.put_settings(index=index, body=body)
+__cache_check_is_allow_no_accent_content_setting__ = {}
+
+def check_is_allow_no_accent_content_setting(client: Elasticsearch, index:str)->int:
+    """
+    Check is index of ES ready run on no-accent search content if index not found return -1 if index found and not ready return 0 else return 1
+
+    @param client:
+    @param index:
+    @return:
+    """
+    global  __cache_check_is_allow_no_accent_content_setting__
+    if __cache_check_is_allow_no_accent_content_setting__.get(index)==True:
+        return 1
+    try:
+        st = client.indices.get_settings(index=index)
+        check = st[index]['settings']['index']['analysis']['filter']['ascii_folding']['type'] == 'asciifolding'
+        check = check and (st[index]['settings']['index']['analysis']['filter']['ascii_folding']['preserve_original'])
+        check = check and (st[index]['settings']['index']['analysis']['analyzer']['content_analyzer']['filter'], list)
+        check = check and (
+                    set(st[index]['settings']['index']['analysis']['analyzer']['content_analyzer']['filter']) == {
+                'lowercase', 'ascii_folding'})
+        check = check and st[index]['settings']['index']['analysis']['analyzer']['content_analyzer'][
+            'tokenizer'] == 'standard'
+        check = check and st[index]['settings']['index']['similarity']['bm25_similarity']['type'] == 'BM25'
+        if check == True:
+            __cache_check_is_allow_no_accent_content_setting__[index] = True
+        return 1 if check else 0
+    except elasticsearch.exceptions.NotFoundError:
+        return  -1
+    except:
+        return 0
+def create_no_accent_settings(client: Elasticsearch, index: str):
+    """
+    Creates Elasticsearch settings to remove accents from text data.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index: The name of the Elasticsearch index.
+    """
+    check = False
+    try:
+        st = client.indices.get_settings(index=index)
+        check = st[index]['settings']['index']['analysis']['filter']['ascii_folding']['type']=='asciifolding'
+        check = check and (st[index]['settings']['index']['analysis']['filter']['ascii_folding']['preserve_original'])
+        check =  check and (st[index]['settings']['index']['analysis']['analyzer']['content_analyzer']['filter'],list)
+        check = check and (set(st[index]['settings']['index']['analysis']['analyzer']['content_analyzer']['filter'])=={'lowercase', 'ascii_folding'})
+        check = check and st[index]['settings']['index']['analysis']['analyzer']['content_analyzer']['tokenizer']=='standard'
+        check = check and st[index]['settings']['index']['similarity']['bm25_similarity']['type'] == 'BM25'
+
+    except:
+        check =False
+    if check:
+        return
+    settings = {
+        "analysis": {
+            "filter": {
+                "ascii_folding": {
+                    "type": "asciifolding",
+                    "preserve_original": True
+                },
+                # Add other filters as needed (e.g., lowercase, synonym)
+            },
+            "analyzer": {
+                "content_analyzer": {
+                    "filter": [
+                        "ascii_folding",
+                        "lowercase",
+                        # Add other filters as needed
+                    ],
+                    "tokenizer": "standard"
+                }
+            },
+            "tokenizer": {
+                "edgram-tokenizer": {
+                    # Configure tokenizer settings based on your data and requirements
+                }
+            }
+        }
+    }
+
+    # Set the settings for the index
+    client.indices.put_settings(
+        index=index,
+        body=settings
+    )
+
+
+def create_no_accent_mapping(client: Elasticsearch, index: str, field_name: str):
+    """
+    Creates Elasticsearch mappings to remove accents from text data.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index: The name of the Elasticsearch index.
+    """
+
+    mapping = {
+        "properties": {
+            field_name: {
+                "type": "text",
+                "similarity": "bm25_similarity",
+                "fielddata": True,
+                "analyzer": "content_analyzer"
+            }
+        }
+    }
+
+    # Set the mapping for the index
+    client.indices.put_mapping(
+        index=index,
+        body=mapping
+    )
+
+
+def remake_field(client: Elasticsearch, index: str, old_field: str, new_field: str, timeout="1200s"):
+    """
+    Remakes a field in an Elasticsearch index.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index: The name of the Elasticsearch index.
+        old_field: The name of the old field.
+        new_field: The name of the new field.
+    """
+
+    script = f"ctx._source.{new_field} = ctx._source.{old_field};"
+    script_filter = (f"if ('{old_field}' in doc && doc['{old_field}'].hasOwnProperty('size')) "
+                     f"{{   return doc['{old_field}'].size() > 1024 * 1024;}} "
+                     f"else {{return false;}}")
+
+    client.update_by_query(
+        index=index,
+        body={
+            "query": {
+                "bool": {
+                    "must": [
+                        {"exists": {"field": old_field}}
+                    ]
+                }
+            },
+            "script": script
+        },
+        timeout=timeout
+    )
+
+
+def close_index(client: Elasticsearch, index: str):
+    """
+    Closes an Elasticsearch index.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index: The name of the index to close.
+    """
+
+    client.indices.close(index=index)
+
+
+def open_index(client: Elasticsearch, index: str):
+    """
+    Opens an Elasticsearch index.
+
+    Args:
+        client: An Elasticsearch client instance.
+        index: The name of the index to open.
+    """
+
+    client.indices.open(index=index)
+
+
+def create_index(client: Elasticsearch, index: str):
+    settings = {
+        "settings": {
+
+        }
+    }
+
+    response = client.indices.create(index=index, body=settings)
+    return response
