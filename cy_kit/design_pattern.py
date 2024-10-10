@@ -20,6 +20,18 @@ def __get_type__(*args,**kwargs):
                          f"\t\t...")
     return _type
 def singleton():
+    """
+    This wrapper decorate class into singleton even if Generic class. The instance base of main class and sub class in Generic
+    Example:
+        @singleton()
+        class A(Generic(SubA):
+            ...
+        @singleton()
+        class A(Generic(SubB):
+            ...
+        print(A[SubA]()==A[SubB]()) => False
+    @return:
+    """
     def wrapper(cls):
         setattr(cls,"__instance__",None)
         setattr(cls, "__instance_of_generic__", {})

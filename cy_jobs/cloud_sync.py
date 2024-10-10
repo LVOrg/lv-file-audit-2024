@@ -70,62 +70,65 @@ def update_progress(bytes_uploaded, total_size):
 
 # ... other code to get drive_service, info, and filepath
 
+def main():
 
-while True:
-    app_name = "lv-docs"
-    g_svc = cy_kit.singleton(GDriveService)
+    while True:
+        app_name = "lv-docs"
+        g_svc = cy_kit.singleton(GDriveService)
 
-    sync_context = Repository.cloud_file_sync.app(app_name).context
-    upload_context = Repository.files.app(app_name).context
+        sync_context = Repository.cloud_file_sync.app(app_name).context
+        upload_context = Repository.files.app(app_name).context
 
 
-    items = sync_context.aggregate().sort(
-        Repository.cloud_file_sync.fields.ErrorOn.asc()
-    ) .limit(100)
-    for x in items:
-        drive_service,error = g_svc.get_service_by_app_name(app_name=app_name, g_service_name="v3/drive")
-        if error:
-            sync_context.update(
-                Repository.cloud_file_sync.fields.UploadId==x[Repository.cloud_file_sync.fields.UploadId],
-                Repository.cloud_file_sync.fields.IsError << True,
-                Repository.cloud_file_sync.fields.ErrorOn << datetime.datetime.utcnow()
+        items = sync_context.aggregate().sort(
+            Repository.cloud_file_sync.fields.ErrorOn.asc()
+        ) .limit(100)
+        for x in items:
+            drive_service,error = g_svc.get_service_by_app_name(app_name=app_name, g_service_name="v3/drive")
+            if error:
+                sync_context.update(
+                    Repository.cloud_file_sync.fields.UploadId==x[Repository.cloud_file_sync.fields.UploadId],
+                    Repository.cloud_file_sync.fields.IsError << True,
+                    Repository.cloud_file_sync.fields.ErrorOn << datetime.datetime.utcnow()
+                )
+
+            info = upload_context.aggregate().match(
+                Repository.files.fields.Id == x[Repository.cloud_file_sync.fields.UploadId]
+            ).project(
+                cy_docs.fields.google_file_name>> Repository.files.fields.FileName,
+                cy_docs.fields.file_id >> Repository.files.fields.google_file_id
+            ).first_item()
+            upload_item = upload_context.find_one(
+                Repository.files.fields.Id== x[Repository.cloud_file_sync.fields.UploadId]
             )
+            download_url, rel_path, download_file, token, share_id = ls.get_download_path(upload_item,app_name)
+            filepath= os.path.join("/mnt/files",rel_path)
+            if os.path.isfile(filepath):
+                # body = {'name': info.google_file_name}  # Set the filename from the filepath
+                # res = drive_service.files().update(
+                #     fileId=info.file_id,
+                #     body=body,
+                #     media_body=filepath
+                # ).execute()
 
-        info = upload_context.aggregate().match(
-            Repository.files.fields.Id == x[Repository.cloud_file_sync.fields.UploadId]
-        ).project(
-            cy_docs.fields.google_file_name>> Repository.files.fields.FileName,
-            cy_docs.fields.file_id >> Repository.files.fields.google_file_id
-        ).first_item()
-        upload_item = upload_context.find_one(
-            Repository.files.fields.Id== x[Repository.cloud_file_sync.fields.UploadId]
-        )
-        download_url, rel_path, download_file, token, share_id = ls.get_download_path(upload_item,app_name)
-        filepath= os.path.join("/mnt/files",rel_path)
-        if os.path.isfile(filepath):
-            # body = {'name': info.google_file_name}  # Set the filename from the filepath
-            # res = drive_service.files().update(
-            #     fileId=info.file_id,
-            #     body=body,
-            #     media_body=filepath
-            # ).execute()
+                res = upload_file_with_progress(drive_service, info, filepath)
+                if res.get("id"):
+                    upload_context.update(
+                        Repository.files.fields.Id == x[Repository.cloud_file_sync.fields.UploadId],
+                        Repository.files.fields.CloudId <<res.get("id")
+                    )
+                    sync_context.delete(
+                        Repository.cloud_file_sync.fields.UploadId==x.UploadId
+                    )
+                    os.remove(filepath)
 
-            res = upload_file_with_progress(drive_service, info, filepath)
-            if res.get("id"):
-                upload_context.update(
-                    Repository.files.fields.Id == x[Repository.cloud_file_sync.fields.UploadId],
-                    Repository.files.fields.CloudId <<res.get("id")
-                )
-                sync_context.delete(
-                    Repository.cloud_file_sync.fields.UploadId==x.UploadId
-                )
-                os.remove(filepath)
-
+                else:
+                    print(res)
             else:
-                print(res)
-        else:
-            sync_context.delete(
-                Repository.cloud_file_sync.fields.UploadId == x.UploadId
-            )
+                sync_context.delete(
+                    Repository.cloud_file_sync.fields.UploadId == x.UploadId
+                )
 
-    time.sleep(2)
+        time.sleep(2)
+if __name__ =="__main__":
+    main()

@@ -4,48 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Add new component to framework allow link to Codx Database, make mata data for ES">
-      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/lv_files_apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/lv_files/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/scaner_db/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/scaner_db/scaners.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_grams1.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_grams2.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_0/vn_predictor_stat.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_1/vn_predictor_grams1.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_1/vn_predictor_grams2.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_1/vn_predictor_stat.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_accents.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_grams1.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_grams2.npy.zip" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cy_vn_suggestion/data/0_0_0_2/vn_predictor_stat.npy.zip" afterDir="false" />
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Re-modified db scaner framework make sure that full scan and logs report">
+      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_manager.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/db_models/files.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/file_utils_services.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cyx/repository.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_manager.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_manager.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/file_utils_services.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/log_watcher_service.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cyx/log_watcher_service.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_controllers/files/files_controllers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_docs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_docs/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/codx/repositories.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/codx/repositories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_update_ws_comments_meta.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_update_ws_comments_meta.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/move_to_disk.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/move_to_disk.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_checking/check_ggogle_link_active.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/check_ggogle_link_active.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/cloud_sync.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/cloud_sync.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_kit/cy_kit_x.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_kit/cy_kit_x.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cy_kit/design_pattern.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_kit/design_pattern.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_sugestion_server.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/cy_vn_suggestion_client.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_vn_suggestion/loader.cpython-310-aarch64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/file_utils_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/file_utils_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/cyx/log_watcher_service.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/build-lv.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-lv.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/build-tiny.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-tiny.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,6 +100,7 @@
     "Python.task_net_ocr.executor": "Debug",
     "Python.task_orc.executor": "Debug",
     "Python.task_remake_search.executor": "Debug",
+    "Python.task_saas_ocr_recent.executor": "Debug",
     "Python.task_saas_update_dm_info_meta_data.executor": "Debug",
     "Python.task_saas_update_ws_comments_meta.executor": "Debug",
     "Python.task_text_from_office.executor": "Debug",
@@ -173,7 +139,7 @@
       <recent name="$PROJECT_DIR$/cyx-delete" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.scaners">
+  <component name="RunManager" selected="Python.task_saas_ocr_recent">
     <configuration name="codx_ws_comment_list" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -328,6 +294,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="task_saas_ocr_recent" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="py-files-sv" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cy_jobs/jobs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" />
+      <option name="PARAMETERS" value="app_name=all version=v001" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="task_saas_update_dm_info_meta_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -400,7 +388,8 @@
     <MESSAGE value="Fix copy file" />
     <MESSAGE value="Fix ocr file skip hide text on pdf file" />
     <MESSAGE value="Add new component to framework allow link to Codx Database, make mata data for ES" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add new component to framework allow link to Codx Database, make mata data for ES" />
+    <MESSAGE value="Re-modified db scaner framework make sure that full scan and logs report" />
+    <option name="LAST_COMMIT_MESSAGE" value="Re-modified db scaner framework make sure that full scan and logs report" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -779,6 +768,11 @@
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
           <line>229</line>
           <option name="timeStamp" value="847" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py</url>
+          <line>105</line>
+          <option name="timeStamp" value="917" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

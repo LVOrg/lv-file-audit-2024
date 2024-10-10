@@ -228,7 +228,7 @@ class VALUE_DICT(dict):
 
     def __get_errors__(self, attr: str):
         pors = dir(self)
-        ret = f"{attr} was not found, available properties in in bellow lits:\n"
+        ret = f"{attr} was not found, available properties in in bellow list:\n"
         for x in pors:
             ret += f"\t{x}\n"
         return ret
