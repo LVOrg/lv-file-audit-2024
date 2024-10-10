@@ -291,23 +291,24 @@ class Scaner(typing.Generic[T]):
     def get_apps(self)->typing.Iterable[str]:
         if self.app_name!="all":
             yield self.app_name
-        if self.codx_client:
-            list_of_db_name_in_mongo_db: typing.List[str] =self.codx_client.list_database_names()
-            list_of_db_name_in_mongo_db= [x[:-5] for x in list_of_db_name_in_mongo_db if x.endswith("_Data") ]
         else:
-            list_of_db_name_in_mongo_db: typing.List[str] = self.context.__client__.list_database_names()
+            if self.codx_client:
+                list_of_db_name_in_mongo_db: typing.List[str] =self.codx_client.list_database_names()
+                list_of_db_name_in_mongo_db= [x[:-5] for x in list_of_db_name_in_mongo_db if x.endswith("_Data") ]
+            else:
+                list_of_db_name_in_mongo_db: typing.List[str] = self.context.__client__.list_database_names()
 
-        app_agg = Repository.apps.app("admin").context.aggregate().match(
-            (Repository.apps.fields.AccessCount>0) & (Repository.apps.fields.Name!=config.admin_db_name)
-        ).sort(
-            Repository.apps.fields.LatestAccess.desc(),
-            Repository.apps.fields.RegisteredOn.desc(),
-        ).project(
-            cy_docs.fields.app_name>>Repository.apps.fields.Name
-        )
-        lst = [x.app_name for x in list(app_agg) if x.app_name in list_of_db_name_in_mongo_db]
-        for x in lst:
-            yield x
+            app_agg = Repository.apps.app("admin").context.aggregate().match(
+                (Repository.apps.fields.AccessCount>0) & (Repository.apps.fields.Name!=config.admin_db_name)
+            ).sort(
+                Repository.apps.fields.LatestAccess.desc(),
+                Repository.apps.fields.RegisteredOn.desc(),
+            ).project(
+                cy_docs.fields.app_name>>Repository.apps.fields.Name
+            )
+            lst = [x.app_name for x in list(app_agg) if x.app_name in list_of_db_name_in_mongo_db]
+            for x in lst:
+                yield x
     def get_entities(self,*sort:typing.Union[cy_docs.DocumentField,typing.Tuple[cy_docs.DocumentField]])->typing.Iterable[ScanEntity]:
         """
         Retrieving all entities results in an infinite iterable, meaning the process will continue indefinitely without reaching an end\n

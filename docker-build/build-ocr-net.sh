@@ -47,5 +47,6 @@ buildFunc $ubuntu_net_80_file $repository $ubuntu_net_80_file $ubuntu_net_80_fil
 echo docker run -it $repository/$ubuntu_net_80_file_image /bin/bash
 #docker run -it --entrypoint=/bin/bash -v  /root/python-2024/lv-file-fix-2024/py-files-sv/dot-net/LV.OCR.API_linux-x64:/app docker.lacviet.vn/xdoc/ubuntu_net_80_file:4
 #docker run  -it -v  /root/python-2024/lv-file-fix-2024/py-files-sv/dot-net/LV.OCR.API_linux-x64:/app -v /root/python-2024/lv-file-fix-2024/py-files-sv/dot-net/so-files:/so-files ubuntu:22.04 /bin/bash
+#docker run  -p 5000:5000 docker.lacviet.vn/xdoc/ubuntu_net_80_file:5
 
 #apt-get update && apt-get install -y    wget    gnupg     ca-certificates  libssl-dev    libffi-dev    libgdiplus    libxrender1  libx11-6  && rm -rf /var/lib/apt/lists/*

@@ -17,6 +17,10 @@ spec:
       containers:
         - name: lv-ocr-producer
           image: {{ .Values.image }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: "2Gi"
       imagePullSecrets:
         - name: harbor-secret-registry
 ---

@@ -4,13 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Re-modified db scaner framework make sure that full scan and logs report">
-      <change afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" afterDir="false" />
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="lỗi OCR thiếu chính xác sca thieu oi dung">
+      <change afterPath="$PROJECT_DIR$/docker-build/cert-lv-docker.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr-pdf/readme.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr-pdf/templates/app.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_checking/check_ggogle_link_active.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_checking/check_ggogle_link_active.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/cloud_sync.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/cloud_sync.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_kit/cy_kit_x.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_kit/cy_kit_x.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_kit/design_pattern.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_kit/design_pattern.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/scaner_db/scaners.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/scaner_db/scaners.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-net-ocr/templates/app.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-net-ocr/templates/app.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +114,7 @@
     "Python.tmp_files_servcices.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/dot-net/LV.OCR.API_linux-x64",
+    "last_opened_file_path": "/root/python-2024/lv-file-fix-2024/py-files-sv/docker-build/deploy/helm/lv-ocr-saas/templates",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -125,11 +128,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr-saas/templates" />
       <recent name="$PROJECT_DIR$/dot-net/LV.OCR.API_linux-x64" />
       <recent name="$PROJECT_DIR$/docker-build/deploy/helm/lv-fix-es/templates" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/dot-net/so-files" />
-      <recent name="$PROJECT_DIR$/a_checking/resource-test/test-001" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cy_jobs/jobs" />
@@ -308,7 +311,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" />
-      <option name="PARAMETERS" value="app_name=all version=v001" />
+      <option name="PARAMETERS" value="app_name=all version=v001 ocr_url=http://localhost:5000" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -389,7 +392,8 @@
     <MESSAGE value="Fix ocr file skip hide text on pdf file" />
     <MESSAGE value="Add new component to framework allow link to Codx Database, make mata data for ES" />
     <MESSAGE value="Re-modified db scaner framework make sure that full scan and logs report" />
-    <option name="LAST_COMMIT_MESSAGE" value="Re-modified db scaner framework make sure that full scan and logs report" />
+    <MESSAGE value="lỗi OCR thiếu chính xác sca thieu oi dung" />
+    <option name="LAST_COMMIT_MESSAGE" value="lỗi OCR thiếu chính xác sca thieu oi dung" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -768,11 +772,6 @@
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
           <line>229</line>
           <option name="timeStamp" value="847" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py</url>
-          <line>105</line>
-          <option name="timeStamp" value="917" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
