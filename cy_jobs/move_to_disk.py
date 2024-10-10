@@ -249,10 +249,14 @@ apps = mongodb_service.db("admin").get_document_context(App).context.find(
 #     filter,linmit=10
 # )
 # mime_type:str = item[qr.fields.MimeType]
-tenants = config.tenants.split(',')
-while True:
-    for x in tenants:
+def main():
+    tenants = config.tenants.split(',')
+    while True:
+        for x in tenants:
 
-        app_name = x
-        do_move_all(app_name)
+            app_name = x
+            do_move_all(app_name)
+
+if __name__ == "__main__":
+    main()
 

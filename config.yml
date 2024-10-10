@@ -3,7 +3,8 @@ cache_server: localhost:11211 # important
 #cache_server: 172.16.7.107:11211 # important
 host_url: http://localhost:8012/lvfile
 db: mongodb://admin-doc:123456@192.168.18.36:27017/lv-docs
-admin_db_name: lv-docs
+db_codx: mongodb://admin:Erm%402021@172.16.7.33:27017
+admin_db_name: lv-docs # the database in mongodb where manage all tenant
 jinja_templates_dir: ./cy_controllers/pages/resource/html
 static_dir: ./cy_controllers/pages/resource/static
 bind: 0.0.0.0:8012

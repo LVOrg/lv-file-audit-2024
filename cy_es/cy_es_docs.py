@@ -223,17 +223,18 @@ class DocumentFields:
 
             multi_match_slop_3 = es_script.build(multi_match_slop_3,es_script.multi_match_slop_3(field_name,item,boost))
             ret_match_phase = es_script.build(ret_match_phase, es_script.match_phrase(field_name, item, boost))
-            ret_simple_query_string = es_script.build(ret_simple_query_string,es_script.simple_query_string(field_name,item,boost))
+            ret_simple_query_string = es_script.build(ret_simple_query_string,es_script.simple_query_string(field_name,item,boost//100))
             match_term = DocumentFields()
             dict_index_of = es_script.constant_score(es_script.script_index_of(field_name, item), boost*22)
             ret_index_of = es_script.build(ret_index_of,dict_index_of)
+            match_term = es_script.build(match_term,es_script.wild_card(field_name,item,boost*2))
             # ret_index_of.__is_bool__ = True
 
             ret = ret_index_of|ret_match_phase
 
-            ret =ret_match_phase
+            ret =multi_match_slop_3
             ret.__highlight_fields__ = [field_name]
-            return ret_match_phase
+            return ret
         regular_ret = create_es_filter(item_search)
         # regular_no_accent_ret = create_es_filter(item_search_no_accent, True)
         if any(set(item_search).intersection(set("đĐ"))):

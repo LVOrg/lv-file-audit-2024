@@ -846,11 +846,22 @@ class FileUtilService(BaseUtilService):
         source_file_path = await self.get_physical_path_async(app_name, upload_id)
 
         item.id = str(uuid.uuid4())
-        dest_file_path = source_file_path.replace(f'{upload_id}/', f'/{item.id}/')
+        item.RegisterOn = datetime.utcnow()
+        item[document_context.fields.FullFileName] = f"{item.id}/{item[document_context.fields.FileName]}"
+        item[document_context.fields.FullFileNameLower] = item[document_context.fields.FullFileName].lower()
+        item[document_context.fields.Status] = 1
+        item[document_context.fields.PercentageOfUploaded] = 100
+        item[document_context.fields.MarkDelete] = False
+        item.ServerFileName = f"{item.id}.{item[document_context.fields.FileExt]}"
+
+        item[document_context.fields.RegisteredBy] = "root"
+
+
         # Copy all file in directory of source_file_path into directory of dest_file_path
 
         source_dir = os.path.dirname(source_file_path)
-        dest_dir = os.path.dirname(dest_file_path)
+        dir_of_file_type = pathlib.Path(source_file_path).parent.parent.stem
+        dest_dir = os.path.join(config.file_storage_path,app_name,item.RegisterOn.strftime("%Y/%m/%d"),dir_of_file_type,item.id)
         os.makedirs(dest_dir, exist_ok=True)
         for file_name in os.listdir(source_dir):
             source_file_path = os.path.join(source_dir, file_name)
@@ -861,14 +872,7 @@ class FileUtilService(BaseUtilService):
             # Copy the file, preserving metadata
             shutil.copy2(source_file_path, dest_file_path)
 
-        item[document_context.fields.FullFileName] = f"{item.id}/{item[document_context.fields.FileName]}"
-        item[document_context.fields.FullFileNameLower] = item[document_context.fields.FullFileName].lower()
-        item[document_context.fields.Status] = 1
-        item[document_context.fields.PercentageOfUploaded] = 100
-        item[document_context.fields.MarkDelete] = False
-        item.ServerFileName = f"{item.id}.{item[document_context.fields.FileExt]}"
-        item.RegisterOn = datetime.utcnow()
-        item[document_context.fields.RegisteredBy] = "root"
+
 
         del item[document_context.fields.MainFileId]
         to_location = item[document_context.fields.FullFileNameLower].lower()

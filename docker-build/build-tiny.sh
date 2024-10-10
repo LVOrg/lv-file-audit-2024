@@ -84,15 +84,17 @@ COPY ./../cy_jobs /app/cy_jobs
 RUN apt clean && apt autoclean">>$web_api_file
 web_api_tag=1
 current_datetime=$(date +"%Y-%-m-%d-%H-%M-%S")
-filename="release-notes/$customer.txt"
+#filename="release-notes/$customer.txt"
 echo "$current_datetime:">>"$filename"
-echo "arg $3"
+
 if [ -z "$3" ]; then
   # No argument provided, use default repository
   web_api_tag_build=$web_api_core_tag.$3
+  web_api_tag_build=build-$web_api_core_tag.$current_datetime
 else
   # Argument provided, use it as the repository
-  web_api_tag_build=$web_api_tag
+#  web_api_tag_build=build-$web_api_core_tag.$current_datetime
+  web_api_tag_build=$web_api_core_tag.$3
 fi
 #web_api_tag_build=build-$web_api_core_tag.$current_datetime
 

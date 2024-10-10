@@ -15,6 +15,7 @@ from fastapi import (
 )
 from cy_xdoc.auths import Authenticate
 import cyx.db_models.files
+from cyx.common import config
 
 from cyx.common.msg import MessageService
 from cyx.db_models.files import DocUploadRegister
@@ -186,6 +187,16 @@ class FilesController(BaseController):
             upload_id=UploadId,
             request=self.request
         )
+        if not isinstance(config.elastic_search,bool):
+            """
+            if support Elastic search copy all content to
+            """
+            self.search_engine.copy(
+                app_name=app_name,
+                from_id=UploadId,
+                to_id=item.id,
+                attach_data = item
+            )
 
         if item is None:
             return CloneFileResult(

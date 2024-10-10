@@ -1,3 +1,5 @@
+import typing
+
 from cyx.common.base import config
 from pymongo.mongo_client import MongoClient
 from cyx.common.mongo_db_services import __create_client__ as __common_create_client__
@@ -12,9 +14,20 @@ T = TypeVar("T")
 __cache_context__ = {}
 __tenant_db__= None
 __available_tenants__ = None
-def get_available_tenants():
+def get_available_tenants(client:typing.Union[MongoClient,None]):
     global __available_tenants__
-    return __available_tenants__
+    if client is None:
+        return __available_tenants__
+    else:
+        __tenant_db__ = set([x for x in client.list_database_names()])
+        lv_file_tenant_agg = Repository.apps.app("admin").context.aggregate().project(
+            cy_docs.fields.app_name >> Repository.apps.fields.Name
+        )
+        app_items = list(lv_file_tenant_agg)
+        __tenant_db_in_lv_files__ = set([f"{x.app_name}_Data" for x in app_items if x.app_name not in []])
+        __tenant_db__ = __tenant_db__ & __tenant_db_in_lv_files__
+        __available_tenants__ = [x[0:-5] for x in __tenant_db__]
+        return __available_tenants__
 class TenantNotFound(Exception):
     def __init__(self, message,tenant_name):
         super().__init__(message)
@@ -39,7 +52,7 @@ def __create_client__(db) -> MongoClient:
         return __client__[db.host]
 class CodxRepositoryContext(Generic[T]):
     def __init__(self, cls: T):
-        if config.get("db_codx") is None:
+        if config.get("db_codx") is None or config.get("db_codx")=="":
             self.__client__ = __common_create_client__(config.db)
         else:
             db = config.get("db_codx")
@@ -52,9 +65,9 @@ class CodxRepositoryContext(Generic[T]):
                 cy_docs.fields.app_name >> Repository.apps.fields.Name
             )
             app_items = list(lv_file_tenant_agg)
-            __tenant_db_in_lv_files__ = set([f"{x.app_name}_Data" for x in app_items if x.app_name not in  ["qtscdemo","hps-file-test"]])
+            __tenant_db_in_lv_files__ = set([f"{x.app_name}_Data" for x in app_items if x.app_name not in  []])
             __tenant_db__ = __tenant_db__ & __tenant_db_in_lv_files__
-            __available_tenants__ = [x[0:-len("_Data")] for x in __tenant_db__]
+            __available_tenants__ = [x[0:-5] for x in __tenant_db__]
 
 
         self.__cls__ = cls
@@ -64,6 +77,9 @@ class CodxRepositoryContext(Generic[T]):
     @property
     def fields(self) -> T:
         return self.__fields__
+
+    def app(self, app_name: str) -> cy_docs.DbQueryableCollection[T]:
+        return self.tenant(app_name)
     def tenant(self, tenant_name: str) -> cy_docs.DbQueryableCollection[T]:
         """
         Switch to tenant
@@ -76,7 +92,7 @@ class CodxRepositoryContext(Generic[T]):
             return self.__cache__.get(tenant_name)
         else:
             db_name =f"{tenant_name}_Data"
-            if db_name not in __tenant_db__:
+            if tenant_name not in get_available_tenants(self.__client__):
                 raise TenantNotFound(message="Tenant was not found",tenant_name=tenant_name)
             # if app_name == "admin":
             #     db_name = config.admin_db_name
