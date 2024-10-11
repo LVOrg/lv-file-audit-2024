@@ -243,6 +243,7 @@ class DocumentFields:
                 error_text_search = error_text_search.replace(x,y)
 
             regular_ret = regular_ret|create_es_filter(error_text_search)
+        regular_ret = es_script.constant_score_make_up(regular_ret,boost=1000)
         return regular_ret
 
 

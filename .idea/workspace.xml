@@ -4,15 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="lỗi OCR thiếu chính xác sca thieu oi dung">
-      <change afterPath="$PROJECT_DIR$/docker-build/cert-lv-docker.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr-pdf/readme.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-ocr-pdf/templates/app.yml" afterDir="false" />
+    <list default="true" id="cf6418af-6433-477c-92b1-ec598e6ee221" name="Changes" comment="Fix lai cach tinh diem khi search content trong ES">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/scaner_db/scaners.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/scaner_db/scaners.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_jobs/jobs/task_saas_ocr_recent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/build-ocr-net.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-build/deploy/helm/lv-net-ocr/templates/app.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/deploy/helm/lv-net-ocr/templates/app.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/cy_es_docs.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/es_script.cpython-312-x86_64-linux-gnu.so" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib.linux-x86_64-cpython-312/cy_es/es_script.cpython-312-x86_64-linux-gnu.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/cy_es_docs.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/es_script.o" beforeDir="false" afterPath="$PROJECT_DIR$/build/temp.linux-x86_64-cpython-312/cy_es/es_script.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/cy_es_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/cy_es_docs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cy_es/es_script.py" beforeDir="false" afterPath="$PROJECT_DIR$/cy_es/es_script.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-build/web-api" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build/web-api" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -142,7 +141,7 @@
       <recent name="$PROJECT_DIR$/cyx-delete" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.task_saas_ocr_recent">
+  <component name="RunManager" selected="Python.server (1)">
     <configuration name="codx_ws_comment_list" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="py-files-sv" />
       <option name="ENV_FILES" value="" />
@@ -393,7 +392,9 @@
     <MESSAGE value="Add new component to framework allow link to Codx Database, make mata data for ES" />
     <MESSAGE value="Re-modified db scaner framework make sure that full scan and logs report" />
     <MESSAGE value="lỗi OCR thiếu chính xác sca thieu oi dung" />
-    <option name="LAST_COMMIT_MESSAGE" value="lỗi OCR thiếu chính xác sca thieu oi dung" />
+    <MESSAGE value="lỗi OCR thiếu chính xác sca thieu noi dung" />
+    <MESSAGE value="Fix lai cach tinh diem khi search content trong ES" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix lai cach tinh diem khi search content trong ES" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -615,7 +616,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>283</line>
+          <line>284</line>
           <option name="timeStamp" value="495" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -640,12 +641,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>287</line>
+          <line>288</line>
           <option name="timeStamp" value="553" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>1028</line>
+          <line>1029</line>
           <option name="timeStamp" value="559" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -747,31 +748,6 @@
           <url>file://$PROJECT_DIR$/cy_controllers/files/files_controllers.py</url>
           <line>193</line>
           <option name="timeStamp" value="842" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>235</line>
-          <option name="timeStamp" value="843" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>244</line>
-          <option name="timeStamp" value="844" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>245</line>
-          <option name="timeStamp" value="845" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>236</line>
-          <option name="timeStamp" value="846" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/cy_es/cy_es_docs.py</url>
-          <line>229</line>
-          <option name="timeStamp" value="847" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

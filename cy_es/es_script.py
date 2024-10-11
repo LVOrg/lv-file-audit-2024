@@ -335,3 +335,16 @@ def multi_match_slop_3(field_name, value, boost):
             }
         }
     return ret
+
+
+def constant_score_make_up(doc_search, boost):
+    new_query= {
+        "constant_score":{
+            "filter":{
+                "bool":doc_search.__es_expr__
+            }
+        }
+    }
+    doc_search.__es_expr__ = new_query
+    doc_search.__is_bool__ = False
+    return doc_search
